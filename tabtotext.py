@@ -34,7 +34,7 @@ def strNone(value : Any) -> str:
         return value.strftime(DATEFMT)
     return str(value)
 
-def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["email"]) -> str:
+def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["email"], parens = []) -> str:
     if isinstance(result, Dict):
         result = [ result ]
     def sortkey(header):
@@ -54,6 +54,10 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["ema
             else:
                 sortvalue += "\n-"
         return sortvalue
+    def px(col, val):
+        if col in parens:
+           return "(%s)" % val
+        return val
     cols : Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -72,10 +76,10 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["ema
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
-        line = template % tuple([ strNone(values[name]) for name in sorted(cols.keys(), key = sortkey) ])
+        line = template % tuple([ strNone(px(name, values[name])) for name in sorted(cols.keys(), key = sortkey) ])
         lines.append(line)
     return "\n".join(lines) + "\n"
-def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["email"]) -> str:
+def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["email"], parens = []) -> str:
     if isinstance(result, Dict):
         result = [ result ]
     def sortkey(header):
@@ -95,6 +99,10 @@ def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["em
             else:
                 sortvalue += "\n-"
         return sortvalue
+    def px(col, val):
+        if col in parens:
+           return "(%s)" % val
+        return val
     cols : Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -108,6 +116,6 @@ def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["em
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
-        line = [ ("<td>%s</td>" % escape(strNone(values[name]))) for name in sorted(cols.keys(), key = sortkey) ]
+        line = [ ("<td>%s</td>" % escape(strNone(px(name, values[name])))) for name in sorted(cols.keys(), key = sortkey) ]
         lines.append( "<tr>" + "".join(line) + "</tr>" )
     return "<table>\n" + "\n".join(lines) + "\n</table>\n"
