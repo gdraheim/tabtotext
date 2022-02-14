@@ -61,9 +61,12 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["ema
     cols : Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
+            paren = 0
+            if name in parens:
+                paren = 2
             if name not in cols:
-                cols[name] = max(5, len(name))
-            cols[name] = max(cols[name], len(str(value)))
+                cols[name] = max(5, len(name)+paren)
+            cols[name] = max(cols[name], len(str(value))+paren)
     templates = [ "| %%-%is" % cols[name] for name in sorted(cols.keys(), key = sortkey ) ]
     template = " ".join(templates)
     logg.debug("template [%s] = %s", len(templates), template)
