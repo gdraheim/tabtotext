@@ -135,11 +135,11 @@ def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List
             cols[name] = max(cols[name], len(format(name, value)))
     def rightTH(col, value):
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
-            return value.replace("<th>", '<th align="right">')
+            return value.replace("<th>", '<th style="text-align: right">')
         return value
     def rightTD(col, value):
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
-            return value.replace("<td>", '<td align="right">')
+            return value.replace("<td>", '<td style="text-align: right">')
         return value
     line = [ rightTH(name, "<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key = sortkey) ]
     lines = [ "<tr>" +  "".join(line) + "</tr>" ]
