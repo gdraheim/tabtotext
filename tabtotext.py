@@ -34,7 +34,7 @@ def strNone(value : Any) -> str:
         return value.strftime(DATEFMT)
     return str(value)
 
-def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["email"], parens = []) -> str:
+def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List[str] = ["email"], formats : Dict[str,str] = {}) -> str:
     if isinstance(result, Dict):
         result = [ result ]
     def sortkey(header):
@@ -54,19 +54,22 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["ema
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def px(col, val):
-        if col in parens:
-           return "(%s)" % val
-        return val
+    def format(col, val):
+        if col in formats:
+            if "%s" in formats[col]:
+                try:
+                    return formats[col] % strNone(val)
+                except:
+                    pass
+            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+        return strNone(val)
     cols : Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
             paren = 0
-            if name in parens:
-                paren = 2
             if name not in cols:
-                cols[name] = max(5, len(name)+paren)
-            cols[name] = max(cols[name], len(str(value))+paren)
+                cols[name] = max(5, len(name))
+            cols[name] = max(cols[name], len(format(name, value)))
     templates = [ "| %%-%is" % cols[name] for name in sorted(cols.keys(), key = sortkey ) ]
     template = " ".join(templates)
     logg.debug("template [%s] = %s", len(templates), template)
@@ -79,10 +82,10 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["ema
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
-        line = template % tuple([ strNone(px(name, values[name])) for name in sorted(cols.keys(), key = sortkey) ])
+        line = template % tuple([ format(name, values[name]) for name in sorted(cols.keys(), key = sortkey) ])
         lines.append(line)
     return "\n".join(lines) + "\n"
-def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["email"], parens = []) -> str:
+def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List[str] = ["email"], formats : Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [ result ]
     def sortkey(header):
@@ -102,16 +105,21 @@ def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["em
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def px(col, val):
-        if col in parens:
-           return "(%s)" % val
-        return val
+    def format(col, val):
+        if col in formats:
+            if "%s" in formats[col]:
+                try:
+                    return formats[col] % strNone(val)
+                except:
+                    pass
+            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+        return strNone(val)
     cols : Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
             if name not in cols:
                 cols[name] = max(5, len(name))
-            cols[name] = max(cols[name], len(str(value)))
+            cols[name] = max(cols[name], len(format(name, value)))
     line = [ ("<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key = sortkey) ]
     lines = [ "<tr>" +  "".join(line) + "</tr>" ]
     for item in sorted(result, key = sortrow):
@@ -119,6 +127,6 @@ def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts = ["em
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
-        line = [ ("<td>%s</td>" % escape(strNone(px(name, values[name])))) for name in sorted(cols.keys(), key = sortkey) ]
+        line = [ ("<td>%s</td>" % escape(format(name, values[name]))) for name in sorted(cols.keys(), key = sortkey) ]
         lines.append( "<tr>" + "".join(line) + "</tr>" )
     return "<table>\n" + "\n".join(lines) + "\n</table>\n"
