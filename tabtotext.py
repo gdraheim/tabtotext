@@ -22,6 +22,11 @@ from io import BytesIO, StringIO
 logg = logging.getLogger("TABTOTEXT")
 
 DATEFMT="%Y-%m-%d"
+NORIGHT=False
+
+def setNoRight(value):
+    global NORIGHT
+    NORIGHT=value
 
 def strNone(value : Any) -> str:
     if value is None:
@@ -70,12 +75,20 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List[
             if name not in cols:
                 cols[name] = max(5, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-    templates = [ "| %%-%is" % cols[name] for name in sorted(cols.keys(), key = sortkey ) ]
+    def rightF(col, formatter):
+        if col in formats and formats[col].startswith(" ") and not NORIGHT:
+            return formatter.replace("%-", "%")
+        return formatter
+    def rightS(col, formatter):
+        if col in formats and formats[col].startswith(" ") and not NORIGHT:
+           return formatter[:-1] + ":"
+        return formatter
+    templates = [ rightF(name, "| %%-%is" % cols[name]) for name in sorted(cols.keys(), key = sortkey ) ]
     template = " ".join(templates)
     logg.debug("template [%s] = %s", len(templates), template)
     logg.debug("colskeys [%s] = %s", len(cols.keys()), sorted(cols.keys(), key = sortkey))
     lines = [ template % tuple(sorted(cols.keys(), key = sortkey)) ]
-    seperators = [ ("-" * cols[name]) for name in sorted(cols.keys(), key = sortkey) ]
+    seperators = [ rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key = sortkey) ]
     lines.append( template % tuple(seperators))
     for item in sorted(result, key = sortrow):
         values = dict([ (name, "") for name in cols.keys()])
@@ -120,13 +133,21 @@ def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List
             if name not in cols:
                 cols[name] = max(5, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-    line = [ ("<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key = sortkey) ]
+    def rightTH(col, value):
+        if col in formats and formats[col].startswith(" ") and not NORIGHT:
+            return value.replace("<th>", '<th align="right">')
+        return value
+    def rightTD(col, value):
+        if col in formats and formats[col].startswith(" ") and not NORIGHT:
+            return value.replace("<td>", '<td align="right">')
+        return value
+    line = [ rightTH(name, "<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key = sortkey) ]
     lines = [ "<tr>" +  "".join(line) + "</tr>" ]
     for item in sorted(result, key = sortrow):
         values = dict([ (name, "") for name in cols.keys()])
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
-        line = [ ("<td>%s</td>" % escape(format(name, values[name]))) for name in sorted(cols.keys(), key = sortkey) ]
+        line = [ rightTD(name, "<td>%s</td>" % escape(format(name, values[name]))) for name in sorted(cols.keys(), key = sortkey) ]
         lines.append( "<tr>" + "".join(line) + "</tr>" )
     return "<table>\n" + "\n".join(lines) + "\n</table>\n"
