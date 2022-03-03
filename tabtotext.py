@@ -6,7 +6,7 @@ but instead of using the Postgres API it uses the Crowd API.
 // Please be aware the --appuser/--password represent crowd-application credentials (not a build user)
 """
 
-from typing import Optional, Union, Dict, List, Any
+from typing import Optional, Union, Dict, List, Any, Sequence
 from requests import Session, Response
 from urllib.parse import quote_plus as qq
 from html import escape
@@ -24,7 +24,13 @@ logg = logging.getLogger("TABTOTEXT")
 DATEFMT="%Y-%m-%d"
 NORIGHT=False
 
-def setNoRight(value):
+JSONItem = Union[str, int, float, bool, date, None, Dict[str, Any], List[Any]]
+JSONDict = Dict[str, JSONItem]
+JSONList = List[JSONDict]
+JSONDictList = Dict[str, JSONList]
+JSONDictDict = Dict[str, JSONDict]
+
+def setNoRight(value : bool) -> None:
     global NORIGHT
     NORIGHT=value
 
@@ -39,27 +45,30 @@ def strNone(value : Any) -> str:
         return value.strftime(DATEFMT)
     return str(value)
 
-def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List[str] = ["email"], formats : Dict[str,str] = {}) -> str:
+def tabToGFMx(result : Union[JSONList, JSONDict], sorts : Sequence[str] = ["email"], formats : Dict[str,str] = {}) -> str:
     if isinstance(result, Dict):
         result = [ result ]
-    def sortkey(header):
+    return tabToGFM(result)
+def tabToGFM(result : JSONList, sorts : Sequence[str] = ["email"], formats : Dict[str,str] = {}) -> str:
+    def sortkey(header : str) -> str:
         if header in sorts:
             return str(sorts.index(header))
         return header
-    def sortrow(item):
+    def sortrow(item: JSONDict) -> str:
         sortvalue = ""
         for sort in sorts:
             if sort in item:
-                if isinstance(item[sort], int):
-                    sortvalue += "\n%020i" % item[sort]
-                elif isinstance(item[sort], date_time):
-                    sortvalue += "\n"+item[sort].strftime(DATEFMT)
+                value = item[sort]
+                if isinstance(value, int):
+                    sortvalue += "\n%020i" % value
+                elif isinstance(value, date_time):
+                    sortvalue += "\n"+value.strftime(DATEFMT)
                 else:
-                    sortvalue += "\n"+str(item[sort])
+                    sortvalue += "\n"+str(value)
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col, val):
+    def format(col : str, val : JSONItem) -> str:
         if col in formats:
             if "%s" in formats[col]:
                 try:
@@ -75,11 +84,11 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List[
             if name not in cols:
                 cols[name] = max(5, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-    def rightF(col, formatter):
+    def rightF(col : str, formatter : str) -> str:
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
             return formatter.replace("%-", "%")
         return formatter
-    def rightS(col, formatter):
+    def rightS(col : str, formatter : str) -> str:
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
            return formatter[:-1] + ":"
         return formatter
@@ -91,34 +100,37 @@ def tabToGFM(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List[
     seperators = [ rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key = sortkey) ]
     lines.append( template % tuple(seperators))
     for item in sorted(result, key = sortrow):
-        values = dict([ (name, "") for name in cols.keys()])
+        values : JSONDict = dict([ (name, "") for name in cols.keys()])
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
         line = template % tuple([ format(name, values[name]) for name in sorted(cols.keys(), key = sortkey) ])
         lines.append(line)
     return "\n".join(lines) + "\n"
-def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List[str] = ["email"], formats : Dict[str, str] = {}) -> str:
+def tabToHTMLx(result : Union[JSONList, JSONDict], sorts : Sequence[str] = ["email"], formats : Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [ result ]
-    def sortkey(header):
+    return tabToGFM(result)
+def tabToHTML(result : JSONList, sorts : Sequence[str] = ["email"], formats : Dict[str, str] = {}) -> str:
+    def sortkey(header: str) -> str:
         if header in sorts:
             return str(sorts.index(header))
         return header
-    def sortrow(item):
+    def sortrow(item: JSONDict) -> str:
         sortvalue = ""
         for sort in sorts:
             if sort in item:
-                if isinstance(item[sort], int):
-                    sortvalue += "\n%020i" % item[sort]
-                elif isinstance(item[sort], date_time):
-                    sortvalue += "\n"+item[sort].strftime(DATEFMT)
+                value = item[sort]
+                if isinstance(value, int):
+                    sortvalue += "\n%020i" % value
+                elif isinstance(value, date_time):
+                    sortvalue += "\n"+value.strftime(DATEFMT)
                 else:
-                    sortvalue += "\n"+str(item[sort])
+                    sortvalue += "\n"+str(value)
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col, val):
+    def format(col : str, val : JSONItem) -> str:
         if col in formats:
             if "%s" in formats[col]:
                 try:
@@ -133,18 +145,18 @@ def tabToHTML(result : Union[List[Dict[str, Any]], Dict[str, Any]], sorts : List
             if name not in cols:
                 cols[name] = max(5, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-    def rightTH(col, value):
+    def rightTH(col : str, value : str) -> str:
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
             return value.replace("<th>", '<th style="text-align: right">')
         return value
-    def rightTD(col, value):
+    def rightTD(col : str, value: str) -> str:
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
             return value.replace("<td>", '<td style="text-align: right">')
         return value
     line = [ rightTH(name, "<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key = sortkey) ]
     lines = [ "<tr>" +  "".join(line) + "</tr>" ]
     for item in sorted(result, key = sortrow):
-        values = dict([ (name, "") for name in cols.keys()])
+        values : JSONDict = dict([ (name, "") for name in cols.keys()])
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
