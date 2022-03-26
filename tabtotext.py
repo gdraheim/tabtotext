@@ -197,7 +197,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (date, date_time)):
-            return "'%s'" % val.strftime(DATEFMT).replace('-','~')
+            return '"%s"' % val.strftime(DATEFMT).replace('-','~')
         return json.dumps(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -211,6 +211,19 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [ "'%s': %s" % (name, values[name]) for name in sorted(cols.keys(), key=sortkey)]
-        lines.append(" {" + ", ".join(line) + "},")
-    return "----\n[\n" + "\n".join(lines) + "\n]"
+        line = [ '"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey)]
+        lines.append(" {" + ", ".join(line) + "}")
+    return "[\n" + ",\n".join(lines) + "\n]"
+
+def loadJSON(text) -> JSONList:
+    is_json_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
+    data = json.loads(text)
+    for record in data:
+        for key in record.keys():
+            val = record[key]
+            if not isinstance(val, str):
+               continue
+            m = is_json_date.match(val)
+            if m:
+               record[key] = date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    return data
