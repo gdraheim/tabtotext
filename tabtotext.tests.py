@@ -41,7 +41,7 @@ class TabToTextTest(unittest.TestCase):
     def test_111(self) -> None:
         text = tabtotext.tabToGFM(test011)
         logg.debug("%s => %s", test011, text)
-        cond = ['| a    ', '| -----', '| -    ']
+        cond = ['| a    ', '| -----', '| ~    ']
         self.assertEqual(cond, text.splitlines())
     def test_112(self) -> None:
         text = tabtotext.tabToGFM(test012)
@@ -96,7 +96,7 @@ class TabToTextTest(unittest.TestCase):
     def test_211(self) -> None:
         text = tabtotext.tabToHTML(test011)
         logg.debug("%s => %s", test011, text)
-        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>-</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>~</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_212(self) -> None:
         text = tabtotext.tabToHTML(test012)
@@ -134,96 +134,173 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.4</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_301(self) -> None:
+        text = tabtotext.tabToCSV(test001)
+        logg.debug("%s => %s", test001, text)
+        cond = ['']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, [])
+    def test_302(self) -> None:
+        text = tabtotext.tabToCSV(test002)
+        logg.debug("%s => %s", test002, text)
+        cond = ['','',]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, [])
+    def test_303(self) -> None:
+        text = tabtotext.tabToCSV(test003)
+        logg.debug("%s => %s", test003, text)
+        cond = ['', '','',]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, [])
+    def test_311(self) -> None:
+        text = tabtotext.tabToCSV(test011)
+        logg.debug("%s => %s", test011, text)
+        cond = ['a', '~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test011)
+    def test_312(self) -> None:
+        text = tabtotext.tabToCSV(test012)
+        logg.debug("%s => %s", test012, text)
+        cond = ['a', '(no)']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test012)
+    def test_313(self) -> None:
+        text = tabtotext.tabToCSV(test013)
+        logg.debug("%s => %s", test013, text)
+        cond = ['a', '(yes)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test013)
+    def test_314(self) -> None:
+        text = tabtotext.tabToCSV(test014)
+        logg.debug("%s => %s", test014, text)
+        cond = ['a', '""']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test014)
+    def test_315(self) -> None:
+        text = tabtotext.tabToCSV(test015)
+        logg.debug("%s => %s", test015, text)
+        cond = ['a', '5678']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test015)
+    def test_316(self) -> None:
+        text = tabtotext.tabToCSV(test016)
+        logg.debug("%s => %s", test016, text)
+        cond = ['a', '2021~12~31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test016)
+    def test_317(self) -> None:
+        text = tabtotext.tabToCSV(test017)
+        logg.debug("%s => %s", test017, text)
+        cond = ['a', '123']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        if data[0]['a'] == "123":
+           data[0]['a'] = 123
+        self.assertEqual(data, test017)
+    def test_318(self) -> None:
+        text = tabtotext.tabToCSV(test018)
+        logg.debug("%s => %s", test018, text)
+        cond = ['a', '123.4']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        if data[0]['a'] == "123.4":
+           data[0]['a'] = 123.4
+        self.assertEqual(data, test018)
+
+    def test_401(self) -> None:
         text = tabtotext.tabToJSON(test001)
         logg.debug("%s => %s", test001, text)
         cond = ['[', '', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test001)
-    def test_302(self) -> None:
+    def test_402(self) -> None:
         text = tabtotext.tabToJSON(test002)
         logg.debug("%s => %s", test002, text)
         cond = ['[',' {}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test002)
-    def test_303(self) -> None:
+    def test_403(self) -> None:
         text = tabtotext.tabToJSON(test003)
         logg.debug("%s => %s", test003, text)
         cond = ['[',' {},', ' {}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test003)
-    def test_311(self) -> None:
-        text = tabtotext.tabToJSON(test011)
-        logg.debug("%s => %s", test011, text)
-        cond = ['[', ' {"a": null},', ']']
-        self.assertEqual(cond, text.splitlines())
-        data = tabtotext.loadJSON(text)
-        self.assertEqual(data, test011)
-    def test_311(self) -> None:
+    def test_411(self) -> None:
         text = tabtotext.tabToJSON(test011)
         logg.debug("%s => %s", test011, text)
         cond = ['[', ' {"a": null}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test011)
-    def test_312(self) -> None:
+    def test_412(self) -> None:
         text = tabtotext.tabToJSON(test012)
         logg.debug("%s => %s", test012, text)
         cond = ['[', ' {"a": false}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test012)
-    def test_313(self) -> None:
+    def test_413(self) -> None:
         text = tabtotext.tabToJSON(test013)
         logg.debug("%s => %s", test013, text)
         cond = ['[', ' {"a": true}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test013)
-    def test_314(self) -> None:
+    def test_414(self) -> None:
         text = tabtotext.tabToJSON(test014)
         logg.debug("%s => %s", test014, text)
         cond = ['[', ' {"a": ""}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test014)
-    def test_315(self) -> None:
+    def test_415(self) -> None:
         text = tabtotext.tabToJSON(test015)
         logg.debug("%s => %s", test015, text)
         cond = ['[', ' {"a": "5678"}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test015)
-    def test_316(self) -> None:
+    def test_416(self) -> None:
         text = tabtotext.tabToJSON(test016)
         logg.debug("%s => %s", test016, text)
         cond = ['[', ' {"a": "2021~12~31"}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test016)
-    def test_317(self) -> None:
+    def test_417(self) -> None:
         text = tabtotext.tabToJSON(test017)
         logg.debug("%s => %s", test017, text)
         cond = ['[', ' {"a": 123}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test017)
-    def test_318(self) -> None:
+    def test_418(self) -> None:
         text = tabtotext.tabToJSON(test018)
         logg.debug("%s => %s", test018, text)
         cond = ['[', ' {"a": 123.4}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test018)
-    def test_390(self) -> None:
+    def test_490(self) -> None:
         data = json.loads("[]")
         self.assertEqual(data, [])
-    def test_391(self) -> None:
+    def test_491(self) -> None:
         data = json.loads("[{}]")
         self.assertEqual(data, [{}])
-    def test_392(self) -> None:
+    def test_492(self) -> None:
         try:
             data = json.loads("[{},]")
             self.assertEqual(data, [{}])

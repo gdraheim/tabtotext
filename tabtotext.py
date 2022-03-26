@@ -16,7 +16,6 @@ import os
 import re
 import logging
 import json
-import zipfile
 from io import BytesIO, StringIO
 
 logg = logging.getLogger("TABTOTEXT")
@@ -34,16 +33,24 @@ def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
 
-def strNone(value: Any) -> str:
+def strNone(value: Any, datedelim='-') -> str:
     if value is None:
-        return "-"
+        return "~"
     if value is False:
         return "(no)"
     if value is True:
         return "(yes)"
     if isinstance(value, date_time):
-        return value.strftime(DATEFMT)
+        return value.strftime(DATEFMT.replace('-', datedelim))
     return str(value)
+def scanNone(val: str) -> JSONItem:
+    if val == "~":
+        return None
+    if val == "(no)":
+        return False
+    if val == "(yes)":
+        return True
+    return val
 
 def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
@@ -215,15 +222,86 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
-def loadJSON(text) -> JSONList:
-    is_json_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
+def loadJSON(text: str) -> JSONList:
+    is_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
     data = json.loads(text)
     for record in data:
         for key in record.keys():
             val = record[key]
             if not isinstance(val, str):
                continue
-            m = is_json_date.match(val)
-            if m:
-               record[key] = date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            as_date = is_date.match(val)
+            if as_date:
+               record[key] = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+    return data
+
+def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+    def sortkey(header: str) -> str:
+        if header in sorts:
+            return "%07i" % sorts.index(header)
+        return header
+    def sortrow(item: JSONDict) -> str:
+        sortvalue = ""
+        for sort in sorts:
+            if sort in item:
+                value = item[sort]
+                if isinstance(value, int):
+                    sortvalue += "\n%020i" % value
+                elif isinstance(value, (date, date_time)):
+                    sortvalue += "\n" + value.strftime(DATEFMT)
+                else:
+                    sortvalue += "\n" + str(value)
+            else:
+                sortvalue += "\n-"
+        return sortvalue
+    def format(col: str, val: JSONItem) -> str:
+        if col in formats:
+            if "%s" in formats[col]:
+                try:
+                    return formats[col] % strNone(val)
+                except:
+                    pass
+            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+        if isinstance(val, (date, date_time)):
+            return '%s' % val.strftime(DATEFMT.replace('-','~'))
+        return strNone(val)
+    cols: Dict[str, int] = {}
+    for item in result:
+        for name, value in item.items():
+            if name not in cols:
+                cols[name] = max(5, len(name))
+            cols[name] = max(cols[name], len(format(name, value)))
+    lines = []
+    for item in sorted(result, key=sortrow):
+        values: JSONDict = dict([(name, "") for name in cols.keys()])
+        # logg.debug("values = %s", values)
+        for name, value in item.items():
+            values[name] = format(name, value)
+        lines.append(values)
+    import csv
+    # csvfile = open(csv_filename, "w")
+    csvfile = StringIO()
+    writer = csv.DictWriter(csvfile, fieldnames=sorted(cols.keys(), key=sortkey), restval='ignore',
+        quoting = csv.QUOTE_MINIMAL, delimiter=";")
+    writer.writeheader()
+    for line in lines:
+        writer.writerow(line)
+    return csvfile.getvalue()
+
+def loadCSV(text: str) -> JSONList:
+    is_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
+    import csv
+    csvfile = StringIO(text)
+    reader = csv.DictReader(csvfile, restval='ignore',
+        quoting = csv.QUOTE_MINIMAL, delimiter=";")
+    data = []
+    for row in reader:
+        for key in row.keys():
+            val = scanNone(row[key])
+            if isinstance(val, str):
+                as_date = is_date.match(val)
+                if as_date:
+                   val = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+            row[key] = val
+        data.append(dict(row))
     return data
