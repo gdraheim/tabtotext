@@ -52,7 +52,7 @@ def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"
 def tabToGFM(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
-            return str(sorts.index(header))
+            return "%07i" % sorts.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -107,14 +107,15 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
         line = template % tuple([format(name, values[name]) for name in sorted(cols.keys(), key=sortkey)])
         lines.append(line)
     return "\n".join(lines) + "\n"
+
 def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToGFM(result)
+    return tabToHTML(result)
 def tabToHTML(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
-            return str(sorts.index(header))
+            return "%07i" % sorts.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -163,3 +164,53 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
         line = [rightTD(name, "<td>%s</td>" % escape(format(name, values[name]))) for name in sorted(cols.keys(), key=sortkey)]
         lines.append("<tr>" + "".join(line) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n"
+
+def tabToJSON(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+    if isinstance(result, Dict):
+        result = [result]
+    return tabToJSON(result)
+def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+    def sortkey(header: str) -> str:
+        if header in sorts:
+            return "%07i" % sorts.index(header)
+        return header
+    def sortrow(item: JSONDict) -> str:
+        sortvalue = ""
+        for sort in sorts:
+            if sort in item:
+                value = item[sort]
+                if isinstance(value, int):
+                    sortvalue += "\n%020i" % value
+                elif isinstance(value, (date, date_time)):
+                    sortvalue += "\n" + value.strftime(DATEFMT)
+                else:
+                    sortvalue += "\n" + str(value)
+            else:
+                sortvalue += "\n-"
+        return sortvalue
+    def format(col: str, val: JSONItem) -> str:
+        if col in formats:
+            if "%s" in formats[col]:
+                try:
+                    return formats[col] % strNone(val)
+                except:
+                    pass
+            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+        if isinstance(val, (date, date_time)):
+            return "'%s'" % val.strftime(DATEFMT).replace('-','~')
+        return json.dumps(val)
+    cols: Dict[str, int] = {}
+    for item in result:
+        for name, value in item.items():
+            if name not in cols:
+                cols[name] = max(5, len(name))
+            cols[name] = max(cols[name], len(format(name, value)))
+    lines = []
+    for item in sorted(result, key=sortrow):
+        values: JSONDict = dict([(name, "") for name in cols.keys()])
+        # logg.debug("values = %s", values)
+        for name, value in item.items():
+            values[name] = format(name, value)
+        line = [ "'%s': %s" % (name, values[name]) for name in sorted(cols.keys(), key=sortkey)]
+        lines.append(" {" + ", ".join(line) + "},")
+    return "----\n[\n" + "\n".join(lines) + "\n]"
