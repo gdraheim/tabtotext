@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+from tabtotext import JSONList
 import tabtotext
 import unittest
 import datetime
@@ -9,19 +10,18 @@ import json
 import logging
 logg = logging.getLogger("TESTS")
 
-from tabtotext import JSONList
 
-test001 : JSONList = []
-test002 : JSONList= [{}]
-test003 : JSONList = [{}, {}]
-test011 : JSONList = [{"a": None}]
-test012 : JSONList = [{"a": False}]
-test013 : JSONList = [{"a": True}]
-test014 : JSONList = [{"a": ""}]
-test015 : JSONList = [{"a": "5678"}]
-test016 : JSONList = [{"a": datetime.date(2021, 12, 31)}]
-test017 : JSONList = [{"a": 123}]
-test018 : JSONList = [{"a": 123.4}]
+test001: JSONList = []
+test002: JSONList = [{}]
+test003: JSONList = [{}, {}]
+test011: JSONList = [{"a": None}]
+test012: JSONList = [{"a": False}]
+test013: JSONList = [{"a": True}]
+test014: JSONList = [{"a": ""}]
+test015: JSONList = [{"a": "5678"}]
+test016: JSONList = [{"a": datetime.date(2021, 12, 31)}]
+test017: JSONList = [{"a": 123}]
+test018: JSONList = [{"a": 123.4}]
 
 class TabToTextTest(unittest.TestCase):
     def test_101(self) -> None:
