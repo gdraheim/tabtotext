@@ -9,18 +9,19 @@ import json
 import logging
 logg = logging.getLogger("TESTS")
 
+from tabtotext import JSONList
 
-test001 = []
-test002 = [{}]
-test003 = [{}, {}]
-test011 = [{"a": None}]
-test012 = [{"a": False}]
-test013 = [{"a": True}]
-test014 = [{"a": ""}]
-test015 = [{"a": "5678"}]
-test016 = [{"a": datetime.date(2021, 12, 31)}]
-test017 = [{"a": 123}]
-test018 = [{"a": 123.4}]
+test001 : JSONList = []
+test002 : JSONList= [{}]
+test003 : JSONList = [{}, {}]
+test011 : JSONList = [{"a": None}]
+test012 : JSONList = [{"a": False}]
+test013 : JSONList = [{"a": True}]
+test014 : JSONList = [{"a": ""}]
+test015 : JSONList = [{"a": "5678"}]
+test016 : JSONList = [{"a": datetime.date(2021, 12, 31)}]
+test017 : JSONList = [{"a": 123}]
+test018 : JSONList = [{"a": 123.4}]
 
 class TabToTextTest(unittest.TestCase):
     def test_101(self) -> None:
