@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+import tabtotext
 import unittest
 import datetime
 import sys
@@ -8,35 +9,34 @@ import json
 import logging
 logg = logging.getLogger("TESTS")
 
-import tabtotext
 
 test001 = []
 test002 = [{}]
-test003 = [{},{}]
-test011 = [{"a":None}]
-test012 = [{"a":False}]
-test013 = [{"a":True}]
-test014 = [{"a":""}]
-test015 = [{"a":"5678"}]
-test016 = [{"a":datetime.date(2021,12,31)}]
-test017 = [{"a":123}]
-test018 = [{"a":123.4}]
+test003 = [{}, {}]
+test011 = [{"a": None}]
+test012 = [{"a": False}]
+test013 = [{"a": True}]
+test014 = [{"a": ""}]
+test015 = [{"a": "5678"}]
+test016 = [{"a": datetime.date(2021, 12, 31)}]
+test017 = [{"a": 123}]
+test018 = [{"a": 123.4}]
 
 class TabToTextTest(unittest.TestCase):
     def test_101(self) -> None:
         text = tabtotext.tabToGFM(test001)
         logg.debug("%s => %s", test001, text)
-        cond = ['','']
+        cond = ['', '']
         self.assertEqual(cond, text.splitlines())
     def test_102(self) -> None:
         text = tabtotext.tabToGFM(test002)
         logg.debug("%s => %s", test002, text)
-        cond = ['','','']
+        cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
     def test_103(self) -> None:
         text = tabtotext.tabToGFM(test003)
         logg.debug("%s => %s", test003, text)
-        cond = ['','','','']
+        cond = ['', '', '', '']
         self.assertEqual(cond, text.splitlines())
     def test_111(self) -> None:
         text = tabtotext.tabToGFM(test011)
@@ -143,14 +143,14 @@ class TabToTextTest(unittest.TestCase):
     def test_302(self) -> None:
         text = tabtotext.tabToCSV(test002)
         logg.debug("%s => %s", test002, text)
-        cond = ['','',]
+        cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, [])
     def test_303(self) -> None:
         text = tabtotext.tabToCSV(test003)
         logg.debug("%s => %s", test003, text)
-        cond = ['', '','',]
+        cond = ['', '', '', ]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, [])
@@ -205,7 +205,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         if data[0]['a'] == "123":
-           data[0]['a'] = 123
+            data[0]['a'] = 123
         self.assertEqual(data, test017)
     def test_318(self) -> None:
         text = tabtotext.tabToCSV(test018)
@@ -214,7 +214,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         if data[0]['a'] == "123.4":
-           data[0]['a'] = 123.4
+            data[0]['a'] = 123.4
         self.assertEqual(data, test018)
 
     def test_401(self) -> None:
@@ -227,14 +227,14 @@ class TabToTextTest(unittest.TestCase):
     def test_402(self) -> None:
         text = tabtotext.tabToJSON(test002)
         logg.debug("%s => %s", test002, text)
-        cond = ['[',' {}', ']']
+        cond = ['[', ' {}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test002)
     def test_403(self) -> None:
         text = tabtotext.tabToJSON(test003)
         logg.debug("%s => %s", test003, text)
-        cond = ['[',' {},', ' {}', ']']
+        cond = ['[', ' {},', ' {}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test003)
@@ -311,11 +311,11 @@ if __name__ == "__main__":
     # unittest.main()
     from optparse import OptionParser
     cmdline = OptionParser("%s test...")
-    cmdline.add_option("-v","--verbose", action="count", default=0)
+    cmdline.add_option("-v", "--verbose", action="count", default=0)
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level = max(0, logging.WARNING - 10 * opt.verbose))
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     if not args:
-       args = ["x_*"]
+        args = ["x_*"]
     suite = unittest.TestSuite()
     for arg in args:
         if arg.startswith("x_"):
