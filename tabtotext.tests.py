@@ -315,11 +315,11 @@ if __name__ == "__main__":
     opt, args = cmdline.parse_args()
     logging.basicConfig(level = max(0, logging.WARNING - 10 * opt.verbose))
     if not args:
-       args = ["x*"]
+       args = ["x_*"]
     suite = unittest.TestSuite()
     for arg in args:
-        if arg.startswith("x"):
-            arg = "test" + arg[1:]
+        if arg.startswith("x_"):
+            arg = "test_" + arg[2:]
         for classname in sorted(globals()):
             if not classname.endswith("Test"):
                 continue
