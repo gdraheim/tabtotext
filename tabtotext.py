@@ -33,7 +33,7 @@ def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
 
-def strNone(value: Any, datedelim='-') -> str:
+def strNone(value: Any, datedelim : str ='-') -> str:
     if value is None:
         return "~"
     if value is False:
@@ -172,7 +172,7 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
         lines.append("<tr>" + "".join(line) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n"
 
-def tabToJSON(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [result]
     return tabToJSON(result)
@@ -224,7 +224,8 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
 
 def loadJSON(text: str) -> JSONList:
     is_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
-    data = json.loads(text)
+    jsondata = json.loads(text)
+    data : JSONList = jsondata
     for record in data:
         for key in record.keys():
             val = record[key]
@@ -294,14 +295,15 @@ def loadCSV(text: str) -> JSONList:
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',
                             quoting=csv.QUOTE_MINIMAL, delimiter=";")
-    data = []
+    data : JSONList = []
     for row in reader:
-        for key in row.keys():
-            val = scanNone(row[key])
+        newrow : JSONDict = dict(row)
+        for key in newrow.keys():
+            val : JSONItem = scanNone(row[key])
             if isinstance(val, str):
                 as_date = is_date.match(val)
                 if as_date:
                     val = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
-            row[key] = val
-        data.append(dict(row))
+            newrow[key] = val
+        data.append(newrow)
     return data
