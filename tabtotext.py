@@ -204,7 +204,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (date, date_time)):
-            return '"%s"' % val.strftime(DATEFMT).replace('-','~')
+            return '"%s"' % val.strftime(DATEFMT).replace('-', '~')
         return json.dumps(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -218,7 +218,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [ '"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey)]
+        line = ['"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey)]
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
@@ -229,10 +229,10 @@ def loadJSON(text: str) -> JSONList:
         for key in record.keys():
             val = record[key]
             if not isinstance(val, str):
-               continue
+                continue
             as_date = is_date.match(val)
             if as_date:
-               record[key] = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+                record[key] = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
     return data
 
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
@@ -263,7 +263,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (date, date_time)):
-            return '%s' % val.strftime(DATEFMT.replace('-','~'))
+            return '%s' % val.strftime(DATEFMT.replace('-', '~'))
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -282,7 +282,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
     # csvfile = open(csv_filename, "w")
     csvfile = StringIO()
     writer = csv.DictWriter(csvfile, fieldnames=sorted(cols.keys(), key=sortkey), restval='ignore',
-        quoting = csv.QUOTE_MINIMAL, delimiter=";")
+                            quoting=csv.QUOTE_MINIMAL, delimiter=";")
     writer.writeheader()
     for line in lines:
         writer.writerow(line)
@@ -293,7 +293,7 @@ def loadCSV(text: str) -> JSONList:
     import csv
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',
-        quoting = csv.QUOTE_MINIMAL, delimiter=";")
+                            quoting=csv.QUOTE_MINIMAL, delimiter=";")
     data = []
     for row in reader:
         for key in row.keys():
@@ -301,7 +301,7 @@ def loadCSV(text: str) -> JSONList:
             if isinstance(val, str):
                 as_date = is_date.match(val)
                 if as_date:
-                   val = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+                    val = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
             row[key] = val
         data.append(dict(row))
     return data
