@@ -19,9 +19,10 @@ test012: JSONList = [{"a": False}]
 test013: JSONList = [{"a": True}]
 test014: JSONList = [{"a": ""}]
 test015: JSONList = [{"a": "5678"}]
-test016: JSONList = [{"a": datetime.date(2021, 12, 31)}]
-test017: JSONList = [{"a": 123}]
-test018: JSONList = [{"a": 123.4}]
+test016: JSONList = [{"a": 123}]
+test017: JSONList = [{"a": 123.4}]
+test018: JSONList = [{"a": datetime.date(2021, 12, 31)}]
+test019: JSONList = [{"a": datetime.datetime(2021, 12, 31, 23, 34, 45)}]
 
 class TabToTextTest(unittest.TestCase):
     def test_101(self) -> None:
@@ -67,17 +68,22 @@ class TabToTextTest(unittest.TestCase):
     def test_116(self) -> None:
         text = tabtotext.tabToGFM(test016)
         logg.debug("%s => %s", test016, text)
-        cond = ['| a         ', '| ----------', '| 2021-12-31']
+        cond = ['| a    ', '| -----', '| 123  ']
         self.assertEqual(cond, text.splitlines())
     def test_117(self) -> None:
         text = tabtotext.tabToGFM(test017)
-        logg.debug("%s => %s", test017, text)
-        cond = ['| a    ', '| -----', '| 123  ']
+        logg.debug("%s => %s", test018, text)
+        cond = ['| a    ', '| -----', '| 123.4']
         self.assertEqual(cond, text.splitlines())
     def test_118(self) -> None:
         text = tabtotext.tabToGFM(test018)
         logg.debug("%s => %s", test018, text)
-        cond = ['| a    ', '| -----', '| 123.4']
+        cond = ['| a         ', '| ----------', '| 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_119(self) -> None:
+        text = tabtotext.tabToGFM(test019)
+        logg.debug("%s => %s", test019, text)
+        cond = ['| a         ', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
     def test_201(self) -> None:
         text = tabtotext.tabToHTML(test001)
@@ -122,17 +128,22 @@ class TabToTextTest(unittest.TestCase):
     def test_216(self) -> None:
         text = tabtotext.tabToHTML(test016)
         logg.debug("%s => %s", test016, text)
-        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>2021-12-31</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_217(self) -> None:
         text = tabtotext.tabToHTML(test017)
         logg.debug("%s => %s", test017, text)
-        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.4</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_218(self) -> None:
         text = tabtotext.tabToHTML(test018)
         logg.debug("%s => %s", test018, text)
-        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.4</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>2021-12-31</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_219(self) -> None:
+        text = tabtotext.tabToHTML(test019)
+        logg.debug("%s => %s", test019, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>2021-12-31</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_301(self) -> None:
         text = tabtotext.tabToCSV(test001)
@@ -195,28 +206,35 @@ class TabToTextTest(unittest.TestCase):
     def test_316(self) -> None:
         text = tabtotext.tabToCSV(test016)
         logg.debug("%s => %s", test016, text)
-        cond = ['a', '2021-12-31']
-        self.assertEqual(cond, text.splitlines())
-        data = tabtotext.loadCSV(text)
-        self.assertEqual(data, test016)
-    def test_317(self) -> None:
-        text = tabtotext.tabToCSV(test017)
-        logg.debug("%s => %s", test017, text)
         cond = ['a', '123']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         if data[0]['a'] == "123":
             data[0]['a'] = 123
-        self.assertEqual(data, test017)
-    def test_318(self) -> None:
-        text = tabtotext.tabToCSV(test018)
-        logg.debug("%s => %s", test018, text)
+        self.assertEqual(data, test016)
+    def test_317(self) -> None:
+        text = tabtotext.tabToCSV(test017)
+        logg.debug("%s => %s", test017, text)
         cond = ['a', '123.4']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         if data[0]['a'] == "123.4":
             data[0]['a'] = 123.4
+        self.assertEqual(data, test017)
+    def test_318(self) -> None:
+        text = tabtotext.tabToCSV(test018)
+        logg.debug("%s => %s", test018, text)
+        cond = ['a', '2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)
+    def test_319(self) -> None:
+        text = tabtotext.tabToCSV(test019)
+        logg.debug("%s => %s", test019, text)
+        cond = ['a', '2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test018) # test019
 
     def test_401(self) -> None:
         text = tabtotext.tabToJSON(test001)
@@ -277,24 +295,31 @@ class TabToTextTest(unittest.TestCase):
     def test_416(self) -> None:
         text = tabtotext.tabToJSON(test016)
         logg.debug("%s => %s", test016, text)
-        cond = ['[', ' {"a": "2021-12-31"}', ']']
+        cond = ['[', ' {"a": 123}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test016)
     def test_417(self) -> None:
         text = tabtotext.tabToJSON(test017)
         logg.debug("%s => %s", test017, text)
-        cond = ['[', ' {"a": 123}', ']']
+        cond = ['[', ' {"a": 123.4}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test017)
     def test_418(self) -> None:
         text = tabtotext.tabToJSON(test018)
         logg.debug("%s => %s", test018, text)
-        cond = ['[', ' {"a": 123.4}', ']']
+        cond = ['[', ' {"a": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test018)
+    def test_419(self) -> None:
+        text = tabtotext.tabToJSON(test019)
+        logg.debug("%s => %s", test019, text)
+        cond = ['[', ' {"a": "2021-12-31"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test018) # test019
     def test_490(self) -> None:
         data = json.loads("[]")
         self.assertEqual(data, [])
