@@ -40,7 +40,7 @@ def setNoRight(value: bool) -> None:
 def strDateTime(value: Any, datedelim: str = '-') -> str:
     if value is None:
         return _None_String
-    if isinstance(value, (Date,Time)):
+    if isinstance(value, (Date, Time)):
         return value.strftime(DATEFMT.replace('-', datedelim))
     return str(value)
 def strNone(value: Any, datedelim: str = '-') -> str:
@@ -180,7 +180,7 @@ def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], for
     if isinstance(result, Dict):
         result = [result]
     return tabToJSON(result)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim = '-') -> str:
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim='-') -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -205,7 +205,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 except:
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, (Date,Time)):
+        if isinstance(val, (Date, Time)):
             return '"%s"' % strDateTime(val, datedelim)
         return json.dumps(val)
     cols: Dict[str, int] = {}
@@ -224,9 +224,10 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
-def loadJSON(text: str, datedelim = '-') -> JSONList:
+def loadJSON(text: str, datedelim='-') -> JSONList:
     is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
-    is_time = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
+    is_time = re.compile(
+        r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
     jsondata = json.loads(text)
     data: JSONList = jsondata
     for record in data:
@@ -236,7 +237,7 @@ def loadJSON(text: str, datedelim = '-') -> JSONList:
                 continue
             as_time = is_time.match(val)
             if as_time:
-                record[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)), #
+                record[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
                                    int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
             as_date = is_date.match(val)
             if as_date:
@@ -296,7 +297,8 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
 
 def loadCSV(text: str, datedelim: str = '-') -> JSONList:
     is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
-    is_time = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
+    is_time = re.compile(
+        r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
     import csv
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',
@@ -309,7 +311,7 @@ def loadCSV(text: str, datedelim: str = '-') -> JSONList:
             if isinstance(val, str):
                 as_time = is_time.match(val)
                 if as_time:
-                    val = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)), #
+                    val = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
                                int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
                 as_date = is_date.match(val)
                 if as_date:
