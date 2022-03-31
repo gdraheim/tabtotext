@@ -22,6 +22,7 @@ logg = logging.getLogger("TABTOTEXT")
 
 DATEFMT = "%Y-%m-%d"
 NORIGHT = False
+MINWIDTH = 5
 
 JSONItem = Union[str, int, float, bool, Date, Time, None, Dict[str, Any], List[Any]]
 JSONDict = Dict[str, JSONItem]
@@ -95,7 +96,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         for name, value in item.items():
             paren = 0
             if name not in cols:
-                cols[name] = max(5, len(name))
+                cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     def rightF(col: str, formatter: str) -> str:
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
@@ -155,7 +156,7 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     for item in result:
         for name, value in item.items():
             if name not in cols:
-                cols[name] = max(5, len(name))
+                cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     def rightTH(col: str, value: str) -> str:
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
@@ -212,7 +213,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     for item in result:
         for name, value in item.items():
             if name not in cols:
-                cols[name] = max(5, len(name))
+                cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     lines = []
     for item in sorted(result, key=sortrow):
@@ -276,7 +277,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
     for item in result:
         for name, value in item.items():
             if name not in cols:
-                cols[name] = max(5, len(name))
+                cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     lines = []
     for item in sorted(result, key=sortrow):
