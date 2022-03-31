@@ -226,6 +226,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
 
 def loadJSON(text: str, datedelim = '-') -> JSONList:
     is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
+    is_time = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
     jsondata = json.loads(text)
     data: JSONList = jsondata
     for record in data:
@@ -233,6 +234,10 @@ def loadJSON(text: str, datedelim = '-') -> JSONList:
             val = record[key]
             if not isinstance(val, str):
                 continue
+            as_time = is_time.match(val)
+            if as_time:
+                record[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)), #
+                                   int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
             as_date = is_date.match(val)
             if as_date:
                 record[key] = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
@@ -291,6 +296,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
 
 def loadCSV(text: str, datedelim: str = '-') -> JSONList:
     is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
+    is_time = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
     import csv
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',
@@ -301,6 +307,10 @@ def loadCSV(text: str, datedelim: str = '-') -> JSONList:
         for key in newrow.keys():
             val: JSONItem = scanNone(row[key])
             if isinstance(val, str):
+                as_time = is_time.match(val)
+                if as_time:
+                    val = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)), #
+                               int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
                 as_date = is_date.match(val)
                 if as_date:
                     val = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
