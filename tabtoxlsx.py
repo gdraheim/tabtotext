@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+import logging
 from typing import Optional, Union, Dict, List, Any, Sequence
 from tabtotext import JSONList, JSONDict, tabToGFM, strNone
 
@@ -13,11 +14,10 @@ DayOrTime = (datetime.date, datetime.datetime)
 
 MINWIDTH = 7
 
-import logging
 logg = logging.getLogger("TABTOXLSX")
 
 def set_cell(ws, row, col, value, style):
-    coordinate = { "column": col+1, "row": row+1 }
+    coordinate = {"column": col + 1, "row": row + 1}
     ws.cell(**coordinate).value = value
     # ws.cell(**coordinate).font = style.font
     # ws.cell(**coordinate).fill = style.fill
@@ -26,10 +26,10 @@ def set_cell(ws, row, col, value, style):
     ws.cell(**coordinate).number_format = style.number_format
     ws.cell(**coordinate).protection = style.protection
 def set_width(ws, col, width):
-    ws.column_dimensions[get_column_letter(col+1)].width = width
+    ws.column_dimensions[get_column_letter(col + 1)].width = width
 
 
-def saveToXLSXx(filename:str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [result]
     return saveToXLSX(filename, result)
@@ -67,13 +67,13 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = ["email"]
     style = Style()
     text_style = Style()
     text_style.number_format = 'General'
-    text_style.alignment = Alignment(horizontal = 'left')
+    text_style.alignment = Alignment(horizontal='left')
     date_style = Style()
     date_style.number_format = 'd.mm.yy'
-    date_style.alignment = Alignment(horizontal = 'right')
+    date_style.alignment = Alignment(horizontal='right')
     numm_style = Style()
     numm_style.number_format = '#,##0.00'
-    numm_style.alignment = Alignment(horizontal = 'right')
+    numm_style.alignment = Alignment(horizontal='right')
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
         set_cell(ws, row, col, name, text_style)
