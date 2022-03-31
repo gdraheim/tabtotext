@@ -32,6 +32,7 @@ JSONDictDict = Dict[str, JSONDict]
 _None_String = "~"
 _False_String = "(no)"
 _True_String = "(yes)"
+
 def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
