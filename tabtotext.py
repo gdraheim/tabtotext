@@ -180,7 +180,7 @@ def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], for
     if isinstance(result, Dict):
         result = [result]
     return tabToJSON(result)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim='-') -> str:
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim: str = '-') -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -224,7 +224,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
-def loadJSON(text: str, datedelim='-') -> JSONList:
+def loadJSON(text: str, datedelim: str = '-') -> JSONList:
     is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
     is_time = re.compile(
         r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
@@ -237,7 +237,7 @@ def loadJSON(text: str, datedelim='-') -> JSONList:
                 continue
             as_time = is_time.match(val)
             if as_time:
-                record[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                record[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),  #
                                    int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
             as_date = is_date.match(val)
             if as_date:
@@ -308,14 +308,14 @@ def loadCSV(text: str, datedelim: str = '-') -> JSONList:
         newrow: JSONDict = dict(row)
         for key in newrow.keys():
             val: JSONItem = scanNone(row[key])
+            newrow[key] = val
             if isinstance(val, str):
                 as_time = is_time.match(val)
                 if as_time:
-                    val = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                               int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
+                    newrow[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                                       int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
                 as_date = is_date.match(val)
                 if as_date:
-                    val = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
-            newrow[key] = val
+                    newrow[key] = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         data.append(newrow)
     return data
