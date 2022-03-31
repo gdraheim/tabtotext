@@ -33,7 +33,7 @@ def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
 
-def strNone(value: Any, datedelim : str ='-') -> str:
+def strNone(value: Any, datedelim: str = '-') -> str:
     if value is None:
         return "~"
     if value is False:
@@ -225,7 +225,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
 def loadJSON(text: str) -> JSONList:
     is_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
     jsondata = json.loads(text)
-    data : JSONList = jsondata
+    data: JSONList = jsondata
     for record in data:
         for key in record.keys():
             val = record[key]
@@ -295,11 +295,11 @@ def loadCSV(text: str) -> JSONList:
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',
                             quoting=csv.QUOTE_MINIMAL, delimiter=";")
-    data : JSONList = []
+    data: JSONList = []
     for row in reader:
-        newrow : JSONDict = dict(row)
+        newrow: JSONDict = dict(row)
         for key in newrow.keys():
-            val : JSONItem = scanNone(row[key])
+            val: JSONItem = scanNone(row[key])
             if isinstance(val, str):
                 as_date = is_date.match(val)
                 if as_date:
