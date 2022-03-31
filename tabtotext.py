@@ -10,8 +10,8 @@ from typing import Optional, Union, Dict, List, Any, Sequence
 from requests import Session, Response
 from urllib.parse import quote_plus as qq
 from html import escape
-from datetime import date
-from datetime import datetime as date_time
+from datetime import date as Date
+from datetime import datetime as Time
 import os
 import re
 import logging
@@ -23,7 +23,7 @@ logg = logging.getLogger("TABTOTEXT")
 DATEFMT = "%Y-%m-%d"
 NORIGHT = False
 
-JSONItem = Union[str, int, float, bool, date, None, Dict[str, Any], List[Any]]
+JSONItem = Union[str, int, float, bool, Date, Time, None, Dict[str, Any], List[Any]]
 JSONDict = Dict[str, JSONItem]
 JSONList = List[JSONDict]
 JSONDictList = Dict[str, JSONList]
@@ -37,6 +37,12 @@ def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
 
+def strDateTime(value: Any, datedelim: str = '-') -> str:
+    if value is None:
+        return _None_String
+    if isinstance(value, (Date,Time)):
+        return value.strftime(DATEFMT.replace('-', datedelim))
+    return str(value)
 def strNone(value: Any, datedelim: str = '-') -> str:
     if value is None:
         return _None_String
@@ -44,9 +50,7 @@ def strNone(value: Any, datedelim: str = '-') -> str:
         return _False_String
     if value is True:
         return _True_String
-    if isinstance(value, date_time):
-        return value.strftime(DATEFMT.replace('-', datedelim))
-    return str(value)
+    return strDateTime(value, datedelim)
 def scanNone(val: str) -> JSONItem:
     if val == _None_String:
         return None
@@ -72,10 +76,8 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
                 value = item[sort]
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
-                elif isinstance(value, date_time):
-                    sortvalue += "\n" + value.strftime(DATEFMT)
                 else:
-                    sortvalue += "\n" + str(value)
+                    sortvalue += "\n" + strDateTime(value)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -135,10 +137,8 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 value = item[sort]
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
-                elif isinstance(value, date_time):
-                    sortvalue += "\n" + value.strftime(DATEFMT)
                 else:
-                    sortvalue += "\n" + str(value)
+                    sortvalue += "\n" + strDateTime(value)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -192,10 +192,8 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 value = item[sort]
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
-                elif isinstance(value, (date, date_time)):
-                    sortvalue += "\n" + value.strftime(DATEFMT)
                 else:
-                    sortvalue += "\n" + str(value)
+                    sortvalue += "\n" + strDateTime(value, datedelim)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -207,8 +205,8 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 except:
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, (date, date_time)):
-            return '"%s"' % val.strftime(DATEFMT).replace('-', datedelim)
+        if isinstance(val, (Date,Time)):
+            return '"%s"' % strDateTime(val, datedelim)
         return json.dumps(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -237,7 +235,7 @@ def loadJSON(text: str, datedelim = '-') -> JSONList:
                 continue
             as_date = is_date.match(val)
             if as_date:
-                record[key] = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+                record[key] = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
     return data
 
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim: str = '-') -> str:
@@ -252,10 +250,8 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
                 value = item[sort]
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
-                elif isinstance(value, (date, date_time)):
-                    sortvalue += "\n" + value.strftime(DATEFMT)
                 else:
-                    sortvalue += "\n" + str(value)
+                    sortvalue += "\n" + strDateTime(value, datedelim)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -267,8 +263,8 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
                 except:
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, (date, date_time)):
-            return '%s' % val.strftime(DATEFMT.replace('-', datedelim))
+        if isinstance(val, (Date, Time)):
+            return '%s' % strDateTime(val, datedelim)
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -307,7 +303,7 @@ def loadCSV(text: str, datedelim: str = '-') -> JSONList:
             if isinstance(val, str):
                 as_date = is_date.match(val)
                 if as_date:
-                    val = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+                    val = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
             newrow[key] = val
         data.append(newrow)
     return data
