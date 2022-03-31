@@ -29,26 +29,29 @@ JSONList = List[JSONDict]
 JSONDictList = Dict[str, JSONList]
 JSONDictDict = Dict[str, JSONDict]
 
+_None_String = "~"
+_False_String = "(no)"
+_True_String = "(yes)"
 def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
 
 def strNone(value: Any, datedelim: str = '-') -> str:
     if value is None:
-        return "~"
+        return _None_String
     if value is False:
-        return "(no)"
+        return _False_String
     if value is True:
-        return "(yes)"
+        return _True_String
     if isinstance(value, date_time):
         return value.strftime(DATEFMT.replace('-', datedelim))
     return str(value)
 def scanNone(val: str) -> JSONItem:
-    if val == "~":
+    if val == _None_String:
         return None
-    if val == "(no)":
+    if val == _False_String:
         return False
-    if val == "(yes)":
+    if val == _True_String:
         return True
     return val
 
@@ -176,7 +179,7 @@ def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email
     if isinstance(result, Dict):
         result = [result]
     return tabToJSON(result)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim = '-') -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -204,7 +207,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (date, date_time)):
-            return '"%s"' % val.strftime(DATEFMT).replace('-', '~')
+            return '"%s"' % val.strftime(DATEFMT).replace('-', datedelim)
         return json.dumps(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -222,8 +225,8 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
-def loadJSON(text: str) -> JSONList:
-    is_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
+def loadJSON(text: str, datedelim = '-') -> JSONList:
+    is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
     jsondata = json.loads(text)
     data: JSONList = jsondata
     for record in data:
@@ -236,7 +239,7 @@ def loadJSON(text: str) -> JSONList:
                 record[key] = date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
     return data
 
-def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim: str = '-') -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -264,7 +267,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
                     pass
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (date, date_time)):
-            return '%s' % val.strftime(DATEFMT.replace('-', '~'))
+            return '%s' % val.strftime(DATEFMT.replace('-', datedelim))
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -289,8 +292,8 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
         writer.writerow(line)
     return csvfile.getvalue()
 
-def loadCSV(text: str) -> JSONList:
-    is_date = re.compile(r"(\d\d\d\d)~(\d\d)~(\d\d)$")
+def loadCSV(text: str, datedelim: str = '-') -> JSONList:
+    is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
     import csv
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',

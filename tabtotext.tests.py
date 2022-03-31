@@ -195,7 +195,7 @@ class TabToTextTest(unittest.TestCase):
     def test_316(self) -> None:
         text = tabtotext.tabToCSV(test016)
         logg.debug("%s => %s", test016, text)
-        cond = ['a', '2021~12~31']
+        cond = ['a', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test016)
@@ -277,7 +277,7 @@ class TabToTextTest(unittest.TestCase):
     def test_416(self) -> None:
         text = tabtotext.tabToJSON(test016)
         logg.debug("%s => %s", test016, text)
-        cond = ['[', ' {"a": "2021~12~31"}', ']']
+        cond = ['[', ' {"a": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test016)
