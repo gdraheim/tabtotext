@@ -56,11 +56,11 @@ def scanNone(val: str) -> JSONItem:
         return True
     return val
 
-def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [result]
     return tabToGFM(result)
-def tabToGFM(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -119,11 +119,11 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
         lines.append(line)
     return "\n".join(lines) + "\n"
 
-def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [result]
     return tabToHTML(result)
-def tabToHTML(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -176,11 +176,11 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[
         lines.append("<tr>" + "".join(line) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n"
 
-def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}) -> str:
+def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         result = [result]
     return tabToJSON(result)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim = '-') -> str:
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim = '-') -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
