@@ -84,6 +84,13 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
+            if isinstance(val, float):
+                m = re.search(r"%\d(?:[.]\d)f", formats[col])
+                if m:
+                    try:
+                        return formats[col] % val
+                    except:
+                        pass
             if "%s" in formats[col]:
                 try:
                     return formats[col] % strNone(val)
