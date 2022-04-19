@@ -7,8 +7,6 @@ but instead of using the Postgres API it uses the Crowd API.
 """
 
 from typing import Optional, Union, Dict, List, Any, Sequence
-from requests import Session, Response
-from urllib.parse import quote_plus as qq
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -16,7 +14,7 @@ import os
 import re
 import logging
 import json
-from io import BytesIO, StringIO
+from io import StringIO
 
 logg = logging.getLogger("TABTOTEXT")
 
