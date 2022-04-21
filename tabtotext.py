@@ -204,13 +204,10 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 sortvalue += "\n-"
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
-        if col in formats:
-            if "%s" in formats[col]:
-                try:
-                    return formats[col] % strNone(val)
-                except:
-                    pass
-            logg.info("unknown format '%s' for col '%s'", formats[col], col)
+        if col in ["NumCount"]:
+            logg.warning("%s (%s) = %s", col, type(val), val)
+        if val is None:
+            return "null"
         if isinstance(val, (Date, Time)):
             return '"%s"' % strDateTime(val, datedelim)
         return json.dumps(val)
@@ -222,11 +219,11 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             cols[name] = max(cols[name], len(format(name, value)))
     lines = []
     for item in sorted(result, key=sortrow):
-        values: JSONDict = dict([(name, "") for name in cols.keys()])
+        values: JSONDict = {}
         # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = format(name, value)
-        line = ['"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey)]
+        line = ['"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
