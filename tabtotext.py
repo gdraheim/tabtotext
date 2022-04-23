@@ -128,11 +128,6 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
     return "\n".join(lines) + "\n"
 
 def loadGFM(text: str, datedelim: str = '-') -> JSONList:
-    is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
-    is_time = re.compile(
-        r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
-    is_int = re.compile(r"([+-]?\d+)$")
-    is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
     data: JSONList = []
     at = "start"
     for row in text.splitlines():
@@ -166,36 +161,38 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 values = [field.strip() for field in line.split("|")]
                 record = []
                 for value in values:
-                    val = value.strip()
-                    if val == _None_String:
-                        record += [ None ]
-                        continue
-                    if val == _False_String:
-                        record += [ False ]
-                        continue
-                    if val == _True_String:
-                        record += [ True ]
-                        continue
-                    if is_int.match(val):
-                        record += [ int(val) ]
-                        continue
-                    if is_float.match(val):
-                        record += [ float(val) ]
-                        continue
-                    as_time = is_time.match(val)
-                    if as_time:
-                        record += [ Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                                         int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6))) ]
-                        continue
-                    as_date = is_date.match(val)
-                    if as_date:
-                        record += [ Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3))) ]
-                        continue
-                    record += [ val ] # str
+                    record.append(toJSONItem(value.strip(), datedelim))
                 newrow = dict(zip(cols, record))
                 del newrow[""]
                 data.append(newrow)
     return data
+
+def toJSONItem(val: str, datedelim = '-') -> JSONItem:
+    is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
+    is_time = re.compile(
+        r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
+    is_int = re.compile(r"([+-]?\d+)$")
+    is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
+    #
+    if val == _None_String:
+        return None
+    if val == _False_String:
+        return False
+    if val == _True_String:
+        return True
+    if is_int.match(val):
+        return int(val)
+    if is_float.match(val):
+        return float(val)
+    as_time = is_time.match(val)
+    if as_time:
+        return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                    int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
+    as_date = is_date.match(val)
+    if as_date:
+        return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+    return val # str
+
 
 def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
