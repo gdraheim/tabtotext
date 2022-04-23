@@ -222,7 +222,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a', '5678']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, test015)
+        self.assertEqual(data, test015Q)
     def test_316(self) -> None:
         text = tabtotext.tabToCSV(test016)
         logg.debug("%s => %s", test016, text)

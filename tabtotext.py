@@ -50,14 +50,38 @@ def strNone(value: Any, datedelim: str = '-') -> str:
     if value is True:
         return _True_String
     return strDateTime(value, datedelim)
-def scanNone(val: str) -> JSONItem:
-    if val == _None_String:
-        return None
-    if val == _False_String:
-        return False
-    if val == _True_String:
-        return True
-    return val
+
+class ParseJSONItem:
+    def __init__(self, datedelim = '-') -> None:
+        self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
+        self.is_time = re.compile(
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
+        self.is_int = re.compile(r"([+-]?\d+)$")
+        self.is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
+        self.datedelim = datedelim
+    def toJSONItem(self, val: str) -> JSONItem:
+        """ generic conversion of string to data types - it may do too much """
+        if val == _None_String:
+            return None
+        if val == _False_String:
+            return False
+        if val == _True_String:
+            return True
+        if self.is_int.match(val):
+            return int(val)
+        if self.is_float.match(val):
+            return float(val)
+        return self.toDate(val)
+    def toDate(self, val: str) -> JSONItem:
+        """ the json.loads parser detects most data types except Date/Time """
+        as_time = self.is_time.match(val)
+        if as_time:
+            return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                        int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
+        as_date = self.is_date.match(val)
+        if as_date:
+            return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+        return val # str
 
 def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
@@ -129,6 +153,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
 
 def loadGFM(text: str, datedelim: str = '-') -> JSONList:
     data: JSONList = []
+    convert = ParseJSONItem(datedelim)
     at = "start"
     for row in text.splitlines():
         line = row.strip()
@@ -161,37 +186,11 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 values = [field.strip() for field in line.split("|")]
                 record = []
                 for value in values:
-                    record.append(toJSONItem(value.strip(), datedelim))
+                    record.append(convert.toJSONItem(value.strip()))
                 newrow = dict(zip(cols, record))
                 del newrow[""]
                 data.append(newrow)
     return data
-
-def toJSONItem(val: str, datedelim = '-') -> JSONItem:
-    is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
-    is_time = re.compile(
-        r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
-    is_int = re.compile(r"([+-]?\d+)$")
-    is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
-    #
-    if val == _None_String:
-        return None
-    if val == _False_String:
-        return False
-    if val == _True_String:
-        return True
-    if is_int.match(val):
-        return int(val)
-    if is_float.match(val):
-        return float(val)
-    as_time = is_time.match(val)
-    if as_time:
-        return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                    int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
-    as_date = is_date.match(val)
-    if as_date:
-        return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
-    return val # str
 
 
 def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
@@ -295,23 +294,13 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     return "[\n" + ",\n".join(lines) + "\n]"
 
 def loadJSON(text: str, datedelim: str = '-') -> JSONList:
-    is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
-    is_time = re.compile(
-        r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
+    convert = ParseJSONItem(datedelim)
     jsondata = json.loads(text)
     data: JSONList = jsondata
     for record in data:
-        for key in record.keys():
-            val = record[key]
-            if not isinstance(val, str):
-                continue
-            as_time = is_time.match(val)
-            if as_time:
-                record[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),  #
-                                   int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
-            as_date = is_date.match(val)
-            if as_date:
-                record[key] = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+        for key, val in record.items():
+            if isinstance(val, str):
+                record[key] = convert.toDate(val)
     return data
 
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim: str = '-') -> str:
@@ -366,26 +355,17 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
     return csvfile.getvalue()
 
 def loadCSV(text: str, datedelim: str = '-') -> JSONList:
-    is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
-    is_time = re.compile(
-        r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
     import csv
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',
                             quoting=csv.QUOTE_MINIMAL, delimiter=";")
+    #
+    convert = ParseJSONItem(datedelim)
     data: JSONList = []
     for row in reader:
         newrow: JSONDict = dict(row)
-        for key in newrow.keys():
-            val: JSONItem = scanNone(row[key])
-            newrow[key] = val
+        for key, val in newrow.items():
             if isinstance(val, str):
-                as_time = is_time.match(val)
-                if as_time:
-                    newrow[key] = Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                                       int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
-                as_date = is_date.match(val)
-                if as_date:
-                    newrow[key] = Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
+                newrow[key] = convert.toJSONItem(val)
         data.append(newrow)
     return data
