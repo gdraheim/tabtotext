@@ -59,13 +59,16 @@ class ParseJSONItem:
         self.is_int = re.compile(r"([+-]?\d+)$")
         self.is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
         self.datedelim = datedelim
+        self.None_String = _None_String
+        self.False_String = _False_String
+        self.True_String = _True_String
     def toJSONItem(self, val: str) -> JSONItem:
         """ generic conversion of string to data types - it may do too much """
-        if val == _None_String:
+        if val == self.None_String:
             return None
-        if val == _False_String:
+        if val == self.False_String:
             return False
-        if val == _True_String:
+        if val == self.True_String:
             return True
         if self.is_int.match(val):
             return int(val)
