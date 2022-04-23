@@ -45,46 +45,64 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['| a    ', '| -----', '| ~    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test011)
     def test_112(self) -> None:
         text = tabtotext.tabToGFM(test012)
         logg.debug("%s => %s", test012, text)
         cond = ['| a    ', '| -----', '| (no) ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test012)
     def test_113(self) -> None:
         text = tabtotext.tabToGFM(test013)
         logg.debug("%s => %s", test013, text)
         cond = ['| a    ', '| -----', '| (yes)']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test013)
     def test_114(self) -> None:
         text = tabtotext.tabToGFM(test014)
         logg.debug("%s => %s", test014, text)
         cond = ['| a    ', '| -----', '|      ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test014)
     def test_115(self) -> None:
         text = tabtotext.tabToGFM(test015)
         logg.debug("%s => %s", test015, text)
         cond = ['| a    ', '| -----', '| 5678 ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test015)
     def test_116(self) -> None:
         text = tabtotext.tabToGFM(test016)
         logg.debug("%s => %s", test016, text)
         cond = ['| a    ', '| -----', '| 123  ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test016)
     def test_117(self) -> None:
         text = tabtotext.tabToGFM(test017)
         logg.debug("%s => %s", test018, text)
         cond = ['| a    ', '| -----', '| 123.4']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test017)
     def test_118(self) -> None:
         text = tabtotext.tabToGFM(test018)
         logg.debug("%s => %s", test018, text)
         cond = ['| a         ', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test018)
     def test_119(self) -> None:
         text = tabtotext.tabToGFM(test019)
         logg.debug("%s => %s", test019, text)
         cond = ['| a         ', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test018) # NOTE: instead of test019
     def test_201(self) -> None:
         text = tabtotext.tabToHTML(test001)
         logg.debug("%s => %s", test001, text)
