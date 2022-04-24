@@ -27,11 +27,11 @@ except Exception as e:
         return []
 
 def get_caller_name() -> str:
-    frame = inspect.currentframe().f_back.f_back # type: ignore
-    return frame.f_code.co_name # type: ignore
+    frame = inspect.currentframe().f_back.f_back  # type: ignore
+    return frame.f_code.co_name  # type: ignore
 def get_caller_caller_name() -> str:
-    frame = inspect.currentframe().f_back.f_back.f_back # type: ignore
-    return frame.f_code.co_name # type: ignore
+    frame = inspect.currentframe().f_back.f_back.f_back  # type: ignore
+    return frame.f_code.co_name  # type: ignore
 
 #######################################################################
 
