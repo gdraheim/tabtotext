@@ -670,6 +670,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test011Q)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_772(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
@@ -678,6 +679,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test012)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_773(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
@@ -686,6 +688,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test013)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_774(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
@@ -694,6 +697,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test014Q)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_775(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
@@ -702,6 +706,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test015)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_776(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
@@ -710,6 +715,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test016)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_777(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
@@ -718,6 +724,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test017)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_778(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
@@ -726,6 +733,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test018Q)
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_779(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
