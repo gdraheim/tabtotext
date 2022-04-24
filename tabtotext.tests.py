@@ -336,7 +336,54 @@ class TabToTextTest(unittest.TestCase):
     def test_203(self) -> None:
         text = tabtotext.tabToHTML(test003)
         logg.debug("%s => %s", test003, text)
-        cond = ['<table>', '<tr></tr>', '<tr></tr>', '<tr></tr>', '</table>']
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>x</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_204(self) -> None:
+        text = tabtotext.tabToHTML(test004)
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', #
+        '<tr><th>a</th><th>b</th></tr>', #
+        '<tr><td>x</td><td>y</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_205(self) -> None:
+        text = tabtotext.tabToHTML(test005)
+        logg.debug("%s => %s", test005, text)
+        cond = ['<table>', #
+        '<tr><th>a</th><th>b</th></tr>', #
+        '<tr><td>x</td><td>y</td></tr>', #
+        '<tr><td>u</td><td>v</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_206(self) -> None:
+        text = tabtotext.tabToHTML(test006)
+        logg.debug("%s => %s", test006, text)
+        cond = ['<table>', #
+        '<tr><th>a</th><th>b</th></tr>', #
+        '<tr><td>x</td><td>y</td></tr>', #
+        '<tr><td>u</td><td>v</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_207(self) -> None:
+        text = tabtotext.tabToHTML(test007)
+        logg.debug("%s => %s", test007, text)
+        cond = ['<table>', #
+        '<tr><th>a</th><th>b</th></tr>', #
+        '<tr><td>x</td><td>y</td></tr>', #
+        '<tr><td></td><td>v</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_208(self) -> None:
+        text = tabtotext.tabToHTML(test008)
+        logg.debug("%s => %s", test008, text)
+        cond = ['<table>', #
+        '<tr><th>a</th><th>b</th></tr>', #
+        '<tr><td>x</td><td></td></tr>', #
+        '<tr><td></td><td>v</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_209(self) -> None:
+        text = tabtotext.tabToHTML(test009)
+        logg.debug("%s => %s", test009, text)
+        cond = ['<table>', #
+        '<tr><th>b</th></tr>', #
+        '<tr><td></td></tr>', #
+        '<tr><td>v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_211(self) -> None:
         text = tabtotext.tabToHTML(test011)
