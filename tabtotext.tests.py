@@ -474,6 +474,24 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
+    def test_321(self) -> None:
+        """ legend is ignored for CSV """
+        text = tabtotext.tabToCSV(test011, legend="a result")
+        logg.debug("%s => %s", test011, text)
+        cond = ['a', '~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test011)
+    def test_331(self) -> None:
+        """ legend is ignored for CSV """
+        text = tabtotext.tabToCSV(test011, legend=["a result", "was found"])
+        logg.debug("%s => %s", test011, text)
+        cond = ['a', '~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test011)
 
     def test_401(self) -> None:
         text = tabtotext.tabToJSON(test001)
@@ -559,6 +577,23 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test018)  # test019
+    def test_421(self) -> None:
+        """ legend is ignored for JSON output """
+        text = tabtotext.tabToJSON(test011, legend="a result")
+        logg.debug("%s => %s", test011, text)
+        cond = ['[', ' {"a": null}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test011)
+    def test_431(self) -> None:
+        """ legend is ignored for JSON output """
+        text = tabtotext.tabToJSON(test011, legend=["a result", "was found"])
+        logg.debug("%s => %s", test011, text)
+        cond = ['[', ' {"a": null}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test011)
+
     def test_490(self) -> None:
         data = json.loads("[]")
         self.assertEqual(data, [])
