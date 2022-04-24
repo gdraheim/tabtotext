@@ -43,11 +43,11 @@ test004: JSONList = [{"a": "x", "b": "y"}]
 test005: JSONList = [{"a": "x", "b": "y"}, {"a": "u", "b": "v"}]
 test006: JSONList = [{"b": "y", "a": "x"}, {"b": "v", "a": "u"}]
 test007: JSONList = [{"b": "y", "a": "x"}, {"b": "v"}]
-test007Q: JSONList = [{"b": "y", "a": "x"}, {"b": "v", "a": ""}]
+test007Q: JSONList = [{"b": "y", "a": "x"}, {"b": "v", "a": None}]
 test008: JSONList = [{"a": "x"}, {"b": "v"}]
-test008Q: JSONList = [{"b": "", "a": "x"}, {"b": "v", "a": ""}]
+test008Q: JSONList = [{"b": None, "a": "x"}, {"b": "v", "a": None}]
 test009: JSONList = [{}, {"b": "v"}]
-test009Q: JSONList = [{"b": ""}, {"b": "v"}]
+test009Q: JSONList = [{"b": None}, {"b": "v"}]
 test011: JSONList = [{"a": None}]
 test011Q: JSONList = []
 test012: JSONList = [{"a": False}]
@@ -136,21 +136,21 @@ class TabToTextTest(unittest.TestCase):
     def test_107(self) -> None:
         text = tabtotext.tabToGFM(test007)
         logg.debug("%s => %s", test007, text)
-        cond = ['| a     | b    ', '| ----- | -----', '| x     | y    ', '|       | v    ']
+        cond = ['| a     | b    ', '| ----- | -----', '| x     | y    ', '| ~     | v    ']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test007Q)
     def test_108(self) -> None:
         text = tabtotext.tabToGFM(test008)
         logg.debug("%s => %s", test008, text)
-        cond = ['| a     | b    ', '| ----- | -----', '| x     |      ', '|       | v    ']
+        cond = ['| a     | b    ', '| ----- | -----', '| x     | ~    ', '| ~     | v    ']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test008Q)
     def test_109(self) -> None:
         text = tabtotext.tabToGFM(test009)
         logg.debug("%s => %s", test009, text)
-        cond = ['| b    ', '| -----', '|      ', '| v    ']
+        cond = ['| b    ', '| -----', '| ~    ', '| v    ']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test009Q)
@@ -575,10 +575,10 @@ class TabToTextTest(unittest.TestCase):
     def test_303(self) -> None:
         text = tabtotext.tabToCSV(test003)
         logg.debug("%s => %s", test003, text)
-        cond = ['', '', '', ]
+        cond = ['a', 'x', ]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, [])
+        self.assertEqual(data, test003)
     def test_304(self) -> None:
         text = tabtotext.tabToCSV(test004)
         logg.debug("%s => %s", test004, text)
@@ -603,21 +603,21 @@ class TabToTextTest(unittest.TestCase):
     def test_307(self) -> None:
         text = tabtotext.tabToCSV(test007)
         logg.debug("%s => %s", test007, text)
-        cond = ['a;b', 'x;y',';v']
+        cond = ['a;b', 'x;y','~;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test007Q)
     def test_308(self) -> None:
         text = tabtotext.tabToCSV(test008)
         logg.debug("%s => %s", test008, text)
-        cond = ['a;b', 'x;',';v']
+        cond = ['a;b', 'x;~','~;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test008Q)
     def test_309(self) -> None:
         text = tabtotext.tabToCSV(test009)
         logg.debug("%s => %s", test009, text)
-        cond = ['b', '""','v']
+        cond = ['b', '~','v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test009Q)

@@ -146,11 +146,10 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
     seperators = [rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
     lines.append(template % tuple(seperators))
     for item in sorted(result, key=sortrow):
-        values: JSONDict = dict([(name, "") for name in cols.keys()])
-        # logg.debug("values = %s", values)
+        values: JSONDict = {}
         for name, value in item.items():
-            values[name] = value
-        line = template % tuple([format(name, values[name]) for name in sorted(cols.keys(), key=sortkey)])
+            values[name] = format(name, value)
+        line = template % tuple([values.get(name, _None_String) for name in sorted(cols.keys(), key=sortkey)])
         lines.append(line)
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
 
@@ -264,7 +263,6 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     lines = ["<tr>" + "".join(line) + "</tr>"]
     for item in sorted(result, key=sortrow):
         values: JSONDict = dict([(name, "") for name in cols.keys()])
-        # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = value
         line = [rightTD(name, "<td>%s</td>" % escape(format(name, values[name]))) for name in sorted(cols.keys(), key=sortkey)]
@@ -331,7 +329,6 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     lines = []
     for item in sorted(result, key=sortrow):
         values: JSONDict = {}
-        # logg.debug("values = %s", values)
         for name, value in item.items():
             values[name] = format(name, value)
         line = ['"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
@@ -386,8 +383,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
             cols[name] = max(cols[name], len(format(name, value)))
     lines = []
     for item in sorted(result, key=sortrow):
-        values: JSONDict = dict([(name, "") for name in cols.keys()])
-        # logg.debug("values = %s", values)
+        values: JSONDict = dict([(name, _None_String) for name in cols.keys()])
         for name, value in item.items():
             values[name] = format(name, value)
         lines.append(values)
