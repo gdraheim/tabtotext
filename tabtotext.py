@@ -84,7 +84,7 @@ class ParseJSONItem:
         as_date = self.is_date.match(val)
         if as_date:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
-        return val # str
+        return val  # str
 
 def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
@@ -191,7 +191,7 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 newcols = [name.strip() for name in line.split("|")]
                 if len(newcols) != len(cols):
                     logg.error("header divider has not the same lenght")
-                    at = "data" # promote anyway
+                    at = "data"  # promote anyway
                     continue
                 ok = True
                 for col in newcols:
@@ -200,11 +200,11 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                         logg.warning("no header divider: %s", col)
                         ok = False
                 if not ok:
-                   cols = [ cols[i] + " " + newcols[i] for i in range(len(cols)) ]
-                   continue
+                    cols = [cols[i] + " " + newcols[i] for i in range(len(cols))]
+                    continue
                 else:
-                   at = "data"
-                   continue
+                    at = "data"
+                    continue
             if at == "data":
                 values = [field.strip() for field in line.split("|")]
                 record = []
