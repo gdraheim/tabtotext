@@ -21,7 +21,8 @@ try:
 except Exception as e:
     logg.warning("skipping tabtoxlsx: %s", e)
     skipXLSX = True
-    def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
+    def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+                   legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
         pass
     def readFromXLSX(filename: str) -> JSONList:
         return []
@@ -37,7 +38,7 @@ def get_caller_caller_name() -> str:
 
 test001: JSONList = []
 test002: JSONList = [{}]
-test003: JSONList = [{}, {}]
+# test003: JSONList = [{}, {}]
 test003: JSONList = [{"a": "x"}]
 test004: JSONList = [{"a": "x", "b": "y"}]
 test005: JSONList = [{"a": "x", "b": "y"}, {"a": "u", "b": "v"}]
@@ -362,48 +363,48 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToHTML(test004)
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', #
-        '<tr><th>a</th><th>b</th></tr>', #
-        '<tr><td>x</td><td>y</td></tr>', '</table>']
+                '<tr><th>a</th><th>b</th></tr>', #
+                '<tr><td>x</td><td>y</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_205(self) -> None:
         text = tabtotext.tabToHTML(test005)
         logg.debug("%s => %s", test005, text)
         cond = ['<table>', #
-        '<tr><th>a</th><th>b</th></tr>', #
-        '<tr><td>x</td><td>y</td></tr>', #
-        '<tr><td>u</td><td>v</td></tr>', '</table>']
+                '<tr><th>a</th><th>b</th></tr>', #
+                '<tr><td>x</td><td>y</td></tr>', #
+                '<tr><td>u</td><td>v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_206(self) -> None:
         text = tabtotext.tabToHTML(test006)
         logg.debug("%s => %s", test006, text)
         cond = ['<table>', #
-        '<tr><th>a</th><th>b</th></tr>', #
-        '<tr><td>x</td><td>y</td></tr>', #
-        '<tr><td>u</td><td>v</td></tr>', '</table>']
+                '<tr><th>a</th><th>b</th></tr>', #
+                '<tr><td>x</td><td>y</td></tr>', #
+                '<tr><td>u</td><td>v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_207(self) -> None:
         text = tabtotext.tabToHTML(test007)
         logg.debug("%s => %s", test007, text)
         cond = ['<table>', #
-        '<tr><th>a</th><th>b</th></tr>', #
-        '<tr><td>x</td><td>y</td></tr>', #
-        '<tr><td></td><td>v</td></tr>', '</table>']
+                '<tr><th>a</th><th>b</th></tr>', #
+                '<tr><td>x</td><td>y</td></tr>', #
+                '<tr><td></td><td>v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_208(self) -> None:
         text = tabtotext.tabToHTML(test008)
         logg.debug("%s => %s", test008, text)
         cond = ['<table>', #
-        '<tr><th>a</th><th>b</th></tr>', #
-        '<tr><td>x</td><td></td></tr>', #
-        '<tr><td></td><td>v</td></tr>', '</table>']
+                '<tr><th>a</th><th>b</th></tr>', #
+                '<tr><td>x</td><td></td></tr>', #
+                '<tr><td></td><td>v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_209(self) -> None:
         text = tabtotext.tabToHTML(test009)
         logg.debug("%s => %s", test009, text)
         cond = ['<table>', #
-        '<tr><th>b</th></tr>', #
-        '<tr><td></td></tr>', #
-        '<tr><td>v</td></tr>', '</table>']
+                '<tr><th>b</th></tr>', #
+                '<tr><td></td></tr>', #
+                '<tr><td>v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_211(self) -> None:
         text = tabtotext.tabToHTML(test011)
@@ -581,42 +582,42 @@ class TabToTextTest(unittest.TestCase):
     def test_304(self) -> None:
         text = tabtotext.tabToCSV(test004)
         logg.debug("%s => %s", test004, text)
-        cond = ['a;b', 'x;y',]
+        cond = ['a;b', 'x;y', ]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test004)
     def test_305(self) -> None:
         text = tabtotext.tabToCSV(test005)
         logg.debug("%s => %s", test005, text)
-        cond = ['a;b', 'x;y','u;v']
+        cond = ['a;b', 'x;y', 'u;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test005)
     def test_306(self) -> None:
         text = tabtotext.tabToCSV(test006)
         logg.debug("%s => %s", test006, text)
-        cond = ['a;b', 'x;y','u;v']
+        cond = ['a;b', 'x;y', 'u;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test006)
     def test_307(self) -> None:
         text = tabtotext.tabToCSV(test007)
         logg.debug("%s => %s", test007, text)
-        cond = ['a;b', 'x;y','~;v']
+        cond = ['a;b', 'x;y', '~;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test007Q)
     def test_308(self) -> None:
         text = tabtotext.tabToCSV(test008)
         logg.debug("%s => %s", test008, text)
-        cond = ['a;b', 'x;~','~;v']
+        cond = ['a;b', 'x;~', '~;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test008Q)
     def test_309(self) -> None:
         text = tabtotext.tabToCSV(test009)
         logg.debug("%s => %s", test009, text)
-        cond = ['b', '~','v']
+        cond = ['b', '~', 'v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test009Q)

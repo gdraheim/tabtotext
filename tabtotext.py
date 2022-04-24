@@ -86,11 +86,13 @@ class ParseJSONItem:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         return val  # str
 
-def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
     return tabToGFM(result, sorts, formats, legend)
-def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+             legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -114,13 +116,13 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
                 if m:
                     try:
                         return formats[col] % val
-                    except:
-                        pass
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %e", formats[col], e)
             if "%s" in formats[col]:
                 try:
                     return formats[col] % strNone(val)
-                except:
-                    pass
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         return strNone(val)
     cols: Dict[str, int] = {}
@@ -215,11 +217,13 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
     return data
 
 
-def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
     return tabToHTML(result, sorts, formats, legend)
-def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -241,8 +245,8 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             if "%s" in formats[col]:
                 try:
                     return formats[col] % strNone(val)
-                except:
-                    pass
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         return strNone(val)
     cols: Dict[str, int] = {}
@@ -289,11 +293,13 @@ def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line.strip()]) + "</ul>"
 
-def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
     return tabToJSON(result, sorts, formats, datedelim, legend)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if legend:
         logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
@@ -345,7 +351,8 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
                 record[key] = convert.toDate(val)
     return data
 
-def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
@@ -369,8 +376,8 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
             if "%s" in formats[col]:
                 try:
                     return formats[col] % strNone(val)
-                except:
-                    pass
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             logg.info("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (Date, Time)):
             return '%s' % strDateTime(val, datedelim)
