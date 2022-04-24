@@ -105,11 +105,11 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
         if isinstance(legend, str):
            set_cell(ws, 0, 1, legend, text_style)
         elif isinstance(legend, dict):
-           for row, name in enumerated(sorted(legend.keys(), key=sortkey)):
+           for row, name in enumerate(sorted(legend.keys(), key=sortkey)):
                set_cell(ws, row, 0, name, text_style)
                set_cell(ws, row, 1, legend[name], text_style)
         else:
-           for row, line in enumerated(legend):
+           for row, line in enumerate(legend):
                set_cell(ws, row, 1, line, text_style)
     workbook.save(filename)
 
