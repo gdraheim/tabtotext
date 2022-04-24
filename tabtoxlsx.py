@@ -3,7 +3,7 @@ import logging
 from typing import Optional, Union, Dict, List, Any, Sequence
 from tabtotext import JSONList, JSONDict, tabToGFM, strNone, strDateTime
 
-from openpyxl import Workbook  # type: ignore
+from openpyxl import Workbook, load_workbook  # type: ignore
 from openpyxl.worksheet.worksheet import Worksheet  # type: ignore
 from openpyxl.styles.cell_style import CellStyle as Style  # type: ignore
 from openpyxl.styles.alignment import Alignment  # type: ignore
@@ -14,6 +14,8 @@ import datetime
 DayOrTime = (datetime.date, datetime.datetime)
 
 MINWIDTH = 7
+MAXCOL = 1000
+MAXROWS = 100000
 
 logg = logging.getLogger("TABTOXLSX")
 
@@ -30,12 +32,12 @@ def set_width(ws: Worksheet, col: int, width: int) -> None:  # type: ignore
     ws.column_dimensions[get_column_letter(col + 1)].width = width
 
 
-def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> None:
+def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
     if isinstance(result, Dict):
         result = [result]
-    saveToXLSX(filename, result)
+    saveToXLSX(filename, result, sorts, formats, legend)
 
-def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> None:
+def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -63,6 +65,7 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
     row = 0
     workbook = Workbook()
     ws = workbook.active
+    ws.title = "data"
     style = Style()
     text_style = Style()
     text_style.number_format = 'General'
@@ -96,4 +99,46 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
                 set_cell(ws, row, col, value, text_style)
             col += 1
         row += 1
+    if legend:
+        ws = workbook.create_sheet()
+        ws.title = "legend"
+        if isinstance(legend, str):
+           set_cell(ws, 0, 1, legend, text_style)
+        elif isinstance(legend, dict):
+           for row, name in enumerated(sorted(legend.keys(), key=sortkey)):
+               set_cell(ws, row, 0, name, text_style)
+               set_cell(ws, row, 1, legend[name], text_style)
+        else:
+           for row, line in enumerated(legend):
+               set_cell(ws, row, 1, line, text_style)
     workbook.save(filename)
+
+def readFromXLSX(filename: str) -> JSONList:
+    workbook = load_workbook(filename)
+    ws = workbook.active
+    cols = []
+    for col in range(MAXCOL):
+        header = ws.cell(row = 1, column = col+1)
+        if header.value is None:
+            break
+        name = header.value
+        if name is None:
+            break
+        cols.append(name)
+    logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
+    data: JSONList = []
+    for atrow in range(MAXROWS):
+        record = []
+        found = 0
+        for atcol in range(len(cols)):
+            cell = ws.cell(row = atrow+2, column = atcol+1)
+            value = cell.value
+            # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
+            if value is not None:
+                found += 1
+            record.append(value)
+        if not found:
+            break
+        newrow = dict(zip(cols, record))
+        data.append(newrow)
+    return data
