@@ -337,6 +337,51 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test019, text)
         cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>2021-12-31</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '</ul>']
         self.assertEqual(cond, text.splitlines())
+    def test_231(self) -> None:
+        text = tabtotext.tabToHTML(test011, legend=["a result", "was found"])
+        logg.debug("%s => %s", test011, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>~</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_232(self) -> None:
+        text = tabtotext.tabToHTML(test012, legend=["a result", "was found"])
+        logg.debug("%s => %s", test012, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>(no)</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_233(self) -> None:
+        text = tabtotext.tabToHTML(test013, legend=["a result", "was found"])
+        logg.debug("%s => %s", test013, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>(yes)</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_234(self) -> None:
+        text = tabtotext.tabToHTML(test014, legend=["a result", "was found"])
+        logg.debug("%s => %s", test014, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td></td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_235(self) -> None:
+        text = tabtotext.tabToHTML(test015, legend=["a result", "was found"])
+        logg.debug("%s => %s", test015, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>5678</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_236(self) -> None:
+        text = tabtotext.tabToHTML(test016, legend=["a result", "was found"])
+        logg.debug("%s => %s", test016, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_237(self) -> None:
+        text = tabtotext.tabToHTML(test017, legend=["a result", "was found"])
+        logg.debug("%s => %s", test017, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>123.4</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_238(self) -> None:
+        text = tabtotext.tabToHTML(test018, legend=["a result", "was found"])
+        logg.debug("%s => %s", test018, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>2021-12-31</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
+    def test_239(self) -> None:
+        text = tabtotext.tabToHTML(test019, legend=["a result", "was found"])
+        logg.debug("%s => %s", test019, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>2021-12-31</td></tr>', '</table>', '', '<ul>', '<li>a result</li>', '<li>was found</li>', '</ul>']
+        self.assertEqual(cond, text.splitlines())
 
 
     def test_301(self) -> None:
