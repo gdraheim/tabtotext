@@ -43,8 +43,11 @@ test004: JSONList = [{"a": "x", "b": "y"}]
 test005: JSONList = [{"a": "x", "b": "y"}, {"a": "u", "b": "v"}]
 test006: JSONList = [{"b": "y", "a": "x"}, {"b": "v", "a": "u"}]
 test007: JSONList = [{"b": "y", "a": "x"}, {"b": "v"}]
+test007Q: JSONList = [{"b": "y", "a": "x"}, {"b": "v", "a": ""}]
 test008: JSONList = [{"a": "x"}, {"b": "v"}]
+test008Q: JSONList = [{"b": "", "a": "x"}, {"b": "v", "a": ""}]
 test009: JSONList = [{}, {"b": "v"}]
+test009Q: JSONList = [{"b": ""}, {"b": "v"}]
 test011: JSONList = [{"a": None}]
 test011Q: JSONList = []
 test012: JSONList = [{"a": False}]
@@ -93,46 +96,64 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test001, text)
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, [])
     def test_102(self) -> None:
         text = tabtotext.tabToGFM(test002)
         logg.debug("%s => %s", test002, text)
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, [])
     def test_103(self) -> None:
         text = tabtotext.tabToGFM(test003)
         logg.debug("%s => %s", test003, text)
         cond = ['| a    ', '| -----', '| x    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test003)
     def test_104(self) -> None:
         text = tabtotext.tabToGFM(test004)
         logg.debug("%s => %s", test004, text)
         cond = ['| a     | b    ', '| ----- | -----', '| x     | y    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test004)
     def test_105(self) -> None:
         text = tabtotext.tabToGFM(test005)
         logg.debug("%s => %s", test005, text)
         cond = ['| a     | b    ', '| ----- | -----', '| x     | y    ', '| u     | v    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test005)
     def test_106(self) -> None:
         text = tabtotext.tabToGFM(test006)
         logg.debug("%s => %s", test006, text)
         cond = ['| a     | b    ', '| ----- | -----', '| x     | y    ', '| u     | v    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test006)
     def test_107(self) -> None:
         text = tabtotext.tabToGFM(test007)
         logg.debug("%s => %s", test007, text)
         cond = ['| a     | b    ', '| ----- | -----', '| x     | y    ', '|       | v    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test007Q)
     def test_108(self) -> None:
         text = tabtotext.tabToGFM(test008)
         logg.debug("%s => %s", test008, text)
         cond = ['| a     | b    ', '| ----- | -----', '| x     |      ', '|       | v    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test008Q)
     def test_109(self) -> None:
         text = tabtotext.tabToGFM(test009)
         logg.debug("%s => %s", test009, text)
         cond = ['| b    ', '| -----', '|      ', '| v    ']
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test009Q)
     def test_111(self) -> None:
         text = tabtotext.tabToGFM(test011)
         logg.debug("%s => %s", test011, text)
