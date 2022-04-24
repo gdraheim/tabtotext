@@ -26,12 +26,12 @@ except Exception as e:
     def readFromXLSX(filename: str) -> JSONList:
         return []
 
-def get_caller_name():
-    frame = inspect.currentframe().f_back.f_back
-    return frame.f_code.co_name
-def get_caller_caller_name():
-    frame = inspect.currentframe().f_back.f_back.f_back
-    return frame.f_code.co_name
+def get_caller_name() -> str:
+    frame = inspect.currentframe().f_back.f_back # type: ignore
+    return frame.f_code.co_name # type: ignore
+def get_caller_caller_name() -> str:
+    frame = inspect.currentframe().f_back.f_back.f_back # type: ignore
+    return frame.f_code.co_name # type: ignore
 
 #######################################################################
 
@@ -54,19 +54,19 @@ test019Q: JSONList = [{"a": datetime.date(2021, 12, 31)}]
 test019: JSONList = [{"a": datetime.datetime(2021, 12, 31, 23, 34, 45)}]
 
 class TabToTextTest(unittest.TestCase):
-    def caller_testname(self):
+    def caller_testname(self) -> str:
         name = get_caller_caller_name()
         x1 = name.find("_")
         if x1 < 0: return name
         x2 = name.find("_", x1 + 1)
         if x2 < 0: return name
         return name[:x2]
-    def testname(self, suffix=None):
+    def testname(self, suffix: Optional[str] = None) -> str:
         name = self.caller_testname()
         if suffix:
             return name + "_" + suffix
         return name
-    def testdir(self, testname=None, keep=False):
+    def testdir(self, testname: Optional[str] = None, keep: bool = False) -> str:
         testname = testname or self.caller_testname()
         newdir = "tmp/tmp." + testname
         if path.isdir(newdir) and not keep:
@@ -74,7 +74,7 @@ class TabToTextTest(unittest.TestCase):
         if not path.isdir(newdir):
             os.makedirs(newdir)
         return newdir
-    def rm_testdir(self, testname=None):
+    def rm_testdir(self, testname: Optional[str] = None) -> str:
         testname = testname or self.caller_testname()
         newdir = "tmp/tmp." + testname
         if path.isdir(newdir):
@@ -685,6 +685,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test011Q)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_772(self) -> None:
         tmp = self.testdir()
@@ -694,6 +695,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test012)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_773(self) -> None:
         tmp = self.testdir()
@@ -703,6 +705,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test013)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_774(self) -> None:
         tmp = self.testdir()
@@ -712,6 +715,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test014Q)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_775(self) -> None:
         tmp = self.testdir()
@@ -721,6 +725,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test015)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_776(self) -> None:
         tmp = self.testdir()
@@ -730,6 +735,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test016)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_777(self) -> None:
         tmp = self.testdir()
@@ -739,6 +745,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test017)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_778(self) -> None:
         tmp = self.testdir()
@@ -748,6 +755,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test018Q)
+        self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_779(self) -> None:
         tmp = self.testdir()
@@ -757,6 +765,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 100)
         data = readFromXLSX(filename)
         self.assertEqual(data, test019)
+        self.rm_testdir()
 
 if __name__ == "__main__":
     # unittest.main()
