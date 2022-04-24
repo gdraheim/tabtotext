@@ -53,7 +53,6 @@ test011Q: JSONList = []
 test012: JSONList = [{"a": False}]
 test013: JSONList = [{"a": True}]
 test014: JSONList = [{"a": ""}]
-test014Q: JSONList = []
 test015: JSONList = [{"a": "5678"}]
 test015Q: JSONList = [{"a": 5678}]
 test016: JSONList = [{"a": 123}]
@@ -911,7 +910,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 4000)
         self.assertGreater(5000, sz)
         data = readFromXLSX(filename)
-        self.assertEqual(data, test014Q)
+        self.assertEqual(data, test014)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_775(self) -> None:
@@ -1016,7 +1015,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(sz, 5000)
         self.assertGreater(6000, sz)
         data = readFromXLSX(filename)
-        self.assertEqual(data, test014Q)
+        self.assertEqual(data, test014)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_785(self) -> None:
