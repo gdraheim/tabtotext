@@ -216,11 +216,11 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
     return data
 
 
-def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
+def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToHTML(result)
-def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
+    return tabToHTML(result, sorts, formats, legend)
+def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -269,13 +269,35 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             values[name] = value
         line = [rightTD(name, "<td>%s</td>" % escape(format(name, values[name]))) for name in sorted(cols.keys(), key=sortkey)]
         lines.append("<tr>" + "".join(line) + "</tr>")
-    return "<table>\n" + "\n".join(lines) + "\n</table>\n"
+    return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts)
 
-def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
+def legendToHTML(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
+    def sortkey(header: str) -> str:
+        if header in sorts:
+            return "%07i" % sorts.index(header)
+        return header
+    if isinstance(legend, dict):
+        lines = []
+        for key in sorted(legend.keys(), key=sortkey):
+            line = "%s: %s" % (key, legend[key])
+            lines.append(line)
+        return listToHTML(lines)
+    elif isinstance(legend, str):
+        return listToHTML([legend])
+    else:
+        return listToHTML(legend)
+
+def listToHTML(lines: Sequence[str]) -> str:
+    if not lines: return ""
+    return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line.strip()]) + "</ul>"
+
+def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToJSON(result)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim: str = '-') -> str:
+    return tabToJSON(result, sorts, formats, datedelim, legend)
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    if legend:
+        logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -326,7 +348,9 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
                 record[key] = convert.toDate(val)
     return data
 
-def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim: str = '-') -> str:
+def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    if legend:
+        logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
