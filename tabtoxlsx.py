@@ -17,6 +17,14 @@ MINWIDTH = 7
 MAXCOL = 1000
 MAXROWS = 100000
 
+# Excel encodes empty-string as nonexistant cell.
+# Since we want to encode None as empty cell (to allow numeric computations), we assign a value for empty-string.
+# Note that other people hat recommended "NA()" for null which shows as "N#A" and it is correctly transferred
+# into a database as NULL by Excel itself. However in your formulas you would need to skip those cells any 
+# numeric operation with a numeric value and some NA() returns NA()
+
+_Empty_String = " "
+
 logg = logging.getLogger("TABTOXLSX")
 
 def set_cell(ws: Worksheet, row: int, col: int, value: Any, style: Style) -> None:  # type: ignore
@@ -96,7 +104,10 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
             elif isinstance(value, (int, float)):
                 set_cell(ws, row, col, value, numm_style)
             else:
-                set_cell(ws, row, col, value, text_style)
+                if not value:
+                    set_cell(ws, row, col, _Empty_String, text_style)
+                else:
+                    set_cell(ws, row, col, value, text_style)
             col += 1
         row += 1
     if legend:
@@ -136,6 +147,8 @@ def readFromXLSX(filename: str) -> JSONList:
             # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
             if value is not None:
                 found += 1
+            if isinstance(value, str) and value == _Empty_String:
+                value = ""
             record.append(value)
         if not found:
             break
