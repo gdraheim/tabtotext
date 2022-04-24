@@ -52,7 +52,7 @@ def strNone(value: Any, datedelim: str = '-') -> str:
     return strDateTime(value, datedelim)
 
 class ParseJSONItem:
-    def __init__(self, datedelim = '-') -> None:
+    def __init__(self, datedelim: str = '-') -> None:
         self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
         self.is_time = re.compile(
             r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
@@ -200,7 +200,7 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                         logg.warning("no header divider: %s", col)
                         ok = False
                 if not ok:
-                   cols = [ cols[i] + " " + newcols[i] for i in range(cols) ]
+                   cols = [ cols[i] + " " + newcols[i] for i in range(len(cols)) ]
                    continue
                 else:
                    at = "data"
