@@ -1,32 +1,86 @@
 #! /usr/bin/python3
 
+from typing import Optional, Union, Dict, List, Any, Sequence
 from tabtotext import JSONList
 import tabtotext
 import unittest
 import datetime
 import sys
 from fnmatch import fnmatchcase as fnmatch
+import os
+import os.path as path
+import shutil
 import json
+import inspect
 import logging
 logg = logging.getLogger("TESTS")
 
+try:
+    from tabtoxlsx import saveToXLSX, readFromXLSX  # type: ignore
+    skipXLSX = False
+except Exception as e:
+    logg.warning("skipping tabtoxlsx: %s", e)
+    skipXLSX = True
+    def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
+        pass
+    def readFromXLSX(filename: str) -> JSONList:
+        return []
+
+def get_caller_name():
+    frame = inspect.currentframe().f_back.f_back
+    return frame.f_code.co_name
+def get_caller_caller_name():
+    frame = inspect.currentframe().f_back.f_back.f_back
+    return frame.f_code.co_name
+
+#######################################################################
 
 test001: JSONList = []
 test002: JSONList = [{}]
 test003: JSONList = [{}, {}]
 test011: JSONList = [{"a": None}]
+test011Q: JSONList = []
 test012: JSONList = [{"a": False}]
 test013: JSONList = [{"a": True}]
 test014: JSONList = [{"a": ""}]
+test014Q: JSONList = []
 test015: JSONList = [{"a": "5678"}]
 test015Q: JSONList = [{"a": 5678}]
 test016: JSONList = [{"a": 123}]
 test017: JSONList = [{"a": 123.4}]
 test018: JSONList = [{"a": datetime.date(2021, 12, 31)}]
+test018Q: JSONList = [{"a": datetime.datetime(2021, 12, 31, 0, 0)}]
 test019Q: JSONList = [{"a": datetime.date(2021, 12, 31)}]
 test019: JSONList = [{"a": datetime.datetime(2021, 12, 31, 23, 34, 45)}]
 
 class TabToTextTest(unittest.TestCase):
+    def caller_testname(self):
+        name = get_caller_caller_name()
+        x1 = name.find("_")
+        if x1 < 0: return name
+        x2 = name.find("_", x1+1)
+        if x2 < 0: return name
+        return name[:x2]
+    def testname(self, suffix = None):
+        name = self.caller_testname()
+        if suffix:
+            return name + "_" + suffix
+        return name
+    def testdir(self, testname = None, keep = False):
+        testname = testname or self.caller_testname()
+        newdir = "tmp/tmp."+testname
+        if path.isdir(newdir) and not keep:
+            shutil.rmtree(newdir)
+        if not path.isdir(newdir):
+            os.makedirs(newdir)
+        return newdir
+    def rm_testdir(self, testname = None):
+        testname = testname or self.caller_testname()
+        newdir = "tmp/tmp."+testname
+        if path.isdir(newdir):
+            shutil.rmtree(newdir)
+        return newdir
+    #
     def test_101(self) -> None:
         text = tabtotext.tabToGFM(test001)
         logg.debug("%s => %s", test001, text)
@@ -606,6 +660,80 @@ class TabToTextTest(unittest.TestCase):
             self.assertEqual(data, [{}])
         except json.decoder.JSONDecodeError as e:
             self.assertIn("Expecting value", str(e))
+
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_771(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test011)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test011Q)
+    def test_772(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test012)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test012)
+    def test_773(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test013)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test013)
+    def test_774(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test014)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test014Q)
+    def test_775(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test015)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test015)
+    def test_776(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test016)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test016)
+    def test_777(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test017)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test017)
+    def test_778(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test018)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test018Q)
+    def test_779(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "output.xlsx")
+        saveToXLSX(filename, test019)
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        data = readFromXLSX(filename)
+        self.assertEqual(data, test019)
 
 if __name__ == "__main__":
     # unittest.main()
