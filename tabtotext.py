@@ -86,11 +86,11 @@ class ParseJSONItem:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         return val # str
 
-def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
+def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToGFM(result)
-def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}) -> str:
+    return tabToGFM(result, sorts, formats, legend)
+def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -152,7 +152,27 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
             values[name] = value
         line = template % tuple([format(name, values[name]) for name in sorted(cols.keys(), key=sortkey)])
         lines.append(line)
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
+
+def legendToGFM(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
+    def sortkey(header: str) -> str:
+        if header in sorts:
+            return "%07i" % sorts.index(header)
+        return header
+    if isinstance(legend, dict):
+        lines = []
+        for key in sorted(legend.keys(), key=sortkey):
+            line = "%s: %s" % (key, legend[key])
+            lines.append(line)
+        return listToGFM(lines)
+    elif isinstance(legend, str):
+        return listToGFM([legend])
+    else:
+        return listToGFM(legend)
+
+def listToGFM(lines: Sequence[str]) -> str:
+    if not lines: return ""
+    return "\n" + "".join(["- %s\n" % line.strip() for line in lines if line.strip()])
 
 def loadGFM(text: str, datedelim: str = '-') -> JSONList:
     data: JSONList = []
