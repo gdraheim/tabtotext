@@ -579,6 +579,48 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, [])
+    def test_304(self) -> None:
+        text = tabtotext.tabToCSV(test004)
+        logg.debug("%s => %s", test004, text)
+        cond = ['a;b', 'x;y',]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test004)
+    def test_305(self) -> None:
+        text = tabtotext.tabToCSV(test005)
+        logg.debug("%s => %s", test005, text)
+        cond = ['a;b', 'x;y','u;v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test005)
+    def test_306(self) -> None:
+        text = tabtotext.tabToCSV(test006)
+        logg.debug("%s => %s", test006, text)
+        cond = ['a;b', 'x;y','u;v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test006)
+    def test_307(self) -> None:
+        text = tabtotext.tabToCSV(test007)
+        logg.debug("%s => %s", test007, text)
+        cond = ['a;b', 'x;y',';v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test007Q)
+    def test_308(self) -> None:
+        text = tabtotext.tabToCSV(test008)
+        logg.debug("%s => %s", test008, text)
+        cond = ['a;b', 'x;',';v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test008Q)
+    def test_309(self) -> None:
+        text = tabtotext.tabToCSV(test009)
+        logg.debug("%s => %s", test009, text)
+        cond = ['b', '""','v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test009Q)
     def test_311(self) -> None:
         text = tabtotext.tabToCSV(test011)
         logg.debug("%s => %s", test011, text)
