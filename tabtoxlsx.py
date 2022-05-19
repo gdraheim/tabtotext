@@ -20,7 +20,7 @@ MAXROWS = 100000
 # Excel encodes empty-string as nonexistant cell.
 # Since we want to encode None as empty cell (to allow numeric computations), we assign a value for empty-string.
 # Note that other people hat recommended "NA()" for null which shows as "N#A" and it is correctly transferred
-# into a database as NULL by Excel itself. However in your formulas you would need to skip those cells any 
+# into a database as NULL by Excel itself. However in your formulas you would need to skip those cells any
 # numeric operation with a numeric value and some NA() returns NA()
 
 _Empty_String = " "
@@ -114,14 +114,14 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
         ws = workbook.create_sheet()
         ws.title = "legend"
         if isinstance(legend, str):
-           set_cell(ws, 0, 1, legend, text_style)
+            set_cell(ws, 0, 1, legend, text_style)
         elif isinstance(legend, dict):
-           for row, name in enumerate(sorted(legend.keys(), key=sortkey)):
-               set_cell(ws, row, 0, name, text_style)
-               set_cell(ws, row, 1, legend[name], text_style)
+            for row, name in enumerate(sorted(legend.keys(), key=sortkey)):
+                set_cell(ws, row, 0, name, text_style)
+                set_cell(ws, row, 1, legend[name], text_style)
         else:
-           for row, line in enumerate(legend):
-               set_cell(ws, row, 1, line, text_style)
+            for row, line in enumerate(legend):
+                set_cell(ws, row, 1, line, text_style)
     workbook.save(filename)
 
 def readFromXLSX(filename: str) -> JSONList:
@@ -129,7 +129,7 @@ def readFromXLSX(filename: str) -> JSONList:
     ws = workbook.active
     cols = []
     for col in range(MAXCOL):
-        header = ws.cell(row = 1, column = col+1)
+        header = ws.cell(row=1, column=col + 1)
         if header.value is None:
             break
         name = header.value
@@ -142,7 +142,7 @@ def readFromXLSX(filename: str) -> JSONList:
         record = []
         found = 0
         for atcol in range(len(cols)):
-            cell = ws.cell(row = atrow+2, column = atcol+1)
+            cell = ws.cell(row=atrow + 2, column=atcol + 1)
             value = cell.value
             # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
             if value is not None:
