@@ -173,7 +173,7 @@ def legendToGFM(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[st
 
 def listToGFM(lines: Sequence[str]) -> str:
     if not lines: return ""
-    return "\n" + "".join(["- %s\n" % line.strip() for line in lines if line.strip()])
+    return "\n" + "".join(["- %s\n" % line.strip() for line in lines if line and line.strip()])
 
 def loadGFM(text: str, datedelim: str = '-') -> JSONList:
     data: JSONList = []
@@ -291,7 +291,7 @@ def legendToHTML(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[s
 
 def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
-    return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line.strip()]) + "</ul>"
+    return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line and line.strip()]) + "</ul>"
 
 def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
