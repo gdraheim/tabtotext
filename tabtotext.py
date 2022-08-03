@@ -220,7 +220,7 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 data.append(newrow)
     return data
 
-xx=0
+xx = 0
 
 def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
