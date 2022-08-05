@@ -6,7 +6,7 @@ but instead of using the Postgres API it uses the Crowd API.
 // Please be aware the --appuser/--password represent crowd-application credentials (not a build user)
 """
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable
+from typing import Optional, Union, Dict, List, Any, Sequence
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -92,14 +92,10 @@ def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], form
         result = [result]
     return tabToGFM(result, sorts, formats, legend)
 def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-             legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+             legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
+        if header in sorts:
+            return "%07i" % sorts.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -220,7 +216,6 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 data.append(newrow)
     return data
 
-xx = 0
 
 def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -228,14 +223,10 @@ def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], for
         result = [result]
     return tabToHTML(result, sorts, formats, legend)
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
+        if header in sorts:
+            return "%07i" % sorts.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -248,8 +239,6 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                     sortvalue += "\n" + strDateTime(value)
             else:
                 sortvalue += "\n-"
-        if "2022-02-02" in sortvalue:
-            logg.error("sortvalue = %s", sortvalue)
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
@@ -310,16 +299,12 @@ def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], for
         result = [result]
     return tabToJSON(result, sorts, formats, datedelim, legend)
 def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if legend:
         logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
+        if header in sorts:
+            return "%07i" % sorts.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -367,16 +352,12 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
     return data
 
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
+        if header in sorts:
+            return "%07i" % sorts.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
