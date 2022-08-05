@@ -22,6 +22,7 @@ DATEFMT = "%Y-%m-%d"
 NORIGHT = False
 MINWIDTH = 5
 
+JSONBase = Union[str, int, float, bool]
 JSONItem = Union[str, int, float, bool, Date, Time, None, Dict[str, Any], List[Any]]
 JSONDict = Dict[str, JSONItem]
 JSONList = List[JSONDict]
