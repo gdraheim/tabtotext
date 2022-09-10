@@ -6,7 +6,8 @@ but instead of using the Postgres API it uses the Crowd API.
 // Please be aware the --appuser/--password represent crowd-application credentials (not a build user)
 """
 
-from typing import Optional, Union, Dict, List, Any, Sequence
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable
+from typing_extensions import Protocol # from tpying when python >= 3.8
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -22,7 +23,7 @@ DATEFMT = "%Y-%m-%d"
 NORIGHT = False
 MINWIDTH = 5
 
-JSONBase = Union[str, int, float, bool]
+
 JSONItem = Union[str, int, float, bool, Date, Time, None, Dict[str, Any], List[Any]]
 JSONDict = Dict[str, JSONItem]
 JSONList = List[JSONDict]
@@ -32,6 +33,16 @@ JSONDictDict = Dict[str, JSONDict]
 _None_String = "~"
 _False_String = "(no)"
 _True_String = "(yes)"
+
+class Dataclass(Protocol):
+    __dataclass_fields__: Dict[str, Any]
+DataList = List[Dataclass]
+
+def dataclass_to_dict(data: Dataclass) -> Dict[str, Any]:
+    values: Dict[str, Any] = {}
+    for name in data.__dataclass_fields__:
+        values[name] = getattr(data, name)
+    return values
 
 def setNoRight(value: bool) -> None:
     global NORIGHT
@@ -87,16 +98,25 @@ class ParseJSONItem:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         return val  # str
 
-def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+
+def tabToGFMx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToGFM(result, sorts, formats, legend)
+    try:
+        result = [ dataclass_to_dict(item) for item in result ] # type: ignore[arg-type]
+    except AttributeError:
+        pass
+    return tabToGFM(result, sorts, formats, legend) # type: ignore[arg-type]
 def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-             legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+             legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -217,17 +237,24 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 data.append(newrow)
     return data
 
-
 def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
+    try:
+        result = [ dataclass_to_dict(item) for item in result ] # type: ignore[arg-type]
+    except AttributeError:
+        pass
     return tabToHTML(result, sorts, formats, legend)
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -240,6 +267,8 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                     sortvalue += "\n" + strDateTime(value)
             else:
                 sortvalue += "\n-"
+        if "2022-02-02" in sortvalue:
+            logg.error("sortvalue = %s", sortvalue)
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
@@ -298,14 +327,22 @@ def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], for
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
+    try:
+        result = [ dataclass_to_dict(item) for item in result ] # type: ignore[arg-type]
+    except AttributeError:
+        pass
     return tabToJSON(result, sorts, formats, datedelim, legend)
 def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -353,12 +390,16 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
     return data
 
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
