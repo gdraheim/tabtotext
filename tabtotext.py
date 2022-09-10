@@ -7,7 +7,6 @@ but instead of using the Postgres API it uses the Crowd API.
 """
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable
-from typing_extensions import Protocol # from tpying when python >= 3.8
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -33,6 +32,15 @@ JSONDictDict = Dict[str, JSONDict]
 _None_String = "~"
 _False_String = "(no)"
 _True_String = "(yes)"
+
+try:
+    try:
+        from typing import Protocol # python >= 3.8
+    except ImportError:
+        from typing_extensions import Protocol # type: ignore[misc]
+except ModuleNotFoundError as e:
+    logg.error("import Protocol: %s: %s", type(e), e)
+    from abc import ABC as Protocol # type: ignore[misc]
 
 class Dataclass(Protocol):
     __dataclass_fields__: Dict[str, Any]
