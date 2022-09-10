@@ -104,7 +104,7 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] 
     if isinstance(result, Dict):
         result = [result]
     try:
-        result = [ dataclass_to_dict(item) for item in result ] # type: ignore[arg-type]
+        result = [dataclass_to_dict(item) for item in result] # type: ignore[arg-type]
     except AttributeError:
         pass
     return tabToGFM(result, sorts, formats, legend) # type: ignore[arg-type]
@@ -237,15 +237,15 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 data.append(newrow)
     return data
 
-def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToHTMLx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
     try:
-        result = [ dataclass_to_dict(item) for item in result ] # type: ignore[arg-type]
+        result = [dataclass_to_dict(item) for item in result] # type: ignore[arg-type]
     except AttributeError:
         pass
-    return tabToHTML(result, sorts, formats, legend)
+    return tabToHTML(result, sorts, formats, legend) # type: ignore[arg-type]
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
@@ -323,15 +323,15 @@ def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line and line.strip()]) + "</ul>"
 
-def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToJSONx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
     try:
-        result = [ dataclass_to_dict(item) for item in result ] # type: ignore[arg-type]
+        result = [dataclass_to_dict(item) for item in result] # type: ignore[arg-type]
     except AttributeError:
         pass
-    return tabToJSON(result, sorts, formats, datedelim, legend)
+    return tabToJSON(result, sorts, formats, datedelim, legend) # type: ignore[arg-type]
 def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
