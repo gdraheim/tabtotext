@@ -39,7 +39,7 @@ try:
     except ImportError:
         from typing_extensions import Protocol # type: ignore[misc]
 except ModuleNotFoundError as e:
-    logg.error("import Protocol: %s: %s", type(e), e)
+    logg.debug("import Protocol: %s: %s", type(e), e)
     from abc import ABC as Protocol # type: ignore[misc]
 
 class Dataclass(Protocol):
