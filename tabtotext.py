@@ -107,12 +107,20 @@ class ParseJSONItem:
         """ the json.loads parser detects most data types except Date/Time """
         as_time = self.is_time.match(val)
         if as_time:
-            return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                        int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
+            if "Z" in val:
+                return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                            int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)), tzinfo=timezone.utc)
+            else:
+                return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                            int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
         as_hour = self.is_hour.match(val)
         if as_hour:
-            return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
-                        int(as_hour.group(4)), int(as_hour.group(5)))
+            if "Z" in val:
+                return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
+                            int(as_hour.group(4)), int(as_hour.group(5)), tzinfo=timezone.utc)
+            else:
+                return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
+                            int(as_hour.group(4)), int(as_hour.group(5)))
         as_date = self.is_date.match(val)
         if as_date:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
@@ -126,6 +134,10 @@ def tabWithDateTime() -> None:
 def tabWithDateHour() -> None:
     global DATEFMT
     DATEFMT = "%Y-%m-%d.%H%M"
+
+def tabWithDateZulu() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%dZ%H%M"
 
 def tabWithDateOnly() -> None:
     global DATEFMT

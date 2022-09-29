@@ -63,6 +63,7 @@ test018Q: JSONList = [{"a": datetime.datetime(2021, 12, 31, 0, 0)}]
 test019Q: JSONList = [{"a": datetime.date(2021, 12, 31)}]
 test019H: JSONList = [{"a": datetime.datetime(2021, 12, 31, 23, 34)}]
 test019: JSONList = [{"a": datetime.datetime(2021, 12, 31, 23, 34, 45)}]
+test020: JSONList = [{"a": datetime.datetime(2021, 12, 31, 23, 34, tzinfo=datetime.timezone.utc)}]
 
 class TabToTextTest(unittest.TestCase):
     def caller_testname(self) -> str:
@@ -236,6 +237,15 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test019H)
+    def test_130(self) -> None:
+        tabtotext.tabWithDateZulu()
+        text = tabtotext.tabToGFM(test020)
+        tabtotext.tabWithDateOnly()
+        logg.debug("%s => %s", test018, text)
+        cond = ['| a              ', '| ---------------', '| 2021-12-31Z2334']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test020)
     def test_151(self) -> None:
         text = tabtotext.tabToGFM(test011, legend="a result")
         logg.debug("%s => %s", test011, text)
