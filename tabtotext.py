@@ -76,6 +76,8 @@ class ParseJSONItem:
         self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
         self.is_time = re.compile(
             r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
+        self.is_hour = re.compile(
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[ ](\d\d):?(\d\d)?$".replace('-', datedelim))
         self.is_int = re.compile(r"([+-]?\d+)$")
         self.is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
         self.datedelim = datedelim
@@ -101,11 +103,27 @@ class ParseJSONItem:
         if as_time:
             return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
                         int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
+        as_hour = self.is_hour.match(val)
+        if as_hour:
+            return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
+                        int(as_hour.group(4)), int(as_hour.group(5)))
         as_date = self.is_date.match(val)
         if as_date:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         return val  # str
 
+
+def tabWithDateTime() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%dT%H:%M:%S"
+
+def tabWithDateHour() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%d %H%M"
+
+def tabWithDateOnly() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%d"
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
