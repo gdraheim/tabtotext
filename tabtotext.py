@@ -10,6 +10,7 @@ from typing import Optional, Union, Dict, List, Any, Sequence, Callable
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
+from datetime import timezone
 import os
 import re
 import logging
@@ -59,7 +60,12 @@ def setNoRight(value: bool) -> None:
 def strDateTime(value: Any, datedelim: str = '-') -> str:
     if value is None:
         return _None_String
-    if isinstance(value, (Date, Time)):
+    if isinstance(value, Time):
+        if "Z" in DATEFMT:
+            return value.astimezone(timezone.utc).strftime(DATEFMT.replace('-', datedelim))
+        else:
+            return value.strftime(DATEFMT.replace('-', datedelim))
+    if isinstance(value, Date):
         return value.strftime(DATEFMT.replace('-', datedelim))
     return str(value)
 def strNone(value: Any, datedelim: str = '-') -> str:
@@ -77,7 +83,7 @@ class ParseJSONItem:
         self.is_time = re.compile(
             r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
         self.is_hour = re.compile(
-            r"(\d\d\d\d)-(\d\d)-(\d\d)[ ](\d\d):?(\d\d)?$".replace('-', datedelim))
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[Z .](\d\d):?(\d\d)?$".replace('-', datedelim))
         self.is_int = re.compile(r"([+-]?\d+)$")
         self.is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
         self.datedelim = datedelim
@@ -119,7 +125,7 @@ def tabWithDateTime() -> None:
 
 def tabWithDateHour() -> None:
     global DATEFMT
-    DATEFMT = "%Y-%m-%d %H%M"
+    DATEFMT = "%Y-%m-%d.%H%M"
 
 def tabWithDateOnly() -> None:
     global DATEFMT

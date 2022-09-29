@@ -223,7 +223,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToGFM(test018)
         tabtotext.tabWithDateOnly()
         logg.debug("%s => %s", test018, text)
-        cond = ['| a              ', '| ---------------', '| 2021-12-31 0000']
+        cond = ['| a              ', '| ---------------', '| 2021-12-31.0000']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test018Q)
@@ -232,7 +232,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToGFM(test019)
         tabtotext.tabWithDateOnly()
         logg.debug("%s => %s", test019, text)
-        cond = ['| a              ', '| ---------------', '| 2021-12-31 2334']
+        cond = ['| a              ', '| ---------------', '| 2021-12-31.2334']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test019H)
