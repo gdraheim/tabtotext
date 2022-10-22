@@ -87,7 +87,7 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
         set_cell(ws, row, col, name, text_style)
-        set_width(ws, col, cols[name])
+        set_width(ws, col, cols[name] + 1 + int(cols[name]/3))
         col += 1
     row += 1
     for item in sorted(result, key=sortrow):
