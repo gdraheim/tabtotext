@@ -75,18 +75,21 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
     ws = workbook.active
     ws.title = "data"
     style = Style()
-    text_style = Style()
-    text_style.number_format = 'General'
-    text_style.alignment = Alignment(horizontal='left')
-    date_style = Style()
-    date_style.number_format = 'd.mm.yy'
-    date_style.alignment = Alignment(horizontal='right')
-    numm_style = Style()
-    numm_style.number_format = '#,##0.00'
-    numm_style.alignment = Alignment(horizontal='right')
+    txt_style = Style()
+    txt_style.number_format = 'General'
+    txt_style.alignment = Alignment(horizontal='left')
+    dat_style = Style()
+    dat_style.number_format = 'd.mm.yy'
+    dat_style.alignment = Alignment(horizontal='right')
+    num_style = Style()
+    num_style.number_format = '#,##0.00'
+    num_style.alignment = Alignment(horizontal='right')
+    int_style = Style()
+    int_style.number_format = '#,##0'
+    int_style.alignment = Alignment(horizontal='right')
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
-        set_cell(ws, row, col, name, text_style)
+        set_cell(ws, row, col, name, txt_style)
         set_width(ws, col, cols[name] + 1 + int(cols[name]/3))
         col += 1
     row += 1
@@ -100,28 +103,30 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], forma
             if value is None:
                 pass
             elif isinstance(value, DayOrTime):
-                set_cell(ws, row, col, value, date_style)
-            elif isinstance(value, (int, float)):
-                set_cell(ws, row, col, value, numm_style)
+                set_cell(ws, row, col, value, dat_style)
+            elif isinstance(value, int):
+                set_cell(ws, row, col, value, int_style)
+            elif isinstance(value, float):
+                set_cell(ws, row, col, value, num_style)
             else:
                 if not value:
-                    set_cell(ws, row, col, _Empty_String, text_style)
+                    set_cell(ws, row, col, _Empty_String, txt_style)
                 else:
-                    set_cell(ws, row, col, value, text_style)
+                    set_cell(ws, row, col, value, txt_style)
             col += 1
         row += 1
     if legend:
         ws = workbook.create_sheet()
         ws.title = "legend"
         if isinstance(legend, str):
-            set_cell(ws, 0, 1, legend, text_style)
+            set_cell(ws, 0, 1, legend, txt_style)
         elif isinstance(legend, dict):
             for row, name in enumerate(sorted(legend.keys(), key=sortkey)):
-                set_cell(ws, row, 0, name, text_style)
-                set_cell(ws, row, 1, legend[name], text_style)
+                set_cell(ws, row, 0, name, txt_style)
+                set_cell(ws, row, 1, legend[name], txt_style)
         else:
             for row, line in enumerate(legend):
-                set_cell(ws, row, 1, line, text_style)
+                set_cell(ws, row, 1, line, txt_style)
     workbook.save(filename)
 
 def readFromXLSX(filename: str) -> JSONList:
