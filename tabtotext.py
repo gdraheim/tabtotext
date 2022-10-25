@@ -127,7 +127,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
                     logg.debug("format <%s> does not apply: %s", formats[col], e)
             logg.debug("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, float):
-           return FLOATFMT % val
+            return FLOATFMT % val
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -152,7 +152,8 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [rightF(name, "| %%-%is" % cols[name]) % format(name, values.get(name, _None_String)) for name in sorted(cols.keys(), key=sortkey)]
+        line = [rightF(name, "| %%-%is" % cols[name]) % format(name, values.get(name, _None_String))
+                for name in sorted(cols.keys(), key=sortkey)]
         lines.append(" ".join(line))
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
 
