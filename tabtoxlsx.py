@@ -13,7 +13,7 @@ from openpyxl.utils import get_column_letter  # type: ignore
 import datetime
 DayOrTime = (datetime.date, datetime.datetime)
 
-MINWIDTH = 7
+MINWIDTH = 4
 MAXCOL = 1000
 MAXROWS = 100000
 
