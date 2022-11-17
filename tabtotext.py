@@ -6,10 +6,11 @@ but instead of using the Postgres API it uses the Crowd API.
 // Please be aware the --appuser/--password represent crowd-application credentials (not a build user)
 """
 
-from typing import Optional, Union, Dict, List, Any, Sequence
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
+from datetime import timezone
 import os
 import re
 import logging
@@ -19,11 +20,10 @@ from io import StringIO
 logg = logging.getLogger("TABTOTEXT")
 
 DATEFMT = "%Y-%m-%d"
-FLOATFMT = "%4.2f"
 NORIGHT = False
 MINWIDTH = 5
 
-JSONBase = Union[str, int, float, bool]
+
 JSONItem = Union[str, int, float, bool, Date, Time, None, Dict[str, Any], List[Any]]
 JSONDict = Dict[str, JSONItem]
 JSONList = List[JSONDict]
@@ -34,6 +34,25 @@ _None_String = "~"
 _False_String = "(no)"
 _True_String = "(yes)"
 
+try:
+    try:
+        from typing import Protocol # python >= 3.8
+    except ImportError:
+        from typing_extensions import Protocol # type: ignore[misc]
+except ModuleNotFoundError as e:
+    logg.debug("import Protocol: %s: %s", type(e), e)
+    from abc import ABC as Protocol # type: ignore[misc]
+
+class Dataclass(Protocol):
+    __dataclass_fields__: Dict[str, Any]
+DataList = List[Dataclass]
+
+def dataclass_to_dict(data: Dataclass) -> Dict[str, Any]:
+    values: Dict[str, Any] = {}
+    for name in data.__dataclass_fields__:
+        values[name] = getattr(data, name)
+    return values
+
 def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
@@ -41,7 +60,12 @@ def setNoRight(value: bool) -> None:
 def strDateTime(value: Any, datedelim: str = '-') -> str:
     if value is None:
         return _None_String
-    if isinstance(value, (Date, Time)):
+    if isinstance(value, Time):
+        if "Z" in DATEFMT:
+            return value.astimezone(timezone.utc).strftime(DATEFMT.replace('-', datedelim))
+        else:
+            return value.strftime(DATEFMT.replace('-', datedelim))
+    if isinstance(value, Date):
         return value.strftime(DATEFMT.replace('-', datedelim))
     return str(value)
 def strNone(value: Any, datedelim: str = '-') -> str:
@@ -58,6 +82,8 @@ class ParseJSONItem:
         self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
         self.is_time = re.compile(
             r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
+        self.is_hour = re.compile(
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[Z .](\d\d):?(\d\d)?$".replace('-', datedelim))
         self.is_int = re.compile(r"([+-]?\d+)$")
         self.is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
         self.datedelim = datedelim
@@ -81,23 +107,60 @@ class ParseJSONItem:
         """ the json.loads parser detects most data types except Date/Time """
         as_time = self.is_time.match(val)
         if as_time:
-            return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                        int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
+            if "Z" in val:
+                return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                            int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)), tzinfo=timezone.utc)
+            else:
+                return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
+                            int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
+        as_hour = self.is_hour.match(val)
+        if as_hour:
+            if "Z" in val:
+                return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
+                            int(as_hour.group(4)), int(as_hour.group(5)), tzinfo=timezone.utc)
+            else:
+                return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
+                            int(as_hour.group(4)), int(as_hour.group(5)))
         as_date = self.is_date.match(val)
         if as_date:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         return val  # str
 
-def tabToGFMx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+
+def tabWithDateTime() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%dT%H:%M:%S"
+
+def tabWithDateHour() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%d.%H%M"
+
+def tabWithDateZulu() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%dZ%H%M"
+
+def tabWithDateOnly() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%d"
+
+def tabToGFMx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToGFM(result, sorts, formats, legend)
+    try:
+        result = [dataclass_to_dict(item) for item in result] # type: ignore[arg-type]
+    except AttributeError:
+        pass
+    return tabToGFM(result, sorts, formats, legend) # type: ignore[arg-type]
 def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-             legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+             legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -113,6 +176,11 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
+            if "{:" in formats[col]:
+                try:
+                    return formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             if isinstance(val, float):
                 m = re.search(r"%\d(?:[.]\d)f", formats[col])
                 if m:
@@ -125,9 +193,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
                     return formats[col] % strNone(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, float):
-            return FLOATFMT % val
+            logg.info("unknown format '%s' for col '%s'", formats[col], col)
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -144,17 +210,19 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
             return formatter[:-1] + ":"
         return formatter
-    line = [rightF(name, "| %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
-    lines = [" ".join(line)]
-    seperators = [("| %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
-    lines.append(" ".join(seperators))
+    templates = [rightF(name, "| %%-%is" % cols[name]) for name in sorted(cols.keys(), key=sortkey)]
+    template = " ".join(templates)
+    logg.debug("template [%s] = %s", len(templates), template)
+    logg.debug("colskeys [%s] = %s", len(cols.keys()), sorted(cols.keys(), key=sortkey))
+    lines = [template % tuple(sorted(cols.keys(), key=sortkey))]
+    seperators = [rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
+    lines.append(template % tuple(seperators))
     for item in sorted(result, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [rightF(name, "| %%-%is" % cols[name]) % format(name, values.get(name, _None_String))
-                for name in sorted(cols.keys(), key=sortkey)]
-        lines.append(" ".join(line))
+        line = template % tuple([values.get(name, _None_String) for name in sorted(cols.keys(), key=sortkey)])
+        lines.append(line)
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
 
 def legendToGFM(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
@@ -218,17 +286,24 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                 data.append(newrow)
     return data
 
-
-def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToHTMLx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToHTML(result, sorts, formats, legend)
+    try:
+        result = [dataclass_to_dict(item) for item in result] # type: ignore[arg-type]
+    except AttributeError:
+        pass
+    return tabToHTML(result, sorts, formats, legend) # type: ignore[arg-type]
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -241,17 +316,22 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                     sortvalue += "\n" + strDateTime(value)
             else:
                 sortvalue += "\n-"
+        if "2022-02-02" in sortvalue:
+            logg.error("sortvalue = %s", sortvalue)
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
+            if "{:" in formats[col]:
+                try:
+                    return formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             if "%s" in formats[col]:
                 try:
                     return formats[col] % strNone(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, float):
-            return FLOATFMT % val
+            logg.info("unknown format '%s' for col '%s'", formats[col], col)
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
@@ -297,18 +377,26 @@ def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line and line.strip()]) + "</ul>"
 
-def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToJSONx(result: Union[JSONList, JSONDict, DataList], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         result = [result]
-    return tabToJSON(result, sorts, formats, datedelim, legend)
+    try:
+        result = [dataclass_to_dict(item) for item in result] # type: ignore[arg-type]
+    except AttributeError:
+        pass
+    return tabToJSON(result, sorts, formats, datedelim, legend) # type: ignore[arg-type]
 def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -323,10 +411,10 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 sortvalue += "\n-"
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
+        if col in ["NumCount"]:
+            logg.warning("%s (%s) = %s", col, type(val), val)
         if val is None:
             return "null"
-        if isinstance(val, float):
-            return FLOATFMT % val
         if isinstance(val, (Date, Time)):
             return '"%s"' % strDateTime(val, datedelim)
         return json.dumps(val)
@@ -356,12 +444,16 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
     return data
 
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -382,11 +474,9 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
                     return formats[col] % strNone(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
+            logg.info("unknown format '%s' for col '%s'", formats[col], col)
         if isinstance(val, (Date, Time)):
             return '%s' % strDateTime(val, datedelim)
-        if isinstance(val, float):
-            return FLOATFMT % val
         return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
