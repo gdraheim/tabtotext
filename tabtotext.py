@@ -47,7 +47,7 @@ def _is_dataitem(obj: Any) -> bool:
     if hasattr(obj, '__dataclass_fields__'):
         return True
     return False
-def _dataitem_asdict(obj: DataItem, dict_factory: Type[Dict[str, Any]] =dict) -> JSONDict:
+def _dataitem_asdict(obj: DataItem, dict_factory: Type[Dict[str, Any]] = dict) -> JSONDict:
     if hasattr(obj, "keys"):
         return cast(JSONDict, obj)
     result: JSONDict = dict_factory()
@@ -253,11 +253,17 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
     return data
 
 
-def tabToHTMLx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
-        result = [result]
-    return tabToHTML(result, sorts, formats, legend)
+        results = [result]
+    elif _is_dataitem(result):
+        results = [_dataitem_asdict(cast(DataItem, result))]
+    elif hasattr(result, "__len__") and len(cast(List[Any], result)) and (_is_dataitem(cast(List[Any], result)[0])):
+        results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
+    else:
+        results = cast(JSONList, result)  # type: ignore[redundant-cast]
+    return tabToHTML(results, sorts, formats, legend)
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     def sortkey(header: str) -> str:
@@ -331,11 +337,17 @@ def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line and line.strip()]) + "</ul>"
 
-def tabToJSONx(result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
-        result = [result]
-    return tabToJSON(result, sorts, formats, datedelim, legend)
+        results = [result]
+    elif _is_dataitem(result):
+        results = [_dataitem_asdict(cast(DataItem, result))]
+    elif hasattr(result, "__len__") and len(cast(List[Any], result)) and (_is_dataitem(cast(List[Any], result)[0])):
+        results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
+    else:
+        results = cast(JSONList, result)  # type: ignore[redundant-cast]
+    return tabToJSON(results, sorts, formats, datedelim, legend)
 def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if legend:
@@ -389,6 +401,17 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
                 record[key] = convert.toDate(val)
     return data
 
+def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    if isinstance(result, Dict):
+        results = [result]
+    elif _is_dataitem(result):
+        results = [_dataitem_asdict(cast(DataItem, result))]
+    elif hasattr(result, "__len__") and len(cast(List[Any], result)) and (_is_dataitem(cast(List[Any], result)[0])):
+        results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
+    else:
+        results = cast(JSONList, result)  # type: ignore[redundant-cast]
+    return tabToCSV(results, sorts, formats, datedelim, legend)
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if legend:
