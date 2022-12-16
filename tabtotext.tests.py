@@ -901,6 +901,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| a     | b    ', '| ----- | -----', '| x     | 2    ']
         self.assertEqual(cond, text.splitlines())
+    def test_505(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToYAMLx(itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
+        self.assertEqual(cond, text.splitlines())
     def test_511(self) -> None:
         text = tabtotext.tabToGFMx(data011)
         logg.debug("%s => %s", data011, text)
@@ -1078,45 +1086,44 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
-
     def test_541(self) -> None:
-        text = tabtotext.tabToJSON(test011)
-        logg.debug("%s => %s", test011, text)
+        text = tabtotext.tabToJSONx(data011)
+        logg.debug("%s => %s", data011, text)
         cond = ['[', ' {"a": null}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test011)
     def test_542(self) -> None:
-        text = tabtotext.tabToJSON(test012)
-        logg.debug("%s => %s", test012, text)
+        text = tabtotext.tabToJSONx(data012)
+        logg.debug("%s => %s", data012, text)
         cond = ['[', ' {"a": false}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test012)
     def test_543(self) -> None:
-        text = tabtotext.tabToJSON(test013)
-        logg.debug("%s => %s", test013, text)
+        text = tabtotext.tabToJSONx(data013)
+        logg.debug("%s => %s", data013, text)
         cond = ['[', ' {"a": true}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test013)
     def test_544(self) -> None:
-        text = tabtotext.tabToJSON(test014)
-        logg.debug("%s => %s", test014, text)
+        text = tabtotext.tabToJSONx(data014)
+        logg.debug("%s => %s", data014, text)
         cond = ['[', ' {"a": ""}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test014)
     def test_545(self) -> None:
-        text = tabtotext.tabToJSON(test015)
-        logg.debug("%s => %s", test015, text)
+        text = tabtotext.tabToJSONx(data015)
+        logg.debug("%s => %s", data015, text)
         cond = ['[', ' {"a": "5678"}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test015)
     def test_546(self) -> None:
-        text = tabtotext.tabToJSON(test016)
-        logg.debug("%s => %s", test016, text)
+        text = tabtotext.tabToJSONx(data016)
+        logg.debug("%s => %s", data016, text)
         cond = ['[', ' {"a": 123}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
@@ -1141,6 +1148,69 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": "2021-12-31"}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test018)  # test019
+    def test_551(self) -> None:
+        text = tabtotext.tabToYAMLx(data011)
+        logg.debug("%s => %s", data011, text)
+        cond = ['data:', '- a: null']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test011)
+    def test_552(self) -> None:
+        text = tabtotext.tabToYAMLx(data012)
+        logg.debug("%s => %s", data012, text)
+        cond = ['data:', '- a: false']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test012)
+    def test_553(self) -> None:
+        text = tabtotext.tabToYAMLx(data013)
+        logg.debug("%s => %s", data013, text)
+        cond = ['data:', '- a: true']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test013)
+    def test_554(self) -> None:
+        text = tabtotext.tabToYAMLx(data014)
+        logg.debug("%s => %s", data014, text)
+        cond = ['data:', '- a: ""']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test014)
+    def test_555(self) -> None:
+        text = tabtotext.tabToYAMLx(data015)
+        logg.debug("%s => %s", data015, text)
+        cond = ['data:', '- a: "5678"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test015)
+    def test_556(self) -> None:
+        text = tabtotext.tabToYAMLx(data016)
+        logg.debug("%s => %s", data016, text)
+        cond = ['data:', '- a: 123']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test016)
+    def test_557(self) -> None:
+        text = tabtotext.tabToYAMLx(data017)
+        logg.debug("%s => %s", data017, text)
+        cond = ['data:', '- a: 123.40']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test017)
+    def test_558(self) -> None:
+        text = tabtotext.tabToYAMLx(data018)
+        logg.debug("%s => %s", data018, text)
+        cond = ['data:', '- a: 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test018)
+    def test_559(self) -> None:
+        text = tabtotext.tabToYAMLx(data019)
+        logg.debug("%s => %s", data019, text)
+        cond = ['data:', '- a: 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
         self.assertEqual(data, test018)  # test019
 
     @unittest.skipIf(skipXLSX, "no openpyxl")

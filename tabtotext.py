@@ -401,6 +401,107 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
                 record[key] = convert.toDate(val)
     return data
 
+def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    if isinstance(result, Dict):
+        results = [result]
+    elif _is_dataitem(result):
+        results = [_dataitem_asdict(cast(DataItem, result))]
+    elif hasattr(result, "__len__") and len(cast(List[Any], result)) and (_is_dataitem(cast(List[Any], result)[0])):
+        results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
+    else:
+        results = cast(JSONList, result)  # type: ignore[redundant-cast]
+    return tabToYAML(results, sorts, formats, datedelim, legend)
+def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    if legend:
+        logg.debug("legend is ignored for YAML output")
+    def sortkey(header: str) -> str:
+        if header in sorts:
+            return "%07i" % sorts.index(header)
+        return header
+    def sortrow(item: JSONDict) -> str:
+        sortvalue = ""
+        for sort in sorts:
+            if sort in item:
+                value = item[sort]
+                if isinstance(value, int):
+                    sortvalue += "\n%020i" % value
+                else:
+                    sortvalue += "\n" + strDateTime(value, datedelim)
+            else:
+                sortvalue += "\n-"
+        return sortvalue
+    def format(col: str, val: JSONItem) -> str:
+        if val is None:
+            return "null"
+        if isinstance(val, float):
+            return FLOATFMT % val
+        if isinstance(val, (Date, Time)):
+            return '%s' % strDateTime(val, datedelim)
+        return json.dumps(val)
+    cols: Dict[str, int] = {}
+    for item in result:
+        for name, value in item.items():
+            if name not in cols:
+                cols[name] = max(MINWIDTH, len(name))
+            cols[name] = max(cols[name], len(format(name, value)))
+    lines = []
+    for item in sorted(result, key=sortrow):
+        values: JSONDict = {}
+        for name, value in item.items():
+            values[name] = format(name, value)
+        if name.isalnum():
+            line = ['%s: %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        else:
+            line = ['"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        lines.append("- " + "\n  ".join(line))
+    return "data:\n" + "\n".join(lines) + "\n"
+
+def loadYAML(text: str, datedelim: str = '-') -> JSONList:
+    data: JSONList = []
+    convert = ParseJSONItem(datedelim)
+    convert.None_String = "null"
+    convert.True_String = "true"
+    convert.False_String = "false"
+    at = "start"
+    record: JSONDict = {}
+    for row in text.splitlines():
+        line = row.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("data:"):
+            if at == "start":
+                at = "data"
+            continue
+        if at not in ["data"]:
+            continue
+        if line.startswith("-") or line.startswith(" -"):
+            if record:
+                data.append(record)
+                record = {}
+            line = line.strip()[1:]
+        m = re.match(r" *(\w[\w\d.-]*) *: *\"([^\"]*)\" *", line)
+        if m:
+            record[m.group(1)] = m.group(2)
+            continue
+        m = re.match(r" *(\w[\w\d.-]*) *: *(.*)", line)
+        if m:
+            record[m.group(1)] = convert.toJSONItem(m.group(2).strip())
+            continue
+        m = re.match(r" *\"([^\"]+)\" *: *\"([^\"]*)\" *", line)
+        if m:
+            record[m.group(1)] = m.group(2)
+            continue
+        m = re.match(r" *\"([^\"]+)\" *: *(.*)", line)
+        if m:
+            record[m.group(1)] = convert.toJSONItem(m.group(2).strip())
+            continue
+        logg.error("can not parse: %s", line)
+    if record:
+        data.append(record)
+    return data
+
 def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
