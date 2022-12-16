@@ -451,15 +451,15 @@ def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+    is_simple = re.compile("^\\w[\\w_-]*$")
+    def as_name(name: str) -> str:
+        return (name if is_simple.match(name) else '"%s"' % name)
     lines = []
     for item in sorted(result, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        if name.isalnum():
-            line = ['%s: %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
-        else:
-            line = ['"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        line = ['%s: %s' % (as_name(name), values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
         lines.append("- " + "\n  ".join(line))
     return "data:\n" + "\n".join(lines) + "\n"
 
@@ -552,15 +552,15 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+    is_simple = re.compile("^\\w[\\w_-]*$")
+    def as_name(name: str) -> str:
+        return (name if is_simple.match(name) else '"%s"' % name)
     lines = []
     for item in sorted(result, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        if name.isalnum():
-            line = ['%s = %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
-        else:
-            line = ['"%s" = %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        line = ['%s = %s' % (as_name(name), values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
         lines.append("[[data]]\n" + "\n".join(line))
     return "\n".join(lines) + "\n"
 
