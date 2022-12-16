@@ -128,7 +128,7 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = cast(JSONList, result)
     return tabToGFM(results, sorts, formats, legend)
 def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-             legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+             legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|") -> str:
     def sortkey(header: str) -> str:
         if header in sorts:
             return "%07i" % sorts.index(header)
@@ -178,15 +178,15 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         if col in formats and formats[col].startswith(" ") and not NORIGHT:
             return formatter[:-1] + ":"
         return formatter
-    line = [rightF(name, "| %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
+    line = [rightF(name, tab + " %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
     lines = [" ".join(line)]
-    seperators = [("| %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
+    seperators = [(tab + " %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
     lines.append(" ".join(seperators))
     for item in sorted(result, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [rightF(name, "| %%-%is" % cols[name]) % format(name, values.get(name, _None_String))
+        line = [rightF(name, tab + " %%-%is" % cols[name]) % format(name, values.get(name, _None_String))
                 for name in sorted(cols.keys(), key=sortkey)]
         lines.append(" ".join(line))
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
@@ -211,7 +211,7 @@ def listToGFM(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n" + "".join(["- %s\n" % line.strip() for line in lines if line and line.strip()])
 
-def loadGFM(text: str, datedelim: str = '-') -> JSONList:
+def loadGFM(text: str, datedelim: str = '-', tab: str = '|') -> JSONList:
     data: JSONList = []
     convert = ParseJSONItem(datedelim)
     at = "start"
@@ -219,13 +219,15 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
         line = row.strip()
         if not line or line.startswith("#"):
             continue
-        if line.startswith("|"):
+        if tab in "\t" and row.startswith(tab):
+            line = tab + line  # was removed by strip()
+        if line.startswith(tab) or (tab in "\t" and tab in line):
             if at == "start":
-                cols = [name.strip() for name in line.split("|")]
+                cols = [name.strip() for name in line.split(tab)]
                 at = "header"
                 continue
             if at == "header":
-                newcols = [name.strip() for name in line.split("|")]
+                newcols = [name.strip() for name in line.split(tab)]
                 if len(newcols) != len(cols):
                     logg.error("header divider has not the same lenght")
                     at = "data"  # promote anyway
@@ -243,13 +245,16 @@ def loadGFM(text: str, datedelim: str = '-') -> JSONList:
                     at = "data"
                     continue
             if at == "data":
-                values = [field.strip() for field in line.split("|")]
+                values = [field.strip() for field in line.split(tab)]
                 record = []
                 for value in values:
                     record.append(convert.toJSONItem(value.strip()))
                 newrow = dict(zip(cols, record))
-                del newrow[""]
+                if "" in newrow:
+                    del newrow[""]
                 data.append(newrow)
+        else:
+            logg.warning("unrecognized line: %s", line.replace(tab, "|"))
     return data
 
 
@@ -613,7 +618,7 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToCSV(results, sorts, formats, datedelim, legend)
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";") -> str:
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
@@ -661,17 +666,17 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
     # csvfile = open(csv_filename, "w")
     csvfile = StringIO()
     writer = csv.DictWriter(csvfile, fieldnames=sorted(cols.keys(), key=sortkey), restval='ignore',
-                            quoting=csv.QUOTE_MINIMAL, delimiter=";")
+                            quoting=csv.QUOTE_MINIMAL, delimiter=tab)
     writer.writeheader()
     for line in lines:
         writer.writerow(line)
     return csvfile.getvalue()
 
-def loadCSV(text: str, datedelim: str = '-') -> JSONList:
+def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     import csv
     csvfile = StringIO(text)
     reader = csv.DictReader(csvfile, restval='ignore',
-                            quoting=csv.QUOTE_MINIMAL, delimiter=";")
+                            quoting=csv.QUOTE_MINIMAL, delimiter=tab)
     #
     convert = ParseJSONItem(datedelim)
     data: JSONList = []
@@ -682,3 +687,39 @@ def loadCSV(text: str, datedelim: str = '-') -> JSONList:
                 newrow[key] = convert.toJSONItem(val)
         data.append(newrow)
     return data
+
+def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    if isinstance(result, Dict):
+        results = [result]
+    elif _is_dataitem(result):
+        results = [_dataitem_asdict(cast(DataItem, result))]
+    elif hasattr(result, "__len__") and len(cast(List[Any], result)) and (_is_dataitem(cast(List[Any], result)[0])):
+        results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
+    else:
+        results = cast(JSONList, result)  # type: ignore[redundant-cast]
+    return tabToFMT(output, results, sorts, formats, datedelim, legend)
+def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    if output.lower() in ["md", "markdown"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats)
+    if output.lower() in ["html"]:
+        return tabToHTML(result=result, sorts=sorts, formats=formats)
+    if output.lower() in ["json"]:
+        return tabToJSON(result=result, sorts=sorts, formats=formats, datedelim=datedelim)
+    if output.lower() in ["yaml"]:
+        return tabToYAML(result=result, sorts=sorts, formats=formats, datedelim=datedelim)
+    if output.lower() in ["toml"]:
+        return tabToTOML(result=result, sorts=sorts, formats=formats, datedelim=datedelim)
+    if output.lower() in ["wide"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, tab='')
+    if output.lower() in ["tabs"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, tab='\t')
+    if output.lower() in ["tab"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, datedelim=datedelim, tab='\t')
+    if output.lower() in ["csv"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, datedelim=datedelim, tab=';')
+    # including the legend
+    if output.lower() in ["htm"]:
+        return tabToHTML(result=result, sorts=sorts, formats=formats, legend=legend)
+    return tabToGFM(result=result, sorts=sorts, formats=formats, legend=legend)

@@ -1291,6 +1291,97 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadTOML(text)
         self.assertEqual(data, test018)  # test019
+    def test_590(self) -> None:
+        item = Item2("x", 2)
+        text = tabtotext.tabToFMTx("def", item)
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b    ', '| ----- | -----', '| x     | 2    ']
+        self.assertEqual(cond, text.splitlines())
+    def test_591(self) -> None:
+        item = Item2("x", 2)
+        itemlist: DataList = [item]
+        text = tabtotext.tabToFMTx("def", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b    ', '| ----- | -----', '| x     | 2    ']
+        self.assertEqual(cond, text.splitlines())
+    def test_592(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("html", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th>a</th><th>b</th></tr>',
+                '<tr><td>x</td><td>2</td></tr>',
+                '<tr><td>y</td><td>3</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_593(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("csv", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['a;b', 'x;2', 'y;3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_594(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("json", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {"a": "x", "b": 2},', ' {"a": "y", "b": 3}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_595(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("yaml", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_596(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("toml", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['[[data]]', 'a = "x"', 'b = 2', '[[data]]', 'a = "y"', 'b = 3', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_598(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("tabs", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['\t a     \t b    ', '\t ----- \t -----', '\t x     \t 2    ', '\t y     \t 3    ']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text, tab='\t')
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_599(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("wide", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = [' a      b    ', ' -----  -----', ' x      2    ', ' y      3    ']
+        self.assertEqual(cond, text.splitlines())
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_771(self) -> None:
