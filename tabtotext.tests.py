@@ -909,6 +909,22 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
         self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_506(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToTOMLx(itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['[[data]]', 'a = "x"', 'b = 2', '[[data]]', 'a = "y"', 'b = 3', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
     def test_511(self) -> None:
         text = tabtotext.tabToGFMx(data011)
         logg.debug("%s => %s", data011, text)
@@ -1211,6 +1227,69 @@ class TabToTextTest(unittest.TestCase):
         cond = ['data:', '- a: 2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test018)  # test019
+    def test_561(self) -> None:
+        text = tabtotext.tabToTOMLx(data011)
+        logg.debug("%s => %s", data011, text)
+        cond = ['[[data]]', 'a = null']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test011)
+    def test_562(self) -> None:
+        text = tabtotext.tabToTOMLx(data012)
+        logg.debug("%s => %s", data012, text)
+        cond = ['[[data]]', 'a = false']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test012)
+    def test_563(self) -> None:
+        text = tabtotext.tabToTOMLx(data013)
+        logg.debug("%s => %s", data013, text)
+        cond = ['[[data]]', 'a = true']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test013)
+    def test_564(self) -> None:
+        text = tabtotext.tabToTOMLx(data014)
+        logg.debug("%s => %s", data014, text)
+        cond = ['[[data]]', 'a = ""']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test014)
+    def test_565(self) -> None:
+        text = tabtotext.tabToTOMLx(data015)
+        logg.debug("%s => %s", data015, text)
+        cond = ['[[data]]', 'a = "5678"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test015)
+    def test_566(self) -> None:
+        text = tabtotext.tabToTOMLx(data016)
+        logg.debug("%s => %s", data016, text)
+        cond = ['[[data]]', 'a = 123']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test016)
+    def test_567(self) -> None:
+        text = tabtotext.tabToTOMLx(data017)
+        logg.debug("%s => %s", data017, text)
+        cond = ['[[data]]', 'a = 123.40']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test017)
+    def test_568(self) -> None:
+        text = tabtotext.tabToTOMLx(data018)
+        logg.debug("%s => %s", data018, text)
+        cond = ['[[data]]', 'a = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test018)
+    def test_569(self) -> None:
+        text = tabtotext.tabToTOMLx(data019)
+        logg.debug("%s => %s", data019, text)
+        cond = ['[[data]]', 'a = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
         self.assertEqual(data, test018)  # test019
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
