@@ -12,8 +12,10 @@ import os.path as path
 import shutil
 import json
 import inspect
+from dataclasses import dataclass
 import logging
 logg = logging.getLogger("TESTS")
+
 
 try:
     from tabtoxlsx import saveToXLSX, readFromXLSX  # type: ignore
@@ -33,6 +35,13 @@ def get_caller_name() -> str:
 def get_caller_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back.f_back  # type: ignore
     return frame.f_code.co_name  # type: ignore
+
+@dataclass
+class Item:
+   a: str
+   b: int
+   def foo(self, a: str) -> None:
+       pass
 
 #######################################################################
 
@@ -864,6 +873,22 @@ class TabToTextTest(unittest.TestCase):
             self.assertEqual(data, [{}])
         except json.decoder.JSONDecodeError as e:
             self.assertIn("Expecting value", str(e))
+
+
+
+
+    def test_500(self) -> None:
+        item = Item("x", 2)
+        text = tabtotext.tabToGFMx(item)
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b    ', '| ----- | -----', '| x     | 2    ']
+        self.assertEqual(cond, text.splitlines())
+    def test_501(self) -> None:
+        item = Item("x", 2)
+        text = tabtotext.tabToGFMx([item])
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b    ', '| ----- | -----', '| x     | 2    ']
+        self.assertEqual(cond, text.splitlines())
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_771(self) -> None:
