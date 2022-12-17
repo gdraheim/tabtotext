@@ -136,6 +136,22 @@ class ParseJSONItem:
             return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
         return val  # str
 
+def tabWithDateTime() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%dT%H:%M:%S"
+
+def tabWithDateHour() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%d.%H%M"
+
+def tabWithDateZulu() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%dZ%H%M"
+
+def tabWithDateOnly() -> None:
+    global DATEFMT
+    DATEFMT = "%Y-%m-%d"
+
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
