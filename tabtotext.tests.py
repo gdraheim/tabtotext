@@ -51,7 +51,7 @@ class Item2(DataItem):
 
 test003: JSONList = []
 test004: JSONList = [{}]
-# test003: JSONList = [{}, {}]
+# test004: JSONList = [{}, {}]
 test005: JSONList = [{"a": "x"}]
 test006: JSONList = [{"a": "x", "b": "y"}]
 test007: JSONList = [{"b": "y", "a": "x"}, {"b": "v"}]
@@ -1107,6 +1107,93 @@ class TabToTextTest(unittest.TestCase):
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test018)  # test019
 
+    def test_500(self) -> None:
+        try:
+            import yaml
+            cond = ['data:', '- a: "x"', '- b: "v"']
+            text = "\n".join(cond)
+            data = yaml.safe_load(text)
+            logg.debug("%s => %s", text, data)
+            back = { 'data': test008}
+            self.assertEqual(back, data)
+        except ImportError as e:
+            logg.info("yaml %s - %s", "ImportError", e)
+            raise unittest.SkipTest("no yaml lib")
+    def test_501(self) -> None:
+        try:
+            import yaml
+            cond = ['data:', '- a: "x"', '  b: null', '- a: null', '  b: "v"']
+            text = "\n".join(cond)
+            data = yaml.safe_load(text)
+            logg.debug("%s => %s", text, data)
+            back = { 'data': test008Q}
+            self.assertEqual(back, data)
+        except ImportError as e:
+            logg.info("yaml %s - %s", "ImportError", e)
+            raise unittest.SkipTest("no yaml lib")
+    def test_502(self) -> None:
+        try:
+            import yaml
+            cond = ['data:', '- a: "x"', '  b: "y"']
+            text = "\n".join(cond)
+            data = yaml.safe_load(text)
+            logg.debug("%s => %s", text, data)
+            back = { 'data': test006}
+            self.assertEqual(back, data)
+        except ImportError as e:
+            logg.info("yaml %s - %s", "ImportError", e)
+            raise unittest.SkipTest("no yaml lib")
+    def test_503(self) -> None:
+        try:
+            import toml
+            cond = ['[[data]]', 'a = "x"', 'b = "y"']
+            text = "\n".join(cond)
+            data = toml.loads(text)
+            logg.debug("%s => %s", text, data)
+            back = { 'data': test006}
+            self.assertEqual(back, data)
+        except ImportError as e:
+            logg.info("toml %s - %s", "ImportError", e)
+            raise unittest.SkipTest("no toml lib")
+    def test_504(self) -> None:
+        try:
+            import toml
+            cond = ['[[data]]', 'a = "x"', 'b = null', '[[data]]', 'a = null', '  b = "v"']
+            text = "\n".join(cond)
+            data = toml.loads(text)
+            logg.debug("%s => %s", text, data)
+            back = { 'data': test008Q}
+            self.assertEqual(back, data)
+        except ImportError as e:
+            logg.info("toml %s - %s", "ImportError", e)
+            raise unittest.SkipTest("no toml lib")
+        except ValueError as e:
+            logg.debug("toml %s - %s", "ValueError", e)
+            raise unittest.SkipTest("toml can not encode null")
+    def test_505(self) -> None:
+        try:
+            import toml
+            cond = ['[[data]]', 'b = 2021-12-31']
+            text = "\n".join(cond)
+            data = toml.loads(text)
+            logg.debug("%s => %s", text, data)
+            back = { 'data': test018}
+            self.assertEqual(back, data)
+        except ImportError as e:
+            logg.info("toml %s - %s", "ImportError", e)
+            raise unittest.SkipTest("no toml lib")
+    def test_506(self) -> None:
+        try:
+            import toml
+            cond = ['[[data]]', 'b = 2021-12-31T23:34:45']
+            text = "\n".join(cond)
+            data = toml.loads(text)
+            logg.debug("%s => %s", text, data)
+            back = { 'data': test019}
+            self.assertEqual(back, data)
+        except ImportError as e:
+            logg.info("toml %s - %s", "ImportError", e)
+            raise unittest.SkipTest("no toml lib")
     def test_511(self) -> None:
         text = tabtotext.tabToYAML(test011)
         logg.debug("%s => %s", test011, text)
@@ -1173,10 +1260,10 @@ class TabToTextTest(unittest.TestCase):
     def test_521(self) -> None:
         text = tabtotext.tabToTOML(test011)
         logg.debug("%s => %s", test011, text)
-        cond = ['[[data]]', 'b = null']
+        cond = ['[[data]]', ''] # toml can not encode null
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadTOML(text)
-        self.assertEqual(data, test011)
+        self.assertEqual(data, test011Q)
     def test_522(self) -> None:
         text = tabtotext.tabToTOML(test012)
         logg.debug("%s => %s", test012, text)
@@ -1300,10 +1387,10 @@ class TabToTextTest(unittest.TestCase):
     def test_561(self) -> None:
         text = tabtotext.tabToTOMLx(data011)
         logg.debug("%s => %s", data011, text)
-        cond = ['[[data]]', 'b = null']
+        cond = ['[[data]]', ''] # toml can not encode null
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadTOML(text)
-        self.assertEqual(data, test011)
+        self.assertEqual(data, test011Q)
     def test_562(self) -> None:
         text = tabtotext.tabToTOMLx(data012)
         logg.debug("%s => %s", data012, text)
