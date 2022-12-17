@@ -147,6 +147,11 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
+            if "{:" in formats[col]:
+                try:
+                    return formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             if isinstance(val, float):
                 m = re.search(r"%\d(?:[.]\d)f", formats[col])
                 if m:
@@ -289,6 +294,11 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
+            if "{:" in formats[col]:
+                try:
+                    return formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             if "%s" in formats[col]:
                 try:
                     return formats[col] % strNone(val)
