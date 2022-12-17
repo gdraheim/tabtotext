@@ -452,7 +452,6 @@ class TabToTextTest(unittest.TestCase):
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test019Q)
 
-
     def test_203(self) -> None:
         text = tabtotext.tabToHTML(test003)
         logg.debug("%s => %s", test003, text)
@@ -1109,60 +1108,60 @@ class TabToTextTest(unittest.TestCase):
 
     def test_500(self) -> None:
         try:
-            import yaml
+            import yaml  # type: ignore[import]
             cond = ['data:', '- a: "x"', '- b: "v"']
             text = "\n".join(cond)
             data = yaml.safe_load(text)
             logg.debug("%s => %s", text, data)
-            back = { 'data': test008}
+            back = {'data': test008}
             self.assertEqual(back, data)
         except ImportError as e:
             logg.info("yaml %s - %s", "ImportError", e)
             raise unittest.SkipTest("no yaml lib")
     def test_501(self) -> None:
         try:
-            import yaml
+            import yaml  # type: ignore[import]
             cond = ['data:', '- a: "x"', '  b: null', '- a: null', '  b: "v"']
             text = "\n".join(cond)
             data = yaml.safe_load(text)
             logg.debug("%s => %s", text, data)
-            back = { 'data': test008Q}
+            back = {'data': test008Q}
             self.assertEqual(back, data)
         except ImportError as e:
             logg.info("yaml %s - %s", "ImportError", e)
             raise unittest.SkipTest("no yaml lib")
     def test_502(self) -> None:
         try:
-            import yaml
+            import yaml  # type: ignore[import]
             cond = ['data:', '- a: "x"', '  b: "y"']
             text = "\n".join(cond)
             data = yaml.safe_load(text)
             logg.debug("%s => %s", text, data)
-            back = { 'data': test006}
+            back = {'data': test006}
             self.assertEqual(back, data)
         except ImportError as e:
             logg.info("yaml %s - %s", "ImportError", e)
             raise unittest.SkipTest("no yaml lib")
     def test_503(self) -> None:
         try:
-            import toml
+            import toml  # type: ignore[import]
             cond = ['[[data]]', 'a = "x"', 'b = "y"']
             text = "\n".join(cond)
             data = toml.loads(text)
             logg.debug("%s => %s", text, data)
-            back = { 'data': test006}
+            back = {'data': test006}
             self.assertEqual(back, data)
         except ImportError as e:
             logg.info("toml %s - %s", "ImportError", e)
             raise unittest.SkipTest("no toml lib")
     def test_504(self) -> None:
         try:
-            import toml
+            import toml  # type: ignore[import]
             cond = ['[[data]]', 'a = "x"', 'b = null', '[[data]]', 'a = null', '  b = "v"']
             text = "\n".join(cond)
             data = toml.loads(text)
             logg.debug("%s => %s", text, data)
-            back = { 'data': test008Q}
+            back = {'data': test008Q}
             self.assertEqual(back, data)
         except ImportError as e:
             logg.info("toml %s - %s", "ImportError", e)
@@ -1172,12 +1171,12 @@ class TabToTextTest(unittest.TestCase):
             raise unittest.SkipTest("toml can not encode null")
     def test_505(self) -> None:
         try:
-            import toml
+            import toml  # type: ignore[import]
             cond = ['[[data]]', 'b = 2021-12-31']
             text = "\n".join(cond)
             data = toml.loads(text)
             logg.debug("%s => %s", text, data)
-            back = { 'data': test018}
+            back = {'data': test018}
             self.assertEqual(back, data)
         except ImportError as e:
             logg.info("toml %s - %s", "ImportError", e)
@@ -1189,7 +1188,7 @@ class TabToTextTest(unittest.TestCase):
             text = "\n".join(cond)
             data = toml.loads(text)
             logg.debug("%s => %s", text, data)
-            back = { 'data': test019}
+            back = {'data': test019}
             self.assertEqual(back, data)
         except ImportError as e:
             logg.info("toml %s - %s", "ImportError", e)
@@ -1260,7 +1259,7 @@ class TabToTextTest(unittest.TestCase):
     def test_521(self) -> None:
         text = tabtotext.tabToTOML(test011)
         logg.debug("%s => %s", test011, text)
-        cond = ['[[data]]', ''] # toml can not encode null
+        cond = ['[[data]]', '']  # toml can not encode null
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadTOML(text)
         self.assertEqual(data, test011Q)
@@ -1387,7 +1386,7 @@ class TabToTextTest(unittest.TestCase):
     def test_561(self) -> None:
         text = tabtotext.tabToTOMLx(data011)
         logg.debug("%s => %s", data011, text)
-        cond = ['[[data]]', ''] # toml can not encode null
+        cond = ['[[data]]', '']  # toml can not encode null
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadTOML(text)
         self.assertEqual(data, test011Q)
