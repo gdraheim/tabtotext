@@ -559,7 +559,8 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     for item in sorted(result, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
-            values[name] = format(name, value)
+            if value is not None:
+                values[name] = format(name, value)
         line = ['%s = %s' % (as_name(name), values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
         lines.append("[[data]]\n" + "\n".join(line))
     return "\n".join(lines) + "\n"
