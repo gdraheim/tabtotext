@@ -372,6 +372,17 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
+    def test_146(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        text = tabtotext.tabToGFM(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b     | c    ', '| ----- | ----- | -----',
+                '| ~     | ~     | h    ', '| y     | 1     | ~    ', '| x     | 2     | ~    ']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
     def test_148(self) -> None:
         item = Item2("x", 2)
         text = tabtotext.tabToGFMx(item)
@@ -670,6 +681,18 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
+    def test_246(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th>a</th><th>b</th><th>c</th></tr>', '<tr><td></td><td></td><td>h</td></tr>',  #
+                '<tr><td>y</td><td>1</td><td></td></tr>', '<tr><td>x</td><td>2</td><td></td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        return  # TODO loadHTML
+        data = tabtotext.loadHTML(text)
+        want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
     def test_251(self) -> None:
         text = tabtotext.tabToHTMLx(data011)
         logg.debug("%s => %s", data011, text)
@@ -867,6 +890,16 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToCSV(itemlist, sorts=['b', 'a'])
         logg.debug("%s => %s", test004, text)
         cond = ['b;a;c', '~;~;h', '1;y;~', '2;x;~']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_346(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        text = tabtotext.tabToCSV(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['a;b;c', '~;~;h', 'y;1;~', 'x;2;~']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
@@ -1098,6 +1131,16 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabToJSON(itemlist, sorts=['b', 'a'])
         logg.debug("%s => %s", test004, text)
         cond = ['[', ' {"c": "h"},', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        want = [{'c': "h"}, {'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_446(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        text = tabtotext.tabToJSON(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {"c": "h"},', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2}', ']']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         want = [{'c': "h"}, {'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]
@@ -1437,7 +1480,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, data)
     def test_544(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
-        text = tabtotext.tabToTOMLx(itemlist, sorts=['b', 'a'])
+        text = tabtotext.tabToTOML(itemlist, sorts=['b', 'a'])
         logg.debug("%s => %s", test004, text)
         cond = ['[[data]]', 'b = 1', 'a = "y"', '[[data]]', 'b = 2', 'a = "x"', ]
         self.assertEqual(cond, text.splitlines())
@@ -1446,6 +1489,26 @@ class TabToTextTest(unittest.TestCase):
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
     def test_545(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        text = tabtotext.tabToYAML(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['data:', '- a: "y"', '  b: 1', '- a: "x"', '  b: 2', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        want = [{'a': "y", 'b': 1}, {'a': "x", 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_546(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        text = tabtotext.tabToTOML(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['[[data]]', 'a = "y"', 'b = 1', '[[data]]', 'a = "x"', 'b = 2', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_547(self) -> None:
         item1 = Item2("x", 2)
         item2 = Item2("y", 3)
         itemlist: DataList = [item1, item2]
@@ -1457,7 +1520,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_546(self) -> None:
+    def test_548(self) -> None:
         item1 = Item2("x", 2)
         item2 = Item2("y", 3)
         itemlist: DataList = [item1, item2]
