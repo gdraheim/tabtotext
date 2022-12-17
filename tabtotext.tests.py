@@ -1107,6 +1107,133 @@ class TabToTextTest(unittest.TestCase):
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test018)  # test019
 
+    def test_511(self) -> None:
+        text = tabtotext.tabToYAML(test011)
+        logg.debug("%s => %s", test011, text)
+        cond = ['data:', '- b: null']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test011)
+    def test_512(self) -> None:
+        text = tabtotext.tabToYAML(test012)
+        logg.debug("%s => %s", test012, text)
+        cond = ['data:', '- b: false']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test012)
+    def test_513(self) -> None:
+        text = tabtotext.tabToYAML(test013)
+        logg.debug("%s => %s", test013, text)
+        cond = ['data:', '- b: true']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test013)
+    def test_514(self) -> None:
+        text = tabtotext.tabToYAML(test014)
+        logg.debug("%s => %s", test014, text)
+        cond = ['data:', '- b: ""']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test014)
+    def test_515(self) -> None:
+        text = tabtotext.tabToYAML(test015)
+        logg.debug("%s => %s", test015, text)
+        cond = ['data:', '- b: "5678"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test015)
+    def test_516(self) -> None:
+        text = tabtotext.tabToYAML(test016)
+        logg.debug("%s => %s", test016, text)
+        cond = ['data:', '- b: 123']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test016)
+    def test_517(self) -> None:
+        text = tabtotext.tabToYAML(test017)
+        logg.debug("%s => %s", test017, text)
+        cond = ['data:', '- b: 123.40']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test017)
+    def test_518(self) -> None:
+        text = tabtotext.tabToYAML(test018)
+        logg.debug("%s => %s", test018, text)
+        cond = ['data:', '- b: 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test018)
+    def test_519(self) -> None:
+        text = tabtotext.tabToYAML(test019)
+        logg.debug("%s => %s", test019, text)
+        cond = ['data:', '- b: 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadYAML(text)
+        self.assertEqual(data, test018)  # test019
+    def test_521(self) -> None:
+        text = tabtotext.tabToTOML(test011)
+        logg.debug("%s => %s", test011, text)
+        cond = ['[[data]]', 'b = null']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test011)
+    def test_522(self) -> None:
+        text = tabtotext.tabToTOML(test012)
+        logg.debug("%s => %s", test012, text)
+        cond = ['[[data]]', 'b = false']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test012)
+    def test_523(self) -> None:
+        text = tabtotext.tabToTOML(test013)
+        logg.debug("%s => %s", test013, text)
+        cond = ['[[data]]', 'b = true']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test013)
+    def test_524(self) -> None:
+        text = tabtotext.tabToTOML(test014)
+        logg.debug("%s => %s", test014, text)
+        cond = ['[[data]]', 'b = ""']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test014)
+    def test_525(self) -> None:
+        text = tabtotext.tabToTOML(test015)
+        logg.debug("%s => %s", test015, text)
+        cond = ['[[data]]', 'b = "5678"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test015)
+    def test_526(self) -> None:
+        text = tabtotext.tabToTOML(test016)
+        logg.debug("%s => %s", test016, text)
+        cond = ['[[data]]', 'b = 123']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test016)
+    def test_527(self) -> None:
+        text = tabtotext.tabToTOML(test017)
+        logg.debug("%s => %s", test017, text)
+        cond = ['[[data]]', 'b = 123.40']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test017)
+    def test_528(self) -> None:
+        text = tabtotext.tabToTOML(test018)
+        logg.debug("%s => %s", test018, text)
+        cond = ['[[data]]', 'b = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test018)
+    def test_529(self) -> None:
+        text = tabtotext.tabToTOML(test019)
+        logg.debug("%s => %s", test019, text)
+        cond = ['[[data]]', 'b = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadTOML(text)
+        self.assertEqual(data, test018)  # test019
+
     def test_551(self) -> None:
         text = tabtotext.tabToYAMLx(data011)
         logg.debug("%s => %s", data011, text)
