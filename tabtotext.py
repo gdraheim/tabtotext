@@ -6,7 +6,7 @@ but instead of using the Postgres API it uses the Crowd API.
 // Please be aware the --appuser/--password represent crowd-application credentials (not a build user)
 """
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Collection, Sized, Type, cast
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Collection, Sized, Type, cast
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -162,12 +162,17 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)
-    return tabToGFM(results, sorts, formats, legend)
-def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-             legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|") -> str:
+    return tabToGFM(results, sorts, formats, legend=legend)
+def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
+             legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
+             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -309,12 +314,17 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToHTML(results, sorts, formats, legend)
-def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    return tabToHTML(results, sorts, formats, legend=legend)
+def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
+              legend: Union[Dict[str, str], Sequence[str]] = [],  #
+              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -398,14 +408,19 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToJSON(results, sorts, formats, datedelim, legend)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    return tabToJSON(results, sorts, formats, datedelim=datedelim, legend=legend)
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
+              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -462,14 +477,19 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToYAML(results, sorts, formats, datedelim, legend)
-def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    return tabToYAML(results, sorts, formats, datedelim=datedelim, legend=legend)
+def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
+              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for YAML output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -563,14 +583,19 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToTOML(results, sorts, formats, datedelim, legend)
-def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    return tabToTOML(results, sorts, formats, datedelim=datedelim, legend=legend)
+def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
+              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
+              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for TOML output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -663,14 +688,19 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToCSV(results, sorts, formats, datedelim, legend)
-def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";") -> str:
+    return tabToCSV(results, sorts, formats, datedelim=datedelim, legend=legend)
+def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, *,  #
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
+             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
@@ -745,28 +775,29 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToFMT(output, results, sorts, formats, datedelim, legend)
-def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend)
+def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, *,  #
+             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
+             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if output.lower() in ["md", "markdown"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats)
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
     if output.lower() in ["html"]:
-        return tabToHTML(result=result, sorts=sorts, formats=formats)
+        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder)
     if output.lower() in ["json"]:
-        return tabToJSON(result=result, sorts=sorts, formats=formats, datedelim=datedelim)
+        return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
     if output.lower() in ["yaml"]:
-        return tabToYAML(result=result, sorts=sorts, formats=formats, datedelim=datedelim)
+        return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
     if output.lower() in ["toml"]:
-        return tabToTOML(result=result, sorts=sorts, formats=formats, datedelim=datedelim)
+        return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
     if output.lower() in ["wide"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, tab='')
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
     if output.lower() in ["tabs"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, tab='\t')
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
     if output.lower() in ["tab"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, datedelim=datedelim, tab='\t')
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
     if output.lower() in ["csv"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, datedelim=datedelim, tab=';')
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
     # including the legend
     if output.lower() in ["htm"]:
-        return tabToHTML(result=result, sorts=sorts, formats=formats, legend=legend)
-    return tabToGFM(result=result, sorts=sorts, formats=formats, legend=legend)
+        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+    return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
