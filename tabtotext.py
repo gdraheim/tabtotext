@@ -232,7 +232,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [rightF(name, tab + " %%-%is" % cols[name]) % format(name, values.get(name, _None_String))
+        line = [rightF(name, tab + " %%-%is" % cols[name]) % values.get(name, _None_String)
                 for name in sorted(cols.keys(), key=sortkey)]
         lines.append(" ".join(line))
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
@@ -373,8 +373,8 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     for item in sorted(result, key=sortrow):
         values: JSONDict = dict([(name, "") for name in cols.keys()])
         for name, value in item.items():
-            values[name] = value
-        line = [rightTD(name, "<td>%s</td>" % escape(format(name, values[name]))) for name in sorted(cols.keys(), key=sortkey)]
+            values[name] = format(name, value)
+        line = [rightTD(name, "<td>%s</td>" % escape(values.get(name, ""))) for name in sorted(cols.keys(), key=sortkey)]
         lines.append("<tr>" + "".join(line) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts)
 
