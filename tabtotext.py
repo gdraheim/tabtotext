@@ -716,6 +716,11 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
         return sortvalue
     def format(col: str, val: JSONItem) -> str:
         if col in formats:
+            if "{:" in formats[col]:
+                try:
+                    return formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", formats[col], e)
             if "%s" in formats[col]:
                 try:
                     return formats[col] % strNone(val)
