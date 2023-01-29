@@ -842,9 +842,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th style="text-align: right">a</th></tr>',  #,
-            '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  #,
-            '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>b</th><th style="text-align: right">a</th></tr>',  # ,
+                '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  # ,
+                '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
@@ -857,9 +857,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th style="text-align: right">a</th></tr>',  #,
-            '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  #,
-            '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>b</th><th style="text-align: right">a</th></tr>',  # ,
+                '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  # ,
+                '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
@@ -872,9 +872,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  #,
-            '<tr><td>1</td><td>&quot;y&quot;</td></tr>',  #,
-            '<tr><td>2</td><td>&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
+                '<tr><td>1</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td>2</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
@@ -887,9 +887,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  #,
-            '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  #,
-            '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
+                '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
@@ -902,9 +902,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  #,
-            '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  #,
-            '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
+                '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
@@ -917,9 +917,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  #,
-            '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  #,
-            '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
+                '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
@@ -932,9 +932,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  #,
-            '<tr><td>1.000000</td><td>&quot;y    &quot;</td></tr>',  #,
-            '<tr><td>2.000000</td><td>&quot;x    &quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
+                '<tr><td>1.000000</td><td>&quot;y    &quot;</td></tr>',  # ,
+                '<tr><td>2.000000</td><td>&quot;x    &quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
@@ -947,9 +947,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th style="text-align: right">b</th><th style="text-align: right">a</th></tr>',  #,
-           '<tr><td style="text-align: right">1.000000</td><td style="text-align: right">&quot;    y&quot;</td></tr>',  #,
-           '<tr><td style="text-align: right">22.000000</td><td style="text-align: right">&quot;    x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th style="text-align: right">a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1.000000</td><td style="text-align: right">&quot;    y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">22.000000</td><td style="text-align: right">&quot;    x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
