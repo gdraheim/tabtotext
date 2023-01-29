@@ -229,7 +229,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
     seperators = [(tab + " %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
     lines.append(" ".join(seperators))
     for item in sorted(result, key=sortrow):
-        values: JSONDict = {}
+        values: Dict[str, str] = {}
         for name, value in item.items():
             values[name] = format(name, value)
         line = [rightF(name, tab + " %%-%is" % cols[name]) % values.get(name, _None_String)
@@ -371,10 +371,10 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     line = [rightTH(name, "<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key=sortkey)]
     lines = ["<tr>" + "".join(line) + "</tr>"]
     for item in sorted(result, key=sortrow):
-        values: JSONDict = dict([(name, "") for name in cols.keys()])
+        values: Dict[str, str] = dict([(name, "") for name in cols.keys()])  # initialized with all columns to empty string
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [rightTD(name, "<td>%s</td>" % escape(values.get(name, ""))) for name in sorted(cols.keys(), key=sortkey)]
+        line = [rightTD(name, "<td>%s</td>" % escape(values[name])) for name in sorted(cols.keys(), key=sortkey)]
         lines.append("<tr>" + "".join(line) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts)
 
