@@ -217,12 +217,18 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     def rightF(col: str, formatter: str) -> str:
-        if col in formats and formats[col].startswith(" ") and not NORIGHT:
-            return formatter.replace("%-", "%")
+        if col in formats and not NORIGHT:
+            if formats[col].startswith(" "):
+                return formatter.replace("%-", "%")
+            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
+                return formatter.replace("%-", "%")
         return formatter
     def rightS(col: str, formatter: str) -> str:
-        if col in formats and formats[col].startswith(" ") and not NORIGHT:
-            return formatter[:-1] + ":"
+        if col in formats and not NORIGHT:
+            if formats[col].startswith(" "):
+                return formatter[:-1] + ":"
+            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
+                return formatter[:-1] + ":"
         return formatter
     line = [rightF(name, tab + " %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
     lines = [" ".join(line)]
@@ -361,12 +367,18 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     def rightTH(col: str, value: str) -> str:
-        if col in formats and formats[col].startswith(" ") and not NORIGHT:
-            return value.replace("<th>", '<th style="text-align: right">')
+        if col in formats and not NORIGHT:
+            if formats[col].startswith(" "):
+                return value.replace("<th>", '<th style="text-align: right">')
+            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
+                return value.replace("<th>", '<th style="text-align: right">')
         return value
     def rightTD(col: str, value: str) -> str:
-        if col in formats and formats[col].startswith(" ") and not NORIGHT:
-            return value.replace("<td>", '<td style="text-align: right">')
+        if col in formats and not NORIGHT:
+            if formats[col].startswith(" "):
+                return value.replace("<td>", '<td style="text-align: right">')
+            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
+                return value.replace("<td>", '<td style="text-align: right">')
         return value
     line = [rightTH(name, "<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key=sortkey)]
     lines = ["<tr>" + "".join(line) + "</tr>"]
