@@ -817,4 +817,4 @@ def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], fo
     # including the legend
     if output.lower() in ["htm"]:
         return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
-    return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+    return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)reorder, legend=legend)
