@@ -380,12 +380,15 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
                 return value.replace("<td>", '<td style="text-align: right">')
         return value
-    combined = combine.values()
+    combined = list(combine.values())
+    for name in combine:
+        if name not in cols: # if target does not exist in dataset
+            combined.remove(combine[name])  # the shown combined column seperately
     headers = []
     for name in sorted(cols.keys(), key=sortkey):
         if name in combined:
             continue
-        if name in combine:
+        if name in combine and combine[name] in cols:
             headers += [rightTH(name, "<th>{}<br />{}</th>".format(escape(name), escape(combine[name])))]
         else:
             headers += [rightTH(name, "<th>{}</th>".format(escape(name)))]
@@ -398,7 +401,7 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
         for name in sorted(cols.keys(), key=sortkey):
             if name in combined:
                 continue
-            if name in combine:
+            if name in combine and combine[name] in cols:
                 cells += [rightTD(name, "<td>{}<br />{}</td>".format(escape(values[name]), escape(values[combine[name]])))]
             else:
                 cells += [rightTD(name, "<td>{}</td>".format(escape(values[name])))]
