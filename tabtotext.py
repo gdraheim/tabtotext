@@ -15,8 +15,7 @@ import os
 import re
 import logging
 import json
-from io import StringIO
-
+from io import StringIO, TextIOWrapper
 
 logg = logging.getLogger("TABTOTEXT")
 
@@ -311,7 +310,7 @@ def loadGFM(text: str, datedelim: str = '-', tab: str = '|') -> JSONList:
 
 
 def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {}) -> str:
+               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -320,9 +319,9 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToHTML(results, sorts, formats, legend=legend, combine=combine)
+    return tabToHTML(results, sorts, formats, legend=legend)
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
-              legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {},  # combine[target] -> [attach]
+              legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
         if callable(reorder):
@@ -380,32 +379,14 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
                 return value.replace("<td>", '<td style="text-align: right">')
         return value
-    combined = list(combine.values())
-    for name in combine:
-        if name not in cols: # if target does not exist in dataset
-            combined.remove(combine[name])  # the shown combined column seperately
-    headers = []
-    for name in sorted(cols.keys(), key=sortkey):
-        if name in combined:
-            continue
-        if name in combine and combine[name] in cols:
-            headers += [rightTH(name, "<th>{}<br />{}</th>".format(escape(name), escape(combine[name])))]
-        else:
-            headers += [rightTH(name, "<th>{}</th>".format(escape(name)))]
-    lines = ["<tr>" + "".join(headers) + "</tr>"]
+    line = [rightTH(name, "<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key=sortkey)]
+    lines = ["<tr>" + "".join(line) + "</tr>"]
     for item in sorted(result, key=sortrow):
         values: Dict[str, str] = dict([(name, "") for name in cols.keys()])  # initialized with all columns to empty string
         for name, value in item.items():
             values[name] = format(name, value)
-        cells = []
-        for name in sorted(cols.keys(), key=sortkey):
-            if name in combined:
-                continue
-            if name in combine and combine[name] in cols:
-                cells += [rightTD(name, "<td>{}<br />{}</td>".format(escape(values[name]), escape(values[combine[name]])))]
-            else:
-                cells += [rightTD(name, "<td>{}</td>".format(escape(values[name])))]
-        lines.append("<tr>" + "".join(cells) + "</tr>")
+        line = [rightTD(name, "<td>%s</td>" % escape(values[name])) for name in sorted(cols.keys(), key=sortkey)]
+        lines.append("<tr>" + "".join(line) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts)
 
 def legendToHTML(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
@@ -784,9 +765,13 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
         writer.writerow(line)
     return csvfile.getvalue()
 
+def readFromCSV(filename: str, datedelim: str = '-', tab: str = ";") -> JSONList:
+    return _readFromCSV(open(filename), datedelim, tab)
 def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
-    import csv
     csvfile = StringIO(text)
+    return _readFromCSV(csvfile, datedelim, tab)
+def _readFromCSV(csvfile: TextIOWrapper, datedelim: str = '-', tab: str = ";") -> JSONList:
+    import csv
     reader = csv.DictReader(csvfile, restval='ignore',
                             quoting=csv.QUOTE_MINIMAL, delimiter=tab)
     #
@@ -794,6 +779,7 @@ def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     data: JSONList = []
     for row in reader:
         newrow: JSONDict = dict(row)
+        logg.info("read ..%s", newrow)
         for key, val in newrow.items():
             if isinstance(val, str):
                 newrow[key] = convert.toJSONItem(val)
