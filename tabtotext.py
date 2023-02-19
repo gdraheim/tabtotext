@@ -229,13 +229,19 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                 if "h}" in fmt:
                     try:
                         val = strHours(val)  # type: ignore[arg-type]
-                        fmt = fmt.replace("h", "s")
+                        fmt = fmt.replace("h}", "s}")
                     except Exception as e:
                         logg.debug("format <%s> does not apply: %s", fmt, e)
                 if "H}" in fmt:
                     try:
                         val = strHours(val, "'")  # type: ignore[arg-type]
-                        fmt = fmt.replace("H", "s")
+                        fmt = fmt.replace("H}", "s}")
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
+                if "M}" in fmt:
+                    try:
+                        val = strHours(float(val) / 1048576, ".")  # type: ignore[arg-type]
+                        fmt = fmt.replace("M}", "s}M")
                     except Exception as e:
                         logg.debug("format <%s> does not apply: %s", fmt, e)
                 try:
