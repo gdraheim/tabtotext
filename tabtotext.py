@@ -67,25 +67,27 @@ def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
 
-def strDateTime(value: Any, datedelim: str = '-') -> str:
-    if value is None:
-        return _None_String
-    if isinstance(value, Time):
-        if "Z" in DATEFMT:
-            return value.astimezone(timezone.utc).strftime(DATEFMT.replace('-', datedelim))
-        else:
-            return value.strftime(DATEFMT.replace('-', datedelim))
-    if isinstance(value, Date):
-        return value.strftime(DATEFMT.replace('-', datedelim))
-    return str(value)
-def strNone(value: Any, datedelim: str = '-') -> str:
+def strNone(value: Any, datedelim: str = '-', datefmt: Optional[str] = None) -> str:
+    return strJSONItem(value, datedelim, datefmt)
+def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = None) -> str:
     if value is None:
         return _None_String
     if value is False:
         return _False_String
     if value is True:
         return _True_String
-    return strDateTime(value, datedelim)
+    if isinstance(value, Time):
+        datefmt1 = datefmt if datefmt else DATEFMT
+        datefmt2 = datefmt1.replace('-', datedelim)
+        if "Z" in DATEFMT:
+            return value.astimezone(timezone.utc).strftime(datefmt2)
+        else:
+            return value.strftime(datefmt2)
+    if isinstance(value, Date):
+        datefmt1 = datefmt if datefmt else DATEFMT
+        datefmt2 = datefmt1.replace('-', datedelim)
+        return value.strftime(datefmt2)
+    return str(value)
 
 class DictParser:
     @abstractmethod
@@ -115,7 +117,7 @@ class BaseFormatJSONItem(FormatJSONItem):
                 return True
         return False
     def __call__(self, col: str, val: JSONItem) -> str:
-        return strNone(val)
+        return strJSONItem(val)
 
 class ParseJSONItem:
     def __init__(self, datedelim: str = '-') -> None:
@@ -203,13 +205,13 @@ class FormatGFM(BaseFormatJSONItem):
                         logg.debug("format <%s> does not apply: %e", self.formats[col], e)
             if "%s" in self.formats[col]:
                 try:
-                    return self.formats[col] % strNone(val)
+                    return self.formats[col] % strJSONItem(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", self.formats[col], e)
             logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
         if isinstance(val, float):
             return self.floatfmt % val
-        return strNone(val)
+        return strJSONItem(val)
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               *, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -246,7 +248,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
-                    sortvalue += "\n" + strDateTime(value)
+                    sortvalue += "\n" + strJSONItem(value)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -370,7 +372,7 @@ class FormatHTML(BaseFormatJSONItem):
                     logg.debug("format <%s> does not apply: %s", self.formats[col], e)
             if "%s" in self.formats[col]:
                 try:
-                    return self.formats[col] % strNone(val)
+                    return self.formats[col] % strJSONItem(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", self.formats[col], e)
             logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
@@ -413,7 +415,7 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
-                    sortvalue += "\n" + strDateTime(value)
+                    sortvalue += "\n" + strJSONItem(value)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -551,7 +553,7 @@ class FormatJSON(BaseFormatJSONItem):
         if isinstance(val, float):
             return self.floatfmt % val
         if isinstance(val, (Date, Time)):
-            return '"%s"' % strDateTime(val, self.datedelim)
+            return '"%s"' % strJSONItem(val, self.datedelim)
         return json.dumps(val)
 
 def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
@@ -591,7 +593,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
-                    sortvalue += "\n" + strDateTime(value, datedelim)
+                    sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -651,7 +653,7 @@ class FormatYAML(BaseFormatJSONItem):
         if isinstance(val, float):
             return self.floatfmt % val
         if isinstance(val, (Date, Time)):
-            return '%s' % strDateTime(val, self.datedelim)
+            return '%s' % strJSONItem(val, self.datedelim)
         return json.dumps(val)
 
 def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
@@ -691,7 +693,7 @@ def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
-                    sortvalue += "\n" + strDateTime(value, datedelim)
+                    sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -780,7 +782,7 @@ class FormatTOML(BaseFormatJSONItem):
         if isinstance(val, float):
             return FLOATFMT % val
         if isinstance(val, (Date, Time)):
-            return '%s' % strDateTime(val, self.datedelim)
+            return '%s' % strJSONItem(val, self.datedelim)
         return json.dumps(val)
 
 def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
@@ -820,7 +822,7 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
-                    sortvalue += "\n" + strDateTime(value, datedelim)
+                    sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
                 sortvalue += "\n-"
         return sortvalue
@@ -911,15 +913,15 @@ class FormatCSV(BaseFormatJSONItem):
                     logg.debug("format <%s> does not apply: %s", self.formats[col], e)
             if "%s" in self.formats[col]:
                 try:
-                    return self.formats[col] % strNone(val)
+                    return self.formats[col] % strJSONItem(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", self.formats[col], e)
             logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
         if isinstance(val, (Date, Time)):
-            return '%s' % strDateTime(val, self.datedelim)
+            return '%s' % strJSONItem(val, self.datedelim)
         if isinstance(val, float):
             return self.floatfmt % val
-        return strNone(val)
+        return strJSONItem(val)
 
 def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -958,7 +960,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
-                    sortvalue += "\n" + strDateTime(value, datedelim)
+                    sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
                 sortvalue += "\n-"
         return sortvalue
