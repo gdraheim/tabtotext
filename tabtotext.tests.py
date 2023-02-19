@@ -1792,7 +1792,6 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',
                 '<tr><td>1</td><td>y</td></tr>', '<tr><td>2</td><td>x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1804,9 +1803,8 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>b</th><th>a</th><th>c</th></tr>', '<tr><td></td><td></td><td>h</td></tr>',  #
                 '<tr><td>1</td><td>y</td><td></td></tr>', '<tr><td>2</td><td>x</td><td></td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
-        want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
+        want = [{'a': None, 'b': None, 'c': 'h'}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
     def test_7446(self) -> None:
@@ -1816,9 +1814,8 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>a</th><th>b</th><th>c</th></tr>', '<tr><td></td><td></td><td>h</td></tr>',  #
                 '<tr><td>y</td><td>1</td><td></td></tr>', '<tr><td>x</td><td>2</td><td></td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
-        want = [{'a': None, 'b': None, 'c': "h"}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, ]
+        want = [{'a': None, 'b': None, 'c': 'h'}, {'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
     def test_7451(self) -> None:
@@ -1877,7 +1874,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  # ,
                 '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1892,7 +1888,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  # ,
                 '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1907,7 +1902,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>1</td><td>&quot;y&quot;</td></tr>',  # ,
                 '<tr><td>2</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1922,7 +1916,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
                 '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1937,7 +1930,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
                 '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1952,7 +1944,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
                 '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1967,7 +1958,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>1.000000</td><td>&quot;y    &quot;</td></tr>',  # ,
                 '<tr><td>2.000000</td><td>&quot;x    &quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
@@ -1982,7 +1972,6 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td style="text-align: right">1.000000</td><td style="text-align: right">&quot;    y&quot;</td></tr>',  # ,
                 '<tr><td style="text-align: right">22.000000</td><td style="text-align: right">&quot;    x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        return  # TODO loadHTML
         data = tabtotext.loadHTML(text)
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
