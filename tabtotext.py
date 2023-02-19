@@ -192,7 +192,7 @@ class FormatGFM:
         return strNone(val)
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              *, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -202,8 +202,8 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
     else:
         results = cast(JSONList, result)
     return tabToGFM(results, sorts, formats, legend=legend)
-def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
-             legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
+def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+             *, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format = FormatGFM(formats, tab=tab)
     def sortkey(header: str) -> str:
@@ -361,7 +361,7 @@ class FormatHTML:
         return strNone(val)
 
 def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {}) -> str:
+               *, legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -371,8 +371,8 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToHTML(results, sorts, formats, legend=legend, combine=combine)
-def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
-              legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {},  # combine[target] -> [attach]
+def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              *, legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {},  # combine[target] -> [attach]
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format = FormatHTML(formats)
     def sortkey(header: str) -> str:
@@ -537,7 +537,7 @@ class FormatJSON:
         return json.dumps(val)
 
 def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -547,8 +547,8 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToJSON(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format = FormatJSON(formats, datedelim=datedelim)
     if legend:
@@ -632,7 +632,7 @@ class FormatYAML:
         return json.dumps(val)
 
 def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -642,8 +642,8 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToYAML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
+def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format = FormatYAML(formats, datedelim=datedelim)
     if legend:
@@ -756,7 +756,7 @@ class FormatTOML:
         return json.dumps(val)
 
 def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -766,8 +766,8 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToTOML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
+def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format = FormatTOML(formats, datedelim=datedelim)
     if legend:
@@ -890,7 +890,7 @@ class FormatCSV:
         return strNone(val)
 
 def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -900,8 +900,8 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToCSV(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, *,  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
+def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
+             *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format = FormatCSV(formats, datedelim=datedelim)
     if legend:
@@ -975,7 +975,7 @@ class DictParserCSV(DictParser):
             yield newrow
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
