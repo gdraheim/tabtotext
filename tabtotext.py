@@ -363,7 +363,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
             return formatter[:-1] + ":"
         return formatter
     line = [rightF(name, tab + " %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
-    lines = [" ".join(line)]
+    lines = [(" ".join(line)).rstrip()]
     seperators = [(tab + " %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
     lines.append(" ".join(seperators))
     for item in sorted(result, key=sortrow):
@@ -372,7 +372,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
             values[name] = format(name, value)
         line = [rightF(name, tab + " %%-%is" % cols[name]) % values.get(name, _None_String)
                 for name in sorted(cols.keys(), key=sortkey)]
-        lines.append(" ".join(line))
+        lines.append((" ".join(line)).rstrip())
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
 
 def legendToGFM(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
