@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from typing import Optional, Union, Dict, List, Any, Sequence
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable
 from tabtotext import JSONList, JSONItem, DataList, DataItem
 import tabtotext
 import unittest
@@ -24,7 +24,8 @@ except Exception as e:
     logg.warning("skipping tabtoxlsx: %s", e)
     skipXLSX = True
     def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-                   legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
+                   legend: Union[Dict[str, str], Sequence[str]] = [],  #
+                   reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
         pass
     def readFromXLSX(filename: str) -> JSONList:
         return []
@@ -1586,7 +1587,6 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-
 
     def test_7403(self) -> None:
         text = tabtotext.tabToHTML(test003)
