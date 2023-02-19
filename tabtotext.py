@@ -846,24 +846,30 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
     return csvfile.getvalue()
 
 def readFromCSV(filename: str, datedelim: str = '-', tab: str = ";") -> JSONList:
-    return _readFromCSV(open(filename), datedelim, tab)
+    parser = DictParserCSV(datedelim=datedelim, tab=tab)
+    return list(parser.load(filename))
 def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
-    csvfile = StringIO(text)
-    return _readFromCSV(csvfile, datedelim, tab)
-def _readFromCSV(csvfile: TextIOWrapper, datedelim: str = '-', tab: str = ";") -> JSONList:
-    import csv
-    reader = csv.DictReader(csvfile, restval='ignore',
-                            quoting=csv.QUOTE_MINIMAL, delimiter=tab)
-    #
-    convert = ParseJSONItem(datedelim)
-    data: JSONList = []
-    for row in reader:
-        newrow: JSONDict = dict(row)
-        for key, val in newrow.items():
-            if isinstance(val, str):
-                newrow[key] = convert.toJSONItem(val)
-        data.append(newrow)
-    return data
+    parser = DictParserCSV(datedelim=datedelim, tab=tab)
+    return list(parser.loads(text))
+
+class DictParserCSV:
+    def __init__(self, *, datedelim: str = '-', tab: str = ";") -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.tab = tab
+    def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        return self.reads(open(filename), tab=tab)
+    def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        return self.reads(StringIO(text), tab=tab)
+    def reads(self, csvfile: TextIOWrapper, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        tab = tab if tab is not None else self.tab
+        import csv
+        for row in csv.DictReader(csvfile, restval='ignore',
+                    quoting=csv.QUOTE_MINIMAL, delimiter=tab):
+            newrow: JSONDict = dict(row)
+            for key, val in newrow.items():
+                if isinstance(val, str):
+                    newrow[key] = self.convert.toJSONItem(val)
+            yield newrow
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
