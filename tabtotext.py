@@ -381,7 +381,7 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
         return value
     combined = list(combine.values())
     for name in combine:
-        if name not in cols: # if target does not exist in dataset
+        if name not in cols:  # if target does not exist in dataset
             combined.remove(combine[name])  # the shown combined column seperately
     headers = []
     for name in sorted(cols.keys(), key=sortkey):
@@ -486,9 +486,9 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
-def readFromJSON(text: str, datedelim: str = '-') -> JSONList:
+def readFromJSON(filename: str, datedelim: str = '-') -> JSONList:
     convert = ParseJSONItem(datedelim)
-    jsondata = json.load(text)
+    jsondata = json.load(open(filename))
     data: JSONList = jsondata
     for record in data:
         for key, val in record.items():
