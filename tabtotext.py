@@ -162,6 +162,35 @@ def tabWithDateOnly() -> None:
     global DATEFMT
     DATEFMT = "%Y-%m-%d"
 
+class FormatGFM:
+    def __init__(self, formats: Dict[str, str] = {}, tab: str = '|'):
+        self.formats = formats
+        self.floatfmt = FLOATFMT
+        self.tab = tab
+    def __call__(self, col: str, val: JSONItem) -> str:
+        if col in self.formats:
+            if "{:" in self.formats[col]:
+                try:
+                    return self.formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
+            if isinstance(val, float):
+                m = re.search(r"%\d(?:[.]\d)f", self.formats[col])
+                if m:
+                    try:
+                        return self.formats[col] % val
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %e", self.formats[col], e)
+            if "%s" in self.formats[col]:
+                try:
+                    return self.formats[col] % strNone(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
+            logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
+        if isinstance(val, float):
+            return self.floatfmt % val
+        return strNone(val)
+
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
@@ -176,6 +205,7 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
 def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
              legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+    format = FormatGFM(formats, tab=tab)
     def sortkey(header: str) -> str:
         if callable(reorder):
             return reorder(header)
@@ -196,29 +226,6 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col: str, val: JSONItem) -> str:
-        if col in formats:
-            if "{:" in formats[col]:
-                try:
-                    return formats[col].format(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", formats[col], e)
-            if isinstance(val, float):
-                m = re.search(r"%\d(?:[.]\d)f", formats[col])
-                if m:
-                    try:
-                        return formats[col] % val
-                    except Exception as e:
-                        logg.debug("format <%s> does not apply: %e", formats[col], e)
-            if "%s" in formats[col]:
-                try:
-                    return formats[col] % strNone(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, float):
-            return FLOATFMT % val
-        return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -332,6 +339,26 @@ class DictParserGFM(DictParser):
             else:
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
 
+class FormatHTML:
+    def __init__(self, formats: Dict[str, str] = {}):
+        self.formats = formats
+        self.floatfmt = FLOATFMT
+    def __call__(self, col: str, val: JSONItem) -> str:
+        if col in self.formats:
+            if "{:" in self.formats[col]:
+                try:
+                    return self.formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
+            if "%s" in self.formats[col]:
+                try:
+                    return self.formats[col] % strNone(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
+            logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
+        if isinstance(val, float):
+            return self.floatfmt % val
+        return strNone(val)
 
 def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {}) -> str:
@@ -347,6 +374,7 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
               legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {},  # combine[target] -> [attach]
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+    format = FormatHTML(formats)
     def sortkey(header: str) -> str:
         if callable(reorder):
             return reorder(header)
@@ -367,22 +395,6 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col: str, val: JSONItem) -> str:
-        if col in formats:
-            if "{:" in formats[col]:
-                try:
-                    return formats[col].format(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", formats[col], e)
-            if "%s" in formats[col]:
-                try:
-                    return formats[col] % strNone(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, float):
-            return FLOATFMT % val
-        return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -510,6 +522,19 @@ class DictParserHTML(DictParser):
                     if isinstance(val, str):
                         record[key] = self.convert.toJSONItem(val)
                 yield record
+class FormatJSON:
+    def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
+        self.formats = formats
+        self.floatfmt = FLOATFMT
+        self.datedelim = datedelim
+    def __call__(self, col: str, val: JSONItem) -> str:
+        if val is None:
+            return "null"
+        if isinstance(val, float):
+            return self.floatfmt % val
+        if isinstance(val, (Date, Time)):
+            return '"%s"' % strDateTime(val, self.datedelim)
+        return json.dumps(val)
 
 def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -525,6 +550,7 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
 def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+    format = FormatJSON(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
@@ -547,14 +573,6 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col: str, val: JSONItem) -> str:
-        if val is None:
-            return "null"
-        if isinstance(val, float):
-            return FLOATFMT % val
-        if isinstance(val, (Date, Time)):
-            return '"%s"' % strDateTime(val, datedelim)
-        return json.dumps(val)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -599,6 +617,19 @@ class DictParserJSON(DictParser):
                     record[key] = self.convert.toDate(val)
             yield record
 
+class FormatYAML:
+    def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
+        self.formats = formats
+        self.datedelim = datedelim
+        self.floatfmt = FLOATFMT
+    def __call__(self, col: str, val: JSONItem) -> str:
+        if val is None:
+            return "null"
+        if isinstance(val, float):
+            return self.floatfmt % val
+        if isinstance(val, (Date, Time)):
+            return '%s' % strDateTime(val, self.datedelim)
+        return json.dumps(val)
 
 def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -614,6 +645,7 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
 def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+    format = FormatYAML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for YAML output")
     def sortkey(header: str) -> str:
@@ -636,14 +668,6 @@ def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col: str, val: JSONItem) -> str:
-        if val is None:
-            return "null"
-        if isinstance(val, float):
-            return FLOATFMT % val
-        if isinstance(val, (Date, Time)):
-            return '%s' % strDateTime(val, datedelim)
-        return json.dumps(val)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -718,6 +742,19 @@ class DictParserYAML(DictParser):
         if record:
             yield record
 
+class FormatTOML:
+    def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
+        self.formats = formats
+        self.datedelim = datedelim
+    def __call__(self, col: str, val: JSONItem) -> str:
+        if val is None:
+            return "null"
+        if isinstance(val, float):
+            return FLOATFMT % val
+        if isinstance(val, (Date, Time)):
+            return '%s' % strDateTime(val, self.datedelim)
+        return json.dumps(val)
+
 def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
@@ -732,6 +769,7 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
 def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+    format = FormatTOML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for TOML output")
     def sortkey(header: str) -> str:
@@ -754,14 +792,6 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col: str, val: JSONItem) -> str:
-        if val is None:
-            return "null"
-        if isinstance(val, float):
-            return FLOATFMT % val
-        if isinstance(val, (Date, Time)):
-            return '%s' % strDateTime(val, datedelim)
-        return json.dumps(val)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -835,6 +865,30 @@ class DictParserTOML(DictParser):
         if record:
             yield record
 
+class FormatCSV:
+    def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
+        self.formats = formats
+        self.datedelim = datedelim
+        self.floatfmt = FLOATFMT
+    def __call__(self, col: str, val: JSONItem) -> str:
+        if col in self.formats:
+            if "{:" in self.formats[col]:
+                try:
+                    return self.formats[col].format(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
+            if "%s" in self.formats[col]:
+                try:
+                    return self.formats[col] % strNone(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
+            logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
+        if isinstance(val, (Date, Time)):
+            return '%s' % strDateTime(val, self.datedelim)
+        if isinstance(val, float):
+            return self.floatfmt % val
+        return strNone(val)
+
 def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
@@ -849,6 +903,7 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, *,  #
              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+    format = FormatCSV(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
@@ -871,24 +926,6 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[s
             else:
                 sortvalue += "\n-"
         return sortvalue
-    def format(col: str, val: JSONItem) -> str:
-        if col in formats:
-            if "{:" in formats[col]:
-                try:
-                    return formats[col].format(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", formats[col], e)
-            if "%s" in formats[col]:
-                try:
-                    return formats[col] % strNone(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", formats[col], col)
-        if isinstance(val, (Date, Time)):
-            return '%s' % strDateTime(val, datedelim)
-        if isinstance(val, float):
-            return FLOATFMT % val
-        return strNone(val)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
