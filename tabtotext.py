@@ -716,46 +716,58 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     return "\n".join(lines) + "\n"
 
 def loadTOML(text: str, datedelim: str = '-') -> JSONList:
-    data: JSONList = []
-    convert = ParseJSONItem(datedelim)
-    convert.None_String = "null"
-    convert.True_String = "true"
-    convert.False_String = "false"
-    at = "start"
-    record: JSONDict = {}
-    for row in text.splitlines():
-        line = row.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("[[data]]"):
-            if at == "start":
-                at = "data"
-            if record:
-                data.append(record)
-                record = {}
-            continue
-        if at not in ["data"]:
-            continue
-        m = re.match(r" *(\w[\w\d.-]*) *= *\"([^\"]*)\" *", line)
-        if m:
-            record[m.group(1)] = m.group(2)
-            continue
-        m = re.match(r" *(\w[\w\d.-]*) *= *(.*)", line)
-        if m:
-            record[m.group(1)] = convert.toJSONItem(m.group(2).strip())
-            continue
-        m = re.match(r" *\"([^\"]+)\" *= *\"([^\"]*)\" *", line)
-        if m:
-            record[m.group(1)] = m.group(2)
-            continue
-        m = re.match(r" *\"([^\"]+)\" *= *(.*)", line)
-        if m:
-            record[m.group(1)] = convert.toJSONItem(m.group(2).strip())
-            continue
-        logg.error("can not parse: %s", line)
-    if record:
-        data.append(record)
-    return data
+    parser = DictParserTOML(datedelim = datedelim)
+    return list(parser.loads(text))
+def readFromTOML(filename: str, datedelim: str = '-') -> JSONList:
+    parser = DictParserTOML(datedelim = datedelim)
+    return list(parser.load(filename))
+
+class DictParserTOML:
+    def __init__(self, *, datedelim: str = '-') -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.convert.None_String = "null"
+        self.convert.True_String = "true"
+        self.convert.False_String = "false"
+    def load(self, filename: str) -> Iterator[JSONDict]:
+        return self.read(open(filename))
+    def loads(self, text: str) -> Iterator[JSONDict]:
+        return self.read(text.splitlines())
+    def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
+        at = "start"
+        record: JSONDict = {}
+        for row in rows:
+            line = row.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("[[data]]"):
+                if at == "start":
+                    at = "data"
+                if record:
+                    yield record
+                    record = {}
+                continue
+            if at not in ["data"]:
+                continue
+            m = re.match(r" *(\w[\w\d.-]*) *= *\"([^\"]*)\" *", line)
+            if m:
+                record[m.group(1)] = m.group(2)
+                continue
+            m = re.match(r" *(\w[\w\d.-]*) *= *(.*)", line)
+            if m:
+                record[m.group(1)] = self.convert.toJSONItem(m.group(2).strip())
+                continue
+            m = re.match(r" *\"([^\"]+)\" *= *\"([^\"]*)\" *", line)
+            if m:
+                record[m.group(1)] = m.group(2)
+                continue
+            m = re.match(r" *\"([^\"]+)\" *= *(.*)", line)
+            if m:
+                record[m.group(1)] = self.convert.toJSONItem(m.group(2).strip())
+                continue
+            logg.error("can not parse: %s", line)
+        # end for
+        if record:
+            yield record
 
 def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
