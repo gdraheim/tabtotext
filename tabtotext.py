@@ -486,6 +486,15 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
+def readFromJSON(text: str, datedelim: str = '-') -> JSONList:
+    convert = ParseJSONItem(datedelim)
+    jsondata = json.load(text)
+    data: JSONList = jsondata
+    for record in data:
+        for key, val in record.items():
+            if isinstance(val, str):
+                record[key] = convert.toDate(val)
+    return data
 def loadJSON(text: str, datedelim: str = '-') -> JSONList:
     convert = ParseJSONItem(datedelim)
     jsondata = json.loads(text)
@@ -797,7 +806,6 @@ def _readFromCSV(csvfile: TextIOWrapper, datedelim: str = '-', tab: str = ";") -
     data: JSONList = []
     for row in reader:
         newrow: JSONDict = dict(row)
-        logg.info("read ..%s", newrow)
         for key, val in newrow.items():
             if isinstance(val, str):
                 newrow[key] = convert.toJSONItem(val)
