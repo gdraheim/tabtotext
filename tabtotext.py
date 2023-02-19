@@ -263,14 +263,11 @@ def listToGFM(lines: Sequence[str]) -> str:
     return "\n" + "".join(["- %s\n" % line.strip() for line in lines if line and line.strip()])
 
 def loadGFM(text: str, datedelim: str = '-', tab: str = '|') -> JSONList:
-    data: JSONList = []
-    for row in DictReaderGFM(text.splitlines(), datedelim=datedelim, tab=tab):
-        data.append(row)
-    return data
-
-def DictReaderGFM(rows: Iterable[str], *, datedelim: str = '-', tab: str = '|') -> Iterator[JSONDict]:
     parser = DictParserGFM(datedelim=datedelim, tab=tab)
-    return parser.read(rows)
+    return list(parser.loads(text))
+def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|') -> JSONList:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab)
+    return list(parser.load(filename))
 
 class DictParserGFM:
     def __init__(self, *, datedelim: str = '-', tab: str = '|') -> None:
