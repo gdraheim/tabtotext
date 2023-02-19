@@ -451,6 +451,66 @@ def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line and line.strip()]) + "</ul>"
 
+def readFromHTML(filename: str, datedelim: str = '-') -> JSONList:
+    parser = DictParserHTML(datedelim)
+    return list(parser.load(filename))
+def loadHTML(text: str, datedelim: str = '-') -> JSONList:
+    parser = DictParserHTML(datedelim)
+    return list(parser.loads(text))
+
+class DictParserHTML(DictParser):
+    def __init__(self, datedelim: str = '-', convert_charrefs: bool = True) -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.convert_charrefs = convert_charrefs
+    def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        return self.read(open(filename))
+    def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        return self.read(text.splitlines())
+    def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
+        import html.parser
+        class MyHTMLParser(html.parser.HTMLParser):
+            def __init__(self, *, convert_charrefs: bool = True) -> None:
+                html.parser.HTMLParser.__init__(self, convert_charrefs=convert_charrefs)
+                self.found: List[JSONDict] = []
+                self.th: List[str] = []
+                self.td: List[JSONItem] = []
+                self.val: Optional[str] = None
+            def tr(self) -> Iterator[JSONDict]:
+                found = self.found.copy()
+                self.found = []
+                for record in found:
+                    yield record
+            def handle_data(self, data: str) -> None:
+                tagged = self.get_starttag_text() or ""
+                if tagged.startswith("<th"):
+                   self.val = data
+                if tagged.startswith("<td"):
+                   self.val = data
+            def handle_endtag(self, tag: str) -> None:
+                if tag == "th":
+                   self.th += [ self.val or str(len(self.th)+1) ]
+                   self.val = None
+                if tag == "td":
+                   tagged = self.get_starttag_text() or ""
+                   val = self.val
+                   if "right" in tagged and val and val.startswith(" "):
+                      val = val[1:]
+                   self.td += [ val ]
+                   self.val = None
+                if tag == "tr" and self.td:
+                    made = zip(self.th, self.td)
+                    item = dict(made)
+                    self.found += [ item ]
+                    self.td = []
+        parser = MyHTMLParser(convert_charrefs=self.convert_charrefs)
+        for row in rows:
+            parser.feed(row)
+            for record in parser.tr():
+                for key, val in record.items():
+                    if isinstance(val, str):
+                        record[key] = self.convert.toJSONItem(val)
+                yield record
+
 def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
