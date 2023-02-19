@@ -97,6 +97,26 @@ class DictParser:
         while False:
             yield {}
 
+class FormatJSONItem:
+    @abstractmethod
+    def __call__(self, col: str, val: JSONItem) -> str:
+        return ""
+    def right(self, col: str) -> bool:
+        return False
+class BaseFormatJSONItem(FormatJSONItem):
+    def __init__(self, formats: Dict[str, str], **kwargs: Any) -> None:
+        self.formats = formats
+        self.kwargs = kwargs
+    def right(self, col: str) -> bool:
+        if col in self.formats and not NORIGHT:
+            if self.formats[col].startswith(" "):
+                return True
+            if re.search("[{]:[^{}]*>[^{}]*[}]", self.formats[col]):
+                return True
+        return False
+    def __call__(self, col: str, val: JSONItem) -> str:
+        return strNone(val)
+
 class ParseJSONItem:
     def __init__(self, datedelim: str = '-') -> None:
         self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
@@ -162,7 +182,7 @@ def tabWithDateOnly() -> None:
     global DATEFMT
     DATEFMT = "%Y-%m-%d"
 
-class FormatGFM:
+class FormatGFM(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, tab: str = '|'):
         self.formats = formats
         self.floatfmt = FLOATFMT
@@ -202,10 +222,14 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
     else:
         results = cast(JSONList, result)
     return tabToGFM(results, sorts, formats, legend=legend)
-def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
              *, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    format = FormatGFM(formats, tab=tab)
+    format: FormatJSONItem
+    if isinstance(formats, FormatJSONItem):
+        format = formats
+    else:
+        format = FormatGFM(formats, tab=tab)
     def sortkey(header: str) -> str:
         if callable(reorder):
             return reorder(header)
@@ -234,18 +258,12 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     def rightF(col: str, formatter: str) -> str:
-        if col in formats and not NORIGHT:
-            if formats[col].startswith(" "):
-                return formatter.replace("%-", "%")
-            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
-                return formatter.replace("%-", "%")
+        if format.right(col):
+            return formatter.replace("%-", "%")
         return formatter
     def rightS(col: str, formatter: str) -> str:
-        if col in formats and not NORIGHT:
-            if formats[col].startswith(" "):
-                return formatter[:-1] + ":"
-            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
-                return formatter[:-1] + ":"
+        if format.right(col):
+            return formatter[:-1] + ":"
         return formatter
     line = [rightF(name, tab + " %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
     lines = [" ".join(line)]
@@ -339,7 +357,7 @@ class DictParserGFM(DictParser):
             else:
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
 
-class FormatHTML:
+class FormatHTML(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}):
         self.formats = formats
         self.floatfmt = FLOATFMT
@@ -402,18 +420,12 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
     def rightTH(col: str, value: str) -> str:
-        if col in formats and not NORIGHT:
-            if formats[col].startswith(" "):
-                return value.replace("<th>", '<th style="text-align: right">')
-            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
-                return value.replace("<th>", '<th style="text-align: right">')
+        if format.right(col):
+            return value.replace("<th>", '<th style="text-align: right">')
         return value
     def rightTD(col: str, value: str) -> str:
-        if col in formats and not NORIGHT:
-            if formats[col].startswith(" "):
-                return value.replace("<td>", '<td style="text-align: right">')
-            if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
-                return value.replace("<td>", '<td style="text-align: right">')
+        if format.right(col):
+            return value.replace("<td>", '<td style="text-align: right">')
         return value
     combined = list(combine.values())
     for name in combine:
@@ -522,7 +534,8 @@ class DictParserHTML(DictParser):
                     if isinstance(val, str):
                         record[key] = self.convert.toJSONItem(val)
                 yield record
-class FormatJSON:
+
+class FormatJSON(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         self.formats = formats
         self.floatfmt = FLOATFMT
@@ -617,7 +630,7 @@ class DictParserJSON(DictParser):
                     record[key] = self.convert.toDate(val)
             yield record
 
-class FormatYAML:
+class FormatYAML(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         self.formats = formats
         self.datedelim = datedelim
@@ -742,7 +755,7 @@ class DictParserYAML(DictParser):
         if record:
             yield record
 
-class FormatTOML:
+class FormatTOML(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         self.formats = formats
         self.datedelim = datedelim
@@ -865,7 +878,7 @@ class DictParserTOML(DictParser):
         if record:
             yield record
 
-class FormatCSV:
+class FormatCSV(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         self.formats = formats
         self.datedelim = datedelim
