@@ -71,7 +71,7 @@ def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
 
-def strHours(val: Union[int, float, str]) -> str:
+def strHours(val: Union[int, float, str], full: str = 'h') -> str:
     numm = float(val)
     base = int(numm)
     frac = numm - base
@@ -81,7 +81,7 @@ def strHours(val: Union[int, float, str]) -> str:
     if -0.02 < frac and frac < 0.02:
         if not base:
             return " 0"
-        return "%s%i%c" % (indent, base, "h")
+        return "%s%i%c" % (indent, base, full)
     if 0.22 < frac and frac < 0.27:
         if not base:
             return "%s%s%c" % (indent, " ", norm_frac_1_4)
@@ -230,6 +230,12 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                     try:
                         val = strHours(val)  # type: ignore[arg-type]
                         fmt = fmt.replace("h", "s")
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
+                if "H}" in fmt:
+                    try:
+                        val = strHours(val, "'")  # type: ignore[arg-type]
+                        fmt = fmt.replace("H", "s")
                     except Exception as e:
                         logg.debug("format <%s> does not apply: %s", fmt, e)
                 try:
