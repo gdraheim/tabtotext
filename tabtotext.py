@@ -483,24 +483,24 @@ class DictParserHTML(DictParser):
             def handle_data(self, data: str) -> None:
                 tagged = self.get_starttag_text() or ""
                 if tagged.startswith("<th"):
-                   self.val = data
+                    self.val = data
                 if tagged.startswith("<td"):
-                   self.val = data
+                    self.val = data
             def handle_endtag(self, tag: str) -> None:
                 if tag == "th":
-                   self.th += [ self.val or str(len(self.th)+1) ]
-                   self.val = None
+                    self.th += [self.val or str(len(self.th) + 1)]
+                    self.val = None
                 if tag == "td":
-                   tagged = self.get_starttag_text() or ""
-                   val = self.val
-                   if "right" in tagged and val and val.startswith(" "):
-                      val = val[1:]
-                   self.td += [ val ]
-                   self.val = None
+                    tagged = self.get_starttag_text() or ""
+                    val = self.val
+                    if "right" in tagged and val and val.startswith(" "):
+                        val = val[1:]
+                    self.td += [val]
+                    self.val = None
                 if tag == "tr" and self.td:
                     made = zip(self.th, self.td)
                     item = dict(made)
-                    self.found += [ item ]
+                    self.found += [item]
                     self.td = []
         parser = MyHTMLParser(convert_charrefs=self.convert_charrefs)
         for row in rows:
@@ -782,10 +782,10 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     return "\n".join(lines) + "\n"
 
 def loadTOML(text: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserTOML(datedelim = datedelim)
+    parser = DictParserTOML(datedelim=datedelim)
     return list(parser.loads(text))
 def readFromTOML(filename: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserTOML(datedelim = datedelim)
+    parser = DictParserTOML(datedelim=datedelim)
     return list(parser.load(filename))
 
 class DictParserTOML(DictParser):
@@ -930,7 +930,7 @@ class DictParserCSV(DictParser):
         tab = tab if tab is not None else self.tab
         import csv
         for row in csv.DictReader(csvfile, restval='ignore',
-                    quoting=csv.QUOTE_MINIMAL, delimiter=tab):
+                                  quoting=csv.QUOTE_MINIMAL, delimiter=tab):
             newrow: JSONDict = dict(row)
             for key, val in newrow.items():
                 if isinstance(val, str):
