@@ -310,7 +310,7 @@ def loadGFM(text: str, datedelim: str = '-', tab: str = '|') -> JSONList:
 
 
 def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+               legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -319,9 +319,9 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToHTML(results, sorts, formats, legend=legend)
+    return tabToHTML(results, sorts, formats, legend=legend, combine=combine)
 def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, *,  #
-              legend: Union[Dict[str, str], Sequence[str]] = [],  #
+              legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {},  # combine[target] -> [attach]
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     def sortkey(header: str) -> str:
         if callable(reorder):
@@ -379,14 +379,32 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
             if re.search("[{]:[^{}]*>[^{}]*[}]", formats[col]):
                 return value.replace("<td>", '<td style="text-align: right">')
         return value
-    line = [rightTH(name, "<th>%s</th>" % escape(name)) for name in sorted(cols.keys(), key=sortkey)]
-    lines = ["<tr>" + "".join(line) + "</tr>"]
+    combined = list(combine.values())
+    for name in combine:
+        if name not in cols: # if target does not exist in dataset
+            combined.remove(combine[name])  # the shown combined column seperately
+    headers = []
+    for name in sorted(cols.keys(), key=sortkey):
+        if name in combined:
+            continue
+        if name in combine and combine[name] in cols:
+            headers += [rightTH(name, "<th>{}<br />{}</th>".format(escape(name), escape(combine[name])))]
+        else:
+            headers += [rightTH(name, "<th>{}</th>".format(escape(name)))]
+    lines = ["<tr>" + "".join(headers) + "</tr>"]
     for item in sorted(result, key=sortrow):
         values: Dict[str, str] = dict([(name, "") for name in cols.keys()])  # initialized with all columns to empty string
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [rightTD(name, "<td>%s</td>" % escape(values[name])) for name in sorted(cols.keys(), key=sortkey)]
-        lines.append("<tr>" + "".join(line) + "</tr>")
+        cells = []
+        for name in sorted(cols.keys(), key=sortkey):
+            if name in combined:
+                continue
+            if name in combine and combine[name] in cols:
+                cells += [rightTD(name, "<td>{}<br />{}</td>".format(escape(values[name]), escape(values[combine[name]])))]
+            else:
+                cells += [rightTD(name, "<td>{}</td>".format(escape(values[name])))]
+        lines.append("<tr>" + "".join(cells) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts)
 
 def legendToHTML(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
