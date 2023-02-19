@@ -540,9 +540,10 @@ class FormatJSON(BaseFormatJSONItem):
         self.formats = formats
         self.floatfmt = FLOATFMT
         self.datedelim = datedelim
+        self.None_String = "null"
     def __call__(self, col: str, val: JSONItem) -> str:
         if val is None:
-            return "null"
+            return self.None_String
         if isinstance(val, float):
             return self.floatfmt % val
         if isinstance(val, (Date, Time)):
@@ -635,9 +636,10 @@ class FormatYAML(BaseFormatJSONItem):
         self.formats = formats
         self.datedelim = datedelim
         self.floatfmt = FLOATFMT
+        self.None_String = "null"
     def __call__(self, col: str, val: JSONItem) -> str:
         if val is None:
-            return "null"
+            return self.None_String
         if isinstance(val, float):
             return self.floatfmt % val
         if isinstance(val, (Date, Time)):
@@ -759,9 +761,10 @@ class FormatTOML(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         self.formats = formats
         self.datedelim = datedelim
+        self.None_String = "null"
     def __call__(self, col: str, val: JSONItem) -> str:
         if val is None:
-            return "null"
+            return self.None_String
         if isinstance(val, float):
             return FLOATFMT % val
         if isinstance(val, (Date, Time)):
