@@ -11,6 +11,7 @@ from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timezone
+from abc import abstractmethod
 import os
 import re
 import logging
@@ -85,6 +86,16 @@ def strNone(value: Any, datedelim: str = '-') -> str:
     if value is True:
         return _True_String
     return strDateTime(value, datedelim)
+
+class DictParser:
+    @abstractmethod
+    def load(self, filename: str) -> Iterator[JSONDict]:
+        while False:
+            yield {}
+    @abstractmethod
+    def loads(self, text: str) -> Iterator[JSONDict]:
+        while False:
+            yield {}
 
 class ParseJSONItem:
     def __init__(self, datedelim: str = '-') -> None:
@@ -269,7 +280,7 @@ def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|') -> JSONList
     parser = DictParserGFM(datedelim=datedelim, tab=tab)
     return list(parser.load(filename))
 
-class DictParserGFM:
+class DictParserGFM(DictParser):
     def __init__(self, *, datedelim: str = '-', tab: str = '|') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.tab = tab
@@ -506,10 +517,7 @@ def loadJSON(text: str, datedelim: str = '-') -> JSONList:
     parser = DictParserJSON(datedelim)
     return list(parser.loads(text))
 
-def DictReaderJSON(rows: Iterable[str], datedelim: str = '-') -> Iterator[JSONDict]:
-    parser = DictParserJSON(datedelim=datedelim)
-    return parser.read(rows)
-class DictParserJSON:
+class DictParserJSON(DictParser):
     def __init__(self, datedelim: str = '-') -> None:
         self.convert = ParseJSONItem(datedelim)
     def read(self, rows: Iterable[str], newline: str = '\n') -> Iterator[JSONDict]:
@@ -600,7 +608,8 @@ def loadYAML(text: str, datedelim: str = '-') -> JSONList:
 def DictReaderYAML(rows: Iterable[str], *, datedelim: str = '-') -> Iterator[JSONDict]:
     parser = DictParserYAML(datedelim=datedelim)
     return parser.read(rows)
-class DictParserYAML:
+
+class DictParserYAML(DictParser):
     def __init__(self, *, datedelim: str = '-') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.convert.None_String = "null"
@@ -719,7 +728,7 @@ def readFromTOML(filename: str, datedelim: str = '-') -> JSONList:
     parser = DictParserTOML(datedelim = datedelim)
     return list(parser.load(filename))
 
-class DictParserTOML:
+class DictParserTOML(DictParser):
     def __init__(self, *, datedelim: str = '-') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.convert.None_String = "null"
@@ -849,7 +858,7 @@ def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     parser = DictParserCSV(datedelim=datedelim, tab=tab)
     return list(parser.loads(text))
 
-class DictParserCSV:
+class DictParserCSV(DictParser):
     def __init__(self, *, datedelim: str = '-', tab: str = ";") -> None:
         self.convert = ParseJSONItem(datedelim)
         self.tab = tab
