@@ -188,11 +188,11 @@ def tabWithDateOnly() -> None:
     global DATEFMT
     DATEFMT = "%Y-%m-%d"
 
-class FormatGFM(BaseFormatJSONItem):
+######################################## GFM
+class NumFormatJSONItem(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, tab: str = '|'):
         BaseFormatJSONItem.__init__(self, formats)
         self.floatfmt = FLOATFMT
-        self.tab = tab
     def __call__(self, col: str, val: JSONItem) -> str:
         if col in self.formats:
             if "{:" in self.formats[col]:
@@ -216,6 +216,18 @@ class FormatGFM(BaseFormatJSONItem):
         if isinstance(val, float):
             return self.floatfmt % val
         return self.item(val)
+class FormatGFM(NumFormatJSONItem):
+    def __init__(self, formats: Dict[str, str] = {}, tab: str = '|'):
+        NumFormatJSONItem.__init__(self, formats)
+        self.tab = tab
+    def __call__(self, col: str, val: JSONItem) -> str:
+        if not self.tab:
+            return NumFormatJSONItem.__call__(self, col, val)
+        if self.tab == '|':
+            rep = '!'
+        else:
+            rep = '|'
+        return NumFormatJSONItem.__call__(self, col, val).replace(self.tab, rep)
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
               *, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -363,26 +375,10 @@ class DictParserGFM(DictParser):
             else:
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
 
-class FormatHTML(BaseFormatJSONItem):
+######################################## HTML
+class FormatHTML(NumFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}):
-        BaseFormatJSONItem.__init__(self, formats)
-        self.floatfmt = FLOATFMT
-    def __call__(self, col: str, val: JSONItem) -> str:
-        if col in self.formats:
-            if "{:" in self.formats[col]:
-                try:
-                    return self.formats[col].format(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
-            if "%s" in self.formats[col]:
-                try:
-                    return self.formats[col] % self.item(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
-        if isinstance(val, float):
-            return self.floatfmt % val
-        return self.item(val)
+        NumFormatJSONItem.__init__(self, formats)
 
 def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                *, legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {}) -> str:
@@ -545,6 +541,7 @@ class DictParserHTML(DictParser):
                         record[key] = self.convert.toJSONItem(val)
                 yield record
 
+######################################## JSON
 class FormatJSON(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         BaseFormatJSONItem.__init__(self, formats)
@@ -645,20 +642,16 @@ class DictParserJSON(DictParser):
                     record[key] = self.convert.toDate(val)
             yield record
 
-class FormatYAML(BaseFormatJSONItem):
+######################################## YAML
+class FormatYAML(FormatJSON):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
-        BaseFormatJSONItem.__init__(self, formats)
-        self.datedelim = datedelim
-        self.floatfmt = FLOATFMT
-        self.None_String = "null"
+        FormatJSON.__init__(self, formats, datedelim)
     def __call__(self, col: str, val: JSONItem) -> str:
         if val is None:
             return self.None_String
-        if isinstance(val, float):
-            return self.floatfmt % val
         if isinstance(val, (Date, Time)):
             return '%s' % self.item(val)
-        return json.dumps(val)
+        return FormatJSON.__call__(self, col, val)
 
 def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -775,20 +768,16 @@ class DictParserYAML(DictParser):
         if record:
             yield record
 
-class FormatTOML(BaseFormatJSONItem):
+######################################## TOML
+class FormatTOML(FormatJSON):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
-        BaseFormatJSONItem.__init__(self, formats)
-        self.datedelim = datedelim
-        self.floatfmt = FLOATFMT
-        self.None_String = "null"
+        FormatJSON.__init__(self, formats, datedelim)
     def __call__(self, col: str, val: JSONItem) -> str:
         if val is None:
             return self.None_String
-        if isinstance(val, float):
-            return self.floatfmt % val
         if isinstance(val, (Date, Time)):
             return '%s' % self.item(val)
-        return json.dumps(val)
+        return FormatJSON.__call__(self, col, val)
 
 def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
@@ -904,7 +893,12 @@ class DictParserTOML(DictParser):
         if record:
             yield record
 
-class FormatCSV(BaseFormatJSONItem):
+######################################## TOML
+class FormatCSV(NumFormatJSONItem):
+    def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
+        NumFormatJSONItem.__init__(self, formats, datedelim)
+
+class xFormatCSV(NumFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         BaseFormatJSONItem.__init__(self, formats)
         self.formats = formats
