@@ -217,7 +217,7 @@ def tabWithDateOnly() -> None:
     global DATEFMT
     DATEFMT = "%Y-%m-%d"
 
-######################################## GFM
+# ================================= #### GFM
 class NumFormatJSONItem(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, tab: str = '|'):
         BaseFormatJSONItem.__init__(self, formats)
@@ -229,7 +229,7 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                 if "h}" in fmt:
                     try:
                         val = strHours(val)  # type: ignore[arg-type]
-                        fmt = fmt.replace("h","s")
+                        fmt = fmt.replace("h", "s")
                     except Exception as e:
                         logg.debug("format <%s> does not apply: %s", fmt, e)
                 try:
@@ -412,7 +412,7 @@ class DictParserGFM(DictParser):
             else:
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
 
-######################################## HTML
+# ================================= #### HTML
 class FormatHTML(NumFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}):
         NumFormatJSONItem.__init__(self, formats)
@@ -578,7 +578,7 @@ class DictParserHTML(DictParser):
                         record[key] = self.convert.toJSONItem(val)
                 yield record
 
-######################################## JSON
+# ================================= #### JSON
 class FormatJSON(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         BaseFormatJSONItem.__init__(self, formats)
@@ -679,7 +679,7 @@ class DictParserJSON(DictParser):
                     record[key] = self.convert.toDate(val)
             yield record
 
-######################################## YAML
+# ================================= #### YAML
 class FormatYAML(FormatJSON):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         FormatJSON.__init__(self, formats, datedelim)
@@ -805,7 +805,7 @@ class DictParserYAML(DictParser):
         if record:
             yield record
 
-######################################## TOML
+# ================================= #### TOML
 class FormatTOML(FormatJSON):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         FormatJSON.__init__(self, formats, datedelim)
@@ -930,7 +930,7 @@ class DictParserTOML(DictParser):
         if record:
             yield record
 
-######################################## TOML
+# ================================= #### TOML
 class FormatCSV(NumFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, datedelim: str = '-'):
         NumFormatJSONItem.__init__(self, formats, datedelim)
