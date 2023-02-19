@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 import logging
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable
-from tabtotext import JSONList, JSONDict, tabToGFM, strNone, strDateTime
+from tabtotext import JSONList, JSONDict, tabToGFM, strNone, strJSONItem
 
 from openpyxl import Workbook, load_workbook  # type: ignore
 from openpyxl.worksheet.worksheet import Worksheet  # type: ignore
@@ -66,7 +66,7 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
                 if isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
-                    sortvalue += "\n" + strDateTime(value)
+                    sortvalue += "\n" + strJSONItem(value)
             else:
                 sortvalue += "\n-"
         return sortvalue
