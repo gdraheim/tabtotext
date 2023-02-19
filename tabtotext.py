@@ -389,10 +389,14 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToHTML(results, sorts, formats, legend=legend, combine=combine)
-def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
               *, legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {},  # combine[target] -> [attach]
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    format = FormatHTML(formats)
+    format: FormatJSONItem
+    if isinstance(formats, FormatJSONItem):
+        format = formats
+    else:
+        format = FormatHTML(formats)
     def sortkey(header: str) -> str:
         if callable(reorder):
             return reorder(header)
@@ -561,10 +565,14 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToJSON(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    format = FormatJSON(formats, datedelim=datedelim)
+    format: FormatJSONItem
+    if isinstance(formats, FormatJSONItem):
+        format = formats
+    else:
+        format = FormatJSON(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for JSON output")
     def sortkey(header: str) -> str:
@@ -657,10 +665,14 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToYAML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    format = FormatYAML(formats, datedelim=datedelim)
+    format: FormatJSONItem
+    if isinstance(formats, FormatJSONItem):
+        format = formats
+    else:
+        format = FormatYAML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for YAML output")
     def sortkey(header: str) -> str:
@@ -782,10 +794,14 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToTOML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    format = FormatTOML(formats, datedelim=datedelim)
+    format: FormatJSONItem
+    if isinstance(formats, FormatJSONItem):
+        format = formats
+    else:
+        format = FormatTOML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for TOML output")
     def sortkey(header: str) -> str:
@@ -916,10 +932,14 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToCSV(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {},  #
+def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    format = FormatCSV(formats, datedelim=datedelim)
+    format: FormatJSONItem
+    if isinstance(formats, FormatJSONItem):
+        format = formats
+    else:
+        format = FormatCSV(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for CSV output")
     def sortkey(header: str) -> str:
@@ -1001,7 +1021,7 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Dict[str, str] = {}, *,  #
+def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {}, *,  #
              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     if output.lower() in ["md", "markdown"]:
