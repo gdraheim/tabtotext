@@ -503,23 +503,37 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, st
     return "[\n" + ",\n".join(lines) + "\n]"
 
 def readFromJSON(filename: str, datedelim: str = '-') -> JSONList:
-    convert = ParseJSONItem(datedelim)
-    jsondata = json.load(open(filename))
-    data: JSONList = jsondata
-    for record in data:
-        for key, val in record.items():
-            if isinstance(val, str):
-                record[key] = convert.toDate(val)
-    return data
+    parser = DictParserJSON(datedelim)
+    return list(parser.load(filename))
 def loadJSON(text: str, datedelim: str = '-') -> JSONList:
-    convert = ParseJSONItem(datedelim)
-    jsondata = json.loads(text)
-    data: JSONList = jsondata
-    for record in data:
-        for key, val in record.items():
-            if isinstance(val, str):
-                record[key] = convert.toDate(val)
-    return data
+    parser = DictParserJSON(datedelim)
+    return list(parser.loads(text))
+
+def DictReaderJSON(rows: Iterable[str], datedelim: str = '-') -> Iterator[JSONDict]:
+    parser = DictParserJSON(datedelim=datedelim)
+    return parser.read(rows)
+class DictParserJSON:
+    def __init__(self, datedelim: str = '-') -> None:
+        self.convert = ParseJSONItem(datedelim)
+    def read(self, rows: Iterable[str], newline: str = '\n') -> Iterator[JSONDict]:
+        return self.loads(newline.join(rows))
+    def loads(self, text: str) -> Iterator[JSONDict]:
+        jsondata = json.loads(text)
+        data: List[JSONDict] = jsondata
+        for record in data:
+            for key, val in record.items():
+                if isinstance(val, str):
+                    record[key] = self.convert.toDate(val)
+            yield record
+    def load(self, filename: str) -> Iterator[JSONDict]:
+        jsondata = json.load(open(filename))
+        data: List[JSONDict] = jsondata
+        for record in data:
+            for key, val in record.items():
+                if isinstance(val, str):
+                    record[key] = self.convert.toDate(val)
+            yield record
+
 
 def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
