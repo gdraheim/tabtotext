@@ -96,6 +96,20 @@ def strHours(val: Union[int, float, str], full: str = 'h') -> str:
         return "%s%i%c" % (indent, base, norm_frac_3_4)
     return "%s%f" % (indent, numm)
 
+def str77(value: JSONItem, maxlength: int = 77) -> str:
+    if value is None:
+        return _None_String
+    val = str(value)
+    if len(val) > maxlength:
+        return val[:(maxlength - 10)] + "..." + val[-7:]
+    return val
+def str40(value: JSONItem) -> str:
+    return str77(value, 40)
+def str27(value: JSONItem) -> str:
+    return str77(value, 27)
+def str18(value: JSONItem) -> str:
+    return str77(value, 18)
+
 def strNone(value: Any, datedelim: str = '-', datefmt: Optional[str] = None) -> str:
     return strJSONItem(value, datedelim, datefmt)
 def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = None) -> str:
