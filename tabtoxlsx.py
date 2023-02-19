@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 import logging
-from typing import Optional, Union, Dict, List, Any, Sequence
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable
 from tabtotext import JSONList, JSONDict, tabToGFM, strNone, strDateTime
 
 from openpyxl import Workbook, load_workbook  # type: ignore
@@ -40,15 +40,23 @@ def set_width(ws: Worksheet, col: int, width: int) -> None:  # type: ignore
     ws.column_dimensions[get_column_letter(col + 1)].width = width
 
 
-def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
+def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = [],  #
+             formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = [],  #
+             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
     if isinstance(result, Dict):
         result = [result]
-    saveToXLSX(filename, result, sorts, formats, legend)
+    saveToXLSX(filename, result, sorts, formats, legend, reorder)
 
-def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = []) -> None:
+def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
+               formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = [],  #
+               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
     def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder or sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
         return header
     def sortrow(item: JSONDict) -> str:
         sortvalue = ""
