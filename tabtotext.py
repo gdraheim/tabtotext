@@ -161,6 +161,8 @@ class ParseJSONItem:
             r"(\d\d\d\d)-(\d\d)-(\d\d)[Z .](\d\d):?(\d\d)?$".replace('-', datedelim))
         self.is_int = re.compile(r"([+-]?\d+)$")
         self.is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
+        self.is_floatH = re.compile(f"([+-]?\\d+)(['{norm_frac_1_4}{norm_frac_1_2}]{norm_frac_3_4}h])$")
+        self.is_floatM = re.compile(f"([+-]?\\d+)([.{norm_frac_1_4}{norm_frac_1_2}]{norm_frac_3_4}]]M)$")
         self.datedelim = datedelim
         self.None_String = _None_String
         self.False_String = _False_String
@@ -177,7 +179,21 @@ class ParseJSONItem:
             return int(val)
         if self.is_float.match(val):
             return float(val)
+        h = self.is_floatH.match(val)
+        if h:
+            return float(h.group(1)) + self.frac(val)
+        m = self.is_floatM.match(val)
+        if m:
+            return (float(m.group(1)) + self.frac(val)) * 1048576
         return self.toDate(val)
+    def frac(self, val: str) -> float:
+        if chr(norm_frac_1_4) in val:
+            return 0.25
+        if chr(norm_frac_1_2) in val:
+            return 0.5
+        if chr(norm_frac_3_4) in val:
+            return 0.75
+        return 0.
     def toDate(self, val: str) -> JSONItem:
         """ the json.loads parser detects most data types except Date/Time """
         as_time = self.is_time.match(val)
