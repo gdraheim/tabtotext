@@ -1127,3 +1127,16 @@ def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], fo
     if output.lower() in ["htm"]:
         return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
     return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+
+def editprog() -> str:
+    return os.environ.get("EDIT", "mcedit")
+def htmlprog() -> str:
+    return os.environ.get("BROWSER", "chrome")
+def xlsxprog() -> str:
+    return os.environ.get("XLSVIEW", "oocalc")
+def viewFMT(fmt: str) -> str:
+    if fmt in ["xls", "xlsx"]:
+        return xlsxprog()
+    if fmt in ["htm", "html"]:
+        return htmlprog()
+    return editprog()
