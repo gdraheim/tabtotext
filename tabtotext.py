@@ -6,7 +6,7 @@ but instead of using the Postgres API it uses the Crowd API.
 // Please be aware the --appuser/--password represent crowd-application credentials (not a build user)
 """
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Collection, Sized, Type, cast
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Collection, Sized, Type, cast, Iterable, Iterator
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -264,49 +264,65 @@ def listToGFM(lines: Sequence[str]) -> str:
 
 def loadGFM(text: str, datedelim: str = '-', tab: str = '|') -> JSONList:
     data: JSONList = []
-    convert = ParseJSONItem(datedelim)
-    at = "start"
-    for row in text.splitlines():
-        line = row.strip()
-        if not line or line.startswith("#"):
-            continue
-        if tab in "\t" and row.startswith(tab):
-            line = tab + line  # was removed by strip()
-        if line.startswith(tab) or (tab in "\t" and tab in line):
-            if at == "start":
-                cols = [name.strip() for name in line.split(tab)]
-                at = "header"
-                continue
-            if at == "header":
-                newcols = [name.strip() for name in line.split(tab)]
-                if len(newcols) != len(cols):
-                    logg.error("header divider has not the same lenght")
-                    at = "data"  # promote anyway
-                    continue
-                ok = True
-                for col in newcols:
-                    if not col: continue
-                    if not re.match(r"^ *:*--*:* *$", col):
-                        logg.warning("no header divider: %s", col)
-                        ok = False
-                if not ok:
-                    cols = [cols[i] + " " + newcols[i] for i in range(len(cols))]
-                    continue
-                else:
-                    at = "data"
-                    continue
-            if at == "data":
-                values = [field.strip() for field in line.split(tab)]
-                record = []
-                for value in values:
-                    record.append(convert.toJSONItem(value.strip()))
-                newrow = dict(zip(cols, record))
-                if "" in newrow:
-                    del newrow[""]
-                data.append(newrow)
-        else:
-            logg.warning("unrecognized line: %s", line.replace(tab, "|"))
+    for row in DictReaderGFM(text.splitlines(), datedelim=datedelim, tab=tab):
+        data.append(row)
     return data
+
+def DictReaderGFM(rows: Iterable[str], *, datedelim: str = '-', tab: str = '|') -> Iterator[JSONDict]:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab)
+    return parser.read(rows)
+
+class DictParserGFM:
+    def __init__(self, *, datedelim: str = '-', tab: str = '|') -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.tab = tab
+    def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        return self.read(open(filename))
+    def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        return self.read(text.splitlines())
+    def read(self, rows: Iterable[str], *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+        tab = tab if tab is not None else self.tab
+        at = "start"
+        for row in rows:
+            line = row.strip()
+            if not line or line.startswith("#"):
+                continue
+            if tab in "\t" and row.startswith(tab):
+                line = tab + line  # was removed by strip()
+            if line.startswith(tab) or (tab in "\t" and tab in line):
+                if at == "start":
+                    cols = [name.strip() for name in line.split(tab)]
+                    at = "header"
+                    continue
+                if at == "header":
+                    newcols = [name.strip() for name in line.split(tab)]
+                    if len(newcols) != len(cols):
+                        logg.error("header divider has not the same length")
+                        at = "data"  # promote anyway
+                        continue
+                    ok = True
+                    for col in newcols:
+                        if not col: continue
+                        if not re.match(r"^ *:*--*:* *$", col):
+                            logg.warning("no header divider: %s", col)
+                            ok = False
+                    if not ok:
+                        cols = [cols[i] + " " + newcols[i] for i in range(len(cols))]
+                        continue
+                    else:
+                        at = "data"
+                        continue
+                if at == "data":
+                    values = [field.strip() for field in line.split(tab)]
+                    record = []
+                    for value in values:
+                        record.append(self.convert.toJSONItem(value.strip()))
+                    newrow = dict(zip(cols, record))
+                    if "" in newrow:
+                        del newrow[""]
+                    yield newrow
+            else:
+                logg.warning("unrecognized line: %s", line.replace(tab, "|"))
 
 
 def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
