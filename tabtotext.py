@@ -63,9 +63,38 @@ _None_String = "~"
 _False_String = "(no)"
 _True_String = "(yes)"
 
+norm_frac_1_4 = 0x00BC
+norm_frac_1_2 = 0x00BD
+norm_frac_3_4 = 0x00BE
+
 def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
+
+def strHours(val: Union[int, float, str]) -> str:
+    numm = float(val)
+    base = int(numm)
+    frac = numm - base
+    indent = ""
+    if base <= 9:
+        indent = " "
+    if -0.02 < frac and frac < 0.02:
+        if not base:
+            return " 0"
+        return "%s%i%c" % (indent, base, "h")
+    if 0.22 < frac and frac < 0.27:
+        if not base:
+            return "%s%s%c" % (indent, " ", norm_frac_1_4)
+        return "%s%i%c" % (indent, base, norm_frac_1_4)
+    if 0.48 < frac and frac < 0.52:
+        if not base:
+            return "%s%s%c" % (indent, " ", norm_frac_1_2)
+        return "%s%i%c" % (indent, base, norm_frac_1_2)
+    if 0.72 < frac and frac < 0.77:
+        if not base:
+            return "%s%s%c" % (indent, " ", norm_frac_3_4)
+        return "%s%i%c" % (indent, base, norm_frac_3_4)
+    return "%s%f" % (indent, numm)
 
 def strNone(value: Any, datedelim: str = '-', datefmt: Optional[str] = None) -> str:
     return strJSONItem(value, datedelim, datefmt)
@@ -195,24 +224,32 @@ class NumFormatJSONItem(BaseFormatJSONItem):
         self.floatfmt = FLOATFMT
     def __call__(self, col: str, val: JSONItem) -> str:
         if col in self.formats:
-            if "{:" in self.formats[col]:
+            fmt = self.formats[col]
+            if "{:" in fmt:
+                if "h}" in fmt:
+                    try:
+                        val = strHours(val)  # type: ignore[arg-type]
+                        fmt = fmt.replace("h","s")
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
                 try:
-                    return self.formats[col].format(val)
+                    return fmt.format(val)
                 except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
+                    logg.debug("format <%s> does not apply: %s", fmt, e)
+            # only a few percent-formatting variants are supported
             if isinstance(val, float):
-                m = re.search(r"%\d(?:[.]\d)f", self.formats[col])
+                m = re.search(r"%\d(?:[.]\d)f", fmt)
                 if m:
                     try:
-                        return self.formats[col] % val
+                        return fmt % val
                     except Exception as e:
-                        logg.debug("format <%s> does not apply: %e", self.formats[col], e)
-            if "%s" in self.formats[col]:
+                        logg.debug("format <%s> does not apply: %e", fmt, e)
+            if "%s" in fmt:
                 try:
-                    return self.formats[col] % self.item(val)
+                    return fmt % self.item(val)
                 except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", self.formats[col], e)
-            logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
+                    logg.debug("format <%s> does not apply: %s", fmt, e)
+            logg.debug("unknown format '%s' for col '%s'", fmt, col)
         if isinstance(val, float):
             return self.floatfmt % val
         return self.item(val)
