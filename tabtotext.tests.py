@@ -2066,7 +2066,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: DataList = [item1, item2]
         text = tabtotext.tabToFMTx("wide", itemlist)
         logg.debug("%s => %s", test004, text)
-        cond = [' a      b', ' x      2', ' y      3']
+        cond = ['a      b', 'x      2', 'y      3']
         self.assertEqual(cond, text.splitlines())
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
