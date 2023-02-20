@@ -364,8 +364,9 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
         return formatter
     line = [rightF(name, tab + " %%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
     lines = [(" ".join(line)).rstrip()]
-    seperators = [(tab + " %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
-    lines.append(" ".join(seperators))
+    if tab:
+        seperators = [(tab + " %%-%is" % cols[name]) % rightS(name, "-" * cols[name]) for name in sorted(cols.keys(), key=sortkey)]
+        lines.append(" ".join(seperators))
     for item in sorted(result, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in item.items():
