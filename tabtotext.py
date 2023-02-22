@@ -17,6 +17,7 @@ import re
 import logging
 import json
 from io import StringIO, TextIOWrapper
+from fracfloat import Frac4
 
 logg = logging.getLogger("TABTOTEXT")
 
@@ -70,31 +71,6 @@ norm_frac_3_4 = 0x00BE
 def setNoRight(value: bool) -> None:
     global NORIGHT
     NORIGHT = value
-
-def strHours(val: Union[int, float, str], full: str = 'h') -> str:
-    numm = float(val)
-    base = int(numm)
-    frac = numm - base
-    indent = ""
-    if base <= 9:
-        indent = " "
-    if -0.02 < frac and frac < 0.02:
-        if not base:
-            return " 0"
-        return "%s%i%c" % (indent, base, full)
-    if 0.22 < frac and frac < 0.27:
-        if not base:
-            return "%s%s%c" % (indent, " ", norm_frac_1_4)
-        return "%s%i%c" % (indent, base, norm_frac_1_4)
-    if 0.48 < frac and frac < 0.52:
-        if not base:
-            return "%s%s%c" % (indent, " ", norm_frac_1_2)
-        return "%s%i%c" % (indent, base, norm_frac_1_2)
-    if 0.72 < frac and frac < 0.77:
-        if not base:
-            return "%s%s%c" % (indent, " ", norm_frac_3_4)
-        return "%s%i%c" % (indent, base, norm_frac_3_4)
-    return "%s%f" % (indent, numm)
 
 def str77(value: JSONItem, maxlength: int = 77) -> str:
     if value is None:
@@ -256,24 +232,8 @@ class NumFormatJSONItem(BaseFormatJSONItem):
         if col in self.formats:
             fmt = self.formats[col]
             if "{:" in fmt:
-                if "h}" in fmt:
-                    try:
-                        val = strHours(val)  # type: ignore[arg-type]
-                        fmt = fmt.replace("h}", "s}")
-                    except Exception as e:
-                        logg.debug("format <%s> does not apply: %s", fmt, e)
-                if "H}" in fmt:
-                    try:
-                        val = strHours(val, "'")  # type: ignore[arg-type]
-                        fmt = fmt.replace("H}", "s}")
-                    except Exception as e:
-                        logg.debug("format <%s> does not apply: %s", fmt, e)
-                if "M}" in fmt:
-                    try:
-                        val = strHours(float(val) / 1048576, ".")  # type: ignore[arg-type]
-                        fmt = fmt.replace("M}", "s}M")
-                    except Exception as e:
-                        logg.debug("format <%s> does not apply: %s", fmt, e)
+                if "h}" in fmt or "H}" in fmt or "M}" in fmt or "$}" in fmt:
+                    val = Frac4(val)  # type: ignore[assignment,arg-type]
                 try:
                     return fmt.format(val)
                 except Exception as e:

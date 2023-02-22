@@ -39,4 +39,20 @@ The tabToCSV format is extended over the python "csv" library as it can handle
 date / datetime items. The loadCSV routine can load back the textual representation.
 Note that tabToCSV is a thin layer csv.DictReader and csv.DictWriter routines.
 
+### tabToTOML storage
 
+Unlink JSON, the TOML spec does already know about DateTime elements.
+Here's an implementation without tomllib. Note that tomllib is part
+of the Python standard library since 3.11.
+
+### Extended format()
+
+The "formats" argument to each tabToFunction allows to provide string.format()
+specifications in the style of "{:2d}".
+
+There is an extension that can handle "{:h}" representing a float with the
+fraction given in quarters. So you have "1/4" ane "1/2" and "3/4" with their
+latin-1 (extended-ascii) 0x00Bx unicode code points. The full strHours (.00) 
+is encoded with "h". If you use the formatter "{:H}" then the full number is 
+encoded with ".". Addtionally, there is a formatter with "{:M}" scaling the
+number by Mibi down and then using strHours with "." full encoding.
