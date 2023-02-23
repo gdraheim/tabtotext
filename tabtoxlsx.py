@@ -10,6 +10,8 @@ from openpyxl.styles.alignment import Alignment  # type: ignore
 from openpyxl.styles.numbers import NumberFormat, builtin_format_id  # type: ignore
 from openpyxl.utils import get_column_letter  # type: ignore
 
+from fracfloat import currency_default
+
 import datetime
 DayOrTime = (datetime.date, datetime.datetime)
 
@@ -95,6 +97,9 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
     int_style = Style()
     int_style.number_format = '#,##0'
     int_style.alignment = Alignment(horizontal='right')
+    eur_style = Style()
+    eur_style.number_format = '#,##0.00%c' % currency_default
+    eur_style.alignment = Alignment(horizontal='right')
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
         set_cell(ws, row, col, name, txt_style)
@@ -115,7 +120,15 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
             elif isinstance(value, int):
                 set_cell(ws, row, col, value, int_style)
             elif isinstance(value, float):
-                set_cell(ws, row, col, value, num_style)
+                logg.error("check float %s [%s] %s", value, name, formats)
+                if name in formats:
+                    logg.error("check float %s <%s>", value, formats[name])
+                    if "$}" in formats[name]:
+                        set_cell(ws, row, col, value, eur_style)
+                    else:
+                        set_cell(ws, row, col, value, num_style)
+                else:
+                    set_cell(ws, row, col, value, num_style)
             else:
                 if not value:
                     set_cell(ws, row, col, _Empty_String, txt_style)
