@@ -232,7 +232,8 @@ class NumFormatJSONItem(BaseFormatJSONItem):
         if col in self.formats:
             fmt = self.formats[col]
             if "{:" in fmt:
-                if "h}" in fmt or "H}" in fmt or "M}" in fmt or "$}" in fmt:
+                q = fmt.rindex("}")
+                if q > 0 and fmt[q - 1] in "hHqQM$":
                     val = Frac4(val)  # type: ignore[assignment,arg-type]
                 try:
                     return fmt.format(val)
