@@ -53,6 +53,9 @@ specifications in the style of "{:2d}".
 There is an extension that can handle "{:h}" representing a float with the
 fraction given in quarters. So you have "1/4" ane "1/2" and "3/4" with their
 latin-1 (extended-ascii) 0x00Bx unicode code points. The full strHours (.00) 
-is encoded with "h". If you use the formatter "{:H}" then the full number is 
+is encoded with "h". If you use the formatter "{:q}" then the full number is 
 encoded with ".". Addtionally, there is a formatter with "{:M}" scaling the
-number by Mibi down and then using strHours with "." full encoding.
+number by Mibi down and then using strHours with "." full encoding. Using
+some "{:H}" however converts to clock values like "2:15" and using "{:$}"
+will convert to the default currency like "2.25€".
+
