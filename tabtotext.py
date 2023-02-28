@@ -17,9 +17,22 @@ import re
 import logging
 import json
 from io import StringIO, TextIOWrapper
-from fracfloat import Frac4
-
 logg = logging.getLogger("TABTOTEXT")
+
+try:
+    from fracfloat import Frac4
+except ImportError as e:
+    logg.warning("can not import fracfloat, fallback to Frac4 with {.2f}, %s", e)
+    class Frac4:  # type: ignore[no-redef]
+        def __init__(self, value: float) -> None:
+            self.value = value
+        def __format__(self, fmt: str) -> str:
+            value = self.value
+            if fmt and fmt[-1] in "HhqQMR$":
+                fmt = ".2f"
+            num = "{:" + fmt + "}"
+            return fmt.format(value)
+
 
 DATEFMT = "%Y-%m-%d"
 FLOATFMT = "%4.2f"
