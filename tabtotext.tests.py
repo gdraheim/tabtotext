@@ -13,9 +13,17 @@ import shutil
 import json
 import inspect
 from dataclasses import dataclass
+
 import logging
 logg = logging.getLogger("TESTS")
 
+try:
+    from fracfloat import currency_default
+    def X(line: str) -> str:
+        return line.replace("$", chr(currency_default))
+except ImportError as e:
+    def X(line: str) -> str:
+        return line
 
 try:
     from tabtoxlsx import saveToXLSX, readFromXLSX  # type: ignore
@@ -1565,6 +1573,18 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, data)
     def test_7077(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        formats = {"a": '"{:}"', "b": "{:$}"}
+        headers = ['b', 'a']
+        text = tabtotext.tabToGFM(itemlist, ['b', 'a'], formats)
+        logg.debug("%s => %s", test004, text)
+        cond = ['|     b | a', '| ----: | -----', X('| 1.00$ | "y"'), X('| 2.00$ | "x"')]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7078(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:5s}"', "b": "{:3f}"}
         headers = ['b', 'a']
         text = tabtotext.tabToGFM(itemlist, ['b', 'a'], formats)
@@ -1949,6 +1969,20 @@ class TabToTextTest(unittest.TestCase):
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
     def test_7477(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        formats = {"a": '"{:}"', "b": "{:$}"}
+        headers = ['b', 'a']
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th>a</th></tr>',  # ,
+                X('<tr><td style="text-align: right">1.00$</td><td>&quot;y&quot;</td></tr>'),  # ,
+                X('<tr><td style="text-align: right">2.00$</td><td>&quot;x&quot;</td></tr>'), '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7478(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:5s}"', "b": "{:3f}"}
         headers = ['b', 'a']
