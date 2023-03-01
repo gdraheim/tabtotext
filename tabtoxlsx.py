@@ -120,9 +120,7 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
             elif isinstance(value, int):
                 set_cell(ws, row, col, value, int_style)
             elif isinstance(value, float):
-                logg.error("check float %s [%s] %s", value, name, formats)
                 if name in formats:
-                    logg.error("check float %s <%s>", value, formats[name])
                     if "$}" in formats[name]:
                         set_cell(ws, row, col, value, eur_style)
                     else:
