@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 """
 This script reimplements the queries/*.sql that have been used in Userlist.sh
 but instead of using the Postgres API it uses the Crowd API.
