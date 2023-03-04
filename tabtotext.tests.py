@@ -2317,6 +2317,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%s test...")
     cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("--xmlresults", metavar="FILE", default=None,
+        help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
     if not args:
@@ -2334,7 +2336,19 @@ if __name__ == "__main__":
                 if arg.startswith("_"): arg = arg[1:]
                 if fnmatch(method, arg):
                     suite.addTest(testclass(method))
-    Runner = unittest.TextTestRunner
-    result = Runner(verbosity=opt.verbose).run(suite)
+    # running
+    xmlresults = None
+    if opt.xmlresults:
+        if os.path.exists(opt.xmlresults):
+            os.remove(opt.xmlresults)
+        xmlresults = open(opt.xmlresults, "wb")
+    if xmlresults:
+        import xmlrunner  # type: ignore[import]
+        Runner = xmlrunner.XMLTestRunner
+        result = Runner(xmlresults).run(suite)
+        logg.info(" XML reports written to %s", opt.xmlresults)
+    else:
+        Runner = unittest.TextTestRunner
+        result = Runner(verbosity=opt.verbose).run(suite)
     if not result.wasSuccessful():
         sys.exit(1)
