@@ -1,4 +1,13 @@
 #! /usr/bin/env python3
+
+"""
+This script allows to format table-like data (list of dicts).
+It is sister program for tabtotext implenting excel input and output.
+"""
+
+__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.5.2096"
+
 import logging
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable
 from tabtotext import JSONList, JSONDict, tabToGFM, strNone, strJSONItem
