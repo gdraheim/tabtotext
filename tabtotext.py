@@ -1120,22 +1120,21 @@ def viewFMT(fmt: str) -> str:
 
 def detectfileformat(filename: str) -> Optional[str]:
     _, ext = os.path.splitext(filename.lower())
-    logg.info("ext %s", ext)
-    if ext in ["txt", "md", "markdown"]:
+    if ext in [".txt", ".md", ".markdown"]:
         return "md"
-    if ext in ["csv", "scsv"]:
+    if ext in [".csv", ".scsv"]:
         return "csv"
-    if ext in ["dat", "tcsv"]:
+    if ext in [".dat", ".tcsv"]:
         return "tab"
-    if ext in ["jsn", "json"]:
+    if ext in [".jsn", ".json"]:
         return "json"
-    if ext in ["yml", "yaml"]:
+    if ext in [".yml", ".yaml"]:
         return "yaml"
-    if ext in ["tml", "toml"]:
+    if ext in [".tml", ".toml"]:
         return "toml"
-    if ext in ["htm", "html", "xhtml"]:
+    if ext in [".htm", ".html", ".xhtml"]:
         return "html"
-    if ext in ["xls", "xlsx"]:
+    if ext in [".xls", ".xlsx"]:
         return "xlsx"
     return None
 def detectcontentformat(filename: str) -> Optional[str]:
@@ -1169,11 +1168,21 @@ def detectcontentformat(filename: str) -> Optional[str]:
                 logg.debug("skip %c [%i]", ord(c), ord(c))
     return None
 
-def readFromFMT(fmt: str, filename: str) -> JSONList:
+def readFromFile(filename: str, fmt: str = NIX) -> JSONList:
     if not fmt:
-        detected = detectfileformat(filename)
+        detected = detectfileformat(filename) or detectcontentformat(filename)
         if detected:
             fmt = detected
+        else:
+            logg.error("could not detect format of '%s'", filename)
+            return []
+    if fmt:
+        return readFromFMT(fmt, filename)
+    logg.warning(" readFromFile - unrecognized input format %s: %s", fmt, filename)
+    return []
+def readFromFMT(fmt: str, filename: str) -> JSONList:
+    if not fmt:
+       return []
     if fmt.lower() in ["md", "markdown"]:
         return readFromGFM(filename)
     if fmt.lower() in ["html"]:
@@ -1194,7 +1203,7 @@ def readFromFMT(fmt: str, filename: str) -> JSONList:
     if fmt.lower() in ["xlsx"]:
         import tabtoxlsx
         return tabtoxlsx.readFromXLSX(filename)
-    logg.warning(" readFrom file - unrecognized input format %s", fmt)
+    logg.debug(" readFromFMT  - unrecognized input format %s: %s", fmt, filename)
     return []
 
 # ----------------------------------------------------------------------

@@ -27,6 +27,7 @@ DayOrTime = (datetime.date, datetime.datetime)
 MINWIDTH = 4
 MAXCOL = 1000
 MAXROWS = 100000
+NIX = ""
 
 # Excel encodes empty-string as nonexistant cell.
 # Since we want to encode None as empty cell (to allow numeric computations), we assign a value for empty-string.
@@ -188,3 +189,48 @@ def readFromXLSX(filename: str) -> JSONList:
         newrow = dict(zip(cols, record))
         data.append(newrow)
     return data
+
+
+if __name__ == "__main__":
+    from tabtotext import tab_sorts_from, tab_onlycols_from, tab_formats_from, tabToCustomTab, readFromFile
+    from os.path import splitext
+    def saveFileToFileXLSX(filename: str, fmt: str = NIX, selects: str = NIX, sorting: str = NIX, formatting: str = NIX) -> List[str]:
+        formats = tab_formats_from(formatting or selects or sorting)
+        sorts = tab_sorts_from(sorting or selects)
+        onlycols = tab_onlycols_from(selects)
+        reorder = []
+        if selects:
+            reorder = list(onlycols.keys())
+        # .....
+        result = readFromFile(filename, fmt)
+        if onlycols:
+            data = tabToCustomTab(result)
+        else:
+            data = result
+        saveToXLSX(filename + ".xlsx", result, sorts=sorts, formats=formats, reorder=reorder)
+        return [filename + ".xlsx", "{:3d} rows".format(len(result))]
+
+    DONE = (logging.WARNING + logging.ERROR) // 2
+    logging.addLevelName(DONE, "DONE")
+    from optparse import OptionParser
+    cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics]", epilog=__doc__)
+    cmdline.formatter.max_help_position = 30
+    cmdline.add_option("-v", "--verbose", action="count", default=0,
+                       help="more verbose logging")
+    cmdline.add_option("-S", "--sort-by", "--sort-columns", metavar="LIST", action="append",  # ..
+                       help="reorder columns for sorting (a,x)", default=[])
+    cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
+                       help="select columns to show (a,x=b)", default=[])
+    cmdline.add_option("-F", "--formats", "--format-columns", metavar="LIST", action="append",  # ..
+                       help="apply formatting to columns (a:.2f,b:_d)", default=[])
+    cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
+    opt, args = cmdline.parse_args()
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
+    if not args:
+        cmdline.print_help()
+    else:
+        for arg in args:
+            done = saveFileToFileXLSX(arg, opt.inputformat, # ..
+                   selects=",".join(opt.labels), sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
+            if done:
+                logg.log(DONE, " %s", " ".join(done))
