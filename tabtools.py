@@ -180,6 +180,8 @@ class Frac4:
             return res
         if fmt.endswith("$"):
             x, symbol = 1, chr(currency_default)
+            if fmt.endswith("XX$"):
+                x, symbol = 3, chr(currency_symbol)
             if fmt.endswith("US$"):
                 x, symbol = 3, chr(currency_dollar)
             if fmt.endswith("EU$") or fmt.endswith("EC$"):
@@ -272,3 +274,43 @@ def fracfloat(value: str) -> float:
 
 def strHours(val: Union[int, float, str], fmt: str = 'h') -> str:
     return ("{:" + fmt + "}").format(Frac4(float(val)))
+
+def encodeFrac(line: str) -> str:
+    line = line.replace("1/2", chr(norm_frac_1_2))
+    line = line.replace("1/4", chr(norm_frac_1_4))
+    line = line.replace("2/4", chr(norm_frac_1_2))
+    line = line.replace("3/4", chr(norm_frac_3_4))
+    line = line.replace("1/8", chr(norm_frac_1_8))
+    line = line.replace("2/8", chr(norm_frac_1_4))
+    line = line.replace("3/8", chr(norm_frac_3_8))
+    line = line.replace("4/8", chr(norm_frac_1_2))
+    line = line.replace("5/8", chr(norm_frac_5_8))
+    line = line.replace("6/8", chr(norm_frac_3_4))
+    line = line.replace("7/8", chr(norm_frac_7_8))
+    line = line.replace("1/3", chr(norm_frac_1_3))
+    line = line.replace("2/3", chr(norm_frac_1_3))
+    line = line.replace("1/6", chr(norm_frac_1_6))
+    line = line.replace("2/6", chr(norm_frac_1_3))
+    line = line.replace("3/6", chr(norm_frac_1_2))
+    line = line.replace("4/6", chr(norm_frac_2_3))
+    line = line.replace("5/6", chr(norm_frac_5_6))
+    line = line.replace("1/5", chr(norm_frac_1_5))
+    line = line.replace("2/5", chr(norm_frac_1_5))
+    line = line.replace("3/5", chr(norm_frac_1_5))
+    line = line.replace("4/5", chr(norm_frac_2_5))
+    line = line.replace("XX$", chr(currency_symbol))
+    line = line.replace("US$", chr(currency_dollar))
+    line = line.replace("EC$", chr(currency_euro))
+    line = line.replace("EU$", chr(currency_euro))
+    line = line.replace("JP$", chr(currency_yen))
+    line = line.replace("CN$", chr(currency_yen))
+    line = line.replace("BP$", chr(currency_pound))
+    line = line.replace("PD$", chr(currency_pound))
+    return line
+
+if __name__ == "__main__":
+    import sys
+    out = []
+    for arg in sys.argv[1:]:
+        out.append(encodeFrac(arg))
+    print(" ".join(out))
