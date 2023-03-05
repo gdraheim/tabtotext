@@ -983,7 +983,7 @@ class xFormatCSV(NumFormatJSONItem):
         return self.item(val)
 
 def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              *, datedelim: str = '-', noheaders: bool = False,  # 
+              *, datedelim: str = '-', noheaders: bool = False,  #
               legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -995,7 +995,8 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToCSV(results, sorts, formats, datedelim=datedelim, noheaders=noheaders, legend=legend)
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-             *, datedelim: str = '-',  noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
+             #
+             *, datedelim: str = '-', noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
@@ -1074,7 +1075,7 @@ class DictParserCSV(DictParser):
             yield newrow
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              *, datedelim: str = '-', noheades: bool = False, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1083,7 +1084,7 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, noheaders=noheaders, legend=legend)
+    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend)
 def tabToFMT(fmt: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {}, *,  #
              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
@@ -1282,12 +1283,11 @@ def tabToCustomTab(data: JSONList, onlycols: Dict[str, str] = {}) -> JSONList:
     return newdata
 
 def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
-               formats: Union[FormatJSONItem, Dict[str, str]] = {},  # ...
                sorts: Sequence[str] = ["email"],  # ...
-               reorder: Sequence[str] = [],  # ...
+               formats: Union[FormatJSONItem, Dict[str, str]] = {},  # ...
                onlycols: Union[Sequence[str], Dict[str, str]] = {},  # ...
                datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  # ...
-               ) -> str:
+               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     data = tabToTab(result, onlycols)
     FMT = fmt or detectfileformat(OUTPUT) or "md"
     if OUTPUT in ["", "-", "CON"]:
@@ -1306,37 +1306,47 @@ def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
     return ""
 
 def tabToPrintWith(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
-                   selects: str = NIX, sorting: str = NIX, formatting: str = NIX,  # ...
+                   sorts: Union[str, Sequence[str]] = NIX,  # ...
+                   formats: Union[str, FormatJSONItem, Dict[str, str]] = NIX,  # ...
+                   *, selects: str = NIX,  # ...
                    datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  # ...
-                   ) -> str:
-    formats = tab_formats_from(formatting or selects or sorting)
-    return tabToPrintWithFormats(result, output, fmt, selects=selects, sorting=sorting, formats=formats)
-def tabToPrintWithFormats(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
-                          selects: str = NIX, sorting: str = NIX,  # ..
-                          formats: Union[FormatJSONItem, Dict[str, str]] = {},  # ...
-                          datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  # ...
-                          ) -> str:
-    sorts = tab_sorts_from(sorting or selects)
+                   reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+    sorts2: Sequence[str] = []
+    if isinstance(sorts, str):
+        sorts2 = tab_sorts_from(sorts or selects)
+    else:
+        sorts2 = sorts
+    formats2: Union[FormatJSONItem, Dict[str, str]] = {}
+    if isinstance(formats, FormatJSONItem):
+        formats2 = formats
+    elif isinstance(formats, str):
+        formats2 = tab_formats_from(formats)
+        if selects:
+            formats2.update(tab_formats_from(selects))
+    else:
+        formats2 = formats
+        if selects:
+            formats2.update(tab_formats_from(selects))
     onlycols = tab_onlycols_from(selects)
-    reorder = []
-    if selects:
+    if selects and not reorder:
         reorder = list(onlycols.keys())
     logg.info("using formats %s", formats)
     logg.info("using sorts = %s", sorts)
     logg.info("using onlycols = %s", onlycols)
-    return tabToPrint(result, output, fmt, formats=formats, sorts=sorts, reorder=reorder, onlycols=onlycols, datedelim=datedelim, legend=legend)
+    return tabToPrint(result, output, fmt, formats=formats2, sorts=sorts2, reorder=reorder, onlycols=onlycols, datedelim=datedelim, legend=legend)
 
 def tabFileToPrintWith(filename: str, fileformat: str, output: str = NIX, fmt: str = NIX,  # ...
-                       selects: str = NIX, sorting: str = NIX, formatting: str = NIX,  # ...
+                       selects: str = NIX, sorts: Union[str, Sequence[str]] = NIX,  # ...
+                       formats: Union[str, FormatJSONItem, Dict[str, str]] = NIX,  # ...
                        datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  # ...
-                       ) -> str:
+                       reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     fileformat = fileformat or detectfileformat(filename) or detectcontentformat(filename) or "md"
     if not fileformat:
         logg.error("could not detect format of '%s'", filename)
         return ""
     logg.info("reading %s %s", fileformat, filename)
     result = readFromFMT(fileformat, filename)
-    return tabToPrintWith(result, output, fmt, selects=selects, sorting=sorting, formatting=formatting, datedelim=datedelim, legend=legend)
+    return tabToPrintWith(result, output, fmt, selects=selects, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, legend=legend)
 
 if __name__ == "__main__":
     DONE = (logging.WARNING + logging.ERROR) // 2
@@ -1362,6 +1372,6 @@ if __name__ == "__main__":
     else:
         for arg in args:
             done = tabFileToPrintWith(arg, opt.inputformat, opt.output, opt.format, selects=",".join(opt.labels),  # ..
-                                      sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
+                                      sorts=",".join(opt.sort_by), formats=",".join(opt.formats))
             if done:
                 logg.log(DONE, " %s", done)
