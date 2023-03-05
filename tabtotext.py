@@ -8,6 +8,7 @@ __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 
 __version__ = "1.5.2097"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Collection, Sized, Type, cast, Iterable, Iterator
+from collections import OrderedDict
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
@@ -41,6 +42,7 @@ DATEFMT = "%Y-%m-%d"
 FLOATFMT = "%4.2f"
 NORIGHT = False
 MINWIDTH = 5
+NIX = ""
 
 JSONData = Union[str, int, float, bool, Date, Time, None]
 
@@ -766,6 +768,9 @@ def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
 def loadYAML(text: str, datedelim: str = '-') -> JSONList:
     parser = DictParserYAML(datedelim=datedelim)
     return list(parser.loads(text))
+def readFromYAML(filename: str, datedelim: str = '-') -> JSONList:
+    parser = DictParserYAML(datedelim=datedelim)
+    return list(parser.load(filename))
 def DictReaderYAML(rows: Iterable[str], *, datedelim: str = '-') -> Iterator[JSONDict]:
     parser = DictParserYAML(datedelim=datedelim)
     return parser.read(rows)
@@ -1112,3 +1117,194 @@ def viewFMT(fmt: str) -> str:
     if fmt in ["htm", "html"]:
         return htmlprog()
     return editprog()
+
+def detectfileformat(filename: str) -> Optional[str]:
+    _, ext = os.path.splitext(filename.lower())
+    logg.info("ext %s", ext)
+    if ext in ["txt", "md", "markdown"]:
+        return "md"
+    if ext in ["csv", "scsv"]:
+        return "csv"
+    if ext in ["dat", "tcsv"]:
+        return "tab"
+    if ext in ["jsn", "json"]:
+        return "json"
+    if ext in ["yml", "yaml"]:
+        return "yaml"
+    if ext in ["tml", "toml"]:
+        return "toml"
+    if ext in ["htm", "html", "xhtml"]:
+        return "html"
+    if ext in ["xls", "xlsx"]:
+        return "xlsx"
+    return None
+def detectcontentformat(filename: str) -> Optional[str]:
+    first = b""
+    with open(filename, "rb") as f:
+        for x in range(255):
+            c = f.read(1)
+            if not c:
+                break
+            if c in [b"|"]:
+                return "md"
+            if c in [b";"]:
+                return "csv"
+            if c in [b"\t"]:
+                return "tab"
+            if c in [b"<"]:
+                return "html"
+            if c in [b"{"]:
+                return "json"
+            if c in [b":"]:
+                return "yaml"
+            if c in [b"["]:
+                return "toml"
+            if c.isalnum() or ord(c) <= 0x20:
+                logg.debug("buff %c [%i]", ord(c), ord(c))
+                first += c
+                if first == b"PK\03\04":
+                    return "xlsx"
+                continue
+            else:
+                logg.debug("skip %c [%i]", ord(c), ord(c))
+    return None
+
+def readFromFMT(fmt: str, filename: str) -> JSONList:
+    if not fmt:
+        detected = detectfileformat(filename)
+        if detected:
+            fmt = detected
+    if fmt.lower() in ["md", "markdown"]:
+        return readFromGFM(filename)
+    if fmt.lower() in ["html"]:
+        return readFromHTML(filename)
+    if fmt.lower() in ["json"]:
+        return readFromJSON(filename)
+    if fmt.lower() in ["yaml"]:
+        return readFromYAML(filename)
+    if fmt.lower() in ["toml"]:
+        return readFromTOML(filename)
+    if fmt.lower() in ["tab"]:
+        return readFromCSV(filename, tab='\t')
+    if fmt.lower() in ["csv"]:
+        return readFromCSV(filename, tab=';')
+    # including the legend
+    if fmt.lower() in ["htm"]:
+        return readFromHTML(filename)
+    if fmt.lower() in ["xlsx"]:
+        import tabtoxlsx
+        return tabtoxlsx.readFromXLSX(filename)
+    logg.warning(" readFrom file - unrecognized input format %s", fmt)
+    return []
+
+# ----------------------------------------------------------------------
+def tab_formats_from(columns: str) -> Dict[str, str]:
+    styles = {}
+    for elem in columns.split(","):
+        if elem and ":" in elem:
+            name, style = elem.split(":", 1)
+            if not name:
+                continue
+            if "=" in name:
+                name = name.split("=", 1)[0]
+            if "{:" in style:
+                styles[name] = style
+            elif style.startswith("%") and len(style) > 1:
+                styles[name] = "{:" + style[1:] + "}"
+            else:
+                styles[name] = "{:" + style + "}"
+    return styles
+
+def tab_sorts_from(columns: str) -> List[str]:
+    return list(tab_labels_from(columns).keys())
+
+def tab_labels_from(columns: str) -> Dict[str, str]:
+    cols = OrderedDict()
+    for col in columns.split(","):
+        if not col:
+            pass
+        elif "=" in col:
+            name, orig = col.split("=", 1)
+            if ":" in orig:
+                cols[name] = orig.split(":", 1)[0]
+            else:
+                cols[name] = orig
+        elif ":" in col:
+            name, style = col.split(":", 1)
+            cols[name] = name
+        else:
+            cols[col] = col
+    return cols
+
+
+def tabToTab(data: JSONList, labels: Dict[str, str] = {}) -> JSONList:
+    if not labels:
+        return data
+    newdata: JSONList = []
+    for item in data:
+        newitem: JSONDict = {}
+        for name, col in labels.items():
+            if "{" in col and "}" in col:
+                newitem[name] = col.format(item)
+            else:
+                newitem[name] = item[col]
+        newdata.append(newitem)
+    return newdata
+
+def tabToPrint(result: JSONList, OUTPUT: str = NIX, FMT: str = NIX,  # ...
+               formats: Union[FormatJSONItem, Dict[str, str]] = {},  # ...
+               sorts: Sequence[str] = ["email"], labels: Dict[str, str] = {}) -> str:
+    data = tabToTab(result, labels)
+    if OUTPUT in ["", "-", "CON"]:
+        print(tabToFMT(FMT, data, formats=formats, sorts=sorts))
+    elif OUTPUT:
+        with open(OUTPUT, "w") as f:
+            f.write(tabToFMT(FMT, data, formats=formats, sorts=sorts))
+        return " %s written   %s '%s'" % (FMT, viewFMT(FMT), OUTPUT)
+    return ""
+
+def showFMT(fmt: str, filename: str, FMT: str = NIX, OUTPUT: str = NIX,  # ...
+            columns: str = NIX, renames: str = NIX, sorting: str = NIX, formatting: str = NIX) -> str:
+    fmt = fmt or detectfileformat(filename) or detectcontentformat(filename) or "md"
+    if not fmt:
+        logg.error("could not detect format of '%s'", filename)
+        return ""
+    logg.info("reading %s %s", fmt, filename)
+    data = readFromFMT(fmt, filename)
+    formats = tab_formats_from(formatting or columns or renames or sorting)
+    sorts = tab_sorts_from(sorting or columns or renames)
+    labels = tab_labels_from(renames or columns)
+    logg.info("using formats %s", formats)
+    logg.info("using sorts = %s", sorts)
+    logg.info("using labels = %s", labels)
+    return tabToPrint(data, OUTPUT, FMT, formats=formats, sorts=sorts, labels=labels)
+
+if __name__ == "__main__":
+    DONE = (logging.WARNING + logging.ERROR) // 2
+    logging.addLevelName(DONE, "DONE")
+    from optparse import OptionParser
+    cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics]", epilog=__doc__)
+    cmdline.formatter.max_help_position = 30
+    cmdline.add_option("-v", "--verbose", action="count", default=0,
+                       help="more verbose logging")
+    cmdline.add_option("-S", "--sort-by", "--sort-columns", metavar="LIST", action="append",  # ..
+                       help="reorder columns for sorting (a,x)", default=[])
+    cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
+                       help="select columns to show (a,x=b)", default=[])
+    cmdline.add_option("-F", "--formats", "--format-columns", metavar="LIST", action="append",  # ..
+                       help="apply formatting to columns (a:.2f,b:_d)", default=[])
+    cmdline.add_option("-T", "--custom", "--custom-columns", metavar="LIST", action="append",  # ..
+                       help="select and format columns (a:.2f,x=b:_d)", default=[])
+    cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
+    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default="")
+    cmdline.add_option("-O", "--output", metavar="CON", default="-", help="redirect output to filename")
+    opt, args = cmdline.parse_args()
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
+    if not args:
+        cmdline.print_help()
+    else:
+        for arg in args:
+            done = showFMT(opt.inputformat, arg, opt.format, opt.output, columns=",".join(opt.custom),  # ..
+                           renames=",".join(opt.labels), sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
+            if done:
+                logg.log(DONE, " %s", done)
