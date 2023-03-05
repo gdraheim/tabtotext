@@ -278,7 +278,8 @@ class FormatGFM(NumFormatJSONItem):
         return NumFormatJSONItem.__call__(self, col, val).replace(self.tab, rep)
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              *, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              *, noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
+              ) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -287,9 +288,9 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)
-    return tabToGFM(results, sorts, formats, legend=legend)
+    return tabToGFM(results, sorts, formats, noheaders=noheaders, legend=legend, tab=tab)
 def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-             *, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
+             *, noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
@@ -332,12 +333,14 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
             return formatter[:-1] + ":"
         return formatter
     tab2 = tab + " " if tab else ""
-    line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
-    lines = [(" ".join(line)).rstrip()]
-    if tab:
-        seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
-                      for name in sorted(cols.keys(), key=sortkey)]
-        lines.append(" ".join(seperators))
+    lines: List[str] = []
+    if not noheaders:
+        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
+        lines += [(" ".join(line)).rstrip()]
+        if tab:
+            seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
+                          for name in sorted(cols.keys(), key=sortkey)]
+            lines.append(" ".join(seperators))
     for item in sorted(result, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in item.items():
@@ -980,7 +983,8 @@ class xFormatCSV(NumFormatJSONItem):
         return self.item(val)
 
 def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              *, datedelim: str = '-', noheaders: bool = False,  # 
+              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -989,9 +993,9 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToCSV(results, sorts, formats, datedelim=datedelim, legend=legend)
+    return tabToCSV(results, sorts, formats, datedelim=datedelim, noheaders=noheaders, legend=legend)
 def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-             *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
+             *, datedelim: str = '-',  noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
@@ -1037,7 +1041,8 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[
     csvfile = StringIO()
     writer = csv.DictWriter(csvfile, fieldnames=sorted(cols.keys(), key=sortkey), restval='ignore',
                             quoting=csv.QUOTE_MINIMAL, delimiter=tab)
-    writer.writeheader()
+    if not noheaders:
+        writer.writeheader()
     for line in lines:
         writer.writerow(line)
     return csvfile.getvalue()
@@ -1069,7 +1074,7 @@ class DictParserCSV(DictParser):
             yield newrow
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              *, datedelim: str = '-', noheades: bool = False, legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1078,7 +1083,7 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend)
+    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, noheaders=noheaders, legend=legend)
 def tabToFMT(fmt: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {}, *,  #
              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
@@ -1094,12 +1099,20 @@ def tabToFMT(fmt: str, result: JSONList, sorts: Sequence[str] = ["email"], forma
         return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
     if fmt.lower() in ["wide"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
+    if fmt.lower() in ["text"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='', noheaders=True)
     if fmt.lower() in ["tabs"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
+    if fmt.lower() in ["data"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t', noheaders=True)
     if fmt.lower() in ["tab"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
+    if fmt.lower() in ["tabdata"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
     if fmt.lower() in ["csv"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
+    if fmt.lower() in ["csvdata"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
     if fmt.lower() in ["xlsx"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
     if fmt.lower() in ["htm"]:
