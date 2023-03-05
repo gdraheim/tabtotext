@@ -5,7 +5,7 @@ The various output formats can be read back.
 """
 
 __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.5.2096"
+__version__ = "1.5.2097"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Collection, Sized, Type, cast, Iterable, Iterator
 from html import escape
