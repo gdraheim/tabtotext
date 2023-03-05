@@ -21,7 +21,7 @@ import logging
 logg = logging.getLogger("TESTS")
 
 try:
-    from fracfloat import currency_default
+    from tabtools import currency_default
     def X(line: str) -> str:
         return line.replace("$", chr(currency_default))
 except ImportError as e:

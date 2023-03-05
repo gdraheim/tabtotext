@@ -21,9 +21,9 @@ from io import StringIO, TextIOWrapper
 logg = logging.getLogger("TABTOTEXT")
 
 try:
-    from fracfloat import Frac4, fracfloat, float_with_frac, float_with_hours
+    from tabtools import Frac4, fracfloat, float_with_frac, float_with_hours
 except ImportError as e:
-    logg.warning("can not import fracfloat, fallback to Frac4 with {.2f}, %s", e)
+    logg.warning("can not import tabtools, fallback to Frac4 with {.2f}, %s", e)
     class Frac4:  # type: ignore[no-redef]
         def __init__(self, value: float) -> None:
             self.value = value
@@ -79,10 +79,6 @@ def _dataitem_asdict(obj: DataItem, dict_factory: Type[Dict[str, Any]] = dict) -
 _None_String = "~"
 _False_String = "(no)"
 _True_String = "(yes)"
-
-norm_frac_1_4 = 0x00BC
-norm_frac_1_2 = 0x00BD
-norm_frac_3_4 = 0x00BE
 
 def setNoRight(value: bool) -> None:
     global NORIGHT

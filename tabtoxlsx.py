@@ -19,7 +19,7 @@ from openpyxl.styles.alignment import Alignment  # type: ignore
 from openpyxl.styles.numbers import NumberFormat, builtin_format_id  # type: ignore
 from openpyxl.utils import get_column_letter  # type: ignore
 
-from fracfloat import currency_default
+from tabtools import currency_default
 
 import datetime
 DayOrTime = (datetime.date, datetime.datetime)
