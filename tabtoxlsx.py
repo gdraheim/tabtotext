@@ -53,8 +53,8 @@ def set_width(ws: Worksheet, col: int, width: int) -> None:  # type: ignore
 
 
 def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = [],  #
-             formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = [],  #
-             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
+                formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = [],  #
+                reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
     if isinstance(result, Dict):
         result = [result]
     saveToXLSX(filename, result, sorts, formats, legend, reorder)
@@ -113,7 +113,7 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
         set_cell(ws, row, col, name, txt_style)
-        set_width(ws, col, cols[name] + 1 + int(cols[name]/3))
+        set_width(ws, col, cols[name] + 1 + int(cols[name] / 3))
         col += 1
     row += 1
     for item in sorted(result, key=sortrow):
@@ -230,7 +230,7 @@ if __name__ == "__main__":
         cmdline.print_help()
     else:
         for arg in args:
-            done = saveFileToFileXLSX(arg, opt.inputformat, # ..
-                   selects=",".join(opt.labels), sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
+            done = saveFileToFileXLSX(arg, opt.inputformat,  # ..
+                                      selects=",".join(opt.labels), sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
             if done:
                 logg.log(DONE, " %s", " ".join(done))
