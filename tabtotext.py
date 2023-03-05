@@ -1079,29 +1079,29 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToFMT(output: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {}, *,  #
+def tabToFMT(fmt: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {}, *,  #
              datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    if output.lower() in ["md", "markdown"]:
+    if fmt.lower() in ["md", "markdown"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
-    if output.lower() in ["html"]:
+    if fmt.lower() in ["html"]:
         return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder)
-    if output.lower() in ["json"]:
+    if fmt.lower() in ["json"]:
         return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if output.lower() in ["yaml"]:
+    if fmt.lower() in ["yaml"]:
         return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if output.lower() in ["toml"]:
+    if fmt.lower() in ["toml"]:
         return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if output.lower() in ["wide"]:
+    if fmt.lower() in ["wide"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
-    if output.lower() in ["tabs"]:
+    if fmt.lower() in ["tabs"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
-    if output.lower() in ["tab"]:
+    if fmt.lower() in ["tab"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
-    if output.lower() in ["csv"]:
+    if fmt.lower() in ["csv"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
-    # including the legend
-    if output.lower() in ["htm"]:
+    if fmt.lower() in ["htm"]:
+        # including the legend
         return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
     return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
 
@@ -1216,9 +1216,9 @@ def tab_formats_from(columns: str) -> Dict[str, str]:
     return styles
 
 def tab_sorts_from(columns: str) -> List[str]:
-    return list(tab_labels_from(columns).keys())
+    return list(tab_onlycols_from(columns).keys())
 
-def tab_labels_from(columns: str) -> Dict[str, str]:
+def tab_onlycols_from(columns: str) -> Dict[str, str]:
     cols = OrderedDict()
     for col in columns.split(","):
         if not col:
@@ -1237,13 +1237,19 @@ def tab_labels_from(columns: str) -> Dict[str, str]:
     return cols
 
 
-def tabToTab(data: JSONList, labels: Dict[str, str] = {}) -> JSONList:
-    if not labels:
+def tabToTab(data: JSONList, onlycols: Union[Sequence[str], Dict[str, str]] = {}) -> JSONList:
+    if hasattr(onlycols, "items"):
+        return tabToCustomTab(data, cast(Dict[str, str], onlycols))
+    else:
+        return tabToCustomTab(data, dict(zip(onlycols, onlycols)))
+
+def tabToCustomTab(data: JSONList, onlycols: Dict[str, str] = {}) -> JSONList:
+    if not onlycols:
         return data
     newdata: JSONList = []
     for item in data:
         newitem: JSONDict = {}
-        for name, col in labels.items():
+        for name, col in onlycols.items():
             if "{" in col and "}" in col:
                 newitem[name] = col.format(item)
             else:
@@ -1251,33 +1257,54 @@ def tabToTab(data: JSONList, labels: Dict[str, str] = {}) -> JSONList:
         newdata.append(newitem)
     return newdata
 
-def tabToPrint(result: JSONList, OUTPUT: str = NIX, FMT: str = NIX,  # ...
+def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
                formats: Union[FormatJSONItem, Dict[str, str]] = {},  # ...
-               sorts: Sequence[str] = ["email"], labels: Dict[str, str] = {}) -> str:
-    data = tabToTab(result, labels)
+               sorts: Sequence[str] = ["email"],  # ...
+               reorder: Sequence[str] = [],  # ...
+               onlycols: Union[Sequence[str], Dict[str, str]] = {}) -> str:
+    data = tabToTab(result, onlycols)
+    FMT = fmt or detectfileformat(OUTPUT) or "md"
     if OUTPUT in ["", "-", "CON"]:
-        print(tabToFMT(FMT, data, formats=formats, sorts=sorts))
+        print(tabToFMT(FMT, data, formats=formats, sorts=sorts, reorder=reorder))
     elif OUTPUT:
-        with open(OUTPUT, "w") as f:
-            f.write(tabToFMT(FMT, data, formats=formats, sorts=sorts))
+        if FMT in ["xls", "xlsx"]:
+            import tabtoxlsx
+            if isinstance(formats, FormatJSONItem):
+                tabtoxlsx.saveToXLSX(OUTPUT, data, sorts=sorts, reorder=reorder)
+            else:
+                tabtoxlsx.saveToXLSX(OUTPUT, data, formats=formats, sorts=sorts, reorder=reorder)
+        else:
+            with open(OUTPUT, "w") as f:
+                f.write(tabToFMT(FMT, data, formats=formats, sorts=sorts, reorder=reorder))
         return " %s written   %s '%s'" % (FMT, viewFMT(FMT), OUTPUT)
     return ""
 
-def showFMT(fmt: str, filename: str, FMT: str = NIX, OUTPUT: str = NIX,  # ...
-            columns: str = NIX, renames: str = NIX, sorting: str = NIX, formatting: str = NIX) -> str:
-    fmt = fmt or detectfileformat(filename) or detectcontentformat(filename) or "md"
-    if not fmt:
-        logg.error("could not detect format of '%s'", filename)
-        return ""
-    logg.info("reading %s %s", fmt, filename)
-    data = readFromFMT(fmt, filename)
-    formats = tab_formats_from(formatting or columns or renames or sorting)
-    sorts = tab_sorts_from(sorting or columns or renames)
-    labels = tab_labels_from(renames or columns)
+def tabToPrintWith(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
+                   selects: str = NIX, sorting: str = NIX, formatting: str = NIX) -> str:
+    formats = tab_formats_from(formatting or selects or sorting)
+    return tabToPrintWithFormats(result, output, fmt, selects=selects, sorting=sorting, formats=formats)
+def tabToPrintWithFormats(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
+                          selects: str = NIX, sorting: str = NIX, # ..
+                          formats: Union[FormatJSONItem, Dict[str, str]] = {}) -> str:
+    sorts = tab_sorts_from(sorting or selects)
+    onlycols = tab_onlycols_from(selects)
+    reorder = []
+    if selects:
+        reorder = list(onlycols.keys())
     logg.info("using formats %s", formats)
     logg.info("using sorts = %s", sorts)
-    logg.info("using labels = %s", labels)
-    return tabToPrint(data, OUTPUT, FMT, formats=formats, sorts=sorts, labels=labels)
+    logg.info("using onlycols = %s", onlycols)
+    return tabToPrint(result, output, fmt, formats=formats, sorts=sorts, reorder=reorder, onlycols=onlycols)
+
+def tabFileToPrintWith(filename: str, fileformat:str, output: str = NIX, fmt: str = NIX,  # ...
+                       selects: str = NIX, sorting: str = NIX, formatting: str = NIX) -> str:
+    fileformat = fileformat or detectfileformat(filename) or detectcontentformat(filename) or "md"
+    if not fileformat:
+        logg.error("could not detect format of '%s'", filename)
+        return ""
+    logg.info("reading %s %s", fileformat, filename)
+    result = readFromFMT(fileformat, filename)
+    return tabToPrintWith(result, output, fmt, selects, sorting, formatting)
 
 if __name__ == "__main__":
     DONE = (logging.WARNING + logging.ERROR) // 2
@@ -1293,8 +1320,6 @@ if __name__ == "__main__":
                        help="select columns to show (a,x=b)", default=[])
     cmdline.add_option("-F", "--formats", "--format-columns", metavar="LIST", action="append",  # ..
                        help="apply formatting to columns (a:.2f,b:_d)", default=[])
-    cmdline.add_option("-T", "--custom", "--custom-columns", metavar="LIST", action="append",  # ..
-                       help="select and format columns (a:.2f,x=b:_d)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default="")
     cmdline.add_option("-O", "--output", metavar="CON", default="-", help="redirect output to filename")
@@ -1304,7 +1329,7 @@ if __name__ == "__main__":
         cmdline.print_help()
     else:
         for arg in args:
-            done = showFMT(opt.inputformat, arg, opt.format, opt.output, columns=",".join(opt.custom),  # ..
-                           renames=",".join(opt.labels), sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
+            done = tabFileToPrintWith(arg, opt.inputformat, opt.output, opt.format, selects=",".join(opt.labels),  # ..
+                                      sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
             if done:
                 logg.log(DONE, " %s", done)
