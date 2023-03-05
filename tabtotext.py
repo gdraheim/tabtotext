@@ -1104,15 +1104,15 @@ def tabToFMT(fmt: str, result: JSONList, sorts: Sequence[str] = ["email"], forma
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='', noheaders=True)
     if fmt.lower() in ["tabs"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
-    if fmt.lower() in ["data"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t', noheaders=True)
     if fmt.lower() in ["tab"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
-    if fmt.lower() in ["tabdata"]:
+    if fmt.lower() in ["dat"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
+    if fmt.lower() in ["ifs", "data"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
     if fmt.lower() in ["csv"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
-    if fmt.lower() in ["csvdata"]:
+    if fmt.lower() in ["list"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
     if fmt.lower() in ["xlsx"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
