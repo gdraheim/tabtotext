@@ -5,7 +5,7 @@ This script allows to format table-like data (list of dicts).
 It is sister program for tabtotext implenting excel input and output.
 """
 
-__copyright__ = "(C) 2021-2023 Guido Draheim, licensed under the Apache License 2.0"""
+__copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.5.2096"
 
 import logging
