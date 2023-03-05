@@ -1182,7 +1182,7 @@ def readFromFile(filename: str, fmt: str = NIX) -> JSONList:
     return []
 def readFromFMT(fmt: str, filename: str) -> JSONList:
     if not fmt:
-       return []
+        return []
     if fmt.lower() in ["md", "markdown"]:
         return readFromGFM(filename)
     if fmt.lower() in ["html"]:
@@ -1293,7 +1293,7 @@ def tabToPrintWith(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
     formats = tab_formats_from(formatting or selects or sorting)
     return tabToPrintWithFormats(result, output, fmt, selects=selects, sorting=sorting, formats=formats)
 def tabToPrintWithFormats(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
-                          selects: str = NIX, sorting: str = NIX, # ..
+                          selects: str = NIX, sorting: str = NIX,  # ..
                           formats: Union[FormatJSONItem, Dict[str, str]] = {}) -> str:
     sorts = tab_sorts_from(sorting or selects)
     onlycols = tab_onlycols_from(selects)
@@ -1305,7 +1305,7 @@ def tabToPrintWithFormats(result: JSONList, output: str = NIX, fmt: str = NIX,  
     logg.info("using onlycols = %s", onlycols)
     return tabToPrint(result, output, fmt, formats=formats, sorts=sorts, reorder=reorder, onlycols=onlycols)
 
-def tabFileToPrintWith(filename: str, fileformat:str, output: str = NIX, fmt: str = NIX,  # ...
+def tabFileToPrintWith(filename: str, fileformat: str, output: str = NIX, fmt: str = NIX,  # ...
                        selects: str = NIX, sorting: str = NIX, formatting: str = NIX) -> str:
     fileformat = fileformat or detectfileformat(filename) or detectcontentformat(filename) or "md"
     if not fileformat:
