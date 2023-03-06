@@ -1333,7 +1333,7 @@ def tabToPrintWith(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
                    reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
     sorts2: Sequence[str] = []
     if isinstance(sorts, str):
-        sorts2 = tab_sorts_from(sorts or selects)
+        sorts2 = tab_sorts_from(sorts)
     else:
         sorts2 = sorts
     formats2: Union[FormatJSONItem, Dict[str, str]] = {}
