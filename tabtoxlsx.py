@@ -82,7 +82,7 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
                 else:
                     sortvalue += "\n" + strJSONItem(value)
             else:
-                sortvalue += "\n-"
+                sortvalue += "\n~"
         return sortvalue
     cols: Dict[str, int] = {}
     for item in result:

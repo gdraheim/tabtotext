@@ -317,7 +317,7 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
                 else:
                     sortvalue += "\n" + strJSONItem(value)
             else:
-                sortvalue += "\n-"
+                sortvalue += "\n~"
         return sortvalue
     cols: Dict[str, int] = {}
     for item in result:
@@ -477,7 +477,7 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 else:
                     sortvalue += "\n" + strJSONItem(value)
             else:
-                sortvalue += "\n-"
+                sortvalue += "\n~"
         return sortvalue
     cols: Dict[str, int] = {}
     for item in result:
@@ -658,7 +658,7 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
-                sortvalue += "\n-"
+                sortvalue += "\n~"
         return sortvalue
     cols: Dict[str, int] = {}
     for item in result:
@@ -756,7 +756,7 @@ def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
-                sortvalue += "\n-"
+                sortvalue += "\n~"
         return sortvalue
     cols: Dict[str, int] = {}
     for item in result:
@@ -887,7 +887,7 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
-                sortvalue += "\n-"
+                sortvalue += "\n~"
         return sortvalue
     cols: Dict[str, int] = {}
     for item in result:
@@ -1035,7 +1035,7 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
             else:
-                sortvalue += "\n-"
+                sortvalue += "\n~"
         return sortvalue
     cols: Dict[str, int] = {}
     for item in result:
