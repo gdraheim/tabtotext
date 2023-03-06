@@ -199,6 +199,10 @@ class Frac4:
             return res + "." + num1 + num2 + symbol
         num = "{:" + fmt + "}"
         return num.format(value)
+    def __str__(self) -> str:
+        if isinstance(self.value, float):
+            return "{:4.2f}".format(self.value)
+        return str(self.value)
 
 float_with_frac = "[+-]?(\\d+([.]\\d*)?|\\d*[.%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c])[hM$%c%c%c]?$" % (  # ...
     norm_frac_1_4, norm_frac_1_2, norm_frac_3_4,  # ...
