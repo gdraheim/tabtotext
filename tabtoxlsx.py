@@ -75,7 +75,9 @@ def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
         for sort in sorts:
             if sort in item:
                 value = item[sort]
-                if isinstance(value, int):
+                if value is None:
+                    sortvalue += "\n~"
+                elif isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
                     sortvalue += "\n" + strJSONItem(value)

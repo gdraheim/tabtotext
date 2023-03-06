@@ -310,7 +310,9 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
         for sort in sorts:
             if sort in item:
                 value = item[sort]
-                if isinstance(value, int):
+                if value is None:
+                    sortvalue += "\n~"
+                elif isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
                     sortvalue += "\n" + strJSONItem(value)
@@ -468,7 +470,9 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
         for sort in sorts:
             if sort in item:
                 value = item[sort]
-                if isinstance(value, int):
+                if value is None:
+                    sortvalue += "\n~"
+                elif isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
                     sortvalue += "\n" + strJSONItem(value)
@@ -647,7 +651,9 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
         for sort in sorts:
             if sort in item:
                 value = item[sort]
-                if isinstance(value, int):
+                if value is None:
+                    sortvalue += "\n~"
+                elif isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
@@ -743,7 +749,9 @@ def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
         for sort in sorts:
             if sort in item:
                 value = item[sort]
-                if isinstance(value, int):
+                if value is None:
+                    sortvalue += "\n~"
+                elif isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
@@ -872,7 +880,9 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
         for sort in sorts:
             if sort in item:
                 value = item[sort]
-                if isinstance(value, int):
+                if value is None:
+                    sortvalue += "\n~"
+                elif isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
@@ -1018,7 +1028,9 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[
         for sort in sorts:
             if sort in item:
                 value = item[sort]
-                if isinstance(value, int):
+                if value is None:
+                    sortvalue += "\n~"
+                elif isinstance(value, int):
                     sortvalue += "\n%020i" % value
                 else:
                     sortvalue += "\n" + strJSONItem(value, datedelim)
@@ -1262,6 +1274,12 @@ def tab_onlycols_from(columns: str) -> Dict[str, str]:
     return cols
 
 
+def tabToTabX(data: JSONList, onlycols: Union[str, Sequence[str], Dict[str, str]] = {}) -> JSONList:
+    if isinstance(onlycols, str):
+        return tabToTab(data, tab_onlycols_from(onlycols))
+    else:
+        return tabToTab(data, onlycols)
+
 def tabToTab(data: JSONList, onlycols: Union[Sequence[str], Dict[str, str]] = {}) -> JSONList:
     if hasattr(onlycols, "items"):
         return tabToCustomTab(data, cast(Dict[str, str], onlycols))
@@ -1277,8 +1295,10 @@ def tabToCustomTab(data: JSONList, onlycols: Dict[str, str] = {}) -> JSONList:
         for name, col in onlycols.items():
             if "{" in col and "}" in col:
                 newitem[name] = col.format(item)
-            else:
+            elif col in item:
                 newitem[name] = item[col]
+            elif col in [".", "#"]:
+                newitem[name] = len(newdata) + 1
         newdata.append(newitem)
     return newdata
 
