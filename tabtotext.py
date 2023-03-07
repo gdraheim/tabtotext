@@ -236,7 +236,7 @@ def tabWithDateOnly() -> None:
 
 # ================================= sorting
 
-RowSortList = Union[Sequence[str], Callable[[JSONDict], str]]
+RowSortList = Union[Sequence[str], Dict[str, str], Callable[[JSONDict], str]]
 
 class RowSortCallable:
     """ The column names in the sorts-list are used here for one of their 
@@ -272,7 +272,7 @@ class RowSortCallable:
                     sortvalue += "\n?"
             return sortvalue
 
-ColSortList = Union[Sequence[str], Callable[[str], str]]
+ColSortList = Union[Sequence[str], Dict[str, str], Callable[[str], str]]
 
 class ColSortCallable:
     """ The column names in the sorts-list always had a double function: sorting
@@ -292,8 +292,12 @@ class ColSortCallable:
             sorts = self.sorts
             if not sortheaders and not callable(sorts):
                 sortheaders = sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
+            if isinstance(sortheaders, dict):
+                if header in sortheaders:
+                    return sortheaders[header]
+            else:
+                if header in sortheaders:
+                    return "%07i" % sortheaders.index(header)
         return header
 
 LegendList = Union[Dict[str, str], Sequence[str]]
