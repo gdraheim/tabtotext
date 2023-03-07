@@ -30,13 +30,14 @@ except ImportError as e:
 
 try:
     from tabtoxlsx import saveToXLSX, readFromXLSX  # type: ignore
+    from tabtotext import RowSortList, ColSortList, LegendList
     skipXLSX = False
 except Exception as e:
     logg.warning("skipping tabtoxlsx: %s", e)
     skipXLSX = True
-    def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-                   legend: Union[Dict[str, str], Sequence[str]] = [],  #
-                   reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
+    def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [], formats: Dict[str, str] = {},  #
+                   legend: LegendList = [],  #
+                   reorder: ColSortList = []) -> None:
         pass
     def readFromXLSX(filename: str) -> JSONList:
         return []
