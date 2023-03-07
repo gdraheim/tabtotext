@@ -305,29 +305,29 @@ class NumFormatJSONItem(BaseFormatJSONItem):
         self.floatfmt = FLOATFMT
     def __call__(self, col: str, val: JSONItem) -> str:
         if col in self.formats:
-            fmt = self.formats[col]
-            if "{:" in fmt:
-                q = fmt.rindex("}")
-                if q > 0 and fmt[q - 1] in "hHqQM$":
-                    val = Frac4(val)  # type: ignore[assignment,arg-type]
-                try:
-                    return fmt.format(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", fmt, e)
-            # only a few percent-formatting variants are supported
-            if isinstance(val, float):
-                m = re.search(r"%\d(?:[.]\d)f", fmt)
-                if m:
+            for fmt in self.formats[col].split("|"):
+                if "{:" in fmt:
+                    q = fmt.rindex("}")
+                    if q > 0 and fmt[q - 1] in "hHqQM$":
+                        val4 = Frac4(val)  # type: ignore[assignment,arg-type]
                     try:
-                        return fmt % val
+                        return fmt.format(val4)
                     except Exception as e:
-                        logg.debug("format <%s> does not apply: %e", fmt, e)
-            if "%s" in fmt:
-                try:
-                    return fmt % self.item(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", fmt, e)
-            logg.debug("unknown format '%s' for col '%s'", fmt, col)
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
+                # only a few percent-formatting variants are supported
+                if isinstance(val, float):
+                    m = re.search(r"%\d(?:[.]\d)f", fmt)
+                    if m:
+                        try:
+                            return fmt % val
+                        except Exception as e:
+                            logg.debug("format <%s> does not apply: %e", fmt, e)
+                if "%s" in fmt:
+                    try:
+                        return fmt % self.item(val)
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
+            logg.debug("bad format '%s' in col '%s'", self.formats[col], col)
         if isinstance(val, float):
             return self.floatfmt % val
         return self.item(val)
