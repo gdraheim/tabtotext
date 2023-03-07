@@ -138,6 +138,9 @@ class FormatJSONItem:
         return ""
     def right(self, col: str) -> bool:
         return False
+
+FormatsDict = Union[FormatJSONItem, Dict[str, str]]
+
 class BaseFormatJSONItem(FormatJSONItem):
     def __init__(self, formats: Dict[str, str], **kwargs: Any) -> None:
         self.formats = formats
@@ -231,6 +234,70 @@ def tabWithDateOnly() -> None:
     global DATEFMT
     DATEFMT = "%Y-%m-%d"
 
+# ================================= sorting
+
+RowSortList = Union[Sequence[str], Callable[[JSONDict], str]]
+
+class RowSortCallable:
+    """ The column names in the sorts-list are used here for one of their 
+        functions as sorting the rows of the table by returning a sort-string
+        from the record. You can override that with a callable but then it
+        can not be used anymore with its double function to also move the
+        sort-columns to the left of the table. See 'reorder' below."""
+    def __init__(self, sorts: RowSortList, datedelim: str = '-') -> None:
+        """ only a few tabto-functions have a local datedelim to pass"""
+        self.sorts = sorts
+        self.datedelim = datedelim
+    def __call__(self, item: JSONDict) -> str:
+        """ makes the class to be of type Callable[[JSONDict], str] """
+        sorts = self.sorts
+        if callable(sorts):
+            return sorts(item)
+        else:
+            sortvalue = ""
+            for sort in sorts:
+                if sort in item:
+                    value = item[sort]
+                    if value is None:
+                        sortvalue += "\n?"
+                    elif value is False:
+                        sortvalue += "\n"
+                    elif value is True:
+                        sortvalue += "\n!"
+                    elif isinstance(value, int):
+                        sortvalue += "\n%020i" % value
+                    else:
+                        sortvalue += "\n" + strJSONItem(value, self.datedelim)
+                else:
+                    sortvalue += "\n?"
+            return sortvalue
+
+ColSortList = Union[Sequence[str], Callable[[str], str]]
+
+class ColSortCallable:
+    """ The column names in the sorts-list always had a double function: sorting
+        the rows, and the sorting columns are reordered to the left of the table.
+        The latter can be overridden by specifying a reorder-list of colum names,
+        plus that one can be a function that returns the reordering key. """
+    def __init__(self, sorts: RowSortList, reorder: ColSortList = []) -> None:
+        self.sorts = sorts
+        self.reorder = reorder
+    def __call__(self, header: str) -> str:
+        """ makes the class to be of type Callable[[str], str] """
+        reorder = self.reorder
+        if callable(reorder):
+            return reorder(header)
+        else:
+            sortheaders = reorder
+            sorts = self.sorts
+            if not sortheaders and not callable(sorts):
+                sortheaders = sorts
+            if header in sortheaders:
+                return "%07i" % sortheaders.index(header)
+        return header
+
+LegendList = Union[Dict[str, str], Sequence[str]]
+
 # ================================= #### GFM
 class NumFormatJSONItem(BaseFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}, tab: str = '|'):
@@ -277,8 +344,8 @@ class FormatGFM(NumFormatJSONItem):
             rep = '|'
         return NumFormatJSONItem.__call__(self, col, val).replace(self.tab, rep)
 
-def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              *, noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
+def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: FormatsDict = {},  #
+              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
               ) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -289,36 +356,16 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
     else:
         results = cast(JSONList, result)
     return tabToGFM(results, sorts, formats, noheaders=noheaders, legend=legend, tab=tab)
-def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-             *, noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = "|",  #
-             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+def tabToGFM(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+             *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
+             reorder: ColSortList = []) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
     else:
         format = FormatGFM(formats, tab=tab)
-    def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
-        return header
-    def sortrow(item: JSONDict) -> str:
-        sortvalue = ""
-        for sort in sorts:
-            if sort in item:
-                value = item[sort]
-                if value is None:
-                    sortvalue += "\n~"
-                elif isinstance(value, int):
-                    sortvalue += "\n%020i" % value
-                else:
-                    sortvalue += "\n" + strJSONItem(value)
-            else:
-                sortvalue += "\n~"
-        return sortvalue
+    sortkey = ColSortCallable(sorts, reorder)
+    sortrow = RowSortCallable(sorts)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -350,13 +397,10 @@ def tabToGFM(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJ
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, _None_String)
                 for name in sorted(cols.keys(), key=sortkey)]
         lines.append((" ".join(line)).rstrip())
-    return "\n".join(lines) + "\n" + legendToGFM(legend, sorts)
+    return "\n".join(lines) + "\n" + legendToGFM(legend, sorts, reorder)
 
-def legendToGFM(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
-    def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
-        return header
+def legendToGFM(legend: LegendList, sorts: RowSortList = [], reorder: ColSortList = []) -> str:
+    sortkey = ColSortCallable(sorts, reorder)
     if isinstance(legend, dict):
         lines = []
         for key in sorted(legend.keys(), key=sortkey):
@@ -438,8 +482,8 @@ class FormatHTML(NumFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}):
         NumFormatJSONItem.__init__(self, formats)
 
-def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               *, legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {}) -> str:
+def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+               *, legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -449,36 +493,16 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToHTML(results, sorts, formats, legend=legend, combine=combine)
-def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-              *, legend: Union[Dict[str, str], Sequence[str]] = [], combine: Dict[str, str] = {},  # [target]->[attach]
-              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+def tabToHTML(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+              *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
+              reorder: ColSortList = []) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
     else:
         format = FormatHTML(formats)
-    def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
-        return header
-    def sortrow(item: JSONDict) -> str:
-        sortvalue = ""
-        for sort in sorts:
-            if sort in item:
-                value = item[sort]
-                if value is None:
-                    sortvalue += "\n~"
-                elif isinstance(value, int):
-                    sortvalue += "\n%020i" % value
-                else:
-                    sortvalue += "\n" + strJSONItem(value)
-            else:
-                sortvalue += "\n~"
-        return sortvalue
+    sortkey = ColSortCallable(sorts, reorder)
+    sortrow = RowSortCallable(sorts)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -519,13 +543,10 @@ def tabToHTML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
             else:
                 cells += [rightTD(name, "<td>{}</td>".format(escape(values[name])))]
         lines.append("<tr>" + "".join(cells) + "</tr>")
-    return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts)
+    return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts, reorder)
 
-def legendToHTML(legend: Union[Dict[str, str], Sequence[str]], sorts: Sequence[str] = []) -> str:
-    def sortkey(header: str) -> str:
-        if header in sorts:
-            return "%07i" % sorts.index(header)
-        return header
+def legendToHTML(legend: LegendList, sorts: RowSortList = [], reorder: ColSortList = []) -> str:
+    sortkey = ColSortCallable(sorts, reorder)
     if isinstance(legend, dict):
         lines = []
         for key in sorted(legend.keys(), key=sortkey):
@@ -617,8 +638,8 @@ class FormatJSON(BaseFormatJSONItem):
             return '"%s"' % self.item(val)
         return json.dumps(val)
 
-def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+               *, datedelim: str = '-', legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -628,9 +649,9 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToJSON(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
-              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+def tabToJSON(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+              *, datedelim: str = '-', legend: LegendList = [],  #
+              reorder: ColSortList = []) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -638,28 +659,8 @@ def tabToJSON(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
         format = FormatJSON(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for JSON output")
-    def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
-        return header
-    def sortrow(item: JSONDict) -> str:
-        sortvalue = ""
-        for sort in sorts:
-            if sort in item:
-                value = item[sort]
-                if value is None:
-                    sortvalue += "\n~"
-                elif isinstance(value, int):
-                    sortvalue += "\n%020i" % value
-                else:
-                    sortvalue += "\n" + strJSONItem(value, datedelim)
-            else:
-                sortvalue += "\n~"
-        return sortvalue
+    sortkey = ColSortCallable(sorts, reorder)
+    sortrow = RowSortCallable(sorts, datedelim)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -715,8 +716,8 @@ class FormatYAML(FormatJSON):
             return '%s' % self.item(val)
         return FormatJSON.__call__(self, col, val)
 
-def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+               *, datedelim: str = '-', legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -726,9 +727,9 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToYAML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
-              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+def tabToYAML(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+              *, datedelim: str = '-', legend: LegendList = [],  #
+              reorder: ColSortList = []) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -736,28 +737,8 @@ def tabToYAML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
         format = FormatYAML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for YAML output")
-    def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
-        return header
-    def sortrow(item: JSONDict) -> str:
-        sortvalue = ""
-        for sort in sorts:
-            if sort in item:
-                value = item[sort]
-                if value is None:
-                    sortvalue += "\n~"
-                elif isinstance(value, int):
-                    sortvalue += "\n%020i" % value
-                else:
-                    sortvalue += "\n" + strJSONItem(value, datedelim)
-            else:
-                sortvalue += "\n~"
-        return sortvalue
+    sortkey = ColSortCallable(sorts, reorder)
+    sortrow = RowSortCallable(sorts, datedelim)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -846,8 +827,8 @@ class FormatTOML(FormatJSON):
             return '%s' % self.item(val)
         return FormatJSON.__call__(self, col, val)
 
-def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-               *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+               *, datedelim: str = '-', legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -857,9 +838,9 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Seq
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToTOML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
-              reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+def tabToTOML(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+              *, datedelim: str = '-', legend: LegendList = [],  #
+              reorder: ColSortList = []) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -867,28 +848,8 @@ def tabToTOML(result: JSONList, sorts: Sequence[str] = [], formats: Union[Format
         format = FormatTOML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for TOML output")
-    def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
-        return header
-    def sortrow(item: JSONDict) -> str:
-        sortvalue = ""
-        for sort in sorts:
-            if sort in item:
-                value = item[sort]
-                if value is None:
-                    sortvalue += "\n~"
-                elif isinstance(value, int):
-                    sortvalue += "\n%020i" % value
-                else:
-                    sortvalue += "\n" + strJSONItem(value, datedelim)
-            else:
-                sortvalue += "\n~"
-        return sortvalue
+    sortkey = ColSortCallable(sorts, reorder)
+    sortrow = RowSortCallable(sorts, datedelim)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -992,9 +953,9 @@ class xFormatCSV(NumFormatJSONItem):
             return self.floatfmt % val
         return self.item(val)
 
-def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
+def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
               *, datedelim: str = '-', noheaders: bool = False,  #
-              legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+              legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1004,10 +965,9 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToCSV(results, sorts, formats, datedelim=datedelim, noheaders=noheaders, legend=legend)
-def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {},  #
-             #
-             *, datedelim: str = '-', noheaders: bool = False, legend: Union[Dict[str, str], Sequence[str]] = [], tab: str = ";",
-             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+def tabToCSV(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+             *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [], tab: str = ";",
+             reorder: ColSortList = []) -> str:
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -1015,28 +975,8 @@ def tabToCSV(result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[
         format = FormatCSV(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for CSV output")
-    def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
-        return header
-    def sortrow(item: JSONDict) -> str:
-        sortvalue = ""
-        for sort in sorts:
-            if sort in item:
-                value = item[sort]
-                if value is None:
-                    sortvalue += "\n~"
-                elif isinstance(value, int):
-                    sortvalue += "\n%020i" % value
-                else:
-                    sortvalue += "\n" + strJSONItem(value, datedelim)
-            else:
-                sortvalue += "\n~"
-        return sortvalue
+    sortkey = ColSortCallable(sorts, reorder)
+    sortrow = RowSortCallable(sorts, datedelim)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
@@ -1086,8 +1026,8 @@ class DictParserCSV(DictParser):
                     newrow[key] = self.convert.toJSONItem(val)
             yield newrow
 
-def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: Dict[str, str] = {},  #
-              *, datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = []) -> str:
+def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+              *, datedelim: str = '-', legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1097,9 +1037,9 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToFMT(fmt: str, result: JSONList, sorts: Sequence[str] = ["email"], formats: Union[FormatJSONItem, Dict[str, str]] = {}, *,  #
-             datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  #
-             reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
+             datedelim: str = '-', legend: LegendList = [],  #
+             reorder: ColSortList = []) -> str:
     if fmt.lower() in ["md", "markdown"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
     if fmt.lower() in ["html"]:
@@ -1303,11 +1243,11 @@ def tabToCustomTab(data: JSONList, onlycols: Dict[str, str] = {}) -> JSONList:
     return newdata
 
 def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
-               sorts: Sequence[str] = ["email"],  # ...
-               formats: Union[FormatJSONItem, Dict[str, str]] = {},  # ...
+               sorts: RowSortList = [],  # ...
+               formats: FormatsDict = {},  # ...
                onlycols: Union[Sequence[str], Dict[str, str]] = {},  # ...
-               datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  # ...
-               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+               datedelim: str = '-', legend: LegendList = [],  # ...
+               reorder: ColSortList = []) -> str:
     data = tabToTab(result, onlycols)
     FMT = fmt or detectfileformat(OUTPUT) or "md"
     if OUTPUT in ["", "-", "CON"]:
@@ -1326,17 +1266,17 @@ def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
     return ""
 
 def tabToPrintWith(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
-                   sorts: Union[str, Sequence[str]] = NIX,  # ...
-                   formats: Union[str, FormatJSONItem, Dict[str, str]] = NIX,  # ...
+                   sorts: Union[str, RowSortList] = NIX,  # ...
+                   formats: Union[str, FormatsDict] = NIX,  # ...
                    *, selects: str = NIX,  # ...
-                   datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  # ...
-                   reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
-    sorts2: Sequence[str] = []
+                   datedelim: str = '-', legend: LegendList = [],  # ...
+                   reorder: ColSortList = []) -> str:
+    sorts2: RowSortList = []
     if isinstance(sorts, str):
         sorts2 = tab_sorts_from(sorts)
     else:
         sorts2 = sorts
-    formats2: Union[FormatJSONItem, Dict[str, str]] = {}
+    formats2: FormatsDict = {}
     if isinstance(formats, FormatJSONItem):
         formats2 = formats
     elif isinstance(formats, str):
@@ -1356,10 +1296,10 @@ def tabToPrintWith(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
     return tabToPrint(result, output, fmt, formats=formats2, sorts=sorts2, reorder=reorder, onlycols=onlycols, datedelim=datedelim, legend=legend)
 
 def tabFileToPrintWith(filename: str, fileformat: str, output: str = NIX, fmt: str = NIX,  # ...
-                       selects: str = NIX, sorts: Union[str, Sequence[str]] = NIX,  # ...
-                       formats: Union[str, FormatJSONItem, Dict[str, str]] = NIX,  # ...
-                       datedelim: str = '-', legend: Union[Dict[str, str], Sequence[str]] = [],  # ...
-                       reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> str:
+                       selects: str = NIX, sorts: Union[str, RowSortList] = NIX,  # ...
+                       formats: Union[str, FormatsDict] = NIX,  # ...
+                       datedelim: str = '-', legend: LegendList = [],  # ...
+                       reorder: ColSortList = []) -> str:
     fileformat = fileformat or detectfileformat(filename) or detectcontentformat(filename) or "md"
     if not fileformat:
         logg.error("could not detect format of '%s'", filename)

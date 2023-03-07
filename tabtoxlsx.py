@@ -11,6 +11,7 @@ __version__ = "1.6.2101"
 import logging
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable
 from tabtotext import JSONList, JSONDict, tabToGFM, strNone, strJSONItem
+from tabtotext import ColSortList, RowSortList, LegendList, FormatsDict, RowSortCallable, ColSortCallable
 
 from openpyxl import Workbook, load_workbook  # type: ignore
 from openpyxl.worksheet.worksheet import Worksheet  # type: ignore
@@ -52,38 +53,18 @@ def set_width(ws: Worksheet, col: int, width: int) -> None:  # type: ignore
     ws.column_dimensions[get_column_letter(col + 1)].width = width
 
 
-def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: Sequence[str] = [],  #
-                formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = [],  #
-                reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
+def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: RowSortList = [],  #
+                formats: Dict[str, str] = {}, legend: LegendList = [],  #
+                reorder: ColSortList = []) -> None:
     if isinstance(result, Dict):
         result = [result]
     saveToXLSX(filename, result, sorts, formats, legend, reorder)
 
-def saveToXLSX(filename: str, result: JSONList, sorts: Sequence[str] = [],  #
-               formats: Dict[str, str] = {}, legend: Union[Dict[str, str], Sequence[str]] = [],  #
-               reorder: Union[None, Sequence[str], Callable[[str], str]] = None) -> None:
-    def sortkey(header: str) -> str:
-        if callable(reorder):
-            return reorder(header)
-        else:
-            sortheaders = reorder or sorts
-            if header in sortheaders:
-                return "%07i" % sortheaders.index(header)
-        return header
-    def sortrow(item: JSONDict) -> str:
-        sortvalue = ""
-        for sort in sorts:
-            if sort in item:
-                value = item[sort]
-                if value is None:
-                    sortvalue += "\n~"
-                elif isinstance(value, int):
-                    sortvalue += "\n%020i" % value
-                else:
-                    sortvalue += "\n" + strJSONItem(value)
-            else:
-                sortvalue += "\n~"
-        return sortvalue
+def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [],  #
+               formats: Dict[str, str] = {}, legend: LegendList = [],  #
+               reorder: ColSortList = []) -> None:
+    sortkey = ColSortCallable(sorts, reorder)
+    sortrow = RowSortCallable(sorts)
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
