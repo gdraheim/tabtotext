@@ -325,15 +325,23 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                 m = re.search(r"%\d(?:[.]\d)f", fmt)
                 if m:
                     try:
-                        return fmt % val
+                        return fmt.format(val4)
                     except Exception as e:
-                        logg.debug("format <%s> does not apply: %e", fmt, e)
-            if "%s" in fmt:
-                try:
-                    return fmt % self.item(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", fmt, e)
-            logg.debug("unknown format '%s' for col '%s'", fmt, col)
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
+                # only a few percent-formatting variants are supported
+                if isinstance(val, float):
+                    m = re.search(r"%\d(?:[.]\d)f", fmt)
+                    if m:
+                        try:
+                            return fmt % val
+                        except Exception as e:
+                            logg.debug("format <%s> does not apply: %e", fmt, e)
+                if "%s" in fmt:
+                    try:
+                        return fmt % self.item(val)
+                    except Exception as e:
+                        logg.debug("format <%s> does not apply: %s", fmt, e)
+            logg.debug("bad format '%s' in col '%s'", self.formats[col], col)
         if isinstance(val, float):
             return self.floatfmt % val
         return self.item(val)
