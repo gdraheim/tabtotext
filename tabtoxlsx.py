@@ -6,7 +6,7 @@ It is sister program for tabtotext implenting excel input and output.
 """
 
 __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.2101"
+__version__ = "1.6.2102"
 
 import logging
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable
