@@ -1046,6 +1046,7 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
 def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
              datedelim: str = '-', legend: LegendList = [],  #
              reorder: ColSortList = []) -> str:
+    fmt = fmt or ""
     if fmt.lower() in ["md", "markdown"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
     if fmt.lower() in ["html"]:
