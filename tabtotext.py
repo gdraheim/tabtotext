@@ -336,11 +336,11 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                             return fmt % val
                         except Exception as e:
                             logg.debug("format <%s> does not apply: %e", fmt, e)
-                if "%s" in fmt:
-                    try:
-                        return fmt % self.item(val)
-                    except Exception as e:
-                        logg.debug("format <%s> does not apply: %s", fmt, e)
+            if "%s" in fmt:
+                try:
+                    return fmt % self.item(val)
+                except Exception as e:
+                    logg.debug("format <%s> does not apply: %s", fmt, e)
             logg.debug("bad format '%s' in col '%s'", self.formats[col], col)
         if isinstance(val, float):
             return self.floatfmt % val
