@@ -28,9 +28,9 @@ except ImportError as e:
     def X(line: str) -> str:
         return line
 
+from tabtotext import RowSortList, ColSortList, LegendList
 try:
     from tabtoxlsx import saveToXLSX, readFromXLSX  # type: ignore
-    from tabtotext import RowSortList, ColSortList, LegendList
     skipXLSX = False
 except ImportError as e:
     logg.warning("skipping tabtoxlsx: %s", e)
