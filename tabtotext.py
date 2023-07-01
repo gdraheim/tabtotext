@@ -1328,7 +1328,7 @@ if __name__ == "__main__":
     DONE = (logging.WARNING + logging.ERROR) // 2
     logging.addLevelName(DONE, "DONE")
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [help|data|check|valid|update|compare|summarize|summary|topics]", epilog=__doc__)
+    cmdline = OptionParser("%prog [help|files...]", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
@@ -1347,6 +1347,19 @@ if __name__ == "__main__":
         cmdline.print_help()
     else:
         for arg in args:
+            if arg in ["help"]:
+                cmdline.print_help()
+                print("\nCommands:")
+                previous = ""
+                for line in open(__file__):
+                    if previous.strip().replace("elif arg", "if arg").startswith("if arg in"):
+                        if "#" in line:
+                            print(previous.strip().split(" arg in")[1], line.strip().split("#")[1])
+                        else:
+                            print(previous.strip().split(" arg in")[1], line.strip())
+                previous = line
+                raise SystemExit()
+            # ....
             done = tabFileToPrintWith(arg, opt.inputformat, opt.output, opt.format, selects=",".join(opt.labels),  # ..
                                       sorts=",".join(opt.sort_by), formats=",".join(opt.formats))
             if done:
