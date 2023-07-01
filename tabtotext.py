@@ -57,8 +57,11 @@ JSONDictDict = Dict[str, JSONDict]
 
 class DataItem:
     """ Use this as the base class for dataclass types """
-    def __index__(self, name: str) -> JSONItem:
+    def __getitem__(self, name: str) -> JSONItem:
         return cast(JSONItem, getattr(self, name))
+    def replace(self, **values:  str) -> JSONDict:
+        return _dataitem_replace(self, values)  # type: ignore[arg-type]
+
 DataList = List[DataItem]
 
 def _is_dataitem(obj: Any) -> bool:
@@ -74,6 +77,15 @@ def _dataitem_asdict(obj: DataItem, dict_factory: Type[Dict[str, Any]] = dict) -
     annotations: Dict[str, str] = obj.__class__.__dict__.get('__annotations__', {})
     for name in annotations:
         result[name] = cast(JSONItem, getattr(obj, name))
+    return result
+def _dataitem_replace(obj: DataItem, values: JSONDict, dict_factory: Type[Dict[str, Any]] = dict) -> JSONDict:
+    result: JSONDict = dict_factory()
+    annotations: Dict[str, str] = obj.__class__.__dict__.get('__annotations__', {})
+    for name in annotations:
+        if name in values:
+            result[name] = values[name]
+        else:
+            result[name] = cast(JSONItem, getattr(obj, name))
     return result
 
 # helper functions
@@ -325,23 +337,15 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                 m = re.search(r"%\d(?:[.]\d)f", fmt)
                 if m:
                     try:
-                        return fmt.format(val4)
+                        return fmt % val
                     except Exception as e:
-                        logg.debug("format <%s> does not apply: %s", fmt, e)
-                # only a few percent-formatting variants are supported
-                if isinstance(val, float):
-                    m = re.search(r"%\d(?:[.]\d)f", fmt)
-                    if m:
-                        try:
-                            return fmt % val
-                        except Exception as e:
-                            logg.debug("format <%s> does not apply: %e", fmt, e)
+                        logg.debug("format <%s> does not apply: %e", fmt, e)
             if "%s" in fmt:
                 try:
                     return fmt % self.item(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", fmt, e)
-            logg.debug("bad format '%s' in col '%s'", self.formats[col], col)
+            logg.debug("unknown format '%s' for col '%s'", fmt, col)
         if isinstance(val, float):
             return self.floatfmt % val
         return self.item(val)
@@ -600,6 +604,9 @@ class DictParserHTML(DictParser):
                 self.th: List[str] = []
                 self.td: List[JSONItem] = []
                 self.val: Optional[str] = None
+                self.th2: List[str] = []
+                self.td2: List[JSONItem] = []
+                self.val2: Optional[str] = None
             def tr(self) -> Iterator[JSONDict]:
                 found = self.found.copy()
                 self.found = []
@@ -611,10 +618,15 @@ class DictParserHTML(DictParser):
                     self.val = data
                 if tagged.startswith("<td"):
                     self.val = data
+                if tagged.startswith("<br"):
+                    self.val2 = data
             def handle_endtag(self, tag: str) -> None:
                 if tag == "th":
                     self.th += [self.val or str(len(self.th) + 1)]
                     self.val = None
+                    if self.val2:
+                        self.th2 += [self.val2 or str(len(self.th2) + 1)]
+                        self.val2 = None
                 if tag == "td":
                     tagged = self.get_starttag_text() or ""
                     val = self.val
@@ -622,11 +634,18 @@ class DictParserHTML(DictParser):
                         val = val[1:]
                     self.td += [val]
                     self.val = None
+                    if self.val2:
+                        self.td2 += [self.val2 or str(len(self.td2) + 1)]
+                        self.val2 = None
                 if tag == "tr" and self.td:
                     made = zip(self.th, self.td)
                     item = dict(made)
+                    if self.th2:
+                        made2 = zip(self.th2, self.td2)
+                        item.update(dict(made2))
                     self.found += [item]
                     self.td = []
+                    self.td2 = []
         parser = MyHTMLParser(convert_charrefs=self.convert_charrefs)
         for row in rows:
             parser.feed(row)
@@ -1054,39 +1073,38 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
 def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
              datedelim: str = '-', legend: LegendList = [],  #
              reorder: ColSortList = []) -> str:
-    if fmt:
-        f = fmt.lower()
-        if f in ["md", "markdown"]:
-            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
-        if f in ["html"]:
-            return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder)
-        if f in ["json"]:
-            return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-        if f in ["yaml"]:
-            return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-        if f in ["toml"]:
-            return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-        if f in ["wide"]:
-            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
-        if f in ["text"]:
-            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='', noheaders=True)
-        if f in ["tabs"]:
-            return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
-        if f in ["tab"]:
-            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
-        if f in ["dat"]:
-            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
-        if f in ["ifs", "data"]:
-            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
-        if f in ["csv"]:
-            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
-        if f in ["list"]:
-            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
-        if f in ["xlsx"]:
-            return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
-        if f in ["htm"]:
-            # including the legend
-            return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+    fmt = fmt or ""
+    if fmt.lower() in ["md", "markdown"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
+    if fmt.lower() in ["html"]:
+        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder)
+    if fmt.lower() in ["json"]:
+        return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+    if fmt.lower() in ["yaml"]:
+        return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+    if fmt.lower() in ["toml"]:
+        return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+    if fmt.lower() in ["wide"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
+    if fmt.lower() in ["text"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='', noheaders=True)
+    if fmt.lower() in ["tabs"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
+    if fmt.lower() in ["tab"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
+    if fmt.lower() in ["dat"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
+    if fmt.lower() in ["ifs", "data"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
+    if fmt.lower() in ["csv"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
+    if fmt.lower() in ["list"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
+    if fmt.lower() in ["xlsx"]:
+        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
+    if fmt.lower() in ["htm"]:
+        # including the legend
+        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
     return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
 
 def editprog() -> str:
@@ -1328,7 +1346,7 @@ if __name__ == "__main__":
     DONE = (logging.WARNING + logging.ERROR) // 2
     logging.addLevelName(DONE, "DONE")
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [help|files...]", epilog=__doc__, version=__version__)
+    cmdline = OptionParser("%prog [help|filename.json|filename.html]...", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0,
                        help="more verbose logging")
