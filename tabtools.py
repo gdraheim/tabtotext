@@ -313,8 +313,23 @@ def encodeFrac(line: str) -> str:
     return line
 
 if __name__ == "__main__":
-    import sys
+    import sys, os
+    from optparse import OptionParser
+    cmdline = OptionParser("%prog [--longoptions] text...", version=__version__, epilog=__doc__, add_help_option=False)
+    cmdline.add_option("--help", action="count", default=0, help="show this help message and exit")
+    cmdline.add_option("--verbose", action="count", default=0, help="more verbose logging")
+    opts = []
+    for arg in sys.argv[1:]:
+        if arg.startswith("--"):
+            opts.append(arg)
+    opt, args = cmdline.parse_args(opts)
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
+    if opt.help: 
+        cmdline.print_help()
+        raise SystemExit()
     out = []
     for arg in sys.argv[1:]:
+        if arg.startswith("--"):
+            continue
         out.append(encodeFrac(arg))
     print(" ".join(out))
