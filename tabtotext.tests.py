@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.2101"
+__version__ = "1.6.2102"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable
 from tabtotext import JSONList, JSONItem, DataList, DataItem
@@ -28,11 +28,11 @@ except ImportError as e:
     def X(line: str) -> str:
         return line
 
-from tabtotext import RowSortList, ColSortList, LegendList
 try:
     from tabtoxlsx import saveToXLSX, readFromXLSX  # type: ignore
+    from tabtotext import RowSortList, ColSortList, LegendList
     skipXLSX = False
-except ImportError as e:
+except Exception as e:
     logg.warning("skipping tabtoxlsx: %s", e)
     skipXLSX = True
     def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [], formats: Dict[str, str] = {},  #
@@ -2320,11 +2320,14 @@ if __name__ == "__main__":
     # unittest.main()
     from optparse import OptionParser
     cmdline = OptionParser("%s test...")
-    cmdline.add_option("-v", "--verbose", action="count", default=0)
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cmdline.add_option("--failfast", action="store_true", default=False,
+                       help="Stop the test run on the first error or failure. [%default]")
     cmdline.add_option("--xmlresults", metavar="FILE", default=None,
                        help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     if not args:
         args = ["test_*"]
     suite = unittest.TestSuite()
@@ -2353,6 +2356,6 @@ if __name__ == "__main__":
         logg.info(" XML reports written to %s", opt.xmlresults)
     else:
         Runner = unittest.TextTestRunner
-        result = Runner(verbosity=opt.verbose).run(suite)
+        result = Runner(verbosity=opt.verbose, failfast=opt.failfast).run(suite)
     if not result.wasSuccessful():
         sys.exit(1)

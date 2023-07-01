@@ -1348,8 +1348,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     cmdline = OptionParser("%prog [help|filename.json|filename.html]...", epilog=__doc__, version=__version__)
     cmdline.formatter.max_help_position = 30
-    cmdline.add_option("-v", "--verbose", action="count", default=0,
-                       help="more verbose logging")
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-S", "--sort-by", "--sort-columns", metavar="LIST", action="append",  # ..
                        help="reorder columns for sorting (a,x)", default=[])
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
@@ -1360,7 +1360,7 @@ if __name__ == "__main__":
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default="")
     cmdline.add_option("-O", "--output", metavar="CON", default="-", help="redirect output to filename")
     opt, args = cmdline.parse_args()
-    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose))
+    logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     if not args:
         cmdline.print_help()
     else:
