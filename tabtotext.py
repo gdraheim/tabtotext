@@ -23,7 +23,7 @@ logg = logging.getLogger("TABTOTEXT")
 
 try:
     from tabtools import Frac4, fracfloat, float_with_frac, float_with_hours
-except ImportError as e:
+except ImportError as e:  # pragma: no cover
     logg.warning("can not import tabtools, fallback to Frac4 with {.2f}, %s", e)
     class Frac4:  # type: ignore[no-redef]
         def __init__(self, value: float) -> None:
@@ -99,6 +99,7 @@ def setNoRight(value: bool) -> None:
     NORIGHT = value
 
 def str77(value: JSONItem, maxlength: int = 77) -> str:
+    assert maxlength > 10
     if value is None:
         return _None_String
     val = str(value)

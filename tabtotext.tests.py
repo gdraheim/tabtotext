@@ -125,6 +125,64 @@ class TabToTextTest(unittest.TestCase):
             shutil.rmtree(newdir)
         return newdir
     #
+    def test_1018(self) -> None:
+        item = "abcdefghijklmnopqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        text = tabtotext.str18(item)
+        logg.debug("%s => %s", item, text)
+        cond = 'abcdefgh...TUVWXYZ'
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 18)
+        item = "abcdefghijklmnopqr"
+        text = tabtotext.str18(item)
+        logg.debug("%s => %s", item, text)
+        cond = item
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 18)
+        item = "abcdefghijklmnopqrs"
+        text = tabtotext.str18(item)
+        logg.debug("%s => %s", item, text)
+        cond = "abcdefgh...mnopqrs"
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 18)
+    def test_1027(self) -> None:
+        item = "abcdefghijklmnopqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        text = tabtotext.str27(item)
+        logg.debug("%s => %s", item, text)
+        cond = 'abcdefghijklmnopq...TUVWXYZ'
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 27)
+        item = "abcdefghijklmnopqruvwxyzABC"
+        text = tabtotext.str27(item)
+        logg.debug("%s => %s", item, text)
+        cond = item
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 27)
+        item = "abcdefghijklmnopqruvwxyzABCD"
+        text = tabtotext.str27(item)
+        logg.debug("%s => %s", item, text)
+        cond = "abcdefghijklmnopq...xyzABCD"
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 27)
+    def test_1040(self) -> None:
+        item = "abcdefghijklmnopqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        text = tabtotext.str40(item)
+        logg.debug("%s => %s", item, text)
+        cond = 'abcdefghijklmnopqrstuvwxyz1234...TUVWXYZ'
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 40)
+        item = "abcdefghijklmnopqruvwxyz123456789ABCDEFG"
+        text = tabtotext.str40(item)
+        logg.debug("%s => %s", item, text)
+        cond = item
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 40)
+        item = "abcdefghijklmnopqruvwxyz123456789ABCDEFGH"
+        text = tabtotext.str40(item)
+        logg.debug("%s => %s", item, text)
+        cond = "abcdefghijklmnopqruvwxyz123456...BCDEFGH"
+        self.assertEqual(cond, text)
+        self.assertEqual(len(text), 40)
+    #
     def test_5003(self) -> None:
         text = tabtotext.tabToCSV(test003)
         logg.debug("%s => %s", test003, text)
