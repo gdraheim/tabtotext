@@ -9,17 +9,15 @@ __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 
 __version__ = "1.6.2266"
 
 import logging
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable
-from tabtotext import JSONList, JSONDict, tabToGFM, strNone, strJSONItem
-from tabtotext import ColSortList, RowSortList, LegendList, FormatsDict, RowSortCallable, ColSortCallable
+from typing import Union, Dict, List, Any
+from tabtotext import JSONList, JSONDict, strNone
+from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable
 
 from openpyxl import Workbook, load_workbook  # type: ignore
 from openpyxl.worksheet.worksheet import Worksheet  # type: ignore
 from openpyxl.styles.cell_style import CellStyle as Style  # type: ignore
 from openpyxl.styles.alignment import Alignment  # type: ignore
-from openpyxl.styles.numbers import NumberFormat, builtin_format_id  # type: ignore
 from openpyxl.utils import get_column_letter  # type: ignore
-
 from tabtools import currency_default
 
 import datetime

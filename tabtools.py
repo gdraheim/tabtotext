@@ -9,8 +9,7 @@ arge numbers an be presented nicely and parsed back.
 __copyright__ = "(C) 2022-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.5.2266"
 
-from typing import Any, cast, Union
-import string
+from typing import Union, List
 import re
 import logging
 
@@ -326,7 +325,7 @@ if __name__ == "__main__":
     if opt.help: 
         cmdline.print_help()
         raise SystemExit()
-    out = []
+    out: List[str] = []
     for arg in args:
         out.append(encodeFrac(arg))
     print(" ".join(out))

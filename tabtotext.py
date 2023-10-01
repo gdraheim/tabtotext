@@ -7,7 +7,7 @@ The various output formats can be read back.
 __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.2266"
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Collection, Sized, Type, cast, Iterable, Iterator
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Iterable, Iterator
 from collections import OrderedDict
 from html import escape
 from datetime import date as Date
@@ -388,7 +388,6 @@ def tabToGFM(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {
     cols: Dict[str, int] = {}
     for item in result:
         for name, value in item.items():
-            paren = 0
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
@@ -1061,7 +1060,7 @@ class DictParserCSV(DictParser):
             yield newrow
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
-              *, datedelim: str = '-', legend: LegendList = []) -> str:
+              *, datedelim: str = '-', legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1070,20 +1069,20 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend)
+    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend, combine=combine)
 def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
              datedelim: str = '-', legend: LegendList = [],  #
-             reorder: ColSortList = []) -> str:
+             reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     fmt = fmt or ""
     if fmt.lower() in ["md", "markdown"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder)
-    if fmt.lower() in ["html"]:
-        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder)
-    if fmt.lower() in ["json"]:
+        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+    if fmt.lower() in ["html", "htm"]:
+        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend, combine=combine)
+    if fmt.lower() in ["json", "jsn"]:
         return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if fmt.lower() in ["yaml"]:
+    if fmt.lower() in ["yaml", "yml"]:
         return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
-    if fmt.lower() in ["toml"]:
+    if fmt.lower() in ["toml", "tml"]:
         return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
     if fmt.lower() in ["wide"]:
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
@@ -1097,16 +1096,24 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Forma
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
     if fmt.lower() in ["ifs", "data"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
-    if fmt.lower() in ["csv"]:
+    if fmt.lower() in ["csv", "scsv"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
     if fmt.lower() in ["list"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
-    if fmt.lower() in ["xlsx"]:
+    if fmt.lower() in ["xlsx", "xls"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
-    if fmt.lower() in ["htm"]:
-        # including the legend
-        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
     return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+
+def saveToFMT(filename: str, fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
+             datedelim: str = '-', legend: LegendList = [],  #
+             reorder: ColSortList = []) -> str:
+    fmt = fmt or detectfileformat(filename) or ""
+    dat = tabToFMT(fmt, result, sorts, formats, datedelim=datedelim, legend=legend, reorder=reorder)
+    if filename:
+        with open(filename, "w") as f:
+           f.write(dat)
+        return filename
+    return NIX
 
 def editprog() -> str:
     return os.environ.get("EDIT", "mcedit")
@@ -1171,39 +1178,36 @@ def detectcontentformat(filename: str) -> Optional[str]:
                 logg.debug("skip %c [%i]", ord(c), ord(c))
     return None
 
-def readFromFile(filename: str, fmt: str = NIX) -> JSONList:
+def readFromFile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> JSONList:
     if not fmt:
-        detected = detectfileformat(filename) or detectcontentformat(filename)
-        if detected:
-            fmt = detected
-        else:
-            logg.error("could not detect format of '%s'", filename)
+        fmt = detectfileformat(filename) or detectcontentformat(filename) or defaultfileformat
+        if not fmt:
+            logg.warning("could not detect format of '%s'", filename)
             return []
-    if fmt:
-        return readFromFMT(fmt, filename)
-    logg.warning(" readFromFile - unrecognized input format %s: %s", fmt, filename)
-    return []
-def readFromFMT(fmt: str, filename: str) -> JSONList:
+    # assert fmt
+    return readFromFMT(fmt, filename, defaultfileformat)
+def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
     if not fmt:
-        return []
+        fmt = detectfileformat(filename) or NIX
+        if not fmt:
+            fmt = defaultformat
+        if not fmt:
+            return []
     if fmt.lower() in ["md", "markdown"]:
         return readFromGFM(filename)
-    if fmt.lower() in ["html"]:
+    if fmt.lower() in ["html", "htm"]:
         return readFromHTML(filename)
-    if fmt.lower() in ["json"]:
+    if fmt.lower() in ["json", "jsn"]:
         return readFromJSON(filename)
-    if fmt.lower() in ["yaml"]:
+    if fmt.lower() in ["yaml", "yml"]:
         return readFromYAML(filename)
     if fmt.lower() in ["toml"]:
         return readFromTOML(filename)
     if fmt.lower() in ["tab"]:
         return readFromCSV(filename, tab='\t')
-    if fmt.lower() in ["csv"]:
+    if fmt.lower() in ["csv", "scsv"]:
         return readFromCSV(filename, tab=';')
-    # including the legend
-    if fmt.lower() in ["htm"]:
-        return readFromHTML(filename)
-    if fmt.lower() in ["xlsx"]:
+    if fmt.lower() in ["xlsx", "xls"]:
         import tabtoxlsx
         return tabtoxlsx.readFromXLSX(filename)
     logg.debug(" readFromFMT  - unrecognized input format %s: %s", fmt, filename)
