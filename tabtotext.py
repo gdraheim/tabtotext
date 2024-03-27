@@ -59,7 +59,7 @@ class DataItem:
     """ Use this as the base class for dataclass types """
     def __getitem__(self, name: str) -> JSONItem:
         return cast(JSONItem, getattr(self, name))
-    def replace(self, **values:  str) -> JSONDict:
+    def replace(self, **values: str) -> JSONDict:
         return _dataitem_replace(self, values)  # type: ignore[arg-type]
 
 DataList = List[DataItem]
@@ -1105,13 +1105,13 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Forma
     return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
 
 def saveToFMT(filename: str, fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
-             datedelim: str = '-', legend: LegendList = [],  #
-             reorder: ColSortList = []) -> str:
+              datedelim: str = '-', legend: LegendList = [],  #
+              reorder: ColSortList = []) -> str:
     fmt = fmt or detectfileformat(filename) or ""
     dat = tabToFMT(fmt, result, sorts, formats, datedelim=datedelim, legend=legend, reorder=reorder)
     if filename:
         with open(filename, "w") as f:
-           f.write(dat)
+            f.write(dat)
         return filename
     return NIX
 
