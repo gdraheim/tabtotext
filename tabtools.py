@@ -312,7 +312,8 @@ def encodeFrac(line: str) -> str:
     return line
 
 if __name__ == "__main__":
-    import sys, os
+    import sys
+    import os
     from optparse import OptionParser
     cmdline = OptionParser("%prog [--longoptions] text...", add_help_option=False, epilog=__doc__, version=__version__)
     cmdline.add_option("--help", action="count", default=0, help="show this help message and exit")
@@ -322,7 +323,7 @@ if __name__ == "__main__":
     args = [arg for arg in sys.argv[1:] if arg not in opts]
     opt, noargs = cmdline.parse_args(opts)
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
-    if opt.help: 
+    if opt.help:
         cmdline.print_help()
         raise SystemExit()
     out: List[str] = []
