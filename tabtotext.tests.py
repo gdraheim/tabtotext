@@ -2073,29 +2073,29 @@ class TabToTextTest(unittest.TestCase):
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
     def test_7503(self) -> None:
-        text = tabtotext.tabToHTML(test003, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test003, combine={'a': 'b'})
         logg.debug("%s => %s", test003, text)
         cond = ['<table>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7504(self) -> None:
-        text = tabtotext.tabToHTML(test004, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test004, combine={'a': 'b'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr></tr>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7505(self) -> None:
-        text = tabtotext.tabToHTML(test005, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test005, combine={'a': 'b'})
         logg.debug("%s => %s", test005, text)
         cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7506(self) -> None:
-        text = tabtotext.tabToHTML(test006, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test006, combine={'a': 'b'})
         logg.debug("%s => %s", test006, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
                 '<tr><td>x<br />y</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7507(self) -> None:
-        text = tabtotext.tabToHTML(test007, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test007, combine={'a': 'b'})
         logg.debug("%s => %s", test007, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
@@ -2103,7 +2103,7 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td><br />v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7508(self) -> None:
-        text = tabtotext.tabToHTML(test008, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test008, combine={'a': 'b'})
         logg.debug("%s => %s", test008, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
@@ -2111,7 +2111,7 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td><br />v</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7509(self) -> None:
-        text = tabtotext.tabToHTML(test009, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test009, combine={'a': 'b'})
         logg.debug("%s => %s", test009, text)
         cond = ['<table>',  # -
                 '<tr><th>b</th></tr>',  # -
@@ -2120,29 +2120,29 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
 
     def test_7523(self) -> None:
-        text = tabtotext.tabToHTML(test003, combine={'a':'b'})
+        text = tabtotext.tabToHTML(test003, combine={'a': 'b'})
         logg.debug("%s => %s", test003, text)
         cond = ['<table>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7524(self) -> None:
-        text = tabtotext.tabToHTML(test004, combine={'b':'a'})
+        text = tabtotext.tabToHTML(test004, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr></tr>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7525(self) -> None:
-        text = tabtotext.tabToHTML(test005, combine={'b':'a'})
+        text = tabtotext.tabToHTML(test005, combine={'b': 'a'})
         logg.debug("%s => %s", test005, text)
         cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7526(self) -> None:
-        text = tabtotext.tabToHTML(test006, combine={'b':'a'})
+        text = tabtotext.tabToHTML(test006, combine={'b': 'a'})
         logg.debug("%s => %s", test006, text)
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
                 '<tr><td>y<br />x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7527(self) -> None:
-        text = tabtotext.tabToHTML(test007, combine={'b':'a'})
+        text = tabtotext.tabToHTML(test007, combine={'b': 'a'})
         logg.debug("%s => %s", test007, text)
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
@@ -2150,7 +2150,7 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>v<br /></td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7528(self) -> None:
-        text = tabtotext.tabToHTML(test008, combine={'b':'a'})
+        text = tabtotext.tabToHTML(test008, combine={'b': 'a'})
         logg.debug("%s => %s", test008, text)
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
@@ -2158,7 +2158,7 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>v<br /></td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7529(self) -> None:
-        text = tabtotext.tabToHTML(test009, combine={'b':'a'})
+        text = tabtotext.tabToHTML(test009, combine={'b': 'a'})
         logg.debug("%s => %s", test009, text)
         cond = ['<table>',  # -
                 '<tr><th>b</th></tr>',  # -
@@ -2168,7 +2168,7 @@ class TabToTextTest(unittest.TestCase):
 
     def test_7544(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
-        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>b<br />a</th></tr>',
                 '<tr><td>1<br />y</td></tr>', '<tr><td>2<br />x</td></tr>', '</table>']
@@ -2179,7 +2179,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, data)
     def test_7545(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>b<br />a</th><th>c</th></tr>', '<tr><td>1<br />y</td><td></td></tr>',
                 '<tr><td>2<br />x</td><td></td></tr>', '<tr><td><br /></td><td>h</td></tr>', '</table>']
@@ -2191,7 +2191,7 @@ class TabToTextTest(unittest.TestCase):
 
     def test_7554(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
-        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'a':'b'})
+        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'a': 'b'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>a<br />b</th></tr>',
                 '<tr><td>y<br />1</td></tr>', '<tr><td>x<br />2</td></tr>', '</table>']
@@ -2202,7 +2202,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, data)
     def test_7555(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'a':'b'})
+        text = tabtotext.tabToHTML(itemlist, sorts=['b', 'a'], combine={'a': 'b'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>a<br />b</th><th>c</th></tr>', '<tr><td>y<br />1</td><td></td></tr>',
                 '<tr><td>x<br />2</td><td></td></tr>', '<tr><td><br /></td><td>h</td></tr>', '</table>']
@@ -2216,7 +2216,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": ' {:}'}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'a':'b'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'a': 'b'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">a<br />b</th></tr>',  # ,
                 '<tr><td style="text-align: right"> y<br />1</td></tr>',  # ,
@@ -2230,7 +2230,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": ' %s'}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>b<br />a</th></tr>',  # ,
                 '<tr><td>1<br /> y</td></tr>',  # ,
@@ -2244,7 +2244,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": '"%s"', "b": "%.2f"}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>b<br />a</th></tr>',  # ,
                 '<tr><td>1<br />&quot;y&quot;</td></tr>',  # ,
@@ -2258,7 +2258,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": '"{:}"', "b": "{:.2f}"}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">b<br />a</th></tr>',  # ,
                 '<tr><td style="text-align: right">1.00<br />&quot;y&quot;</td></tr>',  # ,
@@ -2272,7 +2272,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:}"', "b": "%.2f"}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>b<br />a</th></tr>',  # ,
                 '<tr><td>1.00<br />&quot;y&quot;</td></tr>',  # ,
@@ -2286,7 +2286,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:}"', "b": "{:.2f}"}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">b<br />a</th></tr>',  # ,
                 '<tr><td style="text-align: right">1.00<br />&quot;y&quot;</td></tr>',  # ,
@@ -2300,7 +2300,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:}"', "b": "{:$}"}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">b<br />a</th></tr>',  # ,
                 X('<tr><td style="text-align: right">1.00$<br />&quot;y&quot;</td></tr>'),  # ,
@@ -2314,7 +2314,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:5s}"', "b": "{:3f}"}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b':'a'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">b<br />a</th></tr>',  # ,
                 '<tr><td style="text-align: right">1.000000<br />&quot;y    &quot;</td></tr>',  # ,
@@ -2328,7 +2328,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:>5s}"', "b": "{:>3f}"}
         headers = ['b', 'a']
-        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'a':'b'})
+        text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'a': 'b'})
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">a<br />b</th></tr>',  # ,
                 '<tr><td style="text-align: right">&quot;    y&quot;<br />1.000000</td></tr>',  # ,
