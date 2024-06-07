@@ -3029,6 +3029,166 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
+    def test_8103(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test003) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test003, text)
+        cond = ['', '']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, [])
+    def test_8104(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test004) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['', '', '']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, [])
+    def test_8105(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test005) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test005, text)
+        cond = ['| a', '| -----', '| x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test005)
+    def test_8106(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test006) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test006, text)
+        cond = ['| a     | b', '| ----- | -----', '| x     | y']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test006)
+    def test_8107(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test007) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test007, text)
+        cond = ['| a     | b', '| ----- | -----', '| x     | y', '| ~     | v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test007Q)
+    def test_8108(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test008) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test008, text)
+        cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test008Q)
+    def test_8109(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test009) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test009, text)
+        cond = ['| b', '| -----', '| ~', '| v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test009Q)
+    def test_8111(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test011) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test011, text)
+        cond = ['| b', '| -----', '| ~']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test011)
+    def test_8112(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test012) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test012, text)
+        cond = ['| b', '| -----', '| (no)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test012)
+    def test_8113(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test013) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test013, text)
+        cond = ['| b', '| -----', '| (yes)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test013)
+    def test_8114(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test014) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test014, text)
+        cond = ['| b', '| -----', '|']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test014)
+    def test_8115(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test015) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test015, text)
+        cond = ['| b', '| -----', '| 5678']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test015Q)
+    def test_8116(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test016) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test016, text)
+        cond = ['| b', '| -----', '| 123']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test016)
+    def test_8117(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test017) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test017, text)
+        cond = ['| b', '| ------', '| 123.40']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test017)
+    def test_8118(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test018) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test018, text)
+        cond = ['| b', '| ----------', '| 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test018)
+    def test_8119(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test019) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b', '| ----------', '| 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test019Q)
     def test_8403(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test003, defaultformat="html")
