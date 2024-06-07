@@ -1395,7 +1395,7 @@ class TabHeaders:
 
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], headers: List[str] = [], formats: List[str] = [], legend: List[str] = [], defaultformat: str = "") -> str:
-    if isinstance(output, TextIO):
+    if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
         done = "stream"
