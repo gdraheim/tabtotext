@@ -1217,6 +1217,24 @@ def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
 # ----------------------------------------------------------------------
 # backporting the select-style outer interface
 
+def _pos_num(pre: str, num: int) -> str:
+    if num <= 9:
+        return "%s%01i" % (pre, num)
+    elif num <= 999:
+        return "%s%s%03i" % (pre, pre, num)
+    elif num <= 999999:
+        return "%s%s%s%06i" % (pre, pre, pre, num)
+    else:
+        return "%s%s%s%s%09i" % (pre, pre, pre, pre, num)
+def _neg_num(pre: str, num: int) -> str:
+    if num <= 9:
+        return "%s%01i" % (pre, 9-num)
+    elif num <= 999:
+        return "%s%s%03i" % (pre, ".", 999-num)
+    elif num <= 999999:
+        return "%s%s%06i" % (pre, "..", 999999-num)
+    else:
+        return "%s%s%09i" % (pre, "...", 999999999-num)
 class TabColSpec(NamedTuple):
     fields: List[str]
     formats: str
@@ -1253,7 +1271,7 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
             renamed, reorder, sorting = "", renames, ""
             sorting = ""
         elif renames and renames[0] in "-~" and renames[1:].isdigit():
-            renamed, reorder = "", "~%i" % (9999 - int(renames[1:]))
+            renamed, reorder = "", _neg_num("~", int(renames[1:]))
             sorting = ""
         else:
             renamed, reorder, sorting = renames, "", ""
@@ -1273,7 +1291,7 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
             elif reorder.isdigit():
                 sorting = ""
             elif reorder and reorder[0] in "-~" and reorder[1:].isdigit():
-                reorder = "~%i" % (9999 - int(reorder[1:]))
+                reorder = _neg_num("~", int(reorder[1:]))
             else:
                 sorting = ""
         elif len(parts) == 2:
@@ -1289,7 +1307,7 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
                 renamed, reorder, sorting = "", renames, ""
             elif renames and renames[0] in "-~" and renames[1:].isdigit():
                 sorting = ""
-                renamed, reorder = "", "~%i" % (9999 - int(renames[1:]))
+                renamed, reorder = "", _neg_num("~", int(renames[1:]))
             else:
                 renamed, reorder, sorting = renames, "", ""
         else: # unreachable
@@ -1334,9 +1352,13 @@ class TabHeaders:
     def __init__(self, headers: List[str], **kwargs: str) -> None:
         self.fieldspec = {}
         self.cols = []
+        self.set(headers)
+    def set(self, headers: List[str]) -> None:
         cols: Dict[str, TabColSpec] = {}
         for header in headers:
             colspec = parse_colspec(header)
+            if not colspec.reorder:
+                colspec = colspec._replace(reorder = _pos_num(":", len(cols)+1))
             cols[colspec.order()] = colspec
             for field in colspec.fields:
                 if field not in self.fieldspec:
