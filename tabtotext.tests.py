@@ -3029,6 +3029,166 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
+    def test_8503(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test003, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test003, text)
+        cond = ['[', '', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test003)
+    def test_8504(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test004, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test004)
+    def test_8505(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test005, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test005, text)
+        cond = ['[', ' {"a": "x"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test005)
+    def test_8506(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test006, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test006, text)
+        cond = ['[', ' {"a": "x", "b": "y"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test006)
+    def test_8507(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test007, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test007, text)
+        cond = ['[', ' {"a": "x", "b": "y"},', ' {"b": "v"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test007)
+    def test_8508(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test008, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test008, text)
+        cond = ['[', ' {"a": "x"},', ' {"b": "v"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test008)
+    def test_8509(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test009, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test009, text)
+        cond = ['[', ' {},', ' {"b": "v"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test009)
+    def test_8511(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test011, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test011, text)
+        cond = ['[', ' {"b": null}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test011)
+    def test_8512(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test012, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test012, text)
+        cond = ['[', ' {"b": false}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test012)
+    def test_8513(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test013, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test013, text)
+        cond = ['[', ' {"b": true}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test013)
+    def test_8514(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test014, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test014, text)
+        cond = ['[', ' {"b": ""}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test014)
+    def test_8515(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test015, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test015, text)
+        cond = ['[', ' {"b": "5678"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test015)
+    def test_8516(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test016, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test016, text)
+        cond = ['[', ' {"b": 123}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test016)
+    def test_8517(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test017, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test017, text)
+        cond = ['[', ' {"b": 123.40}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test017)
+    def test_8518(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test018, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test018, text)
+        cond = ['[', ' {"b": "2021-12-31"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test018)
+    def test_8519(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test019, defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['[', ' {"b": "2021-12-31"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test018)  # test019
 
     def test_8690(self) -> None:
         item = Item2("x", 2)
