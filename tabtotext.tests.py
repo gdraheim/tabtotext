@@ -3021,7 +3021,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test018)
     def test_8019(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test019, defaultformat="html")
+        res = tabtotext.print_tabtotext(out, test019, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
