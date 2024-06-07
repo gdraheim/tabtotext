@@ -7,14 +7,14 @@ The various output formats can be read back.
 __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.2266"
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Iterable, Iterator
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Iterable, Iterator, TextIO, NamedTuple
 from collections import OrderedDict
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timezone
 from abc import abstractmethod
-import os
+import os, sys
 import re
 import logging
 import json
@@ -43,6 +43,7 @@ FLOATFMT = "%4.2f"
 NORIGHT = False
 MINWIDTH = 5
 NIX = ""
+COL_SEP = "|"
 
 JSONData = Union[str, int, float, bool, Date, Time, None]
 
@@ -1212,6 +1213,207 @@ def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
         return tabtoxlsx.readFromXLSX(filename)
     logg.debug(" readFromFMT  - unrecognized input format %s: %s", fmt, filename)
     return []
+
+# ----------------------------------------------------------------------
+# backporting the select-style outer interface
+
+class TabColSpec(NamedTuple):
+    fields: List[str]
+    formats: str
+    renamed: str
+    reorder: str
+    sorting: str
+    def title(self, sep: Optional[str] = None) -> str:
+        sep = sep or COL_SEP # "|"
+        return self.renamed or sep.join(self.fields)
+    def order(self) -> str:
+        return self.reorder or self.title()
+    def sorts(self) -> str:
+        return self.sorting or self.order()
+def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
+    """ parse a select-style header - combining field names and formatting """
+    sep = sep or COL_SEP # "|"
+    if ":" not in header and "@" not in header and "{" not in header:
+        return TabColSpec(header.split(sep), header, "", "", "")
+    if ":@" in header:
+        formats, renames = header.rsplit(":@", 1)
+        if "@" in renames:
+            renamed, reorder = renames.rsplit("@", 1)
+            if "@" in renamed:
+                sorting = reorder
+                renamed, reorder = renamed.rsplit("@", 1)
+            elif ":" in reorder:
+                reorder, sorting = reorder.rsplit(":", 1)
+            else:
+                sorting = ""
+        elif ":" in renames:
+            renamed, sorting = renames.rsplit(":", 1)
+            reorder = ""
+        elif renames.isdigit():
+            renamed, reorder, sorting = "", renames, ""
+            sorting = ""
+        elif renames and renames[0] in "-~" and renames[1:].isdigit():
+            renamed, reorder = "", "~%i" % (9999 - int(renames[1:]))
+            sorting = ""
+        else:
+            renamed, reorder, sorting = renames, "", ""
+    elif "@" in header:
+        parts = header.split("@")
+        if len(parts) >= 4:
+            sorting = parts[-1]
+            reorder = parts[-2]
+            renamed = parts[-3]
+            formats = "@".join(parts[:-4])
+        elif len(parts) == 3:
+            reorder = parts[-1]
+            renamed = parts[-2]
+            formats = parts[-3]
+            if ":" in reorder:
+                reorder, sorting = reorder.rsplit(":", 1)
+            elif reorder.isdigit():
+                sorting = ""
+            elif reorder and reorder[0] in "-~" and reorder[1:].isdigit():
+                reorder = "~%i" % (9999 - int(reorder[1:]))
+            else:
+                sorting = ""
+        elif len(parts) == 2:
+            sorting = ""
+            formats, renames = parts
+            if ":" in renames:
+                renamed, sorting = renames.rsplit(":", 1)
+                if renamed.isdigit():
+                    reorder, renamed = renamed, ""
+                else:
+                    reorder = ""
+            elif renames.isdigit():
+                renamed, reorder, sorting = "", renames, ""
+            elif renames and renames[0] in "-~" and renames[1:].isdigit():
+                sorting = ""
+                renamed, reorder = "", "~%i" % (9999 - int(renames[1:]))
+            else:
+                renamed, reorder, sorting = renames, "", ""
+        else: # unreachable
+            formats = header
+            renamed, reorder, sorting = "", "", ""
+
+    else:
+        formats = header
+        reorder, renamed, sorting = "", "", ""
+    fields: List[str] = []
+    if "{" in formats and "}" in formats:
+        # we need to parse the formatter to get the field names
+        parts = formats.split("{")
+        renames = ""
+        for part in parts:
+            if "}" in part:
+                spec, rest = part.split("}", 1)
+                if ":" in spec:
+                    field, _ = spec.split(":", 1)
+                else:
+                    field = spec
+                fields += [ field ]
+                if not renames:
+                    renames = field
+                else:
+                    renames += sep + field
+        if not renamed:
+            renamed = renames
+    else:
+        for part in formats.split(sep):
+            if ":" in part:
+                field, _ = part.split(":", 1)
+            else:
+                field = part
+            fields += [ field ]   
+    return TabColSpec(fields, formats, renamed, reorder, sorting) 
+
+class TabHeaders:
+    cols : List[TabColSpec]
+    fieldspec: Dict[str, List[TabColSpec]]
+    sep = COL_SEP
+    def __init__(self, headers: List[str], **kwargs: str) -> None:
+        self.fieldspec = {}
+        self.cols = []
+        cols: Dict[str, TabColSpec] = {}
+        for header in headers:
+            colspec = parse_colspec(header)
+            cols[colspec.order()] = colspec
+            for field in colspec.fields:
+                if field not in self.fieldspec:
+                    self.fieldspec[field] = []
+                self.fieldspec[field].append(colspec)
+        self.cols = [cols[order] for order in sorted(cols.keys())]
+    def sorts(self) -> List[str]:
+        """ convert to old-style tabToFMT(sorts=) """
+        spec: List[str] = []
+        for col in self.cols:
+            field = col.fields[0]
+            spec.append(field)
+        return spec
+    def formats(self) -> Dict[str, str]:
+        """ convert to old-style TabToFMT(headers=) """
+        spec: Dict[str, str] = {}
+        sep = self.sep
+        for col in self.cols:
+            formatlist = col.formats.split(sep)
+            for formats in formatlist:
+                if ":" in formats:
+                    name, form = formats.split(":", 1)
+                    if "{" in name:
+                        name0, name1 = name.rsplit("{", 1)
+                        spec[name1] = name0+"{:"+form
+                    else:
+                        spec[name] = form
+        return spec
+    def combine(self) -> Dict[str, str]:
+        """ convert to old-style TabToFMT(combine=) """
+        spec: Dict[str, str] = {}
+        sep = self.sep
+        for col in self.cols:
+            formatlist = col.formats.split(sep)
+            if len(formatlist) > 1:
+                formats = formatlist[0]
+                if ":" in formats:
+                    name, form = formats.split(":", 1)
+                    if "{" in name:
+                        _, target = name.rsplit("{", 1)
+                    else:
+                        target = name
+                else:
+                    target = formats
+                for formats in formatlist[1:]:
+                    if ":" in formats:
+                        name, form = formats.split(":", 1)
+                        if "{" in name:
+                            _, combine = name.rsplit("{", 1)
+                        else:
+                            combine = name
+                    else:
+                        combine = name
+                    spec[combine] = target
+        return spec
+
+
+def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], headers: List[str] = [], formats: List[str] = [], legend: List[str] = [], defaultformat: str = "") -> str:
+    if isinstance(output, TextIO):
+        out = output
+        fmt = defaultformat
+        done = "stream"
+    elif "." in output:
+        fmt = detectfileformat(output) or defaultformat
+        out = open(output, "wt", encoding="utf-8")
+        done = output
+    else:
+        fmt = output
+        out = sys.stdout
+        done = output
+    form = TabHeaders(headers)
+    results: List[str] = []
+    lines = tabToFMT(fmt, list(data), form.sorts(), form.formats(), combine=form.combine(), legend=legend)
+    for line in lines:
+        results.append(line)
+        out.write(line)
+    return ": %s results %s" % (len(results), done)
 
 # ----------------------------------------------------------------------
 def tab_formats_from(columns: str) -> Dict[str, str]:
