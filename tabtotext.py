@@ -1370,8 +1370,9 @@ class TabHeaders:
         spec: Dict[str, str] = {}
         for col in self.cols:
             field = col.fields[0]
-            spec[field] = col.sorts()
-        return spec
+            # spec[field] = col.sorts()
+            spec["%s %s" % (col.sorts(), field) ] = field
+        return [spec[sorts] for sorts in sorted(spec)]
     def order(self) -> Dict[str, str]:
         """ convert to old-style tabToFMT(sorts=) """
         spec: Dict[str, str] = {}
@@ -1437,8 +1438,16 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], header
         out = sys.stdout
         done = output
     form = TabHeaders(headers)
+    forms = form.formats()
+    sorts = form.sorts()
+    order = form.order()
+    combine = form.combine()
+    logg.info("forms = %s", sorts)
+    logg.info("sorts = %s", sorts)
+    logg.info("order = %s", order)
+    logg.info("combine = %s", combine)
     results: List[str] = []
-    lines = tabToFMT(fmt, list(data), form.sorts(), form.formats(), reorder=form.order(), combine=form.combine(), legend=legend)
+    lines = tabToFMT(fmt, list(data), sorts, forms, reorder=order, combine=combine, legend=legend)
     for line in lines:
         results.append(line)
         out.write(line)
