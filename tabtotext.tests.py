@@ -3,8 +3,8 @@
 __copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.2266"
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable
-from tabtotext import JSONList, JSONItem, DataList, DataItem
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable
+from tabtotext import JSONList, JSONDict, JSONItem, DataList, DataItem
 import tabtotext
 import unittest
 import datetime
@@ -49,6 +49,9 @@ def get_caller_name() -> str:
 def get_caller_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back.f_back  # type: ignore
     return frame.f_code.co_name  # type: ignore
+
+def rev(data: List[JSONDict]) -> JSONList:
+    return list(reversed(data))
 
 @dataclass
 class Item1(DataItem):
@@ -193,6 +196,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[0].title(), "a")
         self.assertEqual(hr.cols[1].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["a"])
+        self.assertEqual(hr.cols[1].fields, ["b"])
         self.assertEqual(hr.cols[1].fields, ["b"])
     def test_2001(self) -> None:
         hr = tabtotext.TabHeaders(["b", "a"])
@@ -3014,6 +3018,67 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test019Q)
+    data_for_7120: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
+    def test_7120(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7120, ["b", "a"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        del data[1]["a"]
+        self.assertEqual(data, self.data_for_7120)
+    data_for_7121: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
+    def test_7121(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7121, ["b", "a"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        del data[0]["a"]
+        self.assertEqual(rev(data), self.data_for_7121)
+    data_for_7122: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
+    def test_7122(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7122, ["b", "a@1"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        del data[0]["a"]
+        self.assertEqual(rev(data), self.data_for_7122)
+    data_for_7123: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
+    def test_7123(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7123, ["b", "a@1"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        del data[0]["a"]
+        self.assertEqual(rev(data), self.data_for_7123)
+    data_for_7124: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
+    def test_7124(self) -> None:
+        """ FIXME: sorting column is ignored here"""
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7124, ["b", "a@@1:1"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        del data[0]["a"]
+        self.assertEqual(rev(data), self.data_for_7124)
 
     def test_7403(self) -> None:
         text = tabtotext.tabToHTML(test003)
