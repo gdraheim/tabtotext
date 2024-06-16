@@ -955,6 +955,21 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].fields, ["a"])       
         self.assertEqual(hr.cols[2].fields, ["c", "d", "e"])
     def test_2220(self) -> None:
+        hr = tabtotext.TabHeaders(["b", "a@1:1"])
+        logg.info("%i cols", len(hr.cols))
+        for i, header in enumerate(hr.cols):
+            logg.info("%4i %s", i, hr.cols[i])
+        self.assertEqual(hr.cols[0].formats, "a")
+        self.assertEqual(hr.cols[1].formats, "b")
+        self.assertEqual(hr.cols[0].title(), "a")
+        self.assertEqual(hr.cols[1].title(), "b")
+        self.assertEqual(hr.cols[0].fields, ["a"])
+        self.assertEqual(hr.cols[1].fields, ["b"])
+        self.assertEqual(hr.cols[0].order(), "1")
+        self.assertEqual(hr.cols[1].order(), ":1")
+        self.assertEqual(hr.cols[0].sorts(), "1")
+        self.assertEqual(hr.cols[1].sorts(), ":1")
+    def test_2221(self) -> None:
         hr = tabtotext.TabHeaders(["b", "a@3:1"])
         logg.info("%i cols", len(hr.cols))
         for i, header in enumerate(hr.cols):
@@ -1044,6 +1059,8 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].order(), "3")
         self.assertEqual(hr.cols[0].sorts(), "3") 
         self.assertEqual(hr.cols[1].sorts(), "1")
+        logg.info("sorts = %s", hr.sorts())
+        logg.info("order = %s", hr.order())
     #
     def test_5003(self) -> None:
         text = tabtotext.tabToCSV(test003)
@@ -3068,9 +3085,8 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(rev(data), self.data_for_7123)
     data_for_7124: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_7124(self) -> None:
-        """ FIXME: sorting column is ignored here"""
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7124, ["b", "a@@1:1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7124, ["b", "a@@1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
@@ -3079,6 +3095,19 @@ class TabToTextTest(unittest.TestCase):
         data = tabtotext.loadGFM(text)
         del data[0]["a"]
         self.assertEqual(rev(data), self.data_for_7124)
+    data_for_7125: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
+    def test_7125(self) -> None:
+        """ FIXME: sorting column is ignored here"""
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7125, ["b", "a@@1:1"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond =  ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        del data[0]["a"]
+        self.assertEqual(rev(data), self.data_for_7125)
 
     def test_7403(self) -> None:
         text = tabtotext.tabToHTML(test003)
