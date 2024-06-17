@@ -3053,7 +3053,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7120, ["b", "a"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3065,7 +3065,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7121, ["b", "a"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3077,7 +3077,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7122, ["b", "a@1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3089,7 +3089,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7123, ["b", "a@1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3101,7 +3101,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7124, ["b", "a@@1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3113,7 +3113,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7125, ["b", "a@@1:1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond =  ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3125,7 +3125,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7126, ["b@@3:3", "a@@1:1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond =  ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3137,7 +3137,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7131, ["b@@3:1", "a@@1:3"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond =  ['| a     | b', '| ----- | -----', '| y     | 2', '| x     | 3']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3148,7 +3148,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7132, ["b@@1:3", "a@@3:1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| b     | a', '| ----- | -----', '| 3     | x', '| 2     | y']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3159,7 +3159,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7151, ["b:02i@@3:1", "a:s@@1:3"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3170,7 +3170,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7152, ["b:02i@@1:3", "a:s@@3:1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3181,7 +3181,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7153, ["b@@3:1", "a@@1:3"], ["b:02i", "a:s"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3192,7 +3192,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7154, ["b@@1:3", "a@@3:1"], ["b:02i", "a:s"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3203,7 +3203,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7155, ["b@@3:1", "a@@1:3"], ["a:s", "b:02i", ]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3214,7 +3214,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7156, ["b@@1:3", "a@@3:1"], ["a:s", "b:02i"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3225,7 +3225,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7157, ["b@@3:1", "a@@1:3"], ["a:s@@4:1", "b:02i", ]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
@@ -3236,7 +3236,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, self.data_for_7158, ["b@@1:3", "a@@3:1"], ["a:s@@1:4", "b:02i"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text)
+        logg.debug("%s => %s", res, text)
         cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
