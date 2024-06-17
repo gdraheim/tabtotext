@@ -1383,7 +1383,7 @@ class TabHeaders(TabHeaderCols):
             field = col.fields[0]
             spec[field] = col.order()
         return spec
-    def formats(self) -> Dict[str, str]:
+    def formats(self, defaults:TabHeaderCols) -> Dict[str, str]:
         """ convert to old-style TabToFMT(headers=) """
         spec: Dict[str, str] = {}
         sep = self.sep
@@ -1400,6 +1400,21 @@ class TabHeaders(TabHeaderCols):
                         form = form.replace("i", "n").replace("u", "n")
                         form = form.replace("r", "s").replace("a", "s")
                         spec[name] = "{:" + form + "}"
+        for col in defaults.cols:
+            formatlist = col.formats.split(sep)
+            for formats in formatlist:
+                if ":" in formats:
+                    name, form = formats.split(":", 1)
+                    if "{" in name:
+                        name0, name1 = name.rsplit("{", 1)
+                        if name1 not in spec:
+                           spec[name1] = name0+"{:"+form
+                    else:
+                        # modulo formatting has "d", "i", "u" for decimal numbers
+                        form = form.replace("i", "n").replace("u", "n")
+                        form = form.replace("r", "s").replace("a", "s")
+                        if name not in spec:
+                            spec[name] = "{:" + form + "}"
         return spec
     def combine(self) -> Dict[str, str]:
         """ convert to old-style TabToFMT(combine=) """
@@ -1453,9 +1468,10 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], header
         fmt = output
         out = sys.stdout
         done = output
+    defaults = TabHeaders(formats)
     form = TabHeaders(headers)
-    form.update(TabHeaders(formats))
-    forms = form.formats()
+    form.update(defaults)
+    forms = form.formats(defaults)
     sorts = form.sorts()
     order = form.order()
     combine = form.combine()
