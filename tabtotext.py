@@ -280,6 +280,8 @@ class RowSortCallable:
                         sortvalue += "\n!"
                     elif isinstance(value, int):
                         sortvalue += "\n%020i" % value
+                    elif isinstance(value, float):
+                        sortvalue += "\n%020.6f" % value
                     else:
                         sortvalue += "\n" + strJSONItem(value, self.datedelim)
                 else:
