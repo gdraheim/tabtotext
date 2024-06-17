@@ -3131,28 +3131,116 @@ class TabToTextTest(unittest.TestCase):
         data = tabtotext.loadGFM(text)
         del data[0]["a"]
         self.assertEqual(rev(data), self.data_for_7126)
-    data_for_7127: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
-    def test_7127(self) -> None:
+    data_for_7131: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7131(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7127, ["b@@3:1", "a@@1:3"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7131, ["b@@3:1", "a@@1:3"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
         cond =  ['| a     | b', '| ----- | -----', '| y     | 2', '| x     | 3']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
-        self.assertEqual(rev(data), self.data_for_7127)
-    data_for_7128: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
-    def test_7128(self) -> None:
+        self.assertEqual(rev(data), self.data_for_7131)
+    data_for_7132: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7132(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7128, ["b@@1:3", "a@@3:1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7132, ["b@@1:3", "a@@3:1"]) # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
         cond = ['| b     | a', '| ----- | -----', '| 3     | x', '| 2     | y']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
-        self.assertEqual(data, self.data_for_7128)
+        self.assertEqual(data, self.data_for_7132)
+    data_for_7151: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7151(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7151, ["b:02i@@3:1", "a:s@@1:3"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(rev(data), self.data_for_7151)
+    data_for_7152: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7152(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7152, ["b:02i@@1:3", "a:s@@3:1"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, self.data_for_7152)
+    data_for_7153: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7153(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7153, ["b@@3:1", "a@@1:3"], ["b:02i", "a:s"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(rev(data), self.data_for_7153)
+    data_for_7154: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7154(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7154, ["b@@1:3", "a@@3:1"], ["b:02i", "a:s"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, self.data_for_7154)
+    data_for_7155: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7155(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7155, ["b@@3:1", "a@@1:3"], ["a:s", "b:02i", ]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(rev(data), self.data_for_7155)
+    data_for_7156: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7156(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7156, ["b@@1:3", "a@@3:1"], ["a:s", "b:02i"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, self.data_for_7156)
+    data_for_7157: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7157(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7157, ["b@@3:1", "a@@1:3"], ["a:s@@4:1", "b:02i", ]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(rev(data), self.data_for_7157)
+    data_for_7158: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+    def test_7158(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, self.data_for_7158, ["b@@1:3", "a@@3:1"], ["a:s@@1:4", "b:02i"]) # defaultformat="markdown"
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, self.data_for_7158)
 
     def test_7403(self) -> None:
         text = tabtotext.tabToHTML(test003)

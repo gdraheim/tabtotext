@@ -1345,7 +1345,7 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
             fields += [ field ]   
     return TabColSpec(fields, formats, renamed, reorder, sorting) 
 
-class TabHeaders:
+class TabHeaderCols:
     cols : List[TabColSpec]
     fieldspec: Dict[str, List[TabColSpec]]
     sep = COL_SEP
@@ -1365,6 +1365,7 @@ class TabHeaders:
                     self.fieldspec[field] = []
                 self.fieldspec[field].append(colspec)
         self.cols = [cols[order] for order in sorted(cols.keys())]
+class TabHeaders(TabHeaderCols):
     def sorts(self) -> List[str]:
         """ convert to old-style tabToFMT(sorts=) """
         spec: Dict[str, str] = {}
@@ -1393,7 +1394,10 @@ class TabHeaders:
                         name0, name1 = name.rsplit("{", 1)
                         spec[name1] = name0+"{:"+form
                     else:
-                        spec[name] = form
+                        # modulo formatting has "d", "i", "u" for decimal numbers
+                        form = form.replace("i", "n").replace("u", "n")
+                        form = form.replace("r", "s").replace("a", "s")
+                        spec[name] = "{:" + form + "}"
         return spec
     def combine(self) -> Dict[str, str]:
         """ convert to old-style TabToFMT(combine=) """
@@ -1422,7 +1426,17 @@ class TabHeaders:
                         combine = name
                     spec[combine] = target
         return spec
-
+    def update(self, defaults: TabHeaderCols) -> None:
+        """ update formats but keep selection including sorts/orders """
+        for old, col in enumerate(self.cols):
+            for field in col.fields:
+                if field in defaults.fieldspec:
+                    fieldspec = defaults.fieldspec[field][0]
+                    if ":" in col.formats:
+                        pass
+                    elif ":" in fieldspec.formats:
+                        newcol = col._replace(formats = fieldspec.formats)
+                        self.cols[old] = newcol
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], headers: List[str] = [], formats: List[str] = [], legend: List[str] = [], defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
@@ -1438,6 +1452,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], header
         out = sys.stdout
         done = output
     form = TabHeaders(headers)
+    form.update(TabHeaders(formats))
     forms = form.formats()
     sorts = form.sorts()
     order = form.order()
