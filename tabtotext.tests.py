@@ -1234,7 +1234,7 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
         text = tabtotext.tabToCSV(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
         logg.debug("%s => %s", test004, text)
-        cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ]
+        cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ]  # column a is now first
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
@@ -1584,7 +1584,182 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
-
+    def test_5131(self) -> None:
+        """ legend is ignored for CSV """
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test011, defaultformat="csv", legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test011, text)
+        cond = ['b', '~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test011)
+    def test_5144(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@:1', 'a@:2'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1;y', '2;x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5145(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@:1', 'a@:2'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a;c', '1;y;~', '2;x;~', '~;~;h', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5146(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ] # column a is now first
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5171(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: {:}'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1; y', '2; x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5172(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: %s'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1; y', '2; x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5173(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:.2f', 'a:(%s)'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1.00;(y)', '2.00;(x)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5174(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:.2f', 'a:({:})'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1.00;(y)', '2.00;(x)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5175(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:.2f', 'a:({:})'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1.00;(y)', '2.00;(x)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5176(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        formats = {"a": '({:})', "b": "{:.3f}"}
+        headers = ['b', 'a']
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:.3f}', 'a:({:})'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1.000;(y)', '2.000;(x)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5177(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        formats = {"a": '({:5s})', "b": "{:3f}"}
+        headers = ['b', 'a']
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:3f}', 'a:({:5s})'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1.000000;(y    )', '2.000000;(x    )']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': '(y    )', 'b': 1.0}, {'a': '(x    )', 'b': 2.0}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5178(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        formats = {"a": '"{:5s}"', "b": "{:3f}"}
+        headers = ['b', 'a']
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:3f}', 'a:"{:5s}"'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1.000000;"""y    """', '2.000000;"""x    """']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5179(self) -> None:
+        out = StringIO()
+        itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
+        formats = {"a": '"{:>5s}"', "b": "{:>3f}"}
+        headers = ['b', 'a']
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:>3f}', 'a:"{:>5s}"'], defaultformat="csv")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1.000000;"""    y"""', '22.000000;"""    x"""']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
 
     def test_5200(self) -> None:
         try:
