@@ -1395,6 +1395,10 @@ class TabHeaders(TabHeaderCols):
                     if "{" in name:
                         name0, name1 = name.rsplit("{", 1)
                         spec[name1] = name0+"{:"+form
+                    elif "%s" in form:  # fixme: old-style
+                        spec[name] = form.replace("%s", "{:s}")
+                    elif "{:" in form:  # fixme: old-style
+                        spec[name] = form
                     else:
                         # modulo formatting has "d", "i", "u" for decimal numbers
                         form = form.replace("i", "n").replace("u", "n")
@@ -1409,6 +1413,10 @@ class TabHeaders(TabHeaderCols):
                         name0, name1 = name.rsplit("{", 1)
                         if name1 not in spec:
                            spec[name1] = name0+"{:"+form
+                    elif "%s" in form:  # fixme: old-style
+                        spec[name] = form.replace("%s", "{:s}")
+                    elif "{:" in form:  # fixme: old-style
+                        spec[name] = form
                     else:
                         # modulo formatting has "d", "i", "u" for decimal numbers
                         form = form.replace("i", "n").replace("u", "n")
