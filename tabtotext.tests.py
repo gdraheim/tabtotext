@@ -2787,6 +2787,69 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
         self.assertEqual(data, test018)  # test019
+    def test_5731(self) -> None:
+        """ legend is ignored for JSON output """
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test011, legend=["a result", "was found"], defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test011, text)
+        cond = ['[', ' {"b": null}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        self.assertEqual(data, test011)
+    def test_5744(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a'], defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5745(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a'], defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "x"},', ' {"c": "h"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5746(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['a@:2', 'b@:1'], defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_5747(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'], defaultformat="json")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadJSON(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
 
     def test_7003(self) -> None:
         text = tabtotext.tabToGFM(test003)
