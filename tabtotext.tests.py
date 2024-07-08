@@ -3467,6 +3467,97 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test019Q)
+    def test_7131(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test011, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test011, text)
+        cond = ['| b', '| -----', '| ~', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test011)
+    def test_7132(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test012, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test012, text)
+        cond = ['| b', '| -----', '| (no)', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test012)
+    def test_7133(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test013, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test013, text)
+        cond = ['| b', '| -----', '| (yes)', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test013)
+    def test_7134(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test014, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test014, text)
+        cond = ['| b', '| -----', '|', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test014)
+    def test_7135(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test015, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test015, text)
+        cond = ['| b', '| -----', '| 5678', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test015Q)
+    def test_7136(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test016, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test016, text)
+        cond = ['| b', '| -----', '| 123', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test016)
+    def test_7137(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test017, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test017, text)
+        cond = ['| b', '| ------', '| 123.40', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test017)
+    def test_7138(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test018, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test018, text)
+        cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test018)
+    def test_7139(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test019, legend=["a result", "was found"])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text)
+        cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, test019Q)
+
     data_for_7220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
     def test_7220(self) -> None:
         out = StringIO()
