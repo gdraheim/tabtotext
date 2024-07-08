@@ -1320,7 +1320,7 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
         formats = header
         reorder, renamed, sorting = "", "", ""
     fields: List[str] = []
-    if "{" in formats and "}" in formats:
+    if "{" in formats and "}" in formats and "{:" not in formats:
         # we need to parse the formatter to get the field names
         parts = formats.split("{")
         renames = ""
@@ -1478,6 +1478,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], header
         done = output
     defaults = TabHeaders(formats)
     form = TabHeaders(headers)
+    logg.info(" cols = %s", "|".join([str(col) for col in form.cols]))
     form.update(defaults)
     forms = form.formats(defaults)
     sorts = form.sorts()
