@@ -3557,6 +3557,165 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test019Q)
+    def test_7144(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['| b     | a', '| ----- | -----', '| 1     | y', '| 2     | x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7145(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@1', 'a@2'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['| b     | a     | c', '| ----- | ----- | -----',
+                '| 1     | y     | ~', '| 2     | x     | ~', '| ~     | ~     | h', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7146(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b     | c', '| ----- | ----- | -----',
+                '| y     | 1     | ~', '| x     | 2     | ~', '| ~     | ~     | h', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7171(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: {:}'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7172(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: %s'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7173(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:<.2n', 'a:"%s"'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['| b     | a', '| ----- | -----', '| 1     | "y"', '| 2     | "x"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7174(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:.2f}', 'a:"{:}"'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7175(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:<.2f}', 'a:"{:}"'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        # text = tabtotext.tabToGFM(itemlist, ['b', 'a'], formats)
+        logg.debug("%s => %s", test004, text)
+        cond = ['| b     | a', '| ----- | -----', '| 1.00  | "y"', '| 2.00  | "x"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7176(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:.2f}', 'a:"{:}"'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7177(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:$}', 'a:"{:}"'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['|     b | a', '| ----: | -----', X('| 1.00$ | "y"'), X('| 2.00$ | "x"')]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7178(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:3f}', 'a:"{:5s}"'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['|        b | a', '| -------: | -------', '| 1.000000 | "y    "', '| 2.000000 | "x    "']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7179(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:>3f}', 'a:"{:>5s}"'])
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['|         b |       a', '| --------: | ------:', '|  1.000000 | "    y"', '| 22.000000 | "    x"']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
 
     data_for_7220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
     def test_7220(self) -> None:
