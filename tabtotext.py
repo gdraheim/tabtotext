@@ -1375,9 +1375,9 @@ class TabHeaders(TabHeaderCols):
         """ convert to old-style tabToFMT(sorts=) """
         spec: Dict[str, str] = {}
         for col in self.cols:
-            field = col.fields[0]
-            # spec[field] = col.sorts()
-            spec["%s %s" % (col.sorts(), field) ] = field
+            for num, field in enumerate(col.fields):
+                # spec[field] = col.sorts()
+                spec["%s %03i %s" % (col.sorts(), num, field) ] = field
         return [spec[sorts] for sorts in sorted(spec)]
     def order(self) -> Dict[str, str]:
         """ convert to old-style tabToFMT(sorts=) """
@@ -1451,8 +1451,8 @@ class TabHeaders(TabHeaderCols):
                         else:
                             combine = name
                     else:
-                        combine = name
-                    spec[combine] = target
+                        combine = formats
+                    spec[target] = combine
         return spec
     def update(self, defaults: TabHeaderCols) -> None:
         """ update formats but keep selection including sorts/orders """
