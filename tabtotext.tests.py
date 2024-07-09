@@ -4900,6 +4900,141 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': 'h'}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
+    def test_7771(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: {:}'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th>b</th><th style="text-align: right">a</th></tr>',  # ,
+                '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  # ,
+                '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7772(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: %s'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th>b</th><th style="text-align: right">a</th></tr>',  # ,
+                '<tr><td>1</td><td style="text-align: right"> y</td></tr>',  # ,
+                '<tr><td>2</td><td style="text-align: right"> x</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7773(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:.2n', 'a:"%s"'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
+                '<tr><td>1</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td>2</td><td>&quot;x&quot;</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7774(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:.2f', 'a:"{:}"'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th>a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1.00</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7775(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:<.2f', 'a:"{:}"'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
+                '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7776(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:.2f}', 'a:"{:}"'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th>a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1.00</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7777(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:$}', 'a:"{:}"'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th>a</th></tr>',  # ,
+                X('<tr><td style="text-align: right">1.00$</td><td>&quot;y&quot;</td></tr>'),  # ,
+                X('<tr><td style="text-align: right">2.00$</td><td>&quot;x&quot;</td></tr>'), '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7778(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:3f}', 'a:"{:5s}"'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th>a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1.000000</td><td>&quot;y    &quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">2.000000</td><td>&quot;x    &quot;</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_7779(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b:{:>3f}', 'a:"{:>5s}"'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th style="text-align: right">a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1.000000</td><td style="text-align: right">&quot;    y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">22.000000</td><td style="text-align: right">&quot;    x&quot;</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
 
     def test_8690(self) -> None:
         item = Item2("x", 2)
