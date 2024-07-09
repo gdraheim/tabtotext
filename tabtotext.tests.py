@@ -4390,7 +4390,8 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test006, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
-                '<tr><td>x<br />y</td></tr>', '</table>']
+                '<tr><td>x<br />y</td></tr>', # -
+                '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7507(self) -> None:
         text = tabtotext.tabToHTML(test007, combine={'a': 'b'})
@@ -4398,7 +4399,8 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
                 '<tr><td>x<br />y</td></tr>',  # -
-                '<tr><td><br />v</td></tr>', '</table>']
+                '<tr><td><br />v</td></tr>',  # -
+                '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7508(self) -> None:
         text = tabtotext.tabToHTML(test008, combine={'a': 'b'})
@@ -4406,7 +4408,8 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
                 '<tr><td>x<br /></td></tr>',  # -
-                '<tr><td><br />v</td></tr>', '</table>']
+                '<tr><td><br />v</td></tr>', # - 
+                '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7509(self) -> None:
         text = tabtotext.tabToHTML(test009, combine={'a': 'b'})
@@ -4414,7 +4417,8 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>',  # -
                 '<tr><th>b</th></tr>',  # -
                 '<tr><td></td></tr>',  # -
-                '<tr><td>v</td></tr>', '</table>']
+                '<tr><td>v</td></tr>', # -
+                '</table>']
         self.assertEqual(cond, text.splitlines())
 
     def test_7523(self) -> None:
@@ -5035,6 +5039,79 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
+    def test_7803(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test003, ['a|b'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test003, text)
+        cond = ['<table>', '<tr></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7804(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test004, ['a|b'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', '<tr></tr>', '<tr></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7805(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test005, ['a|b'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test005, text)
+        cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>x</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7806(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test006, ['a|b'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test006, text)
+        cond = ['<table>',  # -
+                '<tr><th>a<br />b</th></tr>',  # -
+                '<tr><td>x<br />y</td></tr>', # -
+                '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7807(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test007, ['a|b'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test007, text)
+        cond = ['<table>',  # -
+                '<tr><th>a<br />b</th></tr>',  # -
+                '<tr><td><br />v</td></tr>', # -
+                '<tr><td>x<br />y</td></tr>',  # -
+                '</table>']
+        # note that tabtotext does always sort but old-style without headers did not
+        self.assertEqual(cond, text.splitlines())
+    def test_7808(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test008, ['a|b'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test008, text)
+        cond = ['<table>',  # -
+                '<tr><th>a<br />b</th></tr>',  # -
+                '<tr><td><br />v</td></tr>', # - 
+                '<tr><td>x<br /></td></tr>',  # -
+                '</table>']
+        # note that tabtotext does always sort but old-style without headers did not
+        self.assertEqual(cond, text.splitlines())
+    def test_7809(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, test009, ['a|b'], defaultformat="html")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test009, text)
+        cond = ['<table>',  # -
+                '<tr><th>b</th></tr>',  # -
+                '<tr><td></td></tr>',  # -
+                '<tr><td>v</td></tr>', # -
+                '</table>']
+        self.assertEqual(cond, text.splitlines())
 
     def test_8690(self) -> None:
         item = Item2("x", 2)
