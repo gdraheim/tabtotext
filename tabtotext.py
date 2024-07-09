@@ -161,12 +161,15 @@ class BaseFormatJSONItem(FormatJSONItem):
         self.datedelim = '-'
         self.datefmt = DATEFMT
         self.kwargs = kwargs
+        self.formatleft = re.compile("[{]:[^{}]*<[^{}]*[}]")
         self.formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
         self.formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     def right(self, col: str) -> bool:
         if col in self.formats and not NORIGHT:
             if self.formats[col].startswith(" "):
                 return True
+            if self.formatleft.search(self.formats[col]):
+                return False
             if self.formatright.search(self.formats[col]):
                 return True
             if self.formatnumber.search(self.formats[col]):
