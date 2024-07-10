@@ -12,11 +12,11 @@ import os.path as fs
 import re
 
 # Actually, we implement what we need for tabtoxlsx
-# from openpyxl import Workbook, load_workbook  
-# from openpyxl.worksheet.worksheet import Worksheet 
-# from openpyxl.styles.cell_style import CellStyle as Style  
-# from openpyxl.styles.alignment import Alignment 
-# from openpyxl.utils import get_column_letter  
+# from openpyxl import Workbook, load_workbook
+# from openpyxl.worksheet.worksheet import Worksheet
+# from openpyxl.styles.cell_style import CellStyle as Style
+# from openpyxl.styles.alignment import Alignment
+# from openpyxl.utils import get_column_letter
 
 from logging import getLogger
 logg = getLogger("tabxlsx")
@@ -27,7 +27,7 @@ MAXROWS = 100000
 NIX = ""
 
 def get_column_letter(num: int) -> str:
-    return chr(ord('A') + (num-1))
+    return chr(ord('A') + (num - 1))
 
 class Alignment:
     horizontal: str
@@ -51,7 +51,7 @@ class Cell:
     number_format: Optional[str]
     protection: Optional[str]
     _xf: int
-    _numFmt: int 
+    _numFmt: int
     def __init__(self) -> None:
         self.value = None
         self.alignment = None
@@ -90,18 +90,18 @@ class Worksheet:
         atrow = row - 1
         name = get_column_letter(column) + str(row)
         while atrow >= len(self.rows):
-             self.rows.append({})
+            self.rows.append({})
         if name not in self.rows[atrow]:
             self.rows[atrow][name] = Cell()
         return self.rows[atrow][name]
     def __getitem__(self, name: str) -> Cell:
         m = re.match("([A-Z]+)([0-9]+)", name)
-        if not m: 
+        if not m:
             logg.error("can not check %s", name)
             raise ValueError(name)
         atrow = int(m.group(2)) - 1
         while atrow >= len(self.rows):
-             self.rows.append({})
+            self.rows.append({})
         if name not in self.rows[atrow]:
             self.rows[atrow][name] = Cell()
         return self.rows[atrow][name]
@@ -110,7 +110,7 @@ class Workbook:
     sheets: List[Worksheet]
     current: int
     def __init__(self) -> None:
-        self.sheets = [ Worksheet() ]
+        self.sheets = [Worksheet()]
         self.current = 0
     @property
     def active(self) -> Worksheet:
@@ -142,9 +142,9 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
                     sheet._mindim = cellname
                     sheet._maxdim = cellname
                 if cellname < sheet._mindim:
-                   sheet._mindim = cellname
+                    sheet._mindim = cellname
                 if cellname > sheet._maxdim:
-                   sheet._maxdim = cellname
+                    sheet._maxdim = cellname
                 if cell.number_format:
                     if cell.number_format in ["General"]:
                         continue
@@ -218,7 +218,7 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
             wxml += F'</cols>'
         wxml += F'<sheetData>'
         for num, row in enumerate(sheet.rows):
-            if not row: continue # empty
+            if not row: continue  # empty
             wxml += F'<row r="{num+1}">'
             for r, cell in row.items():
                 if cell.value is None:
@@ -271,27 +271,27 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
             worksheet_Id = F'rId{num+1}'
             rels_xml += F'<Relationship Type="{xmlns_w}"'
             rels_xml += F' Target="/xl/{worksheetfile}" Id="{worksheet_Id}"/>'
-            with zipfile.open("xl/"+worksheetfile, "w") as xmlfile:
+            with zipfile.open("xl/" + worksheetfile, "w") as xmlfile:
                 xmlfile.write(xml.encode('utf-8'))
-            worksheetfilelist += [ worksheetfile ]
+            worksheetfilelist += [worksheetfile]
         stylefile = F"styles.xml"
         style_Id = F'rId{len(worksheets)+1}'
-        rels_xml +=  F'<Relationship Type="{xmlns_s}"'
+        rels_xml += F'<Relationship Type="{xmlns_s}"'
         rels_xml += F' Target="{stylefile}" Id="{style_Id}"/>'
-        with zipfile.open("xl/"+stylefile, "w") as xmlfile:
+        with zipfile.open("xl/" + stylefile, "w") as xmlfile:
             xmlfile.write(style_xml.encode('utf-8'))
         themefile = F"theme/theme1.xml"
         theme_Id = F'rId{len(worksheets)+2}'
-        rels_xml +=  F'<Relationship Type="{xmlns_t}"'
+        rels_xml += F'<Relationship Type="{xmlns_t}"'
         rels_xml += F' Target="{themefile}" Id="{theme_Id}"/>'
-        with zipfile.open("xl/"+themefile, "w") as xmlfile:
+        with zipfile.open("xl/" + themefile, "w") as xmlfile:
             xmlfile.write(theme_xml.encode('utf-8'))
         rels_xml += F'</Relationships>'
         workbookfile = "workbook.xml"
-        with zipfile.open("xl/"+workbookfile, "w") as xmlfile:
+        with zipfile.open("xl/" + workbookfile, "w") as xmlfile:
             xmlfile.write(workbook_xml.encode('utf-8'))
         relsfile = "_rels/workbook.xml.rels"
-        with zipfile.open("xl/"+relsfile, "w") as xmlfile:
+        with zipfile.open("xl/" + relsfile, "w") as xmlfile:
             xmlfile.write(rels_xml.encode('utf-8'))
         apps_xml = F'<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Microsoft Excel</Application><AppVersion>3.0</AppVersion></Properties>'
         appsfile = "docProps/app.xml"
@@ -324,7 +324,7 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
         contentfile = "[Content_Types].xml"
         with zipfile.open(contentfile, "w") as xmlfile:
             xmlfile.write(content_xml.encode('utf-8'))
-    
+
 
 def load_workbook(filename: str) -> Workbook:
     workbook = Workbook()
@@ -335,12 +335,12 @@ def load_workbook(filename: str) -> Workbook:
             with zipfile.open("xl/sharedStrings.xml") as xmlfile:
                 xml = ET.parse(xmlfile)
                 for item in xml.getroot():
-                    if ("}"+item.tag).endswith("}si"):
+                    if ("}" + item.tag).endswith("}si"):
                         text = ""
                         for block in item:
-                            if ("}"+block.tag).endswith("}t"):
+                            if ("}" + block.tag).endswith("}t"):
                                 text += block.text
-                        sharedStrings += [ text ]
+                        sharedStrings += [text]
         except KeyError as e:
             logg.debug("do not use sharedStrings.xml: %s", e)
         formatcodes: Dict[str, str] = {}
@@ -348,13 +348,13 @@ def load_workbook(filename: str) -> Workbook:
         with zipfile.open("xl/styles.xml") as xmlfile:
             xml = ET.parse(xmlfile)
             for item in xml.getroot():
-                if ("}"+item.tag).endswith("numFmts"):
+                if ("}" + item.tag).endswith("numFmts"):
                     for fmt in item:
                         numFmtId = fmt.get("numFmtId", "?")
                         formatcode = fmt.get("formatCode", "?")
                         logg.debug("numFmtId %s formatCode %s", numFmtId, formatcode)
                         formatcodes[numFmtId] = formatcode
-                if ("}"+item.tag).endswith("cellXfs"):
+                if ("}" + item.tag).endswith("cellXfs"):
                     style = 0
                     for xfs in item:
                         numFmtId = xfs.get("numFmtId", "?")
@@ -365,7 +365,7 @@ def load_workbook(filename: str) -> Workbook:
         with zipfile.open("xl/worksheets/sheet1.xml") as xmlfile:
             xml = ET.parse(xmlfile)
             for item in xml.getroot():
-                 if ("}"+item.tag).endswith("}sheetData"):
+                if ("}" + item.tag).endswith("}sheetData"):
                     for rowdata in item:
                         row = int(rowdata.get("row", "0"))
                         for cell in rowdata:
@@ -376,9 +376,9 @@ def load_workbook(filename: str) -> Workbook:
                             v = ""
                             x = ""
                             for data in cell:
-                                if ("}"+data.tag).endswith("v"):
+                                if ("}" + data.tag).endswith("v"):
                                     v = data.text or ""
-                                elif ("}"+data.tag).endswith("is"):
+                                elif ("}" + data.tag).endswith("is"):
                                     for block in data:
                                         x += block.text or ""
                             logg.debug("r = %s | s = %s | t =%s | v = %s| x = %s", r, s, t, v, x)
@@ -396,7 +396,7 @@ def load_workbook(filename: str) -> Workbook:
                                 if s in numberformat:
                                     fmt = numberformat[s]
                                     logg.debug("value %s numberformat %s", value, fmt)
-                                    if fmt in ['d.mm.yy','yyy-mm-dd h:mm:ss']:
+                                    if fmt in ['d.mm.yy', 'yyy-mm-dd h:mm:ss']:
                                         value0 = int(value1)
                                         value2 = Time.fromordinal(value0 + 693594)
                                         value3 = int(((value1 - value0) * 86400) + 0.4)
@@ -435,7 +435,7 @@ def read_workbook(filename: str) -> List[Dict[str, CellValue]]:
         if not found:
             break
         newrow = dict(zip(cols, record))
-        data.append(newrow) # type: ignore[arg-type]
+        data.append(newrow)  # type: ignore[arg-type]
     return data
 
 def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = []) -> None:
@@ -443,7 +443,7 @@ def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers:
     for header in headers:
         if ":" in header:
             name, fmt = header.split(":", 1)
-            sortheaders += [ name ]
+            sortheaders += [name]
     def strNone(value: CellValue) -> str:
         if isinstance(value, Time):
             return value.strftime("%Y-%m-%d.%H%M")
@@ -490,7 +490,7 @@ def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers:
     ws.title = "data"
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
-        ws.cell(row=1, column=col+1).value = name
+        ws.cell(row=1, column=col + 1).value = name
         col += 1
     save_workbook(filename, workbook)
 
@@ -558,12 +558,12 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if ":" in header:
             name, fmt = header.split(":", 1)
             formats[name] = fmt
-            sortheaders += [ name ]
+            sortheaders += [name]
     for header in formatting:
         if ":" in header:
             name, fmt = header.split(":", 1)
             if name not in formats:
-                 formats[name] = fmt
+                formats[name] = fmt
     # .......................................
     def rightalign(col: str) -> bool:
         if col in formats and not noright:
@@ -688,7 +688,7 @@ if __name__ == "__main__":
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default="")
     opt, args = cmdline.parse_args()
-    basicConfig(level = max(0, ERROR - 10 * opt.verbose + 10 * opt.quiet))
+    basicConfig(level=max(0, ERROR - 10 * opt.verbose + 10 * opt.quiet))
     if not args:
         cmdline.print_help()
         logg.error("no input filename given")
