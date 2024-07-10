@@ -14,7 +14,8 @@ from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timezone
 from abc import abstractmethod
-import os, sys
+import os
+import sys
 import re
 import logging
 import json
@@ -1233,13 +1234,13 @@ def _pos_num(pre: str, num: int) -> str:
         return "%s%s%s%s%09i" % (pre, pre, pre, pre, num)
 def _neg_num(pre: str, num: int) -> str:
     if num <= 9:
-        return "%s%01i" % (pre, 9-num)
+        return "%s%01i" % (pre, 9 - num)
     elif num <= 999:
-        return "%s%s%03i" % (pre, ".", 999-num)
+        return "%s%s%03i" % (pre, ".", 999 - num)
     elif num <= 999999:
-        return "%s%s%06i" % (pre, "..", 999999-num)
+        return "%s%s%06i" % (pre, "..", 999999 - num)
     else:
-        return "%s%s%09i" % (pre, "...", 999999999-num)
+        return "%s%s%09i" % (pre, "...", 999999999 - num)
 class TabColSpec(NamedTuple):
     fields: List[str]
     formats: str
@@ -1247,7 +1248,7 @@ class TabColSpec(NamedTuple):
     reorder: str
     sorting: str
     def title(self, sep: Optional[str] = None) -> str:
-        sep = sep or COL_SEP # "|"
+        sep = sep or COL_SEP  # "|"
         return self.renamed or sep.join(self.fields)
     def order(self) -> str:
         return self.reorder or self.title()
@@ -1255,7 +1256,7 @@ class TabColSpec(NamedTuple):
         return self.sorting or self.order()
 def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
     """ parse a select-style header - combining field names and formatting """
-    sep = sep or COL_SEP # "|"
+    sep = sep or COL_SEP  # "|"
     if ":" not in header and "@" not in header and "{" not in header:
         return TabColSpec(header.split(sep), header, "", "", "")
     if ":@" in header:
@@ -1315,7 +1316,7 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
                 renamed, reorder = "", _neg_num("~", int(renames[1:]))
             else:
                 renamed, reorder, sorting = renames, "", ""
-        else: # unreachable
+        else:  # unreachable
             formats = header
             renamed, reorder, sorting = "", "", ""
 
@@ -1334,7 +1335,7 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
                     field, _ = spec.split(":", 1)
                 else:
                     field = spec
-                fields += [ field ]
+                fields += [field]
                 if not renames:
                     renames = field
                 else:
@@ -1347,11 +1348,11 @@ def parse_colspec(header: str, sep: Optional[str] = None) -> TabColSpec:
                 field, _ = part.split(":", 1)
             else:
                 field = part
-            fields += [ field ]   
-    return TabColSpec(fields, formats, renamed, reorder, sorting) 
+            fields += [field]
+    return TabColSpec(fields, formats, renamed, reorder, sorting)
 
 class TabHeaderCols:
-    cols : List[TabColSpec]
+    cols: List[TabColSpec]
     fieldspec: Dict[str, List[TabColSpec]]
     sep = COL_SEP
     def __init__(self, headers: List[str], **kwargs: str) -> None:
@@ -1363,7 +1364,7 @@ class TabHeaderCols:
         for header in headers:
             colspec = parse_colspec(header)
             if not colspec.reorder:
-                colspec = colspec._replace(reorder = _pos_num(":", len(cols)+1))
+                colspec = colspec._replace(reorder=_pos_num(":", len(cols) + 1))
             cols[colspec.order()] = colspec
             for field in colspec.fields:
                 if field not in self.fieldspec:
@@ -1377,7 +1378,7 @@ class TabHeaders(TabHeaderCols):
         for col in self.cols:
             for num, field in enumerate(col.fields):
                 # spec[field] = col.sorts()
-                spec["%s %03i %s" % (col.sorts(), num, field) ] = field
+                spec["%s %03i %s" % (col.sorts(), num, field)] = field
         return [spec[sorts] for sorts in sorted(spec)]
     def order(self) -> Dict[str, str]:
         """ convert to old-style tabToFMT(sorts=) """
@@ -1386,7 +1387,7 @@ class TabHeaders(TabHeaderCols):
             field = col.fields[0]
             spec[field] = col.order()
         return spec
-    def formats(self, defaults:TabHeaderCols) -> Dict[str, str]:
+    def formats(self, defaults: TabHeaderCols) -> Dict[str, str]:
         """ convert to old-style TabToFMT(headers=) """
         spec: Dict[str, str] = {}
         sep = self.sep
@@ -1397,7 +1398,7 @@ class TabHeaders(TabHeaderCols):
                     name, form = formats.split(":", 1)
                     if "{" in name:
                         name0, name1 = name.rsplit("{", 1)
-                        spec[name1] = name0+"{:"+form
+                        spec[name1] = name0 + "{:" + form
                     elif "%s" in form:  # fixme: old-style
                         spec[name] = form.replace("%s", "{:s}")
                     elif "{:" in form:  # fixme: old-style
@@ -1415,7 +1416,7 @@ class TabHeaders(TabHeaderCols):
                     if "{" in name:
                         name0, name1 = name.rsplit("{", 1)
                         if name1 not in spec:
-                           spec[name1] = name0+"{:"+form
+                            spec[name1] = name0 + "{:" + form
                     elif "%s" in form:  # fixme: old-style
                         spec[name] = form.replace("%s", "{:s}")
                     elif "{:" in form:  # fixme: old-style
@@ -1463,7 +1464,7 @@ class TabHeaders(TabHeaderCols):
                     if ":" in col.formats:
                         pass
                     elif ":" in fieldspec.formats:
-                        newcol = col._replace(formats = fieldspec.formats)
+                        newcol = col._replace(formats=fieldspec.formats)
                         self.cols[old] = newcol
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], headers: List[str] = [], formats: List[str] = [], legend: List[str] = [], defaultformat: str = "") -> str:
