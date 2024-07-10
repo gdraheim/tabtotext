@@ -325,7 +325,7 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
         with zipfile.open(contentfile, "w") as xmlfile:
             xmlfile.write(content_xml.encode('utf-8'))
 
-
+_timeformats = ['d.mm.yy', 'yyyy-mm-dd', 'yyyy-mm-dd hh:mm', 'yyyy-mm-dd h:mm:ss']
 def load_workbook(filename: str) -> Workbook:
     workbook = Workbook()
     ws = workbook.active
@@ -396,7 +396,7 @@ def load_workbook(filename: str) -> Workbook:
                                 if s in numberformat:
                                     fmt = numberformat[s]
                                     logg.debug("value %s numberformat %s", value, fmt)
-                                    if fmt in ['d.mm.yy', 'yyy-mm-dd h:mm:ss']:
+                                    if fmt in _timeformats:
                                         value0 = int(value1)
                                         value2 = Time.fromordinal(value0 + 693594)
                                         value3 = int(((value1 - value0) * 86400) + 0.4)
@@ -420,7 +420,7 @@ def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
         if name is None:
             break
         cols.append(name)
-    logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
+    logg.info("xlsx found %s cols\n\t%s", len(cols), cols)
     data: List[Dict[str, CellValue]] = []
     for atrow in range(MAXROWS):
         record = []
@@ -519,6 +519,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
         ws.cell(row=1, column=col + 1).alignment = Alignment(horizontal="right")
         col += 1
     for item in sorted(rows, key=sortrow):
+        row += 1
         values: Dict[str, CellValue] = dict([(name, "") for name in cols.keys()])
         for name, value in item.items():
             values[name] = value
@@ -531,7 +532,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
             elif isinstance(value, Time):
                 ws.cell(**at).value = value
                 ws.cell(**at).alignment = Alignment(horizontal="right")
-                ws.cell(**at).number_format = "yyyy-mm-dd HH:MM"
+                ws.cell(**at).number_format = "yyyy-mm-dd hh:mm"
             elif isinstance(value, Date):
                 ws.cell(**at).value = value
                 ws.cell(**at).alignment = Alignment(horizontal="right")
@@ -552,7 +553,6 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
                 ws.cell(**at).alignment = Alignment(horizontal="left")
                 ws.cell(**at).number_format = "General"
             col += 1
-        row += 1
     return workbook
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], formatting: List[str] = [], defaultformat: str = "") -> str:
