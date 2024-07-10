@@ -339,7 +339,7 @@ def load_workbook(filename: str) -> Workbook:
                         text = ""
                         for block in item:
                             if ("}" + block.tag).endswith("}t"):
-                                text += block.text
+                                text += block.text or ""
                         sharedStrings += [text]
         except KeyError as e:
             logg.debug("do not use sharedStrings.xml: %s", e)
@@ -455,6 +455,10 @@ def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers:
             return "%07i" % sortheaders.index(header)
         return header
     def sortrow(row: Dict[str, CellValue]) -> str:
+        def asdict(item: Dict[str, CellValue]) -> Dict[str, CellValue]:
+            if hasattr(item, "_asdict"):
+                return item._asdict()  # type: ignore[union-attr, no-any-return, arg-type]
+            return item
         item = asdict(row)
         sorts = sortheaders
         if sorts:
@@ -470,13 +474,17 @@ def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers:
                         sortvalue += "\n!"
                     elif isinstance(value, int):
                         sortvalue += "\n%020i" % value
+                    elif isinstance(value, Time):
+                        sortvalue += "\n" + value.strftime("%Y-%m-%d.%H%M")
+                    elif isinstance(value, Date):
+                        sortvalue += "\n" + value.strftime("%Y-%m-%d")
                     else:
-                        sortvalue += "\n" + strValue(value)
+                        sortvalue += "\n" + str(value)
                 else:
                     sortvalue += "\n?"
             return sortvalue
         return ""
-    rows: List[Dict[str, CellValue]] = {}
+    rows: List[Dict[str, CellValue]] = []
     cols: Dict[str, int] = {}
     for item in data:
         for name, value in item.items():
