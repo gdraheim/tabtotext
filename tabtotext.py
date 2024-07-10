@@ -1099,9 +1099,9 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Forma
         return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
     if fmt.lower() in ["tab"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
-    if fmt.lower() in ["dat"]:
+    if fmt.lower() in ["data"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
-    if fmt.lower() in ["ifs", "data"]:
+    if fmt.lower() in ["ifs", "dat"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
     if fmt.lower() in ["csv", "scsv"]:
         return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
