@@ -80,6 +80,9 @@ def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [],  #
     ws = workbook.active
     ws.title = "data"
     style = Style()
+    hdr_style = Style()
+    hdr_style.number_format = 'General'
+    hdr_style.alignment = Alignment(horizontal='right')
     txt_style = Style()
     txt_style.number_format = 'General'
     txt_style.alignment = Alignment(horizontal='left')
@@ -97,7 +100,7 @@ def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [],  #
     eur_style.alignment = Alignment(horizontal='right')
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
-        set_cell(ws, row, col, name, txt_style)
+        set_cell(ws, row, col, name, hdr_style)
         set_width(ws, col, cols[name] + 1 + int(cols[name] / 3))
         col += 1
     row += 1
