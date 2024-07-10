@@ -408,6 +408,8 @@ def load_workbook(filename: str) -> Workbook:
 
 def read_workbook(filename: str) -> List[Dict[str, CellValue]]:
     workbook = load_workbook(filename)
+    return data_workbook(workbook)
+def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
     ws = workbook.active
     cols = []
     for col in range(MAXCOL):
@@ -438,12 +440,26 @@ def read_workbook(filename: str) -> List[Dict[str, CellValue]]:
         data.append(newrow)  # type: ignore[arg-type]
     return data
 
+def currency() -> str:
+    """ make dependent on locale ? """
+    currency_dollar = 0x024
+    currency_pound = 0x0A3
+    currency_symbol = 0x0A4  # in iso-8859-1 it shows the euro sign
+    currency_yen = 0x0A5
+    currency_euro = 0x20AC
+    return chr(currency_euro)
+
 def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = []) -> None:
+    workbook = make_workbook(data, headers)
+    save_workbook(filename, workbook)
+def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = []) -> Workbook:
     sortheaders: List[str] = []
+    formattings: Dict[str, str] = {}
     for header in headers:
         if ":" in header:
             name, fmt = header.split(":", 1)
             sortheaders += [name]
+            formattings[name] = fmt
     def strNone(value: CellValue) -> str:
         if isinstance(value, Time):
             return value.strftime("%Y-%m-%d.%H%M")
@@ -493,16 +509,53 @@ def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(strNone(value)))
         rows.append(item)
+    row = 0
     workbook = Workbook()
     ws = workbook.active
     ws.title = "data"
     col = 0
     for name in sorted(cols.keys(), key=sortkey):
         ws.cell(row=1, column=col + 1).value = name
+        ws.cell(row=1, column=col + 1).alignment = Alignment(horizontal="right")
         col += 1
-    save_workbook(filename, workbook)
+    for item in sorted(rows, key=sortrow):
+        values: Dict[str, CellValue] = dict([(name, "") for name in cols.keys()])
+        for name, value in item.items():
+            values[name] = value
+        col = 0
+        for name in sorted(cols.keys(), key=sortkey):
+            value = values[name]
+            at = {"column": col + 1, "row": row + 1}
+            if value is None:
+                pass
+            elif isinstance(value, Time):
+                ws.cell(**at).value = value
+                ws.cell(**at).alignment = Alignment(horizontal="right")
+                ws.cell(**at).number_format = "yyyy-mm-dd HH:MM"
+            elif isinstance(value, Date):
+                ws.cell(**at).value = value
+                ws.cell(**at).alignment = Alignment(horizontal="right")
+                ws.cell(**at).number_format = "yyyy-mm-dd"
+            elif isinstance(value, int):
+                ws.cell(**at).value = value
+                ws.cell(**at).alignment = Alignment(horizontal="right")
+                ws.cell(**at).number_format = "#,##0"
+            elif isinstance(value, float):
+                ws.cell(**at).value = value
+                ws.cell(**at).alignment = Alignment(horizontal="right")
+                ws.cell(**at).number_format = "#,##0.00"
+                if name in formattings and "$}" in formattings[name]:
+                    ws.cell(**at).number_format = "#,##0.00" + currency()
+            else:
+                ws.cell(**at).value = value
+                ws.cell(**at).value = value
+                ws.cell(**at).alignment = Alignment(horizontal="left")
+                ws.cell(**at).number_format = "General"
+            col += 1
+        row += 1
+    return workbook
 
-def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], formatting: List[str] = [], legend: List[str] = [], defaultformat: str = "") -> None:
+def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], formatting: List[str] = [], defaultformat: str = "") -> None:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     def detectfileformat(filename: str) -> Optional[str]:
