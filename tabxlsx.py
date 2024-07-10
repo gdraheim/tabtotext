@@ -566,14 +566,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             return "csv"
         if ext in [".dat", ".tcsv"]:
             return "tab"
-        if ext in [".jsn", ".json"]:
-            return "json"
-        if ext in [".yml", ".yaml"]:
-            return "yaml"
-        if ext in [".tml", ".toml"]:
-            return "toml"
-        if ext in [".htm", ".html", ".xhtml"]:
-            return "html"
         if ext in [".xls", ".xlsx"]:
             return "xlsx"
         return None
