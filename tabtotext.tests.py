@@ -601,7 +601,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "a")
         self.assertEqual(hr.cols[1].title(), "c")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["a"])
         self.assertEqual(hr.cols[1].fields, ["c"])
         self.assertEqual(hr.cols[2].fields, ["b"])
@@ -615,7 +615,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "a")
         self.assertEqual(hr.cols[1].title(), "c")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["a"])
         self.assertEqual(hr.cols[1].fields, ["c"])
         self.assertEqual(hr.cols[2].fields, ["b"])
@@ -629,7 +629,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "a")
         self.assertEqual(hr.cols[1].title(), "c")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["a"])
         self.assertEqual(hr.cols[1].fields, ["c"])
         self.assertEqual(hr.cols[2].fields, ["b"])
@@ -643,10 +643,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "a")
         self.assertEqual(hr.cols[1].title(), "c")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["a"])
         self.assertEqual(hr.cols[1].fields, ["c"])
-        self.assertEqual(hr.cols[2].fields, ["b"]) 
+        self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2074(self) -> None:
         hr = tabtotext.TabHeaders(["b@~2", "a", "c@~3"])
         logg.info("%i cols", len(hr.cols))
@@ -654,10 +654,10 @@ class TabToTextTest(unittest.TestCase):
             logg.info("%4i %s", i, hr.cols[i])
         self.assertEqual(hr.cols[0].formats, "a")
         self.assertEqual(hr.cols[1].formats, "c")
-        self.assertEqual(hr.cols[2].formats, "b") 
+        self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "a")
         self.assertEqual(hr.cols[1].title(), "c")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["a"])
         self.assertEqual(hr.cols[1].fields, ["c"])
         self.assertEqual(hr.cols[2].fields, ["b"])
@@ -671,7 +671,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b:i")
         self.assertEqual(hr.cols[0].title(), "a")
         self.assertEqual(hr.cols[1].title(), "c")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["a"])
         self.assertEqual(hr.cols[1].fields, ["c"])
         self.assertEqual(hr.cols[2].fields, ["b"])
@@ -685,10 +685,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "d")
         self.assertEqual(hr.cols[1].title(), "e")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["a"])
-        self.assertEqual(hr.cols[2].fields, ["b"])   
+        self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2081(self) -> None:
         hr = tabtotext.TabHeaders(["b@-2", "a@e", "c@d@3"])
         logg.info("%i cols", len(hr.cols))
@@ -699,10 +699,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "d")
         self.assertEqual(hr.cols[1].title(), "e")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["a"])
-        self.assertEqual(hr.cols[2].fields, ["b"])   
+        self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2085(self) -> None:
         hr = tabtotext.TabHeaders(["b:i@-2", "a:s@e", "c:x@d@3"])
         logg.info("%i cols", len(hr.cols))
@@ -713,10 +713,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b:i")
         self.assertEqual(hr.cols[0].title(), "d")
         self.assertEqual(hr.cols[1].title(), "e")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["a"])
-        self.assertEqual(hr.cols[2].fields, ["b"])   
+        self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2086(self) -> None:
         hr = tabtotext.TabHeaders(["c:x@d@3", "b:i@-2", "a:s@e"])
         logg.info("%i cols", len(hr.cols))
@@ -727,10 +727,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "b:i")
         self.assertEqual(hr.cols[0].title(), "d")
         self.assertEqual(hr.cols[1].title(), "e")
-        self.assertEqual(hr.cols[2].title(), "b")  
+        self.assertEqual(hr.cols[2].title(), "b")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["a"])
-        self.assertEqual(hr.cols[2].fields, ["b"])   
+        self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2090(self) -> None:
         hr = tabtotext.TabHeaders(["a@e", "b@-2@", "c@-1@3"])
         logg.info("%i cols", len(hr.cols))
@@ -740,10 +740,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].formats, "a")
         self.assertEqual(hr.cols[2].formats, "b")
         self.assertEqual(hr.cols[0].title(), "-1")
-        self.assertEqual(hr.cols[1].title(), "e")  
+        self.assertEqual(hr.cols[1].title(), "e")
         self.assertEqual(hr.cols[2].title(), "-2")
         self.assertEqual(hr.cols[0].fields, ["c"])
-        self.assertEqual(hr.cols[1].fields, ["a"])     
+        self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2091(self) -> None:
         hr = tabtotext.TabHeaders(["b@-2@", "a@e", "c@-1@3"])
@@ -755,10 +755,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "a")
         self.assertEqual(hr.cols[0].title(), "-1")
         self.assertEqual(hr.cols[1].title(), "-2")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["b"])
-        self.assertEqual(hr.cols[2].fields, ["a"])     
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2095(self) -> None:
         hr = tabtotext.TabHeaders(["b:i@-2@", "a:s@e", "c:x@-1@3"])
         logg.info("%i cols", len(hr.cols))
@@ -769,10 +769,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "a:s")
         self.assertEqual(hr.cols[0].title(), "-1")
         self.assertEqual(hr.cols[1].title(), "-2")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["b"])
-        self.assertEqual(hr.cols[2].fields, ["a"])  
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2110(self) -> None:
         hr = tabtotext.TabHeaders(["{a}@e", "{b}@-2@", "{c}@-1@3"])
         logg.info("%i cols", len(hr.cols))
@@ -782,10 +782,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].formats, "{a}")
         self.assertEqual(hr.cols[2].formats, "{b}")
         self.assertEqual(hr.cols[0].title(), "-1")
-        self.assertEqual(hr.cols[1].title(), "e")  
+        self.assertEqual(hr.cols[1].title(), "e")
         self.assertEqual(hr.cols[2].title(), "-2")
         self.assertEqual(hr.cols[0].fields, ["c"])
-        self.assertEqual(hr.cols[1].fields, ["a"])  
+        self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2111(self) -> None:
         hr = tabtotext.TabHeaders(["{b}@-2@", "{a}@e", "{c}@-1@3"])
@@ -797,10 +797,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "{a}")
         self.assertEqual(hr.cols[0].title(), "-1")
         self.assertEqual(hr.cols[1].title(), "-2")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["b"])
-        self.assertEqual(hr.cols[2].fields, ["a"])  
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2115(self) -> None:
         hr = tabtotext.TabHeaders(["{b:i}@-2@", "{a:s}@e", "{c:x}@-1@3"])
         logg.info("%i cols", len(hr.cols))
@@ -811,12 +811,12 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "{a:s}")
         self.assertEqual(hr.cols[0].title(), "-1")
         self.assertEqual(hr.cols[1].title(), "-2")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["c"])
         self.assertEqual(hr.cols[1].fields, ["b"])
-        self.assertEqual(hr.cols[2].fields, ["a"])  
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2120(self) -> None:
-        hr = tabtotext.TabHeaders(["{c}/{d}@-1@3", "{b}@-2@", "{a}@e" ])
+        hr = tabtotext.TabHeaders(["{c}/{d}@-1@3", "{b}@-2@", "{a}@e"])
         logg.info("%i cols", len(hr.cols))
         for i, header in enumerate(hr.cols):
             logg.info("%4i %s", i, hr.cols[i])
@@ -825,10 +825,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "{a}")
         self.assertEqual(hr.cols[0].title(), "-1")
         self.assertEqual(hr.cols[1].title(), "-2")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["c", "d"])
         self.assertEqual(hr.cols[1].fields, ["b"])
-        self.assertEqual(hr.cols[2].fields, ["a"])  
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2121(self) -> None:
         hr = tabtotext.TabHeaders(["{b}@-2@", "{a}@e", "{c}/{d}@-1@3"])
         logg.info("%i cols", len(hr.cols))
@@ -839,10 +839,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "{a}")
         self.assertEqual(hr.cols[0].title(), "-1")
         self.assertEqual(hr.cols[1].title(), "-2")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["c", "d"])
         self.assertEqual(hr.cols[1].fields, ["b"])
-        self.assertEqual(hr.cols[2].fields, ["a"])  
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2125(self) -> None:
         hr = tabtotext.TabHeaders(["{b:i}@-2@", "{a:s}@e", "{c:x}/{d:x}@-1@3"])
         logg.info("%i cols", len(hr.cols))
@@ -853,10 +853,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "{a:s}")
         self.assertEqual(hr.cols[0].title(), "-1")
         self.assertEqual(hr.cols[1].title(), "-2")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["c", "d"])
         self.assertEqual(hr.cols[1].fields, ["b"])
-        self.assertEqual(hr.cols[2].fields, ["a"])  
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2126(self) -> None:
         hr = tabtotext.TabHeaders(["{a:s}@e", "{b:i}@-2@", "{c:x}/{d:x}@-1@3"])
         logg.info("%i cols", len(hr.cols))
@@ -866,10 +866,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].formats, "{a:s}")
         self.assertEqual(hr.cols[2].formats, "{b:i}")
         self.assertEqual(hr.cols[0].title(), "-1")
-        self.assertEqual(hr.cols[1].title(), "e")  
+        self.assertEqual(hr.cols[1].title(), "e")
         self.assertEqual(hr.cols[2].title(), "-2")
         self.assertEqual(hr.cols[0].fields, ["c", "d"])
-        self.assertEqual(hr.cols[1].fields, ["a"])  
+        self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[2].fields, ["b"])
     def test_2130(self) -> None:
         hr = tabtotext.TabHeaders(["{b}", "{c}/{d}/{e}", "{a}@e"])
@@ -881,10 +881,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "{a}")
         self.assertEqual(hr.cols[0].title(), "b")
         self.assertEqual(hr.cols[1].title(), "c|d|e")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["b"])
         self.assertEqual(hr.cols[1].fields, ["c", "d", "e"])
-        self.assertEqual(hr.cols[2].fields, ["a"])    
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2131(self) -> None:
         hr = tabtotext.TabHeaders(["{b}", "{a}@e", "{c}/{d}/{e}"])
         logg.info("%i cols", len(hr.cols))
@@ -894,10 +894,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].formats, "{a}")
         self.assertEqual(hr.cols[2].formats, "{c}/{d}/{e}")
         self.assertEqual(hr.cols[0].title(), "b")
-        self.assertEqual(hr.cols[1].title(), "e")  
+        self.assertEqual(hr.cols[1].title(), "e")
         self.assertEqual(hr.cols[2].title(), "c|d|e")
         self.assertEqual(hr.cols[0].fields, ["b"])
-        self.assertEqual(hr.cols[1].fields, ["a"])    
+        self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[2].fields, ["c", "d", "e"])
     def test_2135(self) -> None:
         hr = tabtotext.TabHeaders(["{b:i}", "{a:s}@e", "{c:x}/{d:x}/{e:x}"])
@@ -908,10 +908,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].formats, "{a:s}")
         self.assertEqual(hr.cols[2].formats, "{c:x}/{d:x}/{e:x}")
         self.assertEqual(hr.cols[0].title(), "b")
-        self.assertEqual(hr.cols[1].title(), "e")  
+        self.assertEqual(hr.cols[1].title(), "e")
         self.assertEqual(hr.cols[2].title(), "c|d|e")
         self.assertEqual(hr.cols[0].fields, ["b"])
-        self.assertEqual(hr.cols[1].fields, ["a"])       
+        self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[2].fields, ["c", "d", "e"])
     def test_2140(self) -> None:
         hr = tabtotext.TabHeaders(["b", "c|d|e", "a@e"])
@@ -923,10 +923,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[2].formats, "a")
         self.assertEqual(hr.cols[0].title(), "b")
         self.assertEqual(hr.cols[1].title(), "c|d|e")
-        self.assertEqual(hr.cols[2].title(), "e")  
+        self.assertEqual(hr.cols[2].title(), "e")
         self.assertEqual(hr.cols[0].fields, ["b"])
         self.assertEqual(hr.cols[1].fields, ["c", "d", "e"])
-        self.assertEqual(hr.cols[2].fields, ["a"])    
+        self.assertEqual(hr.cols[2].fields, ["a"])
     def test_2141(self) -> None:
         hr = tabtotext.TabHeaders(["b", "a@e", "c|d|e"])
         logg.info("%i cols", len(hr.cols))
@@ -936,10 +936,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].formats, "a")
         self.assertEqual(hr.cols[2].formats, "c|d|e")
         self.assertEqual(hr.cols[0].title(), "b")
-        self.assertEqual(hr.cols[1].title(), "e")  
+        self.assertEqual(hr.cols[1].title(), "e")
         self.assertEqual(hr.cols[2].title(), "c|d|e")
         self.assertEqual(hr.cols[0].fields, ["b"])
-        self.assertEqual(hr.cols[1].fields, ["a"])    
+        self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[2].fields, ["c", "d", "e"])
     def test_2145(self) -> None:
         hr = tabtotext.TabHeaders(["b:i", "a:s@e", "c:x|d:x|e:x"])
@@ -950,10 +950,10 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].formats, "a:s")
         self.assertEqual(hr.cols[2].formats, "c:x|d:x|e:x")
         self.assertEqual(hr.cols[0].title(), "b")
-        self.assertEqual(hr.cols[1].title(), "e")  
+        self.assertEqual(hr.cols[1].title(), "e")
         self.assertEqual(hr.cols[2].title(), "c|d|e")
         self.assertEqual(hr.cols[0].fields, ["b"])
-        self.assertEqual(hr.cols[1].fields, ["a"])       
+        self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[2].fields, ["c", "d", "e"])
     def test_2220(self) -> None:
         hr = tabtotext.TabHeaders(["b", "a@1:1"])
@@ -1070,7 +1070,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(hr.cols[1].fields, ["a"])
         self.assertEqual(hr.cols[0].order(), "1")
         self.assertEqual(hr.cols[1].order(), "3")
-        self.assertEqual(hr.cols[0].sorts(), "3") 
+        self.assertEqual(hr.cols[0].sorts(), "3")
         self.assertEqual(hr.cols[1].sorts(), "1")
         logg.info("sorts = %s", hr.sorts())
         logg.info("order = %s", hr.order())
@@ -1630,7 +1630,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
-        cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ] # column a is now first
+        cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ]  # column a is now first
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
@@ -2391,8 +2391,6 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadTOML(text)
         self.assertEqual(data, test018)  # test019
-
-
 
     def test_5500(self) -> None:
         data = json.loads("[]")
@@ -3310,7 +3308,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, data)
     def test_7103(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test003) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test003)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
@@ -3320,7 +3318,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, [])
     def test_7104(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test004) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test004)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -3330,7 +3328,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, [])
     def test_7105(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test005) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test005)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test005, text)
@@ -3340,7 +3338,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test005)
     def test_7106(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test006) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test006)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test006, text)
@@ -3350,7 +3348,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test006)
     def test_7107(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test007) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test007)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test007, text)
@@ -3360,7 +3358,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test007Q)
     def test_7108(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test008) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test008)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test008, text)
@@ -3370,7 +3368,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test008Q)
     def test_7109(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test009) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test009)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test009, text)
@@ -3380,7 +3378,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test009Q)
     def test_7111(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test011) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test011)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test011, text)
@@ -3390,7 +3388,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test011)
     def test_7112(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test012) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test012)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test012, text)
@@ -3400,7 +3398,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test012)
     def test_7113(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test013) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test013)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test013, text)
@@ -3410,7 +3408,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test013)
     def test_7114(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test014) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test014)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test014, text)
@@ -3420,7 +3418,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test014)
     def test_7115(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test015) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test015)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test015, text)
@@ -3430,7 +3428,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test015Q)
     def test_7116(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test016) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test016)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test016, text)
@@ -3440,7 +3438,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test016)
     def test_7117(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test017) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test017)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test017, text)
@@ -3450,7 +3448,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test017)
     def test_7118(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test018) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test018)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test018, text)
@@ -3460,7 +3458,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, test018)
     def test_7119(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test019) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test019)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
@@ -3721,7 +3719,7 @@ class TabToTextTest(unittest.TestCase):
     data_for_7220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
     def test_7220(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7220, ["b", "a"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7220, ["b", "a"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3733,7 +3731,7 @@ class TabToTextTest(unittest.TestCase):
     data_for_7221: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_7221(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7221, ["b", "a"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7221, ["b", "a"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3745,7 +3743,7 @@ class TabToTextTest(unittest.TestCase):
     data_for_7222: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_7222(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7222, ["b", "a@1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7222, ["b", "a@1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3757,7 +3755,7 @@ class TabToTextTest(unittest.TestCase):
     data_for_7223: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_7223(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7223, ["b", "a@1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7223, ["b", "a@1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3769,7 +3767,7 @@ class TabToTextTest(unittest.TestCase):
     data_for_7224: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_7224(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7224, ["b", "a@@1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7224, ["b", "a@@1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3781,11 +3779,11 @@ class TabToTextTest(unittest.TestCase):
     data_for_7225: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_7225(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7225, ["b", "a@@1:1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7225, ["b", "a@@1:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
+        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         del data[0]["a"]
@@ -3793,11 +3791,11 @@ class TabToTextTest(unittest.TestCase):
     data_for_7226: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_7226(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7226, ["b@@3:3", "a@@1:1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7226, ["b@@3:3", "a@@1:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
+        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         del data[0]["a"]
@@ -3805,18 +3803,18 @@ class TabToTextTest(unittest.TestCase):
     data_for_7231: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7231(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7231, ["b@@3:1", "a@@1:3"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7231, ["b@@3:1", "a@@1:3"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| y     | 2', '| x     | 3']
+        cond = ['| a     | b', '| ----- | -----', '| y     | 2', '| x     | 3']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(rev(data), self.data_for_7231)
     data_for_7232: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7232(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7232, ["b@@1:3", "a@@3:1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7232, ["b@@1:3", "a@@3:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3827,18 +3825,18 @@ class TabToTextTest(unittest.TestCase):
     data_for_7241: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7241(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7241, ["b:02i@@3:1", "a:s@@1:3"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7241, ["b:02i@@3:1", "a:s@@1:3"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(rev(data), self.data_for_7241)
     data_for_7242: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7242(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7242, ["b:02i@@1:3", "a:s@@3:1"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7242, ["b:02i@@1:3", "a:s@@3:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3849,18 +3847,20 @@ class TabToTextTest(unittest.TestCase):
     data_for_7243: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7243(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7243, ["b@@3:1", "a@@1:3"], ["b:02i", "a:s"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7243, ["b@@3:1", "a@@1:3"], [
+                                        "b:02i", "a:s"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(rev(data), self.data_for_7243)
     data_for_7244: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7244(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7244, ["b@@1:3", "a@@3:1"], ["b:02i", "a:s"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7244, ["b@@1:3", "a@@3:1"], [
+                                        "b:02i", "a:s"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3871,18 +3871,20 @@ class TabToTextTest(unittest.TestCase):
     data_for_7245: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7245(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7245, ["b@@3:1", "a@@1:3"], ["a:s", "b:02i", ]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7245, ["b@@3:1", "a@@1:3"], [
+                                        "a:s", "b:02i", ])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(rev(data), self.data_for_7245)
     data_for_7246: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7246(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7246, ["b@@1:3", "a@@3:1"], ["a:s", "b:02i"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7246, ["b@@1:3", "a@@3:1"], [
+                                        "a:s", "b:02i"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3893,18 +3895,20 @@ class TabToTextTest(unittest.TestCase):
     data_for_7247: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7247(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7247, ["b@@3:1", "a@@1:3"], ["a:s@@4:1", "b:02i", ]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7247, ["b@@3:1", "a@@1:3"], [
+                                        "a:s@@4:1", "b:02i", ])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(rev(data), self.data_for_7247)
     data_for_7248: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_7248(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.data_for_7248, ["b@@1:3", "a@@3:1"], ["a:s@@1:4", "b:02i"]) # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.data_for_7248, ["b@@1:3", "a@@3:1"], [
+                                        "a:s@@1:4", "b:02i"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -3916,13 +3920,13 @@ class TabToTextTest(unittest.TestCase):
     def test_7251(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.data_for_7251, ["b:02i@@3:1", "a:s@@1:3"]) 
+        res = tabtotext.print_tabtotext(out, self.data_for_7251, ["b:02i@@3:1", "a:s@@1:3"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
         text = open(out).read()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(rev(data), self.data_for_7251)
@@ -3930,7 +3934,7 @@ class TabToTextTest(unittest.TestCase):
     def test_7252(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.data_for_7252, ["b:02i@@1:3", "a:s@@3:1"]) 
+        res = tabtotext.print_tabtotext(out, self.data_for_7252, ["b:02i@@1:3", "a:s@@3:1"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
@@ -3944,13 +3948,13 @@ class TabToTextTest(unittest.TestCase):
     def test_7253(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.data_for_7253, ["b@@3:1", "a@@1:3"], ["b:02i", "a:s"]) 
+        res = tabtotext.print_tabtotext(out, self.data_for_7253, ["b@@3:1", "a@@1:3"], ["b:02i", "a:s"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
         text = open(out).read()
         logg.debug("%s => %s", res, text)
-        cond =  ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(rev(data), self.data_for_7253)
@@ -3958,7 +3962,7 @@ class TabToTextTest(unittest.TestCase):
     def test_7254(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.data_for_7254, ["b@@1:3", "a@@3:1"], ["b:02i", "a:s"]) 
+        res = tabtotext.print_tabtotext(out, self.data_for_7254, ["b@@1:3", "a@@3:1"], ["b:02i", "a:s"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
@@ -4391,7 +4395,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test006, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
-                '<tr><td>x<br />y</td></tr>', # -
+                '<tr><td>x<br />y</td></tr>',  # -
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7507(self) -> None:
@@ -4409,7 +4413,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
                 '<tr><td>x<br /></td></tr>',  # -
-                '<tr><td><br />v</td></tr>', # - 
+                '<tr><td><br />v</td></tr>',  # -
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7509(self) -> None:
@@ -4418,7 +4422,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>',  # -
                 '<tr><th>b</th></tr>',  # -
                 '<tr><td></td></tr>',  # -
-                '<tr><td>v</td></tr>', # -
+                '<tr><td>v</td></tr>',  # -
                 '</table>']
         self.assertEqual(cond, text.splitlines())
 
@@ -4450,7 +4454,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
                 '<tr><td>y<br />x</td></tr>',  # -
-                '<tr><td>v<br /></td></tr>', # -
+                '<tr><td>v<br /></td></tr>',  # -
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7528(self) -> None:
@@ -5073,7 +5077,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test006, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
-                '<tr><td>x<br />y</td></tr>', # -
+                '<tr><td>x<br />y</td></tr>',  # -
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7807(self) -> None:
@@ -5084,7 +5088,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test007, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
-                '<tr><td><br />v</td></tr>', # -
+                '<tr><td><br />v</td></tr>',  # -
                 '<tr><td>x<br />y</td></tr>',  # -
                 '</table>']
         # note that tabtotext does always sort but old-style without headers did not
@@ -5097,7 +5101,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test008, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
-                '<tr><td><br />v</td></tr>', # - 
+                '<tr><td><br />v</td></tr>',  # -
                 '<tr><td>x<br /></td></tr>',  # -
                 '</table>']
         # note that tabtotext does always sort but old-style without headers did not
@@ -5111,7 +5115,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>',  # -
                 '<tr><th>b</th></tr>',  # -
                 '<tr><td></td></tr>',  # -
-                '<tr><td>v</td></tr>', # -
+                '<tr><td>v</td></tr>',  # -
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7823(self) -> None:
@@ -5156,7 +5160,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test007, text)
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
-                '<tr><td>v<br /></td></tr>',  #- 
+                '<tr><td>v<br /></td></tr>',  # -
                 '<tr><td>y<br />x</td></tr>',  # -
                 '</table>']
         self.assertEqual(cond, text.splitlines())
@@ -5220,13 +5224,13 @@ class TabToTextTest(unittest.TestCase):
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">a<br />b</th></tr>',  # ,
-                '<tr><td style="text-align: right"> x<br />2</td></tr>', # -
+                '<tr><td style="text-align: right"> x<br />2</td></tr>',  # -
                 '<tr><td style="text-align: right"> y<br />1</td></tr>',  # ,
                 '</table>']
         # this is ordered differently!
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadHTML(text)
-        want = [{'a': ' x', 'b': 2}, {'a': ' y', 'b': 1}, ] 
+        want = [{'a': ' x', 'b': 2}, {'a': ' y', 'b': 1}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
     def test_7872(self) -> None:
@@ -5344,13 +5348,13 @@ class TabToTextTest(unittest.TestCase):
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th style="text-align: right">a<br />b</th></tr>',  # ,
-                '<tr><td style="text-align: right">&quot;    x&quot;<br />22.000000</td></tr>', # - 
+                '<tr><td style="text-align: right">&quot;    x&quot;<br />22.000000</td></tr>',  # -
                 '<tr><td style="text-align: right">&quot;    y&quot;<br />1.000000</td></tr>',  # ,
                 '</table>']
         # sorted differently!
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadHTML(text)
-        want = [{'a': '"    x"', 'b': 22.0}, {'a': '"    y"', 'b': 1.0},  ]
+        want = [{'a': '"    x"', 'b': 22.0}, {'a': '"    y"', 'b': 1.0}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
 
