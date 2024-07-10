@@ -5,8 +5,8 @@ This script allows to format table-like data (list of dicts).
 It is sister program for tabtotext implenting excel input and output.
 """
 
-__copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.2266"
+__copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.3283"
 
 import logging
 from typing import Union, Dict, List, Any

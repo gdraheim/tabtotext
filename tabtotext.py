@@ -4,8 +4,8 @@ This script allows to format table-like data (list of dicts).
 The various output formats can be read back.
 """
 
-__copyright__ = "(C) 2017-2023 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.2266"
+__copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.3283"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Iterable, Iterator, TextIO, NamedTuple
 from collections import OrderedDict
