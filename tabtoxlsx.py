@@ -12,13 +12,17 @@ import logging
 from typing import Union, Dict, List, Any
 from tabtotext import JSONList, JSONDict, strNone
 from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable
-
-from openpyxl import Workbook, load_workbook  # type: ignore
-from openpyxl.worksheet.worksheet import Worksheet  # type: ignore
-from openpyxl.styles.cell_style import CellStyle as Style  # type: ignore
-from openpyxl.styles.alignment import Alignment  # type: ignore
-from openpyxl.utils import get_column_letter  # type: ignore
 from tabtools import currency_default
+
+try:
+    from openpyxl import Workbook, load_workbook  # type: ignore
+    from openpyxl.worksheet.worksheet import Worksheet  # type: ignore
+    from openpyxl.styles.cell_style import CellStyle as Style  # type: ignore
+    from openpyxl.styles.alignment import Alignment  # type: ignore
+    from openpyxl.utils import get_column_letter  # type: ignore
+except ImportError:
+    from tabxlsx import Workbook, Worksheet, CellStyle as Style, Alignment, get_column_letter
+    from tabxlsx import load_workbook  # type: ignore
 
 import datetime
 DayOrTime = (datetime.date, datetime.datetime)
