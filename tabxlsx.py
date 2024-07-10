@@ -394,9 +394,9 @@ def load_workbook(filename: str) -> Workbook:
                                 value1 = float(v)
                                 value = value1
                                 if s in numberformat:
-                                    fmt = numberformat[s]
-                                    logg.debug("value %s numberformat %s", value, fmt)
-                                    if fmt in _timeformats:
+                                    numfmt = numberformat[s]
+                                    logg.debug("value %s numberformat %s", value, numfmt)
+                                    if numfmt in _timeformats:
                                         value0 = int(value1)
                                         value2 = Time.fromordinal(value0 + 693594)
                                         value3 = int(((value1 - value0) * 86400) + 0.4)
@@ -479,7 +479,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
     def sortrow(row: Dict[str, CellValue]) -> str:
         def asdict(item: Dict[str, CellValue]) -> Dict[str, CellValue]:
             if hasattr(item, "_asdict"):
-                return item._asdict()  # type: ignore[union-attr, no-any-return, arg-type]
+                return item._asdict()  # type: ignore[union-attr, no-any-return, arg-type, attr-defined]
             return item
         item = asdict(row)
         sorts = sortheaders
@@ -666,7 +666,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         return strValue(val)
     def asdict(item: Dict[str, CellValue]) -> Dict[str, CellValue]:
         if hasattr(item, "_asdict"):
-            return item._asdict()  # type: ignore[union-attr, no-any-return, arg-type]
+            return item._asdict()  # type: ignore[union-attr, no-any-return, arg-type, attr-defined]
         return item
     cols: Dict[str, int] = {}
     for item in data:
