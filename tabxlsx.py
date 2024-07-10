@@ -555,7 +555,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
         row += 1
     return workbook
 
-def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], formatting: List[str] = [], defaultformat: str = "") -> None:
+def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], formatting: List[str] = [], defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     def detectfileformat(filename: str) -> Optional[str]:
@@ -695,7 +695,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 else:
                     sortvalue += "\n?"
             return sortvalue
-        return ""
+        return "XLSX"
     # CSV
     if fmt in ["list", "csv", "scsv", "xlsx", "xls", "tab", "dat", "ifs", "data"]:
         tab1 = tab if tab else ";"
@@ -709,7 +709,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             for name, value in asdict(row).items():
                 rowvalues[name] = format(name, value)
             writer.writerow(rowvalues)
-        return
+        return "CSV"
     # GFM
     def rightF(col: str, formatter: str) -> str:
         if rightalign(col):
@@ -735,6 +735,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, none_string)
                 for name in sorted(cols.keys(), key=sortkey)]
         print((" ".join(line)).rstrip(), file=out)
+    return "GFM"
 
 
 if __name__ == "__main__":
