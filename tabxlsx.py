@@ -627,7 +627,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             name, fmt = header.split(":", 1)
             if name not in formats:
                 formats[name] = fmt
-    logg.info("sortheaders = %s | formats = %s", sortheaders, formats)
+    logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
     # .......................................
     def rightalign(col: str) -> bool:
         if col in formats and not noright:
