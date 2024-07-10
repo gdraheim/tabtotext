@@ -420,7 +420,7 @@ def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
         if name is None:
             break
         cols.append(name)
-    logg.info("xlsx found %s cols\n\t%s", len(cols), cols)
+    logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
     data: List[Dict[str, CellValue]] = []
     for atrow in range(MAXROWS):
         record = []

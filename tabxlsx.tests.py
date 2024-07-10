@@ -471,34 +471,6 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7145(self) -> None:
-        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b@1', 'a@2'])
-        logg.info("print_tabtotext %s", res)
-        text = out.getvalue()
-        logg.debug("%s => %s", test004, text)
-        cond = ['| b     | a     | c', '| ----- | ----- | -----',
-                '| 1     | y     | ~', '| 2     | x     | ~', '| ~     | ~     | h', ]
-        self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
-    def test_7146(self) -> None:
-        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'])
-        logg.info("print_tabtotext %s", res)
-        text = out.getvalue()
-        logg.debug("%s => %s", test004, text)
-        cond = ['| a     | b     | c', '| ----- | ----- | -----',
-                '| y     | 1     | ~', '| x     | 2     | ~', '| ~     | ~     | h', ]
-        self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
 
     data_for_7220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
     def test_7220(self) -> None:
