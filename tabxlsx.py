@@ -438,41 +438,101 @@ def read_workbook(filename: str) -> List[Dict[str, CellValue]]:
         data.append(newrow) # type: ignore[arg-type]
     return data
 
-def detectfileformat(filename: str) -> Optional[str]:
-    _, ext = fs.splitext(filename.lower())
-    if ext in [".txt", ".md", ".markdown"]:
-        return "md"
-    if ext in [".csv", ".scsv"]:
-        return "csv"
-    if ext in [".dat", ".tcsv"]:
-        return "tab"
-    if ext in [".jsn", ".json"]:
-        return "json"
-    if ext in [".yml", ".yaml"]:
-        return "yaml"
-    if ext in [".tml", ".toml"]:
-        return "toml"
-    if ext in [".htm", ".html", ".xhtml"]:
-        return "html"
-    if ext in [".xls", ".xlsx"]:
-        return "xlsx"
-    return None
+def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = []) -> None:
+    sortheaders: List[str] = []
+    for header in headers:
+        if ":" in header:
+            name, fmt = header.split(":", 1)
+            sortheaders += [ name ]
+    def strNone(value: CellValue) -> str:
+        if isinstance(value, Time):
+            return value.strftime("%Y-%m-%d.%H%M")
+        if isinstance(value, Date):
+            return value.strftime("%Y-%m-%d")
+        return str(value)
+    def sortkey(header: str) -> str:
+        if header in sortheaders:
+            return "%07i" % sortheaders.index(header)
+        return header
+    def sortrow(row: Dict[str, CellValue]) -> str:
+        item = asdict(row)
+        sorts = sortheaders
+        if sorts:
+            sortvalue = ""
+            for sort in sorts:
+                if sort in item:
+                    value = item[sort]
+                    if value is None:
+                        sortvalue += "\n?"
+                    elif value is False:
+                        sortvalue += "\n"
+                    elif value is True:
+                        sortvalue += "\n!"
+                    elif isinstance(value, int):
+                        sortvalue += "\n%020i" % value
+                    else:
+                        sortvalue += "\n" + strValue(value)
+                else:
+                    sortvalue += "\n?"
+            return sortvalue
+        return ""
+    rows: List[Dict[str, CellValue]] = {}
+    cols: Dict[str, int] = {}
+    for item in data:
+        for name, value in item.items():
+            paren = 0
+            if name not in cols:
+                cols[name] = max(MINWIDTH, len(name))
+            cols[name] = max(cols[name], len(strNone(value)))
+        rows.append(item)
+    workbook = Workbook()
+    ws = workbook.active
+    ws.title = "data"
+    col = 0
+    for name in sorted(cols.keys(), key=sortkey):
+        ws.cell(row=1, column=col+1).value = name
+        col += 1
+    save_workbook(filename, workbook)
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], formatting: List[str] = [], legend: List[str] = [], defaultformat: str = "") -> None:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
+    def detectfileformat(filename: str) -> Optional[str]:
+        _, ext = fs.splitext(filename.lower())
+        if ext in [".txt", ".md", ".markdown"]:
+            return "md"
+        if ext in [".csv", ".scsv"]:
+            return "csv"
+        if ext in [".dat", ".tcsv"]:
+            return "tab"
+        if ext in [".jsn", ".json"]:
+            return "json"
+        if ext in [".yml", ".yaml"]:
+            return "yaml"
+        if ext in [".tml", ".toml"]:
+            return "toml"
+        if ext in [".htm", ".html", ".xhtml"]:
+            return "html"
+        if ext in [".xls", ".xlsx"]:
+            return "xlsx"
+        return None
+    #
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
         done = "stream"
     elif "." in output:
         fmt = detectfileformat(output) or defaultformat
+        if fmt in ["xls", "xlsx"]:
+            write_workbook(output, data, headers)
+            return
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
         fmt = output or defaultformat
         out = sys.stdout
         done = output
+    #
     tab = '|'
     if fmt in ["wide", "text"]:
         tab = ''
@@ -482,6 +542,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         tab = ';'
     if fmt in ["xls", "sxlx"]:
         tab = ','
+    #
     none_string = "~"
     true_string = "(yes)"
     false_string = "(no)"
