@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 """ TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries. """
 
-from typing import Union, List, Dict, Optional, TextIO, Iterable, cast
+from typing import Union, List, Dict, Tuple,Optional, TextIO, Iterable, cast
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -406,12 +406,18 @@ def load_workbook(filename: str) -> Workbook:
                                 ws[r].value = value
     return workbook
 
+def read2_workbook(filename: str) -> Tuple[List[Dict[str, CellValue]], List[str]]:
+    workbook = load_workbook(filename)
+    return data2_workbook(workbook)
 def read_workbook(filename: str) -> List[Dict[str, CellValue]]:
     workbook = load_workbook(filename)
     return data_workbook(workbook)
 def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
+    data, _ = data2_workbook(workbook)
+    return data
+def data2_workbook(workbook: Workbook) -> Tuple[List[Dict[str, CellValue]], List[str]]:
     ws = workbook.active
-    cols = []
+    cols: List[str] = []
     for col in range(MAXCOL):
         header = ws.cell(row=1, column=col + 1)
         if header.value is None:
@@ -419,7 +425,7 @@ def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
         name = header.value
         if name is None:
             break
-        cols.append(name)
+        cols.append(str(name))
     logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
     data: List[Dict[str, CellValue]] = []
     for atrow in range(MAXROWS):
@@ -438,7 +444,7 @@ def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
             break
         newrow = dict(zip(cols, record))
         data.append(newrow)  # type: ignore[arg-type]
-    return data
+    return data, cols
 
 def currency() -> str:
     """ make dependent on locale ? """
@@ -603,6 +609,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     floatfmt = "%4.2f"
     noright = fmt in ["dat"]
     noheaders = fmt in ["text", "list"]
+    formatleft = re.compile("[{]:[^{}]*<[^{}]*[}]")
     formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     formats: Dict[str, str] = {}
@@ -625,6 +632,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if col in formats and not noright:
             if formats[col].startswith(" "):
                 return True
+            if formatleft.search(formats[col]):
+                return False
             if formatright.search(formats[col]):
                 return True
             if formatnumber.search(formats[col]):
