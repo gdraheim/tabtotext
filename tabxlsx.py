@@ -586,7 +586,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         fmt = detectfileformat(output) or defaultformat
         if fmt in ["xls", "xlsx"]:
             write_workbook(output, data, headers)
-            return
+            return "XLSX"
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
