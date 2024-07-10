@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
-""" TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries. """
+""" 
+TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
+The output can be piped as a markdown table or csv-like data as well."""
 
-from typing import Union, List, Dict, Tuple,Optional, TextIO, Iterable, cast
+from typing import Union, List, Dict, Tuple, Optional, TextIO, Iterable, cast
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -607,8 +609,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     false_string = "(no)"
     minwidth = 5
     floatfmt = "%4.2f"
-    noright = fmt in ["dat"]
-    noheaders = fmt in ["text", "list"]
+    noright = fmt in ["data"]
+    noheaders = fmt in ["data", "text", "list"]
     formatleft = re.compile("[{]:[^{}]*<[^{}]*[}]")
     formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
@@ -752,7 +754,18 @@ if __name__ == "__main__":
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
                        help="select columns to show (a,x=b)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default="")
+    cmdline.add_option("-o", "--format", metavar="FMT", help="data|text|list|wide|md|tab|csv or file", default="")
+    cmdline.add_option("--ifs", action="store_true", help="-o ifs: $IFS-seperated table")
+    cmdline.add_option("--dat", action="store_true", help="-o dat: tab-seperated table (with headers)")
+    cmdline.add_option("--data", action="store_true", help="-o data: tab-seperated without headers")
+    cmdline.add_option("--text", action="store_true", help="-o text: space-seperated without headers")
+    cmdline.add_option("--list", action="store_true", help="-o text: semicolon-seperated without headers")
+    cmdline.add_option("--wide", action="store_true", help="-o wide: aligned space-separated table")
+    cmdline.add_option("--md", "--markdown", action="store_true", help="-o md: aligned markdown table (with |)")
+    cmdline.add_option("--tabs", action="store_true", help="-o tabs: aligned tab-seperated table (instead of |)")
+    cmdline.add_option("--tab", action="store_true", help="-o tab: aligned tab-seperated table (like --dat)")
+    cmdline.add_option("--csv", "--scsv", action="store_true", help="-o csv: semicolon-seperated table")
+    cmdline.add_option("--xls", "--xlsx", action="store_true", help="-o xls: for filename.xlsx (else csv)")
     opt, args = cmdline.parse_args()
     basicConfig(level=max(0, ERROR - 10 * opt.verbose + 10 * opt.quiet))
     if not args:
@@ -770,4 +783,27 @@ if __name__ == "__main__":
     else:
         output = ""
         defaultformat = opt.format
+    if not defaultformat:
+        if opt.ifs:
+            defaultformat = "ifs"
+        if opt.dat:
+            defaultformat = "dat"
+        if opt.data:
+            defaultformat = "data"
+        if opt.text:
+            defaultformat = "text"
+        if opt.list:
+            defaultformat = "list"
+        if opt.wide:
+            defaultformat = "wide"
+        if opt.md:
+            defaultformat = "md"
+        if opt.tabs:
+            defaultformat = "tabs"
+        if opt.tab:
+            defaultformat = "tab"
+        if opt.csv:
+            defaultformat = "csv"
+        if opt.xls:
+            defaultformat = "xls"
     print_tabtotext(output, data, opt.labels, defaultformat=defaultformat)
