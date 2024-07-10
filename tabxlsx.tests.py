@@ -523,7 +523,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         del data[0]["a"]
-        self.assertEqual(rev(data), self.data_for_7221)
+        self.assertEqual(rev(data), self.data_for_7221)  # type: ignore[arg-type]
 
     def test_9771(self) -> None:
         tmp = self.testdir()
