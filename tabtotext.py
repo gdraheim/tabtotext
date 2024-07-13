@@ -370,7 +370,8 @@ class FormatGFM(NumFormatJSONItem):
             rep = '|'
         return NumFormatJSONItem.__call__(self, col, val).replace(self.tab, rep)
 
-def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequence[str] = [], formats: FormatsDict = {},  #
+def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
+              sorts: Sequence[str] = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
               *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
               ) -> str:
     if isinstance(result, Dict):
@@ -381,8 +382,9 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Sequ
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)
-    return tabToGFM(results, sorts, formats, noheaders=noheaders, legend=legend, tab=tab)
-def tabToGFM(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+    return tabToGFM(results, sorts, formats, selects, noheaders=noheaders, legend=legend, tab=tab)
+def tabToGFM(result: JSONList,  # ..
+             sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
              reorder: ColSortList = []) -> str:
     format: FormatJSONItem
@@ -507,7 +509,8 @@ class FormatHTML(NumFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}):
         NumFormatJSONItem.__init__(self, formats)
 
-def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # .. 
+               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
                *, legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -517,8 +520,9 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Row
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToHTML(results, sorts, formats, legend=legend, combine=combine)
-def tabToHTML(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+    return tabToHTML(results, sorts, formats, selects, legend=legend, combine=combine)
+def tabToHTML(result: JSONList,  # ..
+              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
     format: FormatJSONItem
@@ -678,7 +682,8 @@ class FormatJSON(BaseFormatJSONItem):
             return '"%s"' % self.item(val)
         return json.dumps(val)
 
-def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
+               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
                *, datedelim: str = '-', legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -688,8 +693,9 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Row
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToJSON(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToJSON(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+    return tabToJSON(results, sorts, selects, formats, datedelim=datedelim, legend=legend)
+def tabToJSON(result: JSONList,  # ..
+              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
     format: FormatJSONItem
@@ -756,7 +762,8 @@ class FormatYAML(FormatJSON):
             return '%s' % self.item(val)
         return FormatJSON.__call__(self, col, val)
 
-def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
+               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
                *, datedelim: str = '-', legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -767,7 +774,8 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Row
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToYAML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToYAML(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+def tabToYAML(result: JSONList,  # ..
+              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
     format: FormatJSONItem
@@ -867,7 +875,8 @@ class FormatTOML(FormatJSON):
             return '%s' % self.item(val)
         return FormatJSON.__call__(self, col, val)
 
-def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
+               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
                *, datedelim: str = '-', legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -877,8 +886,9 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: Row
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToTOML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToTOML(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+    return tabToTOML(results, sorts, formats, selects, datedelim=datedelim, legend=legend)
+def tabToTOML(result: JSONList,  # ..
+              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
     format: FormatJSONItem
@@ -993,7 +1003,8 @@ class xFormatCSV(NumFormatJSONItem):
             return self.floatfmt % val
         return self.item(val)
 
-def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
+              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', noheaders: bool = False,  #
               legend: LegendList = []) -> str:
     if isinstance(result, Dict):
@@ -1004,8 +1015,9 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowS
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToCSV(results, sorts, formats, datedelim=datedelim, noheaders=noheaders, legend=legend)
-def tabToCSV(result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {},  #
+    return tabToCSV(results, sorts, formats, selects, datedelim=datedelim, noheaders=noheaders, legend=legend)
+def tabToCSV(result: JSONList, # ..
+             sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
              *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [], tab: str = ";",
              reorder: ColSortList = []) -> str:
     format: FormatJSONItem
@@ -1066,7 +1078,8 @@ class DictParserCSV(DictParser):
                     newrow[key] = self.convert.toJSONItem(val)
             yield newrow
 
-def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], sorts: RowSortList = [], formats: FormatsDict = {},  #
+def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], # ..
+              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -1076,46 +1089,47 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToFMT(output, results, sorts, formats, datedelim=datedelim, legend=legend, combine=combine)
-def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
-             datedelim: str = '-', legend: LegendList = [],  #
+    return tabToFMT(output, results, sorts, formats, selects, datedelim=datedelim, legend=legend, combine=combine)
+def tabToFMT(fmt: str, result: JSONList,  # ..
+             sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
+             *, datedelim: str = '-', legend: LegendList = [],  #
              reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     fmt = fmt or ""
     if fmt.lower() in ["md", "markdown"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+        return tabToGFM(result, sorts, formats, selects, reorder=reorder, legend=legend)
     if fmt.lower() in ["html", "htm"]:
-        return tabToHTML(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend, combine=combine)
+        return tabToHTML(result, sorts, formats, selects, reorder=reorder, legend=legend, combine=combine)
     if fmt.lower() in ["json", "jsn"]:
-        return tabToJSON(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+        return tabToJSON(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim)
     if fmt.lower() in ["yaml", "yml"]:
-        return tabToYAML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+        return tabToYAML(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim)
     if fmt.lower() in ["toml", "tml"]:
-        return tabToTOML(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim)
+        return tabToTOML(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim)
     if fmt.lower() in ["wide"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='')
+        return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='')
     if fmt.lower() in ["text"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='', noheaders=True)
+        return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='', noheaders=True)
     if fmt.lower() in ["tabs"]:
-        return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, tab='\t')
+        return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='\t')
     if fmt.lower() in ["tab"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t')
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab='\t')
     if fmt.lower() in ["data"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
     if fmt.lower() in ["ifs", "dat"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
     if fmt.lower() in ["csv", "scsv"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';')
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=';')
     if fmt.lower() in ["list"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
     if fmt.lower() in ["xlsx", "xls"]:
-        return tabToCSV(result=result, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, tab=',')
-    return tabToGFM(result=result, sorts=sorts, formats=formats, reorder=reorder, legend=legend)
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=',')
+    return tabToGFM(result, sorts, formats, selects, reorder=reorder, legend=legend)
 
-def saveToFMT(filename: str, fmt: str, result: JSONList, sorts: RowSortList = [], formats: FormatsDict = {}, *,  #
-              datedelim: str = '-', legend: LegendList = [],  #
-              reorder: ColSortList = []) -> str:
+def saveToFMT(filename: str, fmt: str, result: JSONList,  # ..
+              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
+              *, datedelim: str = '-', legend: LegendList = [], reorder: ColSortList = []) -> str:
     fmt = fmt or detectfileformat(filename) or ""
-    dat = tabToFMT(fmt, result, sorts, formats, datedelim=datedelim, legend=legend, reorder=reorder)
+    dat = tabToFMT(fmt, result, sorts, formats, selects, datedelim=datedelim, legend=legend, reorder=reorder)
     if filename:
         with open(filename, "w") as f:
             f.write(dat)
@@ -1467,7 +1481,9 @@ class TabHeaders(TabHeaderCols):
                         newcol = col._replace(formats=fieldspec.formats)
                         self.cols[old] = newcol
 
-def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], headers: List[str] = [], formats: List[str] = [], legend: List[str] = [], defaultformat: str = "") -> str:
+def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], # ..
+        formats: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
+        *, defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
@@ -1480,20 +1496,22 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], header
         fmt = output
         out = sys.stdout
         done = output
-    defaults = TabHeaders(formats)
-    form = TabHeaders(headers)
+    selected = TabHeaders(selects)
+    form = TabHeaders(formats)
+    form.update(selected)
     logg.info(" cols = %s", "|".join([str(col) for col in form.cols]))
-    form.update(defaults)
-    forms = form.formats(defaults)
     sorts = form.sorts()
+    forms = form.formats(selected)
+    selec = selected.order()
     order = form.order()
     combine = form.combine()
-    logg.info("forms = %s", sorts)
     logg.info("sorts = %s", sorts)
+    logg.info("forms = %s", forms)
+    logg.info("selec = %s", selec)
     logg.info("order = %s", order)
     logg.info("combine = %s", combine)
     results: List[str] = []
-    lines = tabToFMT(fmt, list(data), sorts, forms, reorder=order, combine=combine, legend=legend)
+    lines = tabToFMT(fmt, list(data), sorts, forms, selec, reorder=order, combine=combine, legend=legend)
     for line in lines:
         results.append(line)
         out.write(line)
@@ -1518,9 +1536,9 @@ def tab_formats_from(columns: str) -> Dict[str, str]:
     return styles
 
 def tab_sorts_from(columns: str) -> List[str]:
-    return list(tab_onlycols_from(columns).keys())
+    return list(tab_selects_from(columns).keys())
 
-def tab_onlycols_from(columns: str) -> Dict[str, str]:
+def tab_selects_from(columns: str) -> Dict[str, str]:
     cols = OrderedDict()
     for col in columns.split(","):
         if not col:
@@ -1539,25 +1557,25 @@ def tab_onlycols_from(columns: str) -> Dict[str, str]:
     return cols
 
 
-def tabToTabX(data: JSONList, onlycols: Union[str, Sequence[str], Dict[str, str]] = {}) -> JSONList:
-    if isinstance(onlycols, str):
-        return tabToTab(data, tab_onlycols_from(onlycols))
+def tabToTabX(data: JSONList, selects: Union[str, Sequence[str], Dict[str, str]] = {}) -> JSONList:
+    if isinstance(selects, str):
+        return tabToTab(data, tab_selects_from(selects))
     else:
-        return tabToTab(data, onlycols)
+        return tabToTab(data, selects)
 
-def tabToTab(data: JSONList, onlycols: Union[Sequence[str], Dict[str, str]] = {}) -> JSONList:
-    if hasattr(onlycols, "items"):
-        return tabToCustomTab(data, cast(Dict[str, str], onlycols))
+def tabToTab(data: JSONList, selects: Union[Sequence[str], Dict[str, str]] = {}) -> JSONList:
+    if hasattr(selects, "items"):
+        return tabToCustomTab(data, cast(Dict[str, str], selects))
     else:
-        return tabToCustomTab(data, dict(zip(onlycols, onlycols)))
+        return tabToCustomTab(data, dict(zip(selects, selects)))
 
-def tabToCustomTab(data: JSONList, onlycols: Dict[str, str] = {}) -> JSONList:
-    if not onlycols:
+def tabToCustomTab(data: JSONList, selects: Dict[str, str] = {}) -> JSONList:
+    if not selects:
         return data
     newdata: JSONList = []
     for item in data:
         newitem: JSONDict = {}
-        for name, col in onlycols.items():
+        for name, col in selects.items():
             if "{" in col and "}" in col:
                 newitem[name] = col.format(item)
             elif col in item:
@@ -1570,10 +1588,10 @@ def tabToCustomTab(data: JSONList, onlycols: Dict[str, str] = {}) -> JSONList:
 def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
                sorts: RowSortList = [],  # ...
                formats: FormatsDict = {},  # ...
-               onlycols: Union[Sequence[str], Dict[str, str]] = {},  # ...
+               selects: Union[Sequence[str], Dict[str, str]] = {},  # ...
                datedelim: str = '-', legend: LegendList = [],  # ...
                reorder: ColSortList = []) -> str:
-    data = tabToTab(result, onlycols)
+    data = tabToTab(result, selects)
     FMT = fmt or detectfileformat(OUTPUT) or "md"
     if OUTPUT in ["", "-", "CON"]:
         print(tabToFMT(FMT, data, formats=formats, sorts=sorts, reorder=reorder, datedelim=datedelim, legend=legend))
@@ -1612,13 +1630,13 @@ def tabToPrintWith(result: JSONList, output: str = NIX, fmt: str = NIX,  # ...
         formats2 = formats
         if selects:
             formats2.update(tab_formats_from(selects))
-    onlycols = tab_onlycols_from(selects)
-    if selects and not reorder:
-        reorder = list(onlycols.keys())
+    selecs = tab_selects_from(selects)
+    if selecs and not reorder:
+        reorder = list(selecs.keys())
     logg.info("using formats %s", formats)
     logg.info("using sorts = %s", sorts)
-    logg.info("using onlycols = %s", onlycols)
-    return tabToPrint(result, output, fmt, formats=formats2, sorts=sorts2, reorder=reorder, onlycols=onlycols, datedelim=datedelim, legend=legend)
+    logg.info("using selecs = %s", selecs)
+    return tabToPrint(result, output, fmt, formats=formats2, sorts=sorts2, reorder=reorder, selects=selecs, datedelim=datedelim, legend=legend)
 
 def tabFileToPrintWith(filename: str, fileformat: str, output: str = NIX, fmt: str = NIX,  # ...
                        selects: str = NIX, sorts: Union[str, RowSortList] = NIX,  # ...
