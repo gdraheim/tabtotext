@@ -40,6 +40,7 @@ except ImportError as e:  # pragma: no cover
 
 
 DATEFMT = "%Y-%m-%d"
+TIMEFMT = "%Y-%m-%d.%H%M"
 FLOATFMT = "%4.2f"
 NORIGHT = False
 MINWIDTH = 5
@@ -136,6 +137,93 @@ def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = 
         datefmt2 = datefmt1.replace('-', datedelim)
         return value.strftime(datefmt2)
     return str(value)
+def unmatched(value: JSONItem, cond: str) -> bool:
+    try:
+        if value is None:
+            if cond in ["<>"]:
+                return True
+        elif value is False:
+            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
+                return True
+            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
+                return True
+        elif value is True:
+            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
+                return True
+            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
+                return True
+        elif isinstance(value, int):
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value != int(cond[2:])
+            if cond.startswith("<>"):
+                return value == int(cond[2:])
+            if cond.startswith("<="):
+                return value > int(cond[2:])
+            if cond.startswith("<"):
+                return value >= int(cond[1:])
+            if cond.startswith(">="):
+                return value < int(cond[2:])
+            if cond.startswith(">"):
+                return value <= int(cond[1:])
+        elif isinstance(value, float):
+            if cond.startswith("=~"):
+                return value-0.01 > float(cond[2:]) or float(cond[2:]) > value+0.01 
+            if cond.startswith("<>"):
+                return value-0.01 < float(cond[2:]) and float(cond[2:]) < value+0.01 
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value != float(cond[2:]) # not recommended
+            if cond.startswith("<="):
+                return value > float(cond[2:])
+            if cond.startswith("<"):
+                return value >= float(cond[1:])
+            if cond.startswith(">="):
+                return value < float(cond[2:])
+            if cond.startswith(">"):
+                return value <= float(cond[1:])
+        elif isinstance(value, Time):
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value.strftime(TIMEFMT) != cond[2:]
+            if cond.startswith("<>"):
+                return value.strftime(TIMEFMT) == cond[2:]
+            if cond.startswith("<="):
+                return value.strftime(TIMEFMT) > cond[2:]
+            if cond.startswith("<"):
+                return value.strftime(TIMEFMT) >= cond[1:]
+            if cond.startswith(">="):
+                return value.strftime(TIMEFMT) < cond[2:]
+            if cond.startswith(">"):
+                return value.strftime(TIMEFMT) <= cond[1:]
+        elif isinstance(value, Date):
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value.strftime(DATEFMT) != cond[2:]
+            if cond.startswith("<>"):
+                return value.strftime(DATEFMT) == cond[2:]
+            if cond.startswith("<="):
+                return value.strftime(DATEFMT) > cond[2:]
+            if cond.startswith("<"):
+                return value.strftime(DATEFMT) >= cond[1:]
+            if cond.startswith(">="):
+                return value.strftime(DATEFMT) < cond[2:]
+            if cond.startswith(">"):
+                return value.strftime(DATEFMT) <= cond[1:]
+        else:
+            if cond.startswith("=~"):
+                return str(value) != cond[2:]
+            if cond.startswith("=="):
+                return str(value) != cond[2:]
+            if cond.startswith("<>"):
+                return str(value) == cond[2:]
+            if cond.startswith("<="):
+                return str(value) > cond[2:]
+            if cond.startswith("<"):
+                return str(value) >= cond[1:]
+            if cond.startswith(">="):
+                return str(value) < cond[2:]
+            if cond.startswith(">"):
+                return str(value) <= cond[1:]
+    except Exception as e:
+        logg.warning("unmatched value type %s does not work for cond %s", type(value), cond)
+    return False
 
 class DictParser:
     @abstractmethod
@@ -420,6 +508,8 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
+            if name in filtered and unmatched(value, filtered[name]):
+                continue
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -583,6 +673,8 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
+            if name in filtered and unmatched(value, filtered[name]):
+                continue
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -783,6 +875,8 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
+            if name in filtered and unmatched(value, filtered[name]):
+                continue
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -888,6 +982,8 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
+            if name in filtered and unmatched(value, filtered[name]):
+                continue
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -1026,6 +1122,8 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
+            if name in filtered and unmatched(value, filtered[name]):
+                continue
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -1176,12 +1274,15 @@ def tabToCSV(result: Iterable[JSONDict], # ..
     sortrow = RowSortCallable(sorts, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in result:
+    for num, item in enumerate(result):           
         row: JSONDict = {}
+        if "#" in selected:
+            row["#"] = num
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
-               continue
+            if name in filtered and unmatched(value, filtered[name]):
+                continue
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
