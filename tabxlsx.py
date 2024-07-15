@@ -870,6 +870,99 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         print((" ".join(line)).rstrip(), file=out)
     return "GFM"
 
+def read_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> List[Dict[str, CellValue]]:
+    data, cols = read2_tabtotext(input, defaultformat)
+    return data
+def read2_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> Tuple[List[Dict[str, CellValue]], List[str]]:
+    def detectfileformat(filename: str) -> Optional[str]:
+        _, ext = fs.splitext(filename.lower())
+        if ext in [".txt", ".md", ".markdown"]:
+            return "md"
+        if ext in [".csv", ".scsv"]:
+            return "csv"
+        if ext in [".dat", ".tcsv"]:
+            return "tab"
+        if ext in [".xls", ".xlsx"]:
+            return "xlsx"
+        return None
+    #
+    if isinstance(input, TextIO) or isinstance(input, StringIO):
+        inp = input
+        fmt = defaultformat
+        done = "stream"
+    elif "." in input:
+        fmt = detectfileformat(input) or defaultformat
+        if fmt in ["xls", "xlsx"]:
+            return read2_workbook(input)
+        inp = open(input, "rt", encoding="utf-8")
+        done = input
+    else:
+        fmt = input or defaultformat
+        inp = sys.stdin
+        done = input
+    #
+    tab = '|'
+    if fmt in ["wide", "text"]:
+        tab = ''
+    if fmt in ["tabs", "tab", "dat", "ifs", "data"]:
+        tab = '\t'
+    if fmt in ["csv", "scsv", "list"]:
+        tab = ';'
+    if fmt in ["xls", "sxlx"]:
+        tab = ','
+    lead = tab if fmt in ["md", "markdown"] else ""
+    #
+    none_string = "~"
+    true_string = "(yes)"
+    false_string = "(no)"
+    floatfmt = "%4.2f"
+    noright = fmt in ["data"]
+    noheaders = fmt in ["data", "text", "list"]
+    formatleft = re.compile("[{]:[^{}]*<[^{}]*[}]")
+    formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
+    formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
+    # must have headers
+    lookingfor = "headers"
+    headers: List[str] = []
+    data: List[Dict[str, CellValue]] = []
+    for line in inp:
+        if lead and not line.startswith(lead):
+           break
+        vals = line.split(tab)
+        if lead:
+            del vals[0]
+        if lookingfor == "headers":
+            headers = [header.strip() for header in vals]
+            lookingfor = "seperator"
+            continue
+        elif lookingfor == "seperator":
+            lookingfor = "data"
+            continue
+        record: Dict[str, CellValue] = {}
+        for col, val in enumerate(vals):
+            if val.strip() == none_string:
+                record[headers[col]] = None
+            elif val.strip() == false_string:
+                record[headers[col]] = False
+            elif val.strip() == true_string:
+                record[headers[col]] = True
+            else:
+                try:
+                    record[headers[col]] = int(val)
+                except:
+                    try:
+                        record[headers[col]] = float(val)
+                    except:
+                        try:
+                            record[headers[col]] = Time.strptime("%Y-%m%d.%H%M", val)
+                        except:
+                            try:
+                                record[headers[col]] = Time.strptime("%Y-%m%d", val).date()
+                            except:
+                                record[headers[col]] = val.strip()
+        data.append(record)
+    return (data, headers)
+
 
 if __name__ == "__main__":
     from logging import basicConfig, ERROR
@@ -899,7 +992,7 @@ if __name__ == "__main__":
         cmdline.print_help()
         logg.error("no input filename given")
         sys.exit(1)
-    data = read_workbook(args[0])
+    data, headers = read2_tabtotext(args[0], defaultformat="xlsx")
     logg.debug("data = %s", data)
     if len(args) > 1:
         output = args[1]
@@ -933,4 +1026,4 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, data, opt.labels, defaultformat=defaultformat)
+    print_tabtotext(output, data, headers, opt.labels, defaultformat=defaultformat)
