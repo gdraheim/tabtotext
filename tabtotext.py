@@ -362,8 +362,12 @@ class RowSortCallable:
         else:
             sortvalue = ""
             for sort in sorts:
-                if sort in item:
-                    value = item[sort]
+                if "@" in sort:
+                    col, rename = sort.split("@", 1)
+                else:
+                    col = sort
+                if col in item:
+                    value = item[col]
                     if value is None:
                         sortvalue += "\n?"
                     elif value is False:
