@@ -644,9 +644,11 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
+    combined: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        combines = ""
         for selcol in selec.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -664,7 +666,13 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
             elif "~" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(selec)
+            selected.append(selcol)
+            if not combines:
+                combines = selcol
+            else:
+                combined[combines] = selcol
+    if not selects:
+        combined = combine # argument
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -696,16 +704,16 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         if format.right(col):
             return value.replace("<td>", '<td style="text-align: right">')
         return value
-    combined = list(combine.values())
-    for name in combine:
+    combining = list(combined.values())
+    for name in combined:
         if name not in cols:  # if target does not exist in dataset
-            combined.remove(combine[name])  # the shown combined column seperately
+            combining.remove(combined[name])  # the shown combined column seperately
     headers = []
     for name in sorted(cols.keys(), key=sortkey):
-        if name in combined:
+        if name in combining:
             continue
-        if name in combine and combine[name] in cols:
-            headers += [rightTH(name, "<th>{}<br />{}</th>".format(escape(name), escape(combine[name])))]
+        if name in combined and combined[name] in cols:
+            headers += [rightTH(name, "<th>{}<br />{}</th>".format(escape(name), escape(combined[name])))]
         else:
             headers += [rightTH(name, "<th>{}</th>".format(escape(name)))]
     lines = ["<tr>" + "".join(headers) + "</tr>"]
@@ -715,10 +723,10 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
             values[name] = format(name, value)
         cells = []
         for name in sorted(cols.keys(), key=sortkey):
-            if name in combined:
+            if name in combining:
                 continue
-            if name in combine and combine[name] in cols:
-                cells += [rightTD(name, "<td>{}<br />{}</td>".format(escape(values[name]), escape(values[combine[name]])))]
+            if name in combined and combined[name] in cols:
+                cells += [rightTD(name, "<td>{}<br />{}</td>".format(escape(values[name]), escape(values[combined[name]])))]
             else:
                 cells += [rightTD(name, "<td>{}</td>".format(escape(values[name])))]
         lines.append("<tr>" + "".join(cells) + "</tr>")
