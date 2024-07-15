@@ -921,10 +921,38 @@ def read2_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> Tuple
     formatleft = re.compile("[{]:[^{}]*<[^{}]*[}]")
     formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
+    data: List[Dict[str, CellValue]] = []
+    if fmt in ["csv", "scsv", "tab"]:
+        import csv
+        reader = csv.DictReader(inp, delimiter=tab)
+        for nextrecord in reader:
+            data.append(nextrecord)
+            for nam, val in nextrecord.items():
+                if val.strip() == none_string:
+                    nextrecord[nam] = None
+                elif val.strip() == false_string:
+                    nextrecord[nam] = False
+                elif val.strip() == true_string:
+                    nextrecord[nam] = True
+                else:
+                    try:
+                        nextrecord[nam] = int(val)
+                    except:
+                        try:
+                            nextrecord[nam] = float(val)
+                        except:
+                            try:
+                                nextrecord[nam] = Time.strptime("%Y-%m%d.%H%M", val)
+                            except:
+                                try:
+                                    nextrecord[nam] = Time.strptime("%Y-%m%d", val).date()
+                                except:
+                                    nextrecord[nam] = val.strip()
+
+        return (data, list(reader.fieldnames if reader.fieldnames else []))
     # must have headers
     lookingfor = "headers"
     headers: List[str] = []
-    data: List[Dict[str, CellValue]] = []
     for line in inp:
         if lead and not line.startswith(lead):
            break
