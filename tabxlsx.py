@@ -473,9 +473,9 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
             formattings[name] = fmt
     def strNone(value: CellValue) -> str:
         if isinstance(value, Time):
-            return value.strftime("%Y-%m-%d.%H%M")
+            return value.strftime(TIMEFMT)
         if isinstance(value, Date):
-            return value.strftime("%Y-%m-%d")
+            return value.strftime(DATEFMT)
         return str(value)
     def sortkey(header: str) -> str:
         if header in sortheaders:
@@ -502,9 +502,9 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
                     elif isinstance(value, int):
                         sortvalue += "\n%020i" % value
                     elif isinstance(value, Time):
-                        sortvalue += "\n" + value.strftime("%Y-%m-%d.%H%M")
+                        sortvalue += "\n" + value.strftime(TIMEFMT)
                     elif isinstance(value, Date):
-                        sortvalue += "\n" + value.strftime("%Y-%m-%d")
+                        sortvalue += "\n" + value.strftime(DATEFMT)
                     else:
                         sortvalue += "\n" + str(value)
                 else:
@@ -752,9 +752,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if value is False: return false_string
         if value is True: return true_string
         if isinstance(value, Time):
-            return value.strftime("%Y-%m-%d.%H%M")
+            return value.strftime("%Y-%m-%d.%H%M")  # TIMEFMT
         if isinstance(value, Date):
-            return value.strftime("%Y-%m-%d")
+            return value.strftime("%Y-%m-%d")  # DATEFMT
         return str(value)
     def format(name: str, val: CellValue) -> str:
         if name in formats:
