@@ -481,7 +481,8 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
         if ":" in selec:
             name, form = selec.split(":", 1)
             if isinstance(formats, dict):
-                formats[name] = form if "{" in form else ("{:" + form + "}")
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
         else:
             name = selec
         if "<" in name:
@@ -648,7 +649,8 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         if ":" in selec:
             name, form = selec.split(":", 1)
             if isinstance(formats, dict):
-                formats[name] = form if "{" in form else ("{:" + form + "}")
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
         else:
             name = selec
         if "<" in name:
@@ -850,7 +852,8 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
         if ":" in selec:
             name, form = selec.split(":", 1)
             if isinstance(formats, dict):
-                formats[name] = form if "{" in form else ("{:" + form + "}")
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
         else:
             name = selec
         if "<" in name:
@@ -959,7 +962,8 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
         if ":" in selec:
             name, form = selec.split(":", 1)
             if isinstance(formats, dict):
-                formats[name] = form if "{" in form else ("{:" + form + "}")
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
         else:
             name = selec
         if "<" in name:
@@ -1101,7 +1105,8 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
         if ":" in selec:
             name, form = selec.split(":", 1)
             if isinstance(formats, dict):
-                formats[name] = form if "{" in form else ("{:" + form + "}")
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
         else:
             name = selec
         if "<" in name:
@@ -1259,7 +1264,8 @@ def tabToCSV(result: Iterable[JSONDict], # ..
         if ":" in selec:
             name, form = selec.split(":", 1)
             if isinstance(formats, dict):
-                formats[name] = form if "{" in form else ("{:" + form + "}")
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
         else:
             name = selec
         if "<" in name:
@@ -1666,7 +1672,7 @@ class TabHeaders(TabHeaderCols):
             field = col.fields[0]
             spec[field] = col.order()
         return spec
-    def formats(self, defaults: TabHeaderCols) -> Dict[str, str]:
+    def formats(self) -> Dict[str, str]:
         """ convert to old-style TabToFMT(headers=) """
         spec: Dict[str, str] = {}
         sep = self.sep
@@ -1687,25 +1693,6 @@ class TabHeaders(TabHeaderCols):
                         form = form.replace("i", "n").replace("u", "n")
                         form = form.replace("r", "s").replace("a", "s")
                         spec[name] = "{:" + form + "}"
-        for col in defaults.cols:
-            formatlist = col.formats.split(sep)
-            for formats in formatlist:
-                if ":" in formats:
-                    name, form = formats.split(":", 1)
-                    if "{" in name:
-                        name0, name1 = name.rsplit("{", 1)
-                        if name1 not in spec:
-                            spec[name1] = name0 + "{:" + form
-                    elif "%s" in form:  # fixme: old-style
-                        spec[name] = form.replace("%s", "{:s}")
-                    elif "{:" in form:  # fixme: old-style
-                        spec[name] = form
-                    else:
-                        # modulo formatting has "d", "i", "u" for decimal numbers
-                        form = form.replace("i", "n").replace("u", "n")
-                        form = form.replace("r", "s").replace("a", "s")
-                        if name not in spec:
-                            spec[name] = "{:" + form + "}"
         return spec
     def combine(self) -> Dict[str, str]:
         """ convert to old-style TabToFMT(combine=) """
@@ -1765,18 +1752,16 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], # ..
     form = TabHeaders(formats)
     form.update(selected)
     logg.info(" cols = %s", "|".join([str(col) for col in form.cols]))
+    forms = form.formats()
     sorts = form.sorts()
-    forms = form.formats(selected)
-    selec = selected.order()
     order = form.order()
     combine = form.combine()
     logg.info("sorts = %s", sorts)
     logg.info("forms = %s", forms)
-    logg.info("selec = %s", selec)
     logg.info("order = %s", order)
     logg.info("combine = %s", combine)
     results: List[str] = []
-    lines = tabToFMT(fmt, list(data), sorts, forms, selec, reorder=order, combine=combine, legend=legend)
+    lines = tabToFMT(fmt, list(data), sorts, forms, selects, reorder=order, combine=combine, legend=legend)
     for line in lines:
         results.append(line)
         out.write(line)

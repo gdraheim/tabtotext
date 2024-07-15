@@ -656,7 +656,8 @@ def unmatched(value: CellValue, cond: str) -> bool:
     return False
 
 
-def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], defaultformat: str = "") -> str:
+def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
+                    headers: List[str] = [], selects: List[str] = [], defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     def detectfileformat(filename: str) -> Optional[str]:
@@ -721,7 +722,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
         if ":" in selec:
             name, form = selec.split(":", 1)
-            formats[name] = form if "{" in form else ("{:" + form + "}")
+            fmt = form if "{" in form else ("{:" + form + "}")
+            formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
         else:
             name = selec
         if "<" in name:
