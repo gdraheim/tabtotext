@@ -720,22 +720,23 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
-        if ":" in selec:
-            name, form = selec.split(":", 1)
-            fmt = form if "{" in form else ("{:" + form + "}")
-            formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
-        else:
-            name = selec
-        if "<" in name:
-            name, cond = name.split(">", 1)
-            filtered[name] = ">" + cond
-        elif ">" in name:
-            name, cond = name.split("<", 1)
-            filtered[name] = "<" + cond
-        elif "~" in name:
-            name, cond = name.split("=", 1)
-            filtered[name] = "=" + cond
-        selected.append(name)
+        for selcol in selec.split("|"):
+            if ":" in selcol:
+                name, form = selcol.split(":", 1)
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+            else:
+                name = selcol
+            if "<" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif ">" in name:
+                name, cond = name.split("<", 1)
+                filtered[name] = "<" + cond
+            elif "~" in name:
+                name, cond = name.split("=", 1)
+                filtered[name] = "=" + cond
+            selected.append(name)
     logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
     # .......................................
     def rightalign(col: str) -> bool:
