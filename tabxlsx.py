@@ -717,10 +717,15 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         else:
             name = header
         sortheaders += [name]
+    renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
-        for selcol in selec.split("|"):
+    for selec in selects:
+        if "@" in selec:
+            selcols, rename = selec.split("@", 1)
+        else:
+            selcols, rename = selec, ""
+        for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 fmt = form if "{" in form else ("{:" + form + "}")
@@ -737,6 +742,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
+            if rename:
+                renaming[selcol] = rename
+                rename = "" # only the first
     logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
     # .......................................
     def rightalign(col: str) -> bool:

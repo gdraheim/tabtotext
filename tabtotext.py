@@ -479,10 +479,15 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
              reorder: ColSortList = []) -> str:
+    renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
-        for selcol in selec.split("|"):
+    for selec in selects:
+        if "@" in selec:
+            selcols, rename = selec.split("@", 1)
+        else:
+            selcols, rename = selec, ""
+        for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
@@ -500,6 +505,9 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
+            if rename:
+                renaming[selcol] = rename
+                rename = "" # only the first
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -649,11 +657,16 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
               *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
     combined: Dict[str, str] = {}
+    renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+    for selec in selects:
+        if "@" in selec:
+            selcols, rename = selec.split("@", 1)
+        else:
+            selcols, rename = selec, ""
         combines = ""
-        for selcol in selec.split("|"):
+        for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
@@ -671,6 +684,9 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(selcol)
+            if rename:
+                renaming[selcol] = rename
+                rename = "" # only the first
             if not combines:
                 combines = selcol
             else:
@@ -860,10 +876,15 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
-        for selcol in selec.split("|"):
+    for selec in selects:
+        if "@" in selec:
+            selcols, rename = selec.split("@", 1)
+        else:
+            selcols, rename = selec, ""
+        for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
@@ -881,6 +902,9 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(selcol)
+            if rename:
+                renaming[selcol] = rename
+                rename = "" # only the first
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -971,10 +995,15 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
-        for selcol in selec.split("|"):
+    for selec in selects:
+        if "@" in selec:
+            selcols, rename = selec.split("@", 1)
+        else:
+            selcols, rename = selec, ""
+        for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
@@ -992,6 +1021,9 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(selcol)
+            if rename:
+                renaming[selcol] = rename
+                rename = "" # only the first
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -1115,10 +1147,15 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
-        for selcol in selec.split("|"):
+    for selec in selects:
+        if "@" in selec:
+            selcols, rename = selec.split("@", 1)
+        else:
+            selcols, rename = selec, ""
+        for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
@@ -1136,6 +1173,9 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(selcol)
+            if rename:
+                renaming[selcol] = rename
+                rename = "" # only the first
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -1275,10 +1315,15 @@ def tabToCSV(result: Iterable[JSONDict], # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
              *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [], tab: str = ";",
              reorder: ColSortList = []) -> str:
+    renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
-        for selcol in selec.split("|"):
+    for selec in selects:
+        if "@" in selec:
+            selcols, rename = selec.split("@", 1)
+        else:
+            selcols, rename = selec, ""
+        for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
@@ -1296,6 +1341,9 @@ def tabToCSV(result: Iterable[JSONDict], # ..
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(selcol)
+            if rename:
+                renaming[selcol] = rename
+                rename = "" # only the first
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
