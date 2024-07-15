@@ -23,6 +23,9 @@ import re
 from logging import getLogger
 logg = getLogger("tabxlsx")
 
+DATEFMT = "%Y-%m-%d"
+TIMEFMT = "%Y-%m-%d.%H%M"
+FLOATFMT = "%4.2f"
 MINWIDTH = 4
 MAXCOL = 1000
 MAXROWS = 100000
@@ -563,7 +566,97 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
             col += 1
     return workbook
 
-def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], formatting: List[str] = [], defaultformat: str = "") -> str:
+# ...........................................................
+def unmatched(value: CellValue, cond: str) -> bool:
+    try:
+        if value is None:
+            if cond in ["<>"]:
+                return True
+        elif value is False:
+            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
+                return True
+            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
+                return True
+        elif value is True:
+            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
+                return True
+            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
+                return True
+        elif isinstance(value, int):
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value != int(cond[2:])
+            if cond.startswith("<>"):
+                return value == int(cond[2:])
+            if cond.startswith("<="):
+                return value > int(cond[2:])
+            if cond.startswith("<"):
+                return value >= int(cond[1:])
+            if cond.startswith(">="):
+                return value < int(cond[2:])
+            if cond.startswith(">"):
+                return value <= int(cond[1:])
+        elif isinstance(value, float):
+            if cond.startswith("=~"):
+                return value-0.01 > float(cond[2:]) or float(cond[2:]) > value+0.01 
+            if cond.startswith("<>"):
+                return value-0.01 < float(cond[2:]) and float(cond[2:]) < value+0.01 
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value != float(cond[2:]) # not recommended
+            if cond.startswith("<="):
+                return value > float(cond[2:])
+            if cond.startswith("<"):
+                return value >= float(cond[1:])
+            if cond.startswith(">="):
+                return value < float(cond[2:])
+            if cond.startswith(">"):
+                return value <= float(cond[1:])
+        elif isinstance(value, Time):
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value.strftime(TIMEFMT) != cond[2:]
+            if cond.startswith("<>"):
+                return value.strftime(TIMEFMT) == cond[2:]
+            if cond.startswith("<="):
+                return value.strftime(TIMEFMT) > cond[2:]
+            if cond.startswith("<"):
+                return value.strftime(TIMEFMT) >= cond[1:]
+            if cond.startswith(">="):
+                return value.strftime(TIMEFMT) < cond[2:]
+            if cond.startswith(">"):
+                return value.strftime(TIMEFMT) <= cond[1:]
+        elif isinstance(value, Date):
+            if cond.startswith("==") or cond.startswith("=~"):
+                return value.strftime(DATEFMT) != cond[2:]
+            if cond.startswith("<>"):
+                return value.strftime(DATEFMT) == cond[2:]
+            if cond.startswith("<="):
+                return value.strftime(DATEFMT) > cond[2:]
+            if cond.startswith("<"):
+                return value.strftime(DATEFMT) >= cond[1:]
+            if cond.startswith(">="):
+                return value.strftime(DATEFMT) < cond[2:]
+            if cond.startswith(">"):
+                return value.strftime(DATEFMT) <= cond[1:]
+        else:
+            if cond.startswith("=~"):
+                return str(value) != cond[2:]
+            if cond.startswith("=="):
+                return str(value) != cond[2:]
+            if cond.startswith("<>"):
+                return str(value) == cond[2:]
+            if cond.startswith("<="):
+                return str(value) > cond[2:]
+            if cond.startswith("<"):
+                return str(value) >= cond[1:]
+            if cond.startswith(">="):
+                return str(value) < cond[2:]
+            if cond.startswith(">"):
+                return str(value) <= cond[1:]
+    except Exception as e:
+        logg.warning("unmatched value type %s does not work for cond %s", type(value), cond)
+    return False
+
+
+def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     def detectfileformat(filename: str) -> Optional[str]:
@@ -616,18 +709,31 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     formats: Dict[str, str] = {}
     sortheaders: List[str] = []
-    for header in headers:
+    for header in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in headers]:
         if ":" in header:
             name, fmt = header.split(":", 1)
             formats[name] = fmt
-            sortheaders += [name]
         else:
-            sortheaders += [header]
-    for header in formatting:
-        if ":" in header:
-            name, fmt = header.split(":", 1)
-            if name not in formats:
-                formats[name] = fmt
+            name = header
+        sortheaders += [name]
+    filtered: Dict[str, str] = {}
+    selected: List[str] = []
+    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        if ":" in selec:
+            name, form = selec.split(":", 1)
+            formats[name] = form if "{" in form else ("{:" + form + "}")
+        else:
+            name = selec
+        if "<" in name:
+            name, cond = name.split(">", 1)
+            filtered[name] = ">" + cond
+        elif ">" in name:
+            name, cond = name.split("<", 1)
+            filtered[name] = "<" + cond
+        elif "~" in name:
+            name, cond = name.split("=", 1)
+            filtered[name] = "=" + cond
+        selected.append(name)
     logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
     # .......................................
     def rightalign(col: str) -> bool:
@@ -670,12 +776,22 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if hasattr(item, "_asdict"):
             return item._asdict()  # type: ignore[union-attr, no-any-return, arg-type, attr-defined]
         return item
+    rows: List[Dict[str, CellValue]] = []
     cols: Dict[str, int] = {}
     for item in data:
+        row: Dict[str, CellValue] = {}
         for name, value in asdict(item).items():
+            if selected and name not in selected and "*" not in selected:
+               continue
+            try:
+                if name in filtered and unmatched(value, filtered[name]):
+                    continue
+            except: pass
+            row[name] = value
             if name not in cols:
                 cols[name] = max(minwidth, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+        rows.append(row)
     def sortkey(header: str) -> str:
         if header in sortheaders:
             return "%07i" % sortheaders.index(header)
