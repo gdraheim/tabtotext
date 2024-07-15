@@ -383,10 +383,19 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     else:
         results = cast(JSONList, result)
     return tabToGFM(results, sorts, formats, selects, noheaders=noheaders, legend=legend, tab=tab)
-def tabToGFM(result: JSONList,  # ..
+def tabToGFM(result: Iterable[JSONDict],  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
              reorder: ColSortList = []) -> str:
+    selected = []
+    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        if ":" in selec:
+            name, form = selec.split(":", 1)
+            if isinstance(formats, dict):
+                formats[name] = form if "{" in form else ("{:" + form + "}")
+            selected.append(name)
+        else:
+            selected.append(selec)
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -394,12 +403,18 @@ def tabToGFM(result: JSONList,  # ..
         format = FormatGFM(formats, tab=tab)
     sortkey = ColSortCallable(sorts, reorder)
     sortrow = RowSortCallable(sorts)
+    rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in result:
+        row: JSONDict = {}
         for name, value in item.items():
+            if selected and name not in selected and "*" not in selected:
+               continue
+            row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+        rows.append(row)
     def rightF(col: str, formatter: str) -> str:
         if format.right(col):
             return formatter.replace("%-", "%")
@@ -417,7 +432,7 @@ def tabToGFM(result: JSONList,  # ..
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
                           for name in sorted(cols.keys(), key=sortkey)]
             lines.append(" ".join(seperators))
-    for item in sorted(result, key=sortrow):
+    for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in item.items():
             values[name] = format(name, value)
@@ -521,10 +536,19 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToHTML(results, sorts, formats, selects, legend=legend, combine=combine)
-def tabToHTML(result: JSONList,  # ..
+def tabToHTML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
+    selected = []
+    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        if ":" in selec:
+            name, form = selec.split(":", 1)
+            if isinstance(formats, dict):
+                formats[name] = form if "{" in form else ("{:" + form + "}")
+            selected.append(name)
+        else:
+            selected.append(selec)
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -532,12 +556,18 @@ def tabToHTML(result: JSONList,  # ..
         format = FormatHTML(formats)
     sortkey = ColSortCallable(sorts, reorder)
     sortrow = RowSortCallable(sorts)
+    rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in result:
+        row: JSONDict = {}
         for name, value in item.items():
+            if selected and name not in selected and "*" not in selected:
+               continue
+            row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+        rows.append(row)
     def rightTH(col: str, value: str) -> str:
         if format.right(col):
             return value.replace("<th>", '<th style="text-align: right">')
@@ -559,7 +589,7 @@ def tabToHTML(result: JSONList,  # ..
         else:
             headers += [rightTH(name, "<th>{}</th>".format(escape(name)))]
     lines = ["<tr>" + "".join(headers) + "</tr>"]
-    for item in sorted(result, key=sortrow):
+    for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = dict([(name, "") for name in cols.keys()])  # initialized with all columns to empty string
         for name, value in item.items():
             values[name] = format(name, value)
@@ -694,10 +724,19 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToJSON(results, sorts, selects, formats, datedelim=datedelim, legend=legend)
-def tabToJSON(result: JSONList,  # ..
+def tabToJSON(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    selected = []
+    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        if ":" in selec:
+            name, form = selec.split(":", 1)
+            if isinstance(formats, dict):
+                formats[name] = form if "{" in form else ("{:" + form + "}")
+            selected.append(name)
+        else:
+            selected.append(selec)
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -707,14 +746,20 @@ def tabToJSON(result: JSONList,  # ..
         logg.debug("legend is ignored for JSON output")
     sortkey = ColSortCallable(sorts, reorder)
     sortrow = RowSortCallable(sorts, datedelim)
+    rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in result:
+        row: JSONDict = {}
         for name, value in item.items():
+            if selected and name not in selected and "*" not in selected:
+               continue
+            row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+        rows.append(row)
     lines = []
-    for item in sorted(result, key=sortrow):
+    for item in sorted(rows, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
@@ -774,10 +819,19 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToYAML(results, sorts, formats, datedelim=datedelim, legend=legend)
-def tabToYAML(result: JSONList,  # ..
+def tabToYAML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    selected = []
+    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        if ":" in selec:
+            name, form = selec.split(":", 1)
+            if isinstance(formats, dict):
+                formats[name] = form if "{" in form else ("{:" + form + "}")
+            selected.append(name)
+        else:
+            selected.append(selec)
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -787,17 +841,23 @@ def tabToYAML(result: JSONList,  # ..
         logg.debug("legend is ignored for YAML output")
     sortkey = ColSortCallable(sorts, reorder)
     sortrow = RowSortCallable(sorts, datedelim)
+    rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in result:
+        row: JSONDict = {}
         for name, value in item.items():
+            if selected and name not in selected and "*" not in selected:
+               continue
+            row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+        rows.append(row)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
         return (name if is_simple.match(name) else '"%s"' % name)
     lines = []
-    for item in sorted(result, key=sortrow):
+    for item in sorted(rows, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
@@ -887,10 +947,19 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToTOML(results, sorts, formats, selects, datedelim=datedelim, legend=legend)
-def tabToTOML(result: JSONList,  # ..
+def tabToTOML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    selected = []
+    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        if ":" in selec:
+            name, form = selec.split(":", 1)
+            if isinstance(formats, dict):
+                formats[name] = form if "{" in form else ("{:" + form + "}")
+            selected.append(name)
+        else:
+            selected.append(selec)
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -900,17 +969,23 @@ def tabToTOML(result: JSONList,  # ..
         logg.debug("legend is ignored for TOML output")
     sortkey = ColSortCallable(sorts, reorder)
     sortrow = RowSortCallable(sorts, datedelim)
+    rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in result:
+        row: JSONDict = {}
         for name, value in item.items():
+            if selected and name not in selected and "*" not in selected:
+               continue
+            row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+        rows.append(row)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
         return (name if is_simple.match(name) else '"%s"' % name)
     lines = []
-    for item in sorted(result, key=sortrow):
+    for item in sorted(rows, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             if value is not None:
@@ -1016,10 +1091,19 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToCSV(results, sorts, formats, selects, datedelim=datedelim, noheaders=noheaders, legend=legend)
-def tabToCSV(result: JSONList, # ..
+def tabToCSV(result: Iterable[JSONDict], # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
              *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [], tab: str = ";",
              reorder: ColSortList = []) -> str:
+    selected = []
+    for selec in [sel if "@" not in sel else sel.split("@", 1)[0] for sel in selects]:
+        if ":" in selec:
+            name, form = selec.split(":", 1)
+            if isinstance(formats, dict):
+                formats[name] = form if "{" in form else ("{:" + form + "}")
+            selected.append(name)
+        else:
+            selected.append(selec)
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -1027,16 +1111,24 @@ def tabToCSV(result: JSONList, # ..
         format = FormatCSV(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for CSV output")
+
     sortkey = ColSortCallable(sorts, reorder)
     sortrow = RowSortCallable(sorts, datedelim)
+    rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in result:
+        row: JSONDict = {}
         for name, value in item.items():
+            if selected and name not in selected and "*" not in selected:
+               continue
+               continue
+            row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
+        rows.append(row)
     lines = []
-    for item in sorted(result, key=sortrow):
+    for item in sorted(rows, key=sortrow):
         values: JSONDict = dict([(name, _None_String) for name in cols.keys()])
         for name, value in item.items():
             values[name] = format(name, value)
