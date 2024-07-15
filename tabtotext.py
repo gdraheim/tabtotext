@@ -508,8 +508,10 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
-            if name in filtered and unmatched(value, filtered[name]):
-                continue
+            try:
+                if name in filtered and unmatched(value, filtered[name]):
+                    continue
+            except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -673,8 +675,10 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
-            if name in filtered and unmatched(value, filtered[name]):
-                continue
+            try:
+                if name in filtered and unmatched(value, filtered[name]):
+                    continue
+            except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -875,8 +879,10 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
-            if name in filtered and unmatched(value, filtered[name]):
-                continue
+            try:
+                if name in filtered and unmatched(value, filtered[name]):
+                    continue
+            except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -982,8 +988,10 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
-            if name in filtered and unmatched(value, filtered[name]):
-                continue
+            try:
+                if name in filtered and unmatched(value, filtered[name]):
+                    continue
+            except: pass 
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -1122,8 +1130,10 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
-            if name in filtered and unmatched(value, filtered[name]):
-                continue
+            try:
+                if name in filtered and unmatched(value, filtered[name]):
+                    continue
+            except: pass 
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -1281,8 +1291,10 @@ def tabToCSV(result: Iterable[JSONDict], # ..
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
-            if name in filtered and unmatched(value, filtered[name]):
-                continue
+            try:
+                if name in filtered and unmatched(value, filtered[name]):
+                    continue
+            except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
