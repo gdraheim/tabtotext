@@ -505,8 +505,7 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
     return tabtoGFM(result, headers, selects, noheaders=noheaders, legend=legend,  # ..
                     tab=tab, reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoGFM(data: Iterable[JSONDict],  # ..
-             headers: List[str] = [], selects: List[str] = [], # ..
+def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
@@ -1019,8 +1018,7 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
     return tabtoJSON(result, headers, selects, datedelim=datedelim, legend=legend,  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoJSON(data: Iterable[JSONDict],  # ..
-             headers: List[str] = [], selects: List[str] = [], # ..
+def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
              *, datedelim: str = '-', legend: LegendList = [], #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
@@ -1197,8 +1195,7 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
     return tabtoYAML(result, headers, selects, datedelim=datedelim, legend=legend,  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoYAML(data: Iterable[JSONDict],  # ..
-             headers: List[str] = [], selects: List[str] = [], # ..
+def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
              *, datedelim: str = '-', legend: LegendList = [], #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
