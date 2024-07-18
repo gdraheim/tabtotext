@@ -776,10 +776,10 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 filtered[name] = "=" + cond
             selected.append(name)
             if rename:
-                renaming[selcol] = rename
+                renaming[name] = rename
                 rename = "" # only the first
             if orders:
-                reorders[selcol] = orders
+                reorders[name] = orders
     if reorders:
         headerorder = reorders  # selects overrides headers defaults
     logg.debug("sortheaders = %s | formats = %s | headerorder = %s", sortheaders, formats, headerorder)
