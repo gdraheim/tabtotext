@@ -479,6 +479,8 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
         if ":" in selcol:
             name, fmt = selcol.split(":", 1)
             formattings[name] = fmt
+        else:
+            name = selcol
         sortheaders += [ name ]  # default sort by named headers (rows)
         if headernum < 10:  # and default order by named headers (cols)
             headerorder[name] = orders or "@%i" % headernum
@@ -737,7 +739,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             name, fmt = selcol.split(":", 1)
             formats[name] = fmt
         else:
-            name = header
+            name = selcol
         sortheaders += [ name ]  # default sort by named headers (rows)
         if headernum < 10:  # and default order by named headers (cols)
             headerorder[name] = orders or "@%i" % headernum
