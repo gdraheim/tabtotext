@@ -562,10 +562,10 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 filtered[name] = "=" + cond
             selected.append(name)
             if rename:
-                renaming[selcol] = rename
+                renaming[name] = rename
                 rename = "" # only the first
             if orders:
-                reorders[selcol] = orders
+                reorders[name] = orders
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1108,12 +1108,12 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif "~" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(selcol)
+            selected.append(name)
             if rename:
-                renaming[selcol] = rename
+                renaming[name] = rename
                 rename = "" # only the first
             if orders:
-                reorders[selcol] = orders
+                reorders[name] = orders
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1286,12 +1286,12 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif "~" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(selcol)
+            selected.append(name)
             if rename:
-                renaming[selcol] = rename
+                renaming[name] = rename
                 rename = "" # only the first
             if orders:
-                reorders[selcol] = orders
+                reorders[name] = orders
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1497,12 +1497,12 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif "~" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(selcol)
+            selected.append(name)
             if rename:
-                renaming[selcol] = rename
+                renaming[name] = rename
                 rename = "" # only the first
             if orders:
-                reorders[selcol] = orders
+                reorders[name] = orders
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1724,12 +1724,12 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             elif "~" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(selcol)
+            selected.append(name)
             if rename:
-                renaming[selcol] = rename
+                renaming[name] = rename
                 rename = "" # only the first
             if orders:
-                reorders[selcol] = orders
+                reorders[name] = orders
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
