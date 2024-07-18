@@ -502,11 +502,12 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
     else:
         sorting = sorts
         formatter = formats
-    return tabtoGFM(result, headers, selects, noheaders=noheaders, legend=legend,  # ..
-                    tab=tab, reorder=reorder, sorts=sorts, formatter=formatter)
+    return tabtoGFM(result, headers, selects, legend=legend, # ..
+                    noheaders=noheaders, tab=tab, # ..
+                    reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
+             *, legend: LegendList = [], noheaders: bool = False,  tab: str = "|",  #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
@@ -737,8 +738,9 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
     else:
         sorting = sorts
         formatter = formats
-    return tabtoHTML(result, headers, selects, legend=legend,  # ..
-                    combine=combine, reorder=reorder, sorts=sorts, formatter=formatter)
+    return tabtoHTML(result, headers, selects, # ..
+                     legend=legend, combine=combine, # ..
+                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
              *, legend: LegendList = [], combine: Dict[str, str] = {},  #
@@ -1015,11 +1017,12 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
     else:
         sorting = sorts
         formatter = formats
-    return tabtoJSON(result, headers, selects, datedelim=datedelim, legend=legend,  # ..
+    return tabtoJSON(result, headers, selects, # ..
+                    legend=legend, datedelim=datedelim, # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, datedelim: str = '-', legend: LegendList = [], #
+             *, legend: LegendList = [], datedelim: str = '-', #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
@@ -1192,11 +1195,12 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
     else:
         sorting = sorts
         formatter = formats
-    return tabtoYAML(result, headers, selects, datedelim=datedelim, legend=legend,  # ..
-                    reorder=reorder, sorts=sorts, formatter=formatter)
+    return tabtoYAML(result, headers, selects, # ..
+                     legend=legend, datedelim=datedelim, # ..
+                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, datedelim: str = '-', legend: LegendList = [], #
+             *, legend: LegendList = [], datedelim: str = '-',  #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
@@ -1402,11 +1406,12 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
     else:
         sorting = sorts
         formatter = formats
-    return tabtoTOML(result, headers, selects, datedelim=datedelim, legend=legend,  # ..
-                    reorder=reorder, sorts=sorts, formatter=formatter)
+    return tabtoTOML(result, headers, selects, # ..
+                     legend=legend, datedelim=datedelim, # ..
+                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, datedelim: str = '-', legend: LegendList = [], #
+             *, legend: LegendList = [], datedelim: str = '-', #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
@@ -1629,11 +1634,11 @@ def tabToCSV(result: Iterable[JSONDict], # ..
         sorting = sorts
         formatter = formats
     return tabtoCSV(result, headers, selects, # ..
-                    datedelim=datedelim, noheaders=noheaders, legend=legend, tab=tab, # ..
+                    legend=legend, datedelim=datedelim, noheaders=noheaders, tab=tab, # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [], tab: str = ";", #
+             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = ";", #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
