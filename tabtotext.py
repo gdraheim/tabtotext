@@ -715,6 +715,57 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
+    """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
+    headers: List[str] = []
+    sorting: RowSortList = []
+    formatter: FormatsDict = {}
+    if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        for header in sorts:
+            if "@" in header:
+                names, renamed = header.split("@", 1)
+                if renamed:
+                    rename = "@" +renamed
+            else:
+                names, rename = header, ""
+            cols: List[str] = []
+            for name in names.split("|"):
+                if name in formats:
+                    cols += [ name + ":" + formats[name]]
+                else:
+                    cols += [ name ]
+            headers += [ "|".join(cols) + rename ]
+        logg.info("headers = %s", headers)
+    else:
+        sorting = sorts
+        formatter = formats
+    return tabtoHTML(result, headers, selects, legend=legend,  # ..
+                    combine=combine, reorder=reorder, sorts=sorts, formatter=formatter)
+
+def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
+             *, legend: LegendList = [], combine: Dict[str, str] = {},  #
+             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    sortheaders: List[str] = []
+    headerorder: Dict[str, str] = {}
+    formats: Dict[str, str] = {}
+    for headernum, header in enumerate(headers):
+        if "@" in header:
+            selcol, rename = header.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
+        else:
+            selcol, rename, orders = header, "", ""
+        if ":" in selcol:
+            name, fmt = selcol.split(":", 1)
+            formats[name] = fmt
+        else:
+            name = selcol
+        sortheaders += [ name ]  # default sort by named headers (rows)
+        if headernum < 10:  # and default order by named headers (cols)
+            headerorder[name] = orders or "@%i" % headernum
+        else:
+            headerorder[name] = orders or "@:%07i" % headernum
     combined: Dict[str, str] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
@@ -760,15 +811,15 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
     if not selects:
         combined = combine # argument
     format: FormatJSONItem
-    if isinstance(formats, FormatJSONItem):
-        format = formats
+    if formatter and isinstance(formatter, FormatJSONItem):
+        format = formatter
     else:
         format = FormatHTML(formats)
     sortkey = ColSortCallable(sorts, reorders or reorder)
     sortrow = RowSortCallable(sorts)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in result:
+    for item in data:
         row: JSONDict = {}
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
