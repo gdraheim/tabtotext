@@ -3912,7 +3912,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
+        cond = ['| a     | b', '| ----- | -----', '| x     | 03', '| y     | 02']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, self.data_for_7248)

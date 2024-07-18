@@ -479,14 +479,19 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
              reorder: ColSortList = []) -> str:
+    reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
         else:
-            selcols, rename = selec, ""
+            selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -508,12 +513,14 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
             if rename:
                 renaming[selcol] = rename
                 rename = "" # only the first
+            if orders:
+                reorders[selcol] = orders
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
     else:
         format = FormatGFM(formats, tab=tab)
-    sortkey = ColSortCallable(sorts, reorder)
+    sortkey = ColSortCallable(sorts, reorders or reorder)
     sortrow = RowSortCallable(sorts)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
