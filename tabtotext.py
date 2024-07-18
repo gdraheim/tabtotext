@@ -1379,6 +1379,57 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
+    headers: List[str] = []
+    sorting: RowSortList = []
+    formatter: FormatsDict = {}
+    if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        for header in sorts:
+            if "@" in header:
+                names, renamed = header.split("@", 1)
+                if renamed:
+                    rename = "@" +renamed
+            else:
+                names, rename = header, ""
+            cols: List[str] = []
+            for name in names.split("|"):
+                if name in formats:
+                    cols += [ name + ":" + formats[name]]
+                else:
+                    cols += [ name ]
+            headers += [ "|".join(cols) + rename ]
+        logg.info("headers = %s", headers)
+    else:
+        sorting = sorts
+        formatter = formats
+    return tabtoTOML(result, headers, selects, datedelim=datedelim, legend=legend,  # ..
+                    reorder=reorder, sorts=sorts, formatter=formatter)
+
+def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
+             *, datedelim: str = '-', legend: LegendList = [], #
+             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    sortheaders: List[str] = []
+    headerorder: Dict[str, str] = {}
+    formats: Dict[str, str] = {}
+    for headernum, header in enumerate(headers):
+        if "@" in header:
+            selcol, rename = header.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
+        else:
+            selcol, rename, orders = header, "", ""
+        if ":" in selcol:
+            name, fmt = selcol.split(":", 1)
+            formats[name] = fmt
+        else:
+            name = selcol
+        sortheaders += [ name ]  # default sort by named headers (rows)
+        if headernum < 10:  # and default order by named headers (cols)
+            headerorder[name] = orders or "@%i" % headernum
+        else:
+            headerorder[name] = orders or "@:%07i" % headernum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -1416,8 +1467,8 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
             if orders:
                 reorders[selcol] = orders
     format: FormatJSONItem
-    if isinstance(formats, FormatJSONItem):
-        format = formats
+    if formatter and isinstance(formatter, FormatJSONItem):
+        format = formatter
     else:
         format = FormatTOML(formats, datedelim=datedelim)
     if legend:
@@ -1426,7 +1477,7 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
     sortrow = RowSortCallable(sorts, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in result:
+    for item in data:
         row: JSONDict = {}
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
