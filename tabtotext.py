@@ -664,14 +664,19 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
               *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
     combined: Dict[str, str] = {}
+    reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
         else:
-            selcols, rename = selec, ""
+            selcols, rename, orders = selec, "", ""
         combines = ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
@@ -694,6 +699,8 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
             if rename:
                 renaming[selcol] = rename
                 rename = "" # only the first
+            if orders:
+                reorders[selcol] = orders
             if not combines:
                 combines = selcol
             else:
@@ -705,7 +712,7 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         format = formats
     else:
         format = FormatHTML(formats)
-    sortkey = ColSortCallable(sorts, reorder)
+    sortkey = ColSortCallable(sorts, reorders or reorder)
     sortrow = RowSortCallable(sorts)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -883,14 +890,19 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
         else:
-            selcols, rename = selec, ""
+            selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -912,6 +924,8 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
             if rename:
                 renaming[selcol] = rename
                 rename = "" # only the first
+            if orders:
+                reorders[selcol] = orders
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -919,7 +933,7 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
         format = FormatJSON(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for JSON output")
-    sortkey = ColSortCallable(sorts, reorder)
+    sortkey = ColSortCallable(sorts, reorders or reorder)
     sortrow = RowSortCallable(sorts, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -1002,14 +1016,19 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
         else:
-            selcols, rename = selec, ""
+            selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -1031,6 +1050,8 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
             if rename:
                 renaming[selcol] = rename
                 rename = "" # only the first
+            if orders:
+                reorders[selcol] = orders
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -1038,7 +1059,7 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
         format = FormatYAML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for YAML output")
-    sortkey = ColSortCallable(sorts, reorder)
+    sortkey = ColSortCallable(sorts, reorders or reorder)
     sortrow = RowSortCallable(sorts, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -1154,14 +1175,19 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
+    reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
         else:
-            selcols, rename = selec, ""
+            selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -1183,6 +1209,8 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
             if rename:
                 renaming[selcol] = rename
                 rename = "" # only the first
+            if orders:
+                reorders[selcol] = orders
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -1190,7 +1218,7 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
         format = FormatTOML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for TOML output")
-    sortkey = ColSortCallable(sorts, reorder)
+    sortkey = ColSortCallable(sorts, reorders or reorder)
     sortrow = RowSortCallable(sorts, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -1322,14 +1350,19 @@ def tabToCSV(result: Iterable[JSONDict], # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
              *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [], tab: str = ";",
              reorder: ColSortList = []) -> str:
+    reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
+            if "@" in rename:
+                rename, orders = rename.split("@", 1)
+            else:
+                rename, orders = rename, ""
         else:
-            selcols, rename = selec, ""
+            selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -1351,6 +1384,8 @@ def tabToCSV(result: Iterable[JSONDict], # ..
             if rename:
                 renaming[selcol] = rename
                 rename = "" # only the first
+            if orders:
+                reorders[selcol] = orders
     format: FormatJSONItem
     if isinstance(formats, FormatJSONItem):
         format = formats
@@ -1359,7 +1394,7 @@ def tabToCSV(result: Iterable[JSONDict], # ..
     if legend:
         logg.debug("legend is ignored for CSV output")
 
-    sortkey = ColSortCallable(sorts, reorder)
+    sortkey = ColSortCallable(sorts, reorders or reorder)
     sortrow = RowSortCallable(sorts, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
