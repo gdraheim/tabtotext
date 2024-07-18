@@ -988,7 +988,7 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToJSON(results, sorts, selects, formats, datedelim=datedelim, legend=legend)
+    return tabToJSON(results, sorts, formats, selects, datedelim=datedelim, legend=legend)
 def tabToJSON(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [],  #
