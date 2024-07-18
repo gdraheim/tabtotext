@@ -719,6 +719,7 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
     headers: List[str] = []
     sorting: RowSortList = []
     formatter: FormatsDict = {}
+    combined: List[str] = []
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
         for header in sorts:
             if "@" in header:
@@ -733,40 +734,60 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
                     cols += [ name + ":" + formats[name]]
                 else:
                     cols += [ name ]
+                if name in combine:
+                    adds = combine[name]
+                    if adds in formats:
+                        cols += [ adds + ":" + formats[adds]]
+                    else:
+                        cols += [ adds ]
+                    combined += [ adds ]
             headers += [ "|".join(cols) + rename ]
-        logg.info("headers = %s", headers)
+        for name in combine:
+            if name not in combined:
+                adds = combine[name]
+                headers += [ name + "|" + adds]
+        logg.debug("headers = %s", headers)
+        logg.debug("combine < %s", combine)
     else:
         sorting = sorts
         formatter = formats
     return tabtoHTML(result, headers, selects, # ..
-                     legend=legend, combine=combine, # ..
+                     legend=legend, # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, legend: LegendList = [], combine: Dict[str, str] = {},  #
+             *, legend: LegendList = [], #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
+    combine: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
-            selcol, rename = header.split("@", 1)
+            selcols, rename = header.split("@", 1)
             if "@" in rename:
                 rename, orders = rename.split("@", 1)
             else:
                 rename, orders = rename, ""
         else:
-            selcol, rename, orders = header, "", ""
-        if ":" in selcol:
-            name, fmt = selcol.split(":", 1)
-            formats[name] = fmt
-        else:
-            name = selcol
-        sortheaders += [ name ]  # default sort by named headers (rows)
-        if headernum < 10:  # and default order by named headers (cols)
-            headerorder[name] = orders or "@%i" % headernum
-        else:
-            headerorder[name] = orders or "@:%07i" % headernum
+            selcols, rename, orders = header, "", ""
+        combines = ""
+        for selcol in selcols.split("|"):
+            if ":" in selcol:
+                name, fmt = selcol.split(":", 1)
+                formats[name] = fmt
+            else:
+                name = selcol
+            sortheaders += [ name ]  # default sort by named headers (rows)
+            if headernum < 10:  # and default order by named headers (cols)
+                headerorder[name] = orders or "@%i" % headernum
+            else:
+                headerorder[name] = orders or "@:%07i" % headernum
+            if not combines:
+                combines = name
+            else:
+                combine[combines] = name
+    logg.debug("combine > %s", combine)
     combined: Dict[str, str] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
