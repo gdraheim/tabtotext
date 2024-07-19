@@ -298,7 +298,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(data, test019q)
 
 
-    def test_7103(self) -> None:
+    def test_6103(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test003)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -308,7 +308,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, [])
-    def test_7104(self) -> None:
+    def test_6104(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test004)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -318,7 +318,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, [])
-    def test_7105(self) -> None:
+    def test_6105(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test005)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -328,7 +328,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test005)
-    def test_7106(self) -> None:
+    def test_6106(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test006)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -338,7 +338,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test006)
-    def test_7107(self) -> None:
+    def test_6107(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test007)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -348,7 +348,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test007Q)
-    def test_7108(self) -> None:
+    def test_6108(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test008)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -358,7 +358,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test008Q)
-    def test_7109(self) -> None:
+    def test_6109(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test009)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -368,7 +368,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test009Q)
-    def test_7111(self) -> None:
+    def test_6111(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test011)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -378,7 +378,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test011)
-    def test_7112(self) -> None:
+    def test_6112(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test012)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -388,7 +388,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test012)
-    def test_7113(self) -> None:
+    def test_6113(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test013)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -398,7 +398,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test013)
-    def test_7114(self) -> None:
+    def test_6114(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test014)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -408,7 +408,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test014)
-    def test_7115(self) -> None:
+    def test_6115(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test015)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -418,7 +418,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test015Q)
-    def test_7116(self) -> None:
+    def test_6116(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test016)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -428,7 +428,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test016)
-    def test_7117(self) -> None:
+    def test_6117(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test017)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -438,7 +438,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test017)
-    def test_7118(self) -> None:
+    def test_6118(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test018)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -448,7 +448,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test018)
-    def test_7119(self) -> None:
+    def test_6119(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test019)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
@@ -458,7 +458,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         self.assertEqual(data, test019q)
-    def test_7144(self) -> None:
+    def test_6144(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b', 'a'])
@@ -471,7 +471,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7171(self) -> None:
+    def test_6171(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b', 'a: {:}'])
@@ -484,7 +484,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7172(self) -> None:
+    def test_6172(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b', 'a: %s'])
@@ -497,7 +497,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7173(self) -> None:
+    def test_6173(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b:<.2n', 'a:"%s"'])
@@ -510,7 +510,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7174(self) -> None:
+    def test_6174(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b:{:.2f}', 'a:"{:}"'])
@@ -523,7 +523,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7175(self) -> None:
+    def test_6175(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b:{:<.2f}', 'a:"{:}"'])
@@ -537,7 +537,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7176(self) -> None:
+    def test_6176(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b:{:.2f}', 'a:"{:}"'])
@@ -551,7 +551,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
     @unittest.expectedFailure
-    def test_7177(self) -> None:
+    def test_6177(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b:{:$}', 'a:"{:}"'])
@@ -564,7 +564,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7178(self) -> None:
+    def test_6178(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b:{:3f}', 'a:"{:5s}"'])
@@ -577,7 +577,7 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_7179(self) -> None:
+    def test_6179(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
         out = StringIO()
         res = print_tabtotext(out, itemlist, ['b:{:>3f}', 'a:"{:>5s}"'])
@@ -591,10 +591,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
 
-    data_for_7220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
-    def test_7220(self) -> None:
+    date_for_6220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
+    def test_6220(self) -> None:
         out = StringIO()
-        res = print_tabtotext(out, self.data_for_7220, ["b", "a"])  # defaultformat="markdown"
+        res = print_tabtotext(out, self.date_for_6220, ["b", "a"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -602,11 +602,11 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         del data[1]["a"]
-        self.assertEqual(data, self.data_for_7220)
-    data_for_7221: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
-    def test_7221(self) -> None:
+        self.assertEqual(data, self.date_for_6220)
+    date_for_6221: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
+    def test_6221(self) -> None:
         out = StringIO()
-        res = print_tabtotext(out, self.data_for_7221, ["b", "a"])  # defaultformat="markdown"
+        res = print_tabtotext(out, self.date_for_6221, ["b", "a"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -614,7 +614,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadGFM(text)
         del data[0]["a"]
-        self.assertEqual(rev(data), self.data_for_7221)  # type: ignore[arg-type]
+        self.assertEqual(rev(data), self.date_for_6221)  # type: ignore[arg-type]
 
     def test_9771(self) -> None:
         tmp = self.testdir()
