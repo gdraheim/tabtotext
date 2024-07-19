@@ -1353,6 +1353,43 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
+    def test_5060(self) -> None:
+        text = tabtotext.tabToCSV(table01, ["b", "a"])
+        logg.debug("%s => %s", table01, text)
+        cond = ['b;a', '1;~', '~;x']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, rev(table01N))
+    def test_5061(self) -> None:
+        text = tabtotext.tabToCSV(table02, ["b", "a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['b;a', '0;x', '2;~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, table02N)
+    def test_5062(self) -> None:
+        text = tabtotext.tabToCSV(table22, ["b", "a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['b;a', '2;y', '3;x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table22))
+    def test_5063(self) -> None:
+        text = tabtotext.tabToCSV(table33, ["b", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['b;a;c', '2;y;2021-12-30', '3;x;2021-12-31', '~;~;2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
+    def test_5064(self) -> None:
+        text = tabtotext.tabToCSV(table33, ["c", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;~;~', '2021-12-31;x;3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
 
     def test_5071(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
