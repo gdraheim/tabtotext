@@ -1088,56 +1088,56 @@ class TabToTextTest(unittest.TestCase):
         logg.info("sorts = %s", hr.sorts())
         logg.info("order = %s", hr.order())
     #
-    def test_5003(self) -> None:
+    def test_4003(self) -> None:
         text = tabtotext.tabToCSV(test003)
         logg.debug("%s => %s", test003, text)
         cond = ['']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, [])
-    def test_5004(self) -> None:
+    def test_4004(self) -> None:
         text = tabtotext.tabToCSV(test004)
         logg.debug("%s => %s", test004, text)
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, [])
-    def test_5005(self) -> None:
+    def test_4005(self) -> None:
         text = tabtotext.tabToCSV(test005)
         logg.debug("%s => %s", test005, text)
         cond = ['a', 'x', ]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test005)
-    def test_5006(self) -> None:
+    def test_4006(self) -> None:
         text = tabtotext.tabToCSV(test006)
         logg.debug("%s => %s", test006, text)
         cond = ['a;b', 'x;y', ]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test006)
-    def test_5007(self) -> None:
+    def test_4007(self) -> None:
         text = tabtotext.tabToCSV(test007)
         logg.debug("%s => %s", test007, text)
         cond = ['a;b', 'x;y', '~;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test007Q)
-    def test_5008(self) -> None:
+    def test_4008(self) -> None:
         text = tabtotext.tabToCSV(test008)
         logg.debug("%s => %s", test008, text)
         cond = ['a;b', 'x;~', '~;v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test008Q)
-    def test_5009(self) -> None:
+    def test_4009(self) -> None:
         text = tabtotext.tabToCSV(test009)
         logg.debug("%s => %s", test009, text)
         cond = ['b', '~', 'v']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test009Q)
-    def test_5011(self) -> None:
+    def test_4011(self) -> None:
         text = tabtotext.tabToCSV(test011)
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
@@ -1145,7 +1145,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test011)
-    def test_5012(self) -> None:
+    def test_4012(self) -> None:
         text = tabtotext.tabToCSV(test012)
         logg.debug("%s => %s", test012, text)
         cond = ['b', '(no)']
@@ -1153,28 +1153,28 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test012)
-    def test_5013(self) -> None:
+    def test_4013(self) -> None:
         text = tabtotext.tabToCSV(test013)
         logg.debug("%s => %s", test013, text)
         cond = ['b', '(yes)']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test013)
-    def test_5014(self) -> None:
+    def test_4014(self) -> None:
         text = tabtotext.tabToCSV(test014)
         logg.debug("%s => %s", test014, text)
         cond = ['b', '""']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test014)
-    def test_5015(self) -> None:
+    def test_4015(self) -> None:
         text = tabtotext.tabToCSV(test015)
         logg.debug("%s => %s", test015, text)
         cond = ['b', '5678']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test015Q)
-    def test_5016(self) -> None:
+    def test_4016(self) -> None:
         text = tabtotext.tabToCSV(test016)
         logg.debug("%s => %s", test016, text)
         cond = ['b', '123']
@@ -1183,7 +1183,7 @@ class TabToTextTest(unittest.TestCase):
         if data[0]['b'] == "123":
             data[0]['b'] = 123
         self.assertEqual(data, test016)
-    def test_5017(self) -> None:
+    def test_4017(self) -> None:
         text = tabtotext.tabToCSV(test017)
         logg.debug("%s => %s", test017, text)
         cond = ['b', '123.40']
@@ -1192,21 +1192,21 @@ class TabToTextTest(unittest.TestCase):
         if data[0]['b'] == "123.40":
             data[0]['b'] = 123.4
         self.assertEqual(data, test017)
-    def test_5018(self) -> None:
+    def test_4018(self) -> None:
         text = tabtotext.tabToCSV(test018)
         logg.debug("%s => %s", test018, text)
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)
-    def test_5019(self) -> None:
+    def test_4019(self) -> None:
         text = tabtotext.tabToCSV(test019)
         logg.debug("%s => %s", test019, text)
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
-    def test_5020(self) -> None:
+    def test_4020(self) -> None:
         text = tabtotext.tabToCSV(table01)
         logg.debug("%s => %s", table01, text)
         cond = ['a;b', 'x;~', '~;1']
@@ -1214,7 +1214,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, table01N)
-    def test_5021(self) -> None:
+    def test_4021(self) -> None:
         text = tabtotext.tabToCSV(table02)
         logg.debug("%s => %s", table02, text)
         cond = ['a;b', 'x;0', '~;2']
@@ -1222,21 +1222,21 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, table02N)
-    def test_5022(self) -> None:
+    def test_4022(self) -> None:
         text = tabtotext.tabToCSV(table22)
         logg.debug("%s => %s", table22, text)
         cond = ['a;b', 'x;3', 'y;2']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, table22)
-    def test_5023(self) -> None:
+    def test_4023(self) -> None:
         text = tabtotext.tabToCSV(table33)
         logg.debug("%s => %s", table33, text)
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, table33Q)
-    def test_5030(self) -> None:
+    def test_4030(self) -> None:
         """ legend is ignored for CSV """
         text = tabtotext.tabToCSV(test011, legend="a result")
         logg.debug("%s => %s", test011, text)
@@ -1245,7 +1245,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test011)
-    def test_5031(self) -> None:
+    def test_4031(self) -> None:
         """ legend is ignored for CSV """
         text = tabtotext.tabToCSV(test011, legend=["a result", "was found"])
         logg.debug("%s => %s", test011, text)
@@ -1254,7 +1254,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test011)
-    def test_5044(self) -> None:
+    def test_4044(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         text = tabtotext.tabToCSV(itemlist, sorts=['b', 'a'])
         logg.debug("%s => %s", test004, text)
@@ -1264,7 +1264,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5045(self) -> None:
+    def test_4045(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
         text = tabtotext.tabToCSV(itemlist, sorts=['b', 'a'])
         logg.debug("%s => %s", test004, text)
@@ -1274,7 +1274,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5046(self) -> None:
+    def test_4046(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
         text = tabtotext.tabToCSV(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
         logg.debug("%s => %s", test004, text)
@@ -1284,7 +1284,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5051(self) -> None:
+    def test_4051(self) -> None:
         text = tabtotext.tabToCSVx(data011)
         logg.debug("%s => %s", data011, text)
         cond = ['b', '~']
@@ -1292,7 +1292,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test011)
-    def test_5052(self) -> None:
+    def test_4052(self) -> None:
         text = tabtotext.tabToCSVx(data012)
         logg.debug("%s => %s", data012, text)
         cond = ['b', '(no)']
@@ -1300,28 +1300,28 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test012)
-    def test_5053(self) -> None:
+    def test_4053(self) -> None:
         text = tabtotext.tabToCSVx(data013)
         logg.debug("%s => %s", data013, text)
         cond = ['b', '(yes)']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test013)
-    def test_5054(self) -> None:
+    def test_4054(self) -> None:
         text = tabtotext.tabToCSVx(data014)
         logg.debug("%s => %s", data014, text)
         cond = ['b', '""']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test014)
-    def test_5055(self) -> None:
+    def test_4055(self) -> None:
         text = tabtotext.tabToCSVx(data015)
         logg.debug("%s => %s", data015, text)
         cond = ['b', '5678']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test015Q)
-    def test_5056(self) -> None:
+    def test_4056(self) -> None:
         text = tabtotext.tabToCSVx(data016)
         logg.debug("%s => %s", data016, text)
         cond = ['b', '123']
@@ -1330,7 +1330,7 @@ class TabToTextTest(unittest.TestCase):
         if data[0]['b'] == "123":
             data[0]['b'] = 123
         self.assertEqual(data, test016)
-    def test_5057(self) -> None:
+    def test_4057(self) -> None:
         text = tabtotext.tabToCSVx(data017)
         logg.debug("%s => %s", data017, text)
         cond = ['b', '123.40']
@@ -1339,51 +1339,49 @@ class TabToTextTest(unittest.TestCase):
         if data[0]['b'] == "123.40":
             data[0]['b'] = 123.4
         self.assertEqual(data, test017)
-    def test_5058(self) -> None:
+    def test_4058(self) -> None:
         text = tabtotext.tabToCSVx(data018)
         logg.debug("%s => %s", data018, text)
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)
-    def test_5059(self) -> None:
+    def test_4059(self) -> None:
         text = tabtotext.tabToCSVx(data019)
         logg.debug("%s => %s", data019, text)
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
-    def test_5060(self) -> None:
+    def test_4060(self) -> None:
         text = tabtotext.tabToCSV(table01, ["b", "a"])
         logg.debug("%s => %s", table01, text)
         cond = ['b;a', '1;~', '~;x']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, rev(table01N))
-    def test_5061(self) -> None:
+    def test_4061(self) -> None:
         text = tabtotext.tabToCSV(table02, ["b", "a"])
         logg.debug("%s => %s", table02, text)
         cond = ['b;a', '0;x', '2;~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, table02N)
-    def test_5062(self) -> None:
+    def test_4062(self) -> None:
         text = tabtotext.tabToCSV(table22, ["b", "a"])
         logg.debug("%s => %s", table22, text)
         cond = ['b;a', '2;y', '3;x']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, rev(table22))
-    def test_5063(self) -> None:
+    def test_4063(self) -> None:
         text = tabtotext.tabToCSV(table33, ["b", "a"])
         logg.debug("%s => %s", table33, text)
         cond = ['b;a;c', '2;y;2021-12-30', '3;x;2021-12-31', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
-    def test_5064(self) -> None:
+    def test_4064(self) -> None:
         text = tabtotext.tabToCSV(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
         cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;~;~', '2021-12-31;x;3']
@@ -1391,7 +1389,7 @@ class TabToTextTest(unittest.TestCase):
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
 
-    def test_5071(self) -> None:
+    def test_4071(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": ' {:}'}
         headers = ['b', 'a']
@@ -1403,7 +1401,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5072(self) -> None:
+    def test_4072(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": ' %s'}
         headers = ['b', 'a']
@@ -1415,7 +1413,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5073(self) -> None:
+    def test_4073(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": '(%s)', "b": "%.2f"}
         headers = ['b', 'a']
@@ -1427,7 +1425,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5074(self) -> None:
+    def test_4074(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         formats = {"a": '({:})', "b": "{:.2f}"}
         headers = ['b', 'a']
@@ -1439,7 +1437,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5075(self) -> None:
+    def test_4075(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '({:})', "b": "%.2f"}
         headers = ['b', 'a']
@@ -1451,7 +1449,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5076(self) -> None:
+    def test_4076(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '({:})', "b": "{:.3f}"}
         headers = ['b', 'a']
@@ -1463,7 +1461,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5077(self) -> None:
+    def test_4077(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '({:5s})', "b": "{:3f}"}
         headers = ['b', 'a']
@@ -1475,7 +1473,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y    )', 'b': 1.0}, {'a': '(x    )', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5078(self) -> None:
+    def test_4078(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:5s}"', "b": "{:3f}"}
         headers = ['b', 'a']
@@ -1487,7 +1485,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5079(self) -> None:
+    def test_4079(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:>5s}"', "b": "{:>3f}"}
         headers = ['b', 'a']
@@ -1499,7 +1497,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5103(self) -> None:
+    def test_4103(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test003, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1509,7 +1507,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, [])
-    def test_5104(self) -> None:
+    def test_4104(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test004, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1519,7 +1517,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, [])
-    def test_5105(self) -> None:
+    def test_4105(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test005, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1529,7 +1527,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test005)
-    def test_5106(self) -> None:
+    def test_4106(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test006, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1539,7 +1537,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test006)
-    def test_5107(self) -> None:
+    def test_4107(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test007, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1549,7 +1547,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test007Q)
-    def test_5108(self) -> None:
+    def test_4108(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test008, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1559,7 +1557,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test008Q)
-    def test_5109(self) -> None:
+    def test_4109(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test009, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1569,7 +1567,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test009Q)
-    def test_5111(self) -> None:
+    def test_4111(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test011, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1580,7 +1578,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test011)
-    def test_5112(self) -> None:
+    def test_4112(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test012, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1591,7 +1589,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test012)
-    def test_5113(self) -> None:
+    def test_4113(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test013, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1601,7 +1599,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test013)
-    def test_5114(self) -> None:
+    def test_4114(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test014, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1611,7 +1609,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test014)
-    def test_5115(self) -> None:
+    def test_4115(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test015, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1621,7 +1619,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test015Q)
-    def test_5116(self) -> None:
+    def test_4116(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test016, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1633,7 +1631,7 @@ class TabToTextTest(unittest.TestCase):
         if data[0]['b'] == "123":
             data[0]['b'] = 123
         self.assertEqual(data, test016)
-    def test_5117(self) -> None:
+    def test_4117(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test017, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1645,7 +1643,7 @@ class TabToTextTest(unittest.TestCase):
         if data[0]['b'] == "123.40":
             data[0]['b'] = 123.4
         self.assertEqual(data, test017)
-    def test_5118(self) -> None:
+    def test_4118(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test018, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1655,7 +1653,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)
-    def test_5119(self) -> None:
+    def test_4119(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test019, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -1665,7 +1663,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, test018)  # test019
-    def test_5131(self) -> None:
+    def test_4131(self) -> None:
         """ legend is ignored for CSV """
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test011, defaultformat="csv", legend=["a result", "was found"])
@@ -1677,7 +1675,7 @@ class TabToTextTest(unittest.TestCase):
         csvdata = tabtotext.loadCSV(text)
         data = csvdata
         self.assertEqual(data, test011)
-    def test_5144(self) -> None:
+    def test_4144(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b@:1', 'a@:2'], defaultformat="csv")
@@ -1690,7 +1688,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5145(self) -> None:
+    def test_4145(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b@:1', 'a@:2'], defaultformat="csv")
@@ -1703,7 +1701,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5146(self) -> None:
+    def test_4146(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'], defaultformat="csv")
@@ -1716,7 +1714,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5171(self) -> None:
+    def test_4171(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: {:}'], defaultformat="csv")
@@ -1729,7 +1727,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5172(self) -> None:
+    def test_4172(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b', 'a: %s'], defaultformat="csv")
@@ -1742,7 +1740,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5173(self) -> None:
+    def test_4173(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b:.2f', 'a:(%s)'], defaultformat="csv")
@@ -1755,7 +1753,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5174(self) -> None:
+    def test_4174(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b:.2f', 'a:({:})'], defaultformat="csv")
@@ -1768,7 +1766,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5175(self) -> None:
+    def test_4175(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         res = tabtotext.print_tabtotext(out, itemlist, ['b:.2f', 'a:({:})'], defaultformat="csv")
@@ -1781,7 +1779,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5176(self) -> None:
+    def test_4176(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '({:})', "b": "{:.3f}"}
@@ -1796,7 +1794,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5177(self) -> None:
+    def test_4177(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '({:5s})', "b": "{:3f}"}
@@ -1811,7 +1809,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '(y    )', 'b': 1.0}, {'a': '(x    )', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5178(self) -> None:
+    def test_4178(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:5s}"', "b": "{:3f}"}
@@ -1826,7 +1824,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
-    def test_5179(self) -> None:
+    def test_4179(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
         formats = {"a": '"{:>5s}"', "b": "{:>3f}"}
@@ -3246,6 +3244,45 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, test019Q)
+    def test_6060(self) -> None:
+        text = tabtotext.tabToGFM(table01, ["b", "a"])
+        logg.debug("%s => %s", table01, text)
+        cond = ['| b     | a', '| ----- | -----', '| 1     | ~', '| ~     | x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, rev(table01N))
+    def test_6061(self) -> None:
+        text = tabtotext.tabToGFM(table02, ["b", "a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, table02N)
+    def test_6062(self) -> None:
+        text = tabtotext.tabToGFM(table22, ["b", "a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['| b     | a', '| ----- | -----', '| 2     | y', '| 3     | x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, rev(table22))
+    def test_6063(self) -> None:
+        text = tabtotext.tabToGFM(table33, ["b", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['| b     | a     | c',  '| ----- | ----- | ----------',
+                '| 2     | y     | 2021-12-30', '| 3     | x     | 2021-12-31',
+                '| ~     | ~     | 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
+    def test_6064(self) -> None:
+        text = tabtotext.tabToGFM(table33, ["c", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['| c          | a     | b',  '| ---------- | ----- | -----',
+                '| 2021-12-30 | y     | 2', '| 2021-12-31 | ~     | ~',
+                '| 2021-12-31 | x     | 3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
 
     def test_6071(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -4283,6 +4320,50 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", data019, text)
         cond = ['<table>', '<tr><th>b</th></tr>', '<tr><td>2021-12-31</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
+    def test_7060(self) -> None:
+        text = tabtotext.tabToHTML(table01, ["b", "a"])
+        logg.debug("%s => %s", table01, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>', '<tr><td>1</td><td></td></tr>',
+                '<tr><td></td><td>x</td></tr>','</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, rev(table01N))
+    def test_7061(self) -> None:
+        text = tabtotext.tabToHTML(table02, ["b", "a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>', '<tr><td>0</td><td>x</td></tr>',
+                '<tr><td>2</td><td></td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, table02N)
+    def test_7062(self) -> None:
+        text = tabtotext.tabToHTML(table22, ["b", "a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>', '<tr><td>2</td><td>y</td></tr>',
+                '<tr><td>3</td><td>x</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, rev(table22))
+    def test_7063(self) -> None:
+        text = tabtotext.tabToHTML(table33, ["b", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th><th>c</th></tr>',
+                '<tr><td>2</td><td>y</td><td>2021-12-30</td></tr>',
+                '<tr><td>3</td><td>x</td><td>2021-12-31</td></tr>',
+                '<tr><td></td><td>~</td><td>2021-12-31</td></tr>', '</table>']        
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
+    def test_7064(self) -> None:
+        text = tabtotext.tabToHTML(table33, ["c", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['<table>', '<tr><th>c</th><th>a</th><th>b</th></tr>',
+                '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
+                '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
+                '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>','</table>']        
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
 
     def test_7071(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]

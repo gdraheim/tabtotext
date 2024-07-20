@@ -130,7 +130,7 @@ class TabXlsxTest(unittest.TestCase):
             shutil.rmtree(newdir)
         return newdir
     #
-    def test_5103(self) -> None:
+    def test_4103(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test003, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -140,7 +140,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, [])
-    def test_5104(self) -> None:
+    def test_4104(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test004, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -150,7 +150,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, [])
-    def test_5105(self) -> None:
+    def test_4105(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test005, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -160,7 +160,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test005)
-    def test_5106(self) -> None:
+    def test_4106(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test006, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -170,7 +170,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test006)
-    def test_5107(self) -> None:
+    def test_4107(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test007, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -180,7 +180,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test007Q)
-    def test_5108(self) -> None:
+    def test_4108(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test008, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -190,7 +190,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test008Q)
-    def test_5109(self) -> None:
+    def test_4109(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test009, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -200,7 +200,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data =loadCSV(text)
         self.assertEqual(data, test009Q)
-    def test_5111(self) -> None:
+    def test_4111(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test011, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -211,7 +211,7 @@ class TabXlsxTest(unittest.TestCase):
         csvdata = loadCSV(text)
         data = csvdata
         self.assertEqual(data, test011)
-    def test_5112(self) -> None:
+    def test_4112(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test012, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -222,7 +222,7 @@ class TabXlsxTest(unittest.TestCase):
         csvdata = loadCSV(text)
         data = csvdata
         self.assertEqual(data, test012)
-    def test_5113(self) -> None:
+    def test_4113(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test013, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -232,7 +232,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test013)
-    def test_5114(self) -> None:
+    def test_4114(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test014, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -242,7 +242,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test014)
-    def test_5115(self) -> None:
+    def test_4115(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test015, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -252,7 +252,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test015Q)
-    def test_5116(self) -> None:
+    def test_4116(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test016, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -264,7 +264,7 @@ class TabXlsxTest(unittest.TestCase):
         if data[0]['b'] == "123":
             data[0]['b'] = 123
         self.assertEqual(data, test016)
-    def test_5117(self) -> None:
+    def test_4117(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test017, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -276,7 +276,7 @@ class TabXlsxTest(unittest.TestCase):
         if data[0]['b'] == "123.40":
             data[0]['b'] = 123.4
         self.assertEqual(data, test017)
-    def test_5118(self) -> None:
+    def test_4118(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test018, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
@@ -286,7 +286,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = loadCSV(text)
         self.assertEqual(data, test018)
-    def test_5119(self) -> None:
+    def test_4119(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test019, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
