@@ -2105,7 +2105,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': None}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4471(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b", "a"], ["a"])
         logg.debug("%s => %s", table02, text)
@@ -2113,7 +2113,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': None}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4472(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b", "a"], ["a"])
         logg.debug("%s => %s", table22, text)
@@ -2121,7 +2121,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4473(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b", "a"], ["a"])
         logg.debug("%s => %s", table33, text)
@@ -2129,7 +2129,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4474(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["a"])
         logg.debug("%s => %s", table33, text)
@@ -2137,7 +2137,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4475(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b", "a"], ["b"])
         logg.debug("%s => %s", table02, text)
@@ -2145,7 +2145,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 0}, {'b': 2}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4476(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b", "a"], ["b"])
         logg.debug("%s => %s", table22, text)
@@ -2153,7 +2153,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 2}, {'b': 3}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4477(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b", "a"], ["b"])
         logg.debug("%s => %s", table33, text)
@@ -2161,7 +2161,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 2}, {'b': 3}, {'b': None}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4478(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["b"])
         logg.debug("%s => %s", table33, text)
@@ -2169,7 +2169,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 2}, {'b': 3}, {'b': None}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_4479(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["c"])
         logg.debug("%s => %s", table33, text)
@@ -2177,7 +2177,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
 
 
 
@@ -3434,7 +3434,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5471(self) -> None:
         text = tabtotext.tabtoJSON(table02, ["b", "a"], ["a"])
         logg.debug("%s => %s", table02, text)
@@ -3442,7 +3442,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5472(self) -> None:
         text = tabtotext.tabtoJSON(table22, ["b", "a"], ["a"])
         logg.debug("%s => %s", table22, text)
@@ -3450,7 +3450,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5473(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["b", "a"], ["a"])
         logg.debug("%s => %s", table33, text)
@@ -3458,7 +3458,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5474(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["c", "a"], ["a"])
         logg.debug("%s => %s", table33, text)
@@ -3466,7 +3466,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5475(self) -> None:
         text = tabtotext.tabtoJSON(table02, ["b", "a"], ["b"])
         logg.debug("%s => %s", table02, text)
@@ -3474,7 +3474,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 0}, {'b': 2}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5476(self) -> None:
         text = tabtotext.tabtoJSON(table22, ["b", "a"], ["b"])
         logg.debug("%s => %s", table22, text)
@@ -3482,7 +3482,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 2}, {'b': 3}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5477(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["b", "a"], ["b"])
         logg.debug("%s => %s", table33, text)
@@ -3490,7 +3490,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 2}, {'b': 3}, {}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5478(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["c", "a"], ["b"])
         logg.debug("%s => %s", table33, text)
@@ -3498,7 +3498,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'b': 2}, {'b': 3}, {}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
     def test_5479(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["c", "a"], ["c"])
         logg.debug("%s => %s", table33, text)
@@ -3506,7 +3506,7 @@ class TabToTextTest(unittest.TestCase):
         back = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
-        self.assertEqual(data, back)
+        self.assertEqual(back, data)
 
 
     def test_6003(self) -> None:
