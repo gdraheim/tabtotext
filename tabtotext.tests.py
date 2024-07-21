@@ -5824,22 +5824,22 @@ class TabToTextTest(unittest.TestCase):
 
 
     def test_7503(self) -> None:
-        text = tabtotext.tabToHTML(test003, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test003, ["a|b"])
         logg.debug("%s => %s", test003, text)
         cond = ['<table>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7504(self) -> None:
-        text = tabtotext.tabToHTML(test004, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test004, ["a|b"])
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr></tr>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7505(self) -> None:
-        text = tabtotext.tabToHTML(test005, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test005, ["a|b"])
         logg.debug("%s => %s", test005, text)
         cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7506(self) -> None:
-        text = tabtotext.tabToHTML(test006, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test006, ["a|b"])
         logg.debug("%s => %s", test006, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
@@ -5847,7 +5847,7 @@ class TabToTextTest(unittest.TestCase):
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7507(self) -> None:
-        text = tabtotext.tabToHTML(test007, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test007, ["a|b"])
         logg.debug("%s => %s", test007, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
@@ -5857,7 +5857,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("cond => %s", cond)
         self.assertEqual(cond, text.splitlines())
     def test_7508(self) -> None:
-        text = tabtotext.tabToHTML(test008, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test008, ["a|b"])
         logg.debug("%s => %s", test008, text)
         cond = ['<table>',  # -
                 '<tr><th>a<br />b</th></tr>',  # -
@@ -5866,7 +5866,7 @@ class TabToTextTest(unittest.TestCase):
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7509(self) -> None:
-        text = tabtotext.tabToHTML(test009, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test009, ["a|b"])
         logg.debug("%s => %s", test009, text)
         cond = ['<table>',  # -
                 '<tr><th>b</th></tr>',  # -
@@ -5876,29 +5876,29 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
 
     def test_7523(self) -> None:
-        text = tabtotext.tabToHTML(test003, combine={'a': 'b'})
+        text = tabtotext.tabToHTML(test003, ["a|b"])
         logg.debug("%s => %s", test003, text)
         cond = ['<table>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7524(self) -> None:
-        text = tabtotext.tabToHTML(test004, combine={'b': 'a'})
+        text = tabtotext.tabToHTML(test004, ["b|a"])
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr></tr>', '<tr></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7525(self) -> None:
-        text = tabtotext.tabToHTML(test005, combine={'b': 'a'})
+        text = tabtotext.tabToHTML(test005, ["b|a"])
         logg.debug("%s => %s", test005, text)
         cond = ['<table>', '<tr><th>a</th></tr>', '<tr><td>x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7526(self) -> None:
-        text = tabtotext.tabToHTML(test006, combine={'b': 'a'})
+        text = tabtotext.tabToHTML(test006, ["b|a"])
         logg.debug("%s => %s", test006, text)
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
                 '<tr><td>y<br />x</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7527(self) -> None:
-        text = tabtotext.tabToHTML(test007, combine={'b': 'a'})
+        text = tabtotext.tabToHTML(test007, ["b|a"])
         logg.debug("%s => %s", test007, text)
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
@@ -5907,7 +5907,7 @@ class TabToTextTest(unittest.TestCase):
                 '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7528(self) -> None:
-        text = tabtotext.tabToHTML(test008, combine={'b': 'a'})
+        text = tabtotext.tabToHTML(test008, ["b|a"])
         logg.debug("%s => %s", test008, text)
         cond = ['<table>',  # -
                 '<tr><th>b<br />a</th></tr>',  # -
@@ -5915,7 +5915,7 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>v<br /></td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7529(self) -> None:
-        text = tabtotext.tabToHTML(test009, combine={'b': 'a'})
+        text = tabtotext.tabToHTML(test009, ["b|a"])
         logg.debug("%s => %s", test009, text)
         cond = ['<table>',  # -
                 '<tr><th>b</th></tr>',  # -
