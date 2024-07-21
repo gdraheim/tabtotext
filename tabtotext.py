@@ -139,7 +139,6 @@ def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = 
     return str(value)
 def unmatched(value: JSONItem, cond: str) -> bool:
     try:
-        logg.error("test %s %s", value, cond)
         if value is None:
             if cond in ["<>"]:
                 return True
@@ -548,7 +547,6 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 combine[combines] = [ name ]
             elif name not in combine[combines]:
                 combine[combines] += [ name ]
-    logg.error("formats %s", formats)
     combined: Dict[str, List[str]] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
@@ -609,18 +607,20 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if "#" in selected:
             row["#"] = num+1
             cols["#"] = len(str(num+1))
+        skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
             try:
-                if name in filtered and unmatched(value, filtered[name]):
-                    continue
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-        rows.append(row)
+        if not skip:
+            rows.append(row)
     def rightF(col: str, formatter: str) -> str:
         if format.right(col):
             return formatter.replace("%-", "%")
@@ -887,18 +887,20 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if "#" in selected:
             row["#"] = num+1
             cols["#"] = len(str(num+1))
+        skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
             try:
-                if name in filtered and unmatched(value, filtered[name]):
-                    continue
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-        rows.append(row)
+        if not skip:
+            rows.append(row)
     def rightTH(col: str, value: str) -> str:
         if format.right(col):
             return value.replace("<th>", '<th style="text-align: right">')
@@ -1177,18 +1179,20 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if "#" in selected:
             row["#"] = num+1
             cols["#"] = len(str(num+1))
+        skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
             try:
-                if name in filtered and unmatched(value, filtered[name]):
-                    continue
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-        rows.append(row)
+        if not skip:
+            rows.append(row)
     lines = []
     for item in sorted(rows, key=sortrow):
         values: JSONDict = {}
@@ -1365,18 +1369,20 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if "#" in selected:
             row["#"] = num+1
             cols["#"] = len(str(num+1))
+        skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
             try:
-                if name in filtered and unmatched(value, filtered[name]):
-                    continue
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
             except: pass 
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-        rows.append(row)
+        if not skip:
+            rows.append(row)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
         return (name if is_simple.match(name) else '"%s"' % name)
@@ -1586,18 +1592,20 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if "#" in selected:
             row["#"] = num+1
             cols["#"] = len(str(num+1))
+        skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
             try:
-                if name in filtered and unmatched(value, filtered[name]):
-                    continue
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
             except: pass 
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-        rows.append(row)
+        if not skip:
+            rows.append(row)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
         return (name if is_simple.match(name) else '"%s"' % name)
@@ -1842,19 +1850,20 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if "#" in selected:
             row["#"] = num+1
             cols["#"] = len(str(num+1))
+        skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
             try:
-                logg.error("?? %s in %s", name, filtered)
-                if name in filtered and unmatched(value, filtered[name]):
-                    continue
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-        rows.append(row)
+        if not skip:
+            rows.append(row)
     lines = []
     for item in sorted(rows, key=sortrow):
         values: JSONDict = dict([(name, _None_String) for name in cols.keys()])
