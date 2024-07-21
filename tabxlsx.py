@@ -529,7 +529,10 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
         return ""
     rows: List[Dict[str, CellValue]] = []
     cols: Dict[str, int] = {}
-    for item in data:
+    for num, item in enumerate(data):
+        if "#" in headers:
+            item["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in item.items():
             paren = 0
             if name not in cols:
@@ -833,8 +836,11 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         return item
     rows: List[Dict[str, CellValue]] = []
     cols: Dict[str, int] = {}
-    for item in data:
+    for num, item in enumerate(data):
         row: Dict[str, CellValue] = {}
+        if "#" in selected:
+            row["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in asdict(item).items():
             if selected and name not in selected and "*" not in selected:
                continue

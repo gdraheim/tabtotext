@@ -603,8 +603,11 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     sortrow = RowSortCallable(selected or sorts or sortheaders)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in data:
+    for num, item in enumerate(data):
         row: JSONDict = {}
+        if "#" in selected:
+            row["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
@@ -878,8 +881,11 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortrow = RowSortCallable(selected or sorts or sortheaders)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in data:
+    for num, item in enumerate(data):
         row: JSONDict = {}
+        if "#" in selected:
+            row["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
@@ -1165,8 +1171,11 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in data:
+    for num, item in enumerate(data):
         row: JSONDict = {}
+        if "#" in selected:
+            row["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
@@ -1350,8 +1359,11 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in data:
+    for num, item in enumerate(data):
         row: JSONDict = {}
+        if "#" in selected:
+            row["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
@@ -1568,8 +1580,11 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in data:
+    for num, item in enumerate(data):
         row: JSONDict = {}
+        if "#" in selected:
+            row["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
@@ -1824,7 +1839,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     for num, item in enumerate(data):           
         row: JSONDict = {}
         if "#" in selected:
-            row["#"] = num
+            row["#"] = num+1
+            cols["#"] = len(str(num+1))
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
                continue
