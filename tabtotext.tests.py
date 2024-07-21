@@ -2327,6 +2327,21 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table44, text.splitlines())
         cond = ['b;c;a', '1;~;y', '2;(no);y', '3;(yes);x', '~;(yes);~']
         self.assertEqual(cond, text.splitlines())
+    def test_4600(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d', '1;0.10', '2;0.30', '3;0.40', '~;0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_4601(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b:02.1f|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond =  ['b;d', '1.0;0.10', '2.0;0.30', '3.0;0.40', '~;0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_4602(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b:02.1f"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond =  ['b;d', '1.0;0.10', '2.0;0.30', '3.0;0.40', '~;0.20']
+        self.assertEqual(cond, text.splitlines())
 
 
     def test_5000(self) -> None:
@@ -3861,6 +3876,24 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table44, text.splitlines())
         cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "c": false, "a": "y"},', 
                 ' {"b": 3, "c": true, "a": "x"},', ' {"b": null, "c": true, "a": null}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5600(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"b": 1, "d": 0.10},', ' {"b": 2, "d": 0.30},', 
+                ' {"b": 3, "d": 0.40},', ' {"b": null, "d": 0.20}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5601(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b:02.1f|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"b": 1, "d": 0.10},', ' {"b": 2, "d": 0.30},', 
+                ' {"b": 3, "d": 0.40},', ' {"b": null, "d": 0.20}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5602(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b:02.1f"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"b": 1, "d": 0.10},', ' {"b": 2, "d": 0.30},', 
+                ' {"b": 3, "d": 0.40},', ' {"b": null, "d": 0.20}', ']']
         self.assertEqual(cond, text.splitlines())
 
 
@@ -5526,6 +5559,27 @@ class TabToTextTest(unittest.TestCase):
                 '| 1     | ~     | y', '| 2     | (no)  | y', 
                 '| 3     | (yes) | x', '| ~     | (yes) | ~']
         self.assertEqual(cond, text.splitlines())
+    def test_6600(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| b     | d', '| ----- | -----', 
+                '| 1     | 0.10', '| 2     | 0.30', 
+                '| 3     | 0.40', '| ~     | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6601(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["b:02.1f|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['|     b | d', '| ----: | -----', 
+                '|   1.0 | 0.10', '|   2.0 | 0.30', 
+                '|   3.0 | 0.40', '|     ~ | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6602(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b:02.1f"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['|     b | d', '| ----: | -----', 
+                '|   1.0 | 0.10', '|   2.0 | 0.30', 
+                '|   3.0 | 0.40', '|     ~ | 0.20']
+        self.assertEqual(cond, text.splitlines())
 
 
     def test_7003(self) -> None:
@@ -7102,6 +7156,31 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>2<br />(no)<br />y</td></tr>', 
                 '<tr><td>3<br />(yes)<br />x</td></tr>', 
                 '<tr><td>~<br />(yes)<br />~</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7600(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>', '<tr><th>b<br />d</th></tr>', '<tr><td>1<br />0.10</td></tr>', 
+                '<tr><td>2<br />0.30</td></tr>', '<tr><td>3<br />0.40</td></tr>', 
+                '<tr><td>~<br />0.20</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7601(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"], ["b:02.1f|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>', '<tr><th style="text-align: right">b<br />d</th></tr>', 
+                '<tr><td style="text-align: right">1.0<br />0.10</td></tr>', 
+                '<tr><td style="text-align: right">2.0<br />0.30</td></tr>', 
+                '<tr><td style="text-align: right">3.0<br />0.40</td></tr>', 
+                '<tr><td style="text-align: right">~<br />0.20</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7602(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b:02.1f"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>', '<tr><th style="text-align: right">b<br />d</th></tr>', 
+                '<tr><td style="text-align: right">1.0<br />0.10</td></tr>', 
+                '<tr><td style="text-align: right">2.0<br />0.30</td></tr>', 
+                '<tr><td style="text-align: right">3.0<br />0.40</td></tr>', 
+                '<tr><td style="text-align: right">~<br />0.20</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
 
     def test_7803(self) -> None:
