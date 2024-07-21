@@ -4531,10 +4531,11 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
+        cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
+        back = rev(self.date_for_6244)
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
-        self.assertEqual(data, self.date_for_6244)
+        self.assertEqual(back, data)
     date_for_6245: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6245(self) -> None:
         out = StringIO()
@@ -4543,10 +4544,11 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| x     | 03', '| y     | 02']
+        back = self.date_for_6245
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
-        self.assertEqual(rev(data), self.date_for_6245)
+        self.assertEqual(back, data)
     date_for_6246: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6246(self) -> None:
         out = StringIO()
@@ -4567,10 +4569,11 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
-        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| a     | b', '| ----- | -----', '| x     | 03', '| y     | 02']
+        back = self.date_for_6247
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
-        self.assertEqual(rev(data), self.date_for_6247)
+        self.assertEqual(data, back)
     date_for_6248: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6248(self) -> None:
         out = StringIO()
@@ -4635,10 +4638,11 @@ class TabToTextTest(unittest.TestCase):
         logg.info("generated [%s] %s", size, out)
         text = open(out).read()
         logg.debug("%s => %s", res, text)
-        cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
+        cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
+        back = rev(self.date_for_6254)
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
-        self.assertEqual(data, self.date_for_6254)
+        self.assertEqual(back, data)
     def test_6403(self) -> None:
         text = tabtotext.tabtoGFM(test003)
         logg.debug("%s => %s", test003, text)
