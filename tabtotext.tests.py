@@ -2070,6 +2070,114 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadCSV(text)
         self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
+    def test_4465(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["b", "a"], ["b", "a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['b;a', '0;x', '2;~']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, table02N)
+    def test_4466(self) -> None:
+        text = tabtotext.tabtoCSV(table22, ["b", "a"], ["b", "a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['b;a', '2;y', '3;x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table22))
+    def test_4467(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["b", "a"], ["b", "a", "c"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['b;a;c', '2;y;2021-12-30', '3;x;2021-12-31', '~;~;2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
+    def test_4468(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["c", "a"], ["c", "a", "b"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;~;~', '2021-12-31;x;3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
+    def test_4470(self) -> None:
+        text = tabtotext.tabtoCSV(table01, ["b", "a"], ["a"])
+        logg.debug("%s => %s", table01, text)
+        cond = ['a', '~', 'x']
+        back = [{'a': None}, {'a': 'x'}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4471(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["b", "a"], ["a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['a', '~', 'x']
+        back = [{'a': None}, {'a': 'x'}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4472(self) -> None:
+        text = tabtotext.tabtoCSV(table22, ["b", "a"], ["a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['a', 'x', 'y']
+        back = [{'a': 'x'}, {'a': 'y'}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4473(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["b", "a"], ["a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['a', '~', 'x', 'y']
+        back = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4474(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["c", "a"], ["a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['a', '~', 'x', 'y']
+        back = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4475(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["b", "a"], ["b"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['b', '0', '2']
+        back = [{'b': 0}, {'b': 2}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4476(self) -> None:
+        text = tabtotext.tabtoCSV(table22, ["b", "a"], ["b"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['b', '2', '3']
+        back = [{'b': 2}, {'b': 3}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4477(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["b", "a"], ["b"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['b', '2', '3', '~']
+        back = [{'b': 2}, {'b': 3}, {'b': None}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4478(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["c", "a"], ["b"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['b', '2', '3', '~']
+        back = [{'b': 2}, {'b': 3}, {'b': None}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
+    def test_4479(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["c", "a"], ["c"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['c', '2021-12-30', '2021-12-31', '2021-12-31']
+        back = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, back)
 
 
 
