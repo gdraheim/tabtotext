@@ -362,6 +362,7 @@ class RowSortCallable:
         else:
             sortvalue = ""
             for sort in sorts:
+                # numbers before empty before strings
                 if "@" in sort:
                     col, rename = sort.split("@", 1)
                 else:

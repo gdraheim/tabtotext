@@ -504,6 +504,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
         item = asdict(row)
         sorts = sortheaders
         if sorts:
+            # numbers before empty before strings
             sortvalue = ""
             for sort in sorts:
                 if sort in item:
