@@ -1081,23 +1081,24 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     formats: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
-            selcol, rename = header.split("@", 1)
+            selcols, rename = header.split("@", 1)
             if "@" in rename:
                 rename, orders = rename.split("@", 1)
             else:
                 rename, orders = rename, ""
         else:
-            selcol, rename, orders = header, "", ""
-        if ":" in selcol:
-            name, fmt = selcol.split(":", 1)
-            formats[name] = fmt
-        else:
-            name = selcol
-        sortheaders += [ name ]  # default sort by named headers (rows)
-        if headernum < 10:  # and default order by named headers (cols)
-            headerorder[name] = orders or "@%i" % headernum
-        else:
-            headerorder[name] = orders or "@:%07i" % headernum
+            selcols, rename, orders = header, "", ""
+        for selcol in selcols.split("|"):
+            if ":" in selcol:
+                name, fmt = selcol.split(":", 1)
+                formats[name] = fmt
+            else:
+                name = selcol
+            sortheaders += [ name ]  # default sort by named headers (rows)
+            if headernum < 10:  # and default order by named headers (cols)
+                headerorder[name] = orders or "@%i" % headernum
+            else:
+                headerorder[name] = orders or "@:%07i" % headernum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -1259,23 +1260,24 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     formats: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
-            selcol, rename = header.split("@", 1)
+            selcols, rename = header.split("@", 1)
             if "@" in rename:
                 rename, orders = rename.split("@", 1)
             else:
                 rename, orders = rename, ""
         else:
-            selcol, rename, orders = header, "", ""
-        if ":" in selcol:
-            name, fmt = selcol.split(":", 1)
-            formats[name] = fmt
-        else:
-            name = selcol
-        sortheaders += [ name ]  # default sort by named headers (rows)
-        if headernum < 10:  # and default order by named headers (cols)
-            headerorder[name] = orders or "@%i" % headernum
-        else:
-            headerorder[name] = orders or "@:%07i" % headernum
+            selcols, rename, orders = header, "", ""
+        for selcol in selcols.split("|"):
+            if ":" in selcol:
+                name, fmt = selcol.split(":", 1)
+                formats[name] = fmt
+            else:
+                name = selcol
+            sortheaders += [ name ]  # default sort by named headers (rows)
+            if headernum < 10:  # and default order by named headers (cols)
+                headerorder[name] = orders or "@%i" % headernum
+            else:
+                headerorder[name] = orders or "@:%07i" % headernum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -1470,23 +1472,24 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     formats: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
-            selcol, rename = header.split("@", 1)
+            selcols, rename = header.split("@", 1)
             if "@" in rename:
                 rename, orders = rename.split("@", 1)
             else:
                 rename, orders = rename, ""
         else:
-            selcol, rename, orders = header, "", ""
-        if ":" in selcol:
-            name, fmt = selcol.split(":", 1)
-            formats[name] = fmt
-        else:
-            name = selcol
-        sortheaders += [ name ]  # default sort by named headers (rows)
-        if headernum < 10:  # and default order by named headers (cols)
-            headerorder[name] = orders or "@%i" % headernum
-        else:
-            headerorder[name] = orders or "@:%07i" % headernum
+            selcols, rename, orders = header, "", ""
+        for selcol in selcols.split("|"):
+            if ":" in selcol:
+                name, fmt = selcol.split(":", 1)
+                formats[name] = fmt
+            else:
+                name = selcol
+            sortheaders += [ name ]  # default sort by named headers (rows)
+            if headernum < 10:  # and default order by named headers (cols)
+                headerorder[name] = orders or "@%i" % headernum
+            else:
+                headerorder[name] = orders or "@:%07i" % headernum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
