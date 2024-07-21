@@ -738,8 +738,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             selcols, rename, orders = header, "", ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formats[name] = fmt
+                name, form = selcol.split(":", 1)
+                fmt = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [ name ]  # default sort by named headers (rows)
