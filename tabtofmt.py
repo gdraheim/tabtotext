@@ -134,7 +134,7 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Dict[
             for name, value in asdict(row).items():
                 rowvalues[name] = format(name, value)
             writer.writerow(rowvalues)
-        return cast(str, csvfile.getvalue())
+        return cast(str, csvfile.getvalue())  # type: ignore[redundant-cast]
     # GFM
     def rightF(col: str, formatter: str) -> str:
         if rightalign(col):
