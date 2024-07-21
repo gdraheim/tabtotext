@@ -139,6 +139,7 @@ def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = 
     return str(value)
 def unmatched(value: JSONItem, cond: str) -> bool:
     try:
+        logg.error("test %s %s", value, cond)
         if value is None:
             if cond in ["<>"]:
                 return True
@@ -571,12 +572,12 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             else:
                 name = selcol
             if "<" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif ">" in name:
                 name, cond = name.split("<", 1)
                 filtered[name] = "<" + cond
-            elif "~" in name:
+            elif ">" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
@@ -850,12 +851,12 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             else:
                 name = selcol
             if "<" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif ">" in name:
                 name, cond = name.split("<", 1)
                 filtered[name] = "<" + cond
-            elif "~" in name:
+            elif ">" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
@@ -1146,12 +1147,12 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             else:
                 name = selcol
             if "<" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif ">" in name:
                 name, cond = name.split("<", 1)
                 filtered[name] = "<" + cond
-            elif "~" in name:
+            elif ">" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
@@ -1334,12 +1335,12 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             else:
                 name = selcol
             if "<" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif ">" in name:
                 name, cond = name.split("<", 1)
                 filtered[name] = "<" + cond
-            elif "~" in name:
+            elif ">" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
@@ -1555,12 +1556,12 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             else:
                 name = selcol
             if "<" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif ">" in name:
                 name, cond = name.split("<", 1)
                 filtered[name] = "<" + cond
-            elif "~" in name:
+            elif ">" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
@@ -1802,12 +1803,12 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             else:
                 name = selcol
             if "<" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif ">" in name:
                 name, cond = name.split("<", 1)
                 filtered[name] = "<" + cond
-            elif "~" in name:
+            elif ">" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
@@ -1845,6 +1846,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             if selected and name not in selected and "*" not in selected:
                continue
             try:
+                logg.error("?? %s in %s", name, filtered)
                 if name in filtered and unmatched(value, filtered[name]):
                     continue
             except: pass
