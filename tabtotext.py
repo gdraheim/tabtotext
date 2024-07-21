@@ -572,8 +572,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     else:
         logg.info("formats = %s", formats)
         format = FormatGFM(formats, tab=tab)
-    sortkey = ColSortCallable(sorts or sortheaders, reorders or reorder)
-    sortrow = RowSortCallable(sorts or sortheaders)
+    sortkey = ColSortCallable(selected or sorts or sortheaders, reorders or reorder)
+    sortrow = RowSortCallable(selected or sorts or sortheaders)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in data:
@@ -841,8 +841,8 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = formatter
     else:
         format = FormatHTML(formats)
-    sortkey = ColSortCallable(sorts or sortheaders, reorders or reorder)
-    sortrow = RowSortCallable(sorts or sortheaders)
+    sortkey = ColSortCallable(selected or sorts or sortheaders, reorders or reorder)
+    sortrow = RowSortCallable(selected or sorts or sortheaders)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in data:
@@ -1121,8 +1121,8 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = FormatJSON(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for JSON output")
-    sortkey = ColSortCallable(sorts or sortheaders, reorders or reorder)
-    sortrow = RowSortCallable(sorts or sortheaders, datedelim)
+    sortkey = ColSortCallable(selected or sorts or sortheaders, reorders or reorder)
+    sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in data:
@@ -1299,8 +1299,8 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = FormatYAML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for YAML output")
-    sortkey = ColSortCallable(sorts or sortheaders, reorders or reorder)
-    sortrow = RowSortCallable(sorts or sortheaders, datedelim)
+    sortkey = ColSortCallable(selected or sorts or sortheaders, reorders or reorder)
+    sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in data:
@@ -1510,8 +1510,8 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = FormatTOML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for TOML output")
-    sortkey = ColSortCallable(sorts or sortheaders, reorders or reorder)
-    sortrow = RowSortCallable(sorts or sortheaders, datedelim)
+    sortkey = ColSortCallable(selected or sorts or sortheaders, reorders or reorder)
+    sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for item in data:
@@ -1738,8 +1738,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     if legend:
         logg.debug("legend is ignored for CSV output")
 
-    sortkey = ColSortCallable(sorts or sortheaders, reorders or reorder)
-    sortrow = RowSortCallable(sorts or sortheaders, datedelim)
+    sortkey = ColSortCallable(selected or sorts or sortheaders, reorders or reorder)
+    sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):           
