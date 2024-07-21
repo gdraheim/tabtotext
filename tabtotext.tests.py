@@ -6611,11 +6611,14 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>3<br />x</td><td>2021-12-31</td></tr>', 
                 '<tr><td><br />~</td><td>2021-12-31</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-
-
-
-
-
+    def test_7539(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["b|c|a"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['<table>', '<tr><th>b<br />c<br />a</th></tr>', 
+                '<tr><td>2<br />2021-12-30<br />y</td></tr>', 
+                '<tr><td>3<br />2021-12-31<br />x</td></tr>', 
+                '<tr><td><br />2021-12-31<br />~</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
 
     def test_7544(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
