@@ -3832,6 +3832,36 @@ class TabToTextTest(unittest.TestCase):
                 ' {"b": 3, "c": "2021-12-31", "a": "x"},', 
                 ' {"c": "2021-12-31", "a": null}', ']']
         self.assertEqual(cond, text.splitlines())
+    def test_5594(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["a|b"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"a": null, "b": null},', ' {"a": "x", "b": 3},', 
+                ' {"a": "y", "b": 1},', ' {"a": "y", "b": 2}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5595(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "a": "y"},', 
+                ' {"b": 3, "a": "x"},', ' {"b": null, "a": null}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5596(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"b": 1, "d": 0.10},', ' {"b": 2, "d": 0.30},', 
+                ' {"b": 3, "d": 0.40},', ' {"b": null, "d": 0.20}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5598(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["a|b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"a": null, "b": null, "d": 0.20},', ' {"a": "x", "b": 3, "d": 0.40},', 
+                ' {"a": "y", "b": 1, "d": 0.10},', ' {"a": "y", "b": 2, "d": 0.30}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5599(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c|a"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"b": 1, "a": "y"},', ' {"b": 2, "c": false, "a": "y"},', 
+                ' {"b": 3, "c": true, "a": "x"},', ' {"b": null, "c": true, "a": null}', ']']
+        self.assertEqual(cond, text.splitlines())
 
 
     def test_6003(self) -> None:
@@ -5459,6 +5489,42 @@ class TabToTextTest(unittest.TestCase):
                 '| 2     | 2021-12-30 | y', 
                 '| 3     | 2021-12-31 | x', 
                 '| ~     | 2021-12-31 | ~']
+        self.assertEqual(cond, text.splitlines())
+    def test_6594(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["a|b"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| a     | b', '| ----- | -----', 
+                '| ~     | ~', '| x     | 3', 
+                '| y     | 1', '| y     | 2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6595(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["b|a"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| b     | a', '| ----- | -----', 
+                '| 1     | y', '| 2     | y', 
+                '| 3     | x', '| ~     | ~']
+        self.assertEqual(cond, text.splitlines())
+    def test_6596(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+
+        cond = ['| b     | d', '| ----- | -----', 
+                '| 1     | 0.10', '| 2     | 0.30', 
+                '| 3     | 0.40', '| ~     | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6598(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["a|b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| a     | b     | d', '| ----- | ----- | -----', 
+                '| ~     | ~     | 0.20', '| x     | 3     | 0.40', 
+                '| y     | 1     | 0.10', '| y     | 2     | 0.30']
+        self.assertEqual(cond, text.splitlines())
+    def test_6599(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["b|c|a"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| b     | c     | a', '| ----- | ----- | -----', 
+                '| 1     | ~     | y', '| 2     | (no)  | y', 
+                '| 3     | (yes) | x', '| ~     | (yes) | ~']
         self.assertEqual(cond, text.splitlines())
 
 
