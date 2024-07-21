@@ -180,12 +180,12 @@ def readFromXLSX(filename: str) -> JSONList:
 
 
 if __name__ == "__main__":
-    from tabtotext import tab_sorts_from, tab_onlycols_from, tab_formats_from, tabToCustomTab, readFromFile
+    from tabtotext import tab_sorts_from, tab_selects_from, tab_formats_from, tabToCustomTab, readFromFile
     from os.path import splitext
     def saveFileToFileXLSX(filename: str, fmt: str = NIX, selects: str = NIX, sorting: str = NIX, formatting: str = NIX) -> List[str]:
         formats = tab_formats_from(formatting or selects or sorting)
         sorts = tab_sorts_from(sorting or selects)
-        onlycols = tab_onlycols_from(selects)
+        onlycols = tab_selects_from(selects)
         reorder = []
         if selects:
             reorder = list(onlycols.keys())
