@@ -4838,6 +4838,38 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadGFM(text)
         self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
+    def test_6465(self) -> None:
+        text = tabtotext.tabtoGFM(table02, ["b", "a"], ["b", "a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, table02N)
+    def test_6466(self) -> None:
+        text = tabtotext.tabtoGFM(table22, ["b", "a"], ["b", "a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['| b     | a', '| ----- | -----', '| 2     | y', '| 3     | x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, rev(table22))
+    def test_6467(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["b", "a"], ["b", "a", "c"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['| b     | a     | c',  '| ----- | ----- | ----------',
+                '| 2     | y     | 2021-12-30', '| 3     | x     | 2021-12-31',
+                '| ~     | ~     | 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
+    def test_6468(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["c", "a"], ["c", "a", "b"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['| c          | a     | b',  '| ---------- | ----- | -----',
+                '| 2021-12-30 | y     | 2', '| 2021-12-31 | ~     | ~',
+                '| 2021-12-31 | x     | 3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadGFM(text)
+        self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
 
     def test_7003(self) -> None:
         text = tabtotext.tabToHTML(test003)
@@ -5921,6 +5953,42 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
     def test_7464(self) -> None:
         text = tabtotext.tabtoHTML(table33, ["c", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['<table>', '<tr><th>c</th><th>a</th><th>b</th></tr>',
+                '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
+                '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
+                '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>','</table>']        
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
+    def test_7465(self) -> None:
+        text = tabtotext.tabtoHTML(table02, ["b", "a"], ["b", "a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>', '<tr><td>0</td><td>x</td></tr>',
+                '<tr><td>2</td><td></td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, table02N)
+    def test_7466(self) -> None:
+        text = tabtotext.tabtoHTML(table22, ["b", "a"], ["b", "a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>', '<tr><td>2</td><td>y</td></tr>',
+                '<tr><td>3</td><td>x</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, rev(table22))
+    def test_7467(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["b", "a"], ["b", "a", "c"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['<table>', '<tr><th>b</th><th>a</th><th>c</th></tr>',
+                '<tr><td>2</td><td>y</td><td>2021-12-30</td></tr>',
+                '<tr><td>3</td><td>x</td><td>2021-12-31</td></tr>',
+                '<tr><td></td><td>~</td><td>2021-12-31</td></tr>', '</table>']        
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadHTML(text)
+        self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
+    def test_7468(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["c", "a"], ["c", "a", "b"])
         logg.debug("%s => %s", table33, text)
         cond = ['<table>', '<tr><th>c</th><th>a</th><th>b</th></tr>',
                 '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
