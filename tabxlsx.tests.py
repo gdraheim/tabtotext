@@ -136,166 +136,180 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
+        want = []
         cond = ['']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, [])
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4104(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test004, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
+        want = []
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, [])
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4105(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test005, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test005, text)
+        want = test005
         cond = ['a', 'x', ]
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test005)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4106(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test006, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test006, text)
+        want = test006
         cond = ['a;b', 'x;y', ]
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test006)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4107(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test007, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test007, text)
+        want = test007Q
         cond = ['a;b', 'x;y', '~;v']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test007Q)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4108(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test008, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test008, text)
+        want = test008Q
         cond = ['a;b', 'x;~', '~;v']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test008Q)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4109(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test009, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test009, text)
+        want = test009Q
         cond = ['b', '~', 'v']
         self.assertEqual(cond, text.splitlines())
-        data =loadCSV(text)
-        self.assertEqual(data, test009Q)
+        back =loadCSV(text)
+        self.assertEqual(want, back)
     def test_4111(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test011, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test011, text)
+        want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = loadCSV(text)
-        data = csvdata
-        self.assertEqual(data, test011)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4112(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test012, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test012, text)
+        want = test012
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        csvdata = loadCSV(text)
-        data = csvdata
-        self.assertEqual(data, test012)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4113(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test013, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test013, text)
+        want = test013
         cond = ['b', '(yes)']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test013)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4114(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test014, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test014, text)
+        want = test014
         cond = ['b', '""']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test014)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4115(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test015, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test015, text)
+        want = test015Q
         cond = ['b', '5678']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test015Q)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4116(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test016, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test016, text)
+        want = test016
         cond = ['b', '123']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        if data[0]['b'] == "123":
-            data[0]['b'] = 123
-        self.assertEqual(data, test016)
+        back = loadCSV(text)
+        if back[0]['b'] == "123":
+            back[0]['b'] = 123
+        self.assertEqual(want, back)
     def test_4117(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test017, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test017, text)
+        want = test017
         cond = ['b', '123.40']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        if data[0]['b'] == "123.40":
-            data[0]['b'] = 123.4
-        self.assertEqual(data, test017)
+        back = loadCSV(text)
+        if back[0]['b'] == "123.40":
+            back[0]['b'] = 123.4
+        self.assertEqual(want, back)
     def test_4118(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test018, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test018, text)
+        want = test018
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test018)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
     def test_4119(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test019, defaultformat="csv")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
+        want = test019q
         cond = ['b', '2021-12-31.2334']
         self.assertEqual(cond, text.splitlines())
-        data = loadCSV(text)
-        self.assertEqual(data, test019q)
+        back = loadCSV(text)
+        self.assertEqual(want, back)
 
 
     def test_6103(self) -> None:
@@ -304,160 +318,176 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
+        want = []
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, [])
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6104(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test004)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
+        want = []
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, [])
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6105(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test005)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test005, text)
+        want = test005
         cond = ['| a', '| -----', '| x']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test005)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6106(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test006)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test006, text)
+        want = test006
         cond = ['| a     | b', '| ----- | -----', '| x     | y']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test006)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6107(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test007)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test007, text)
+        want = test007Q
         cond = ['| a     | b', '| ----- | -----', '| x     | y', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test007Q)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6108(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test008)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test008, text)
+        want = test008Q
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test008Q)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6109(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test009)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test009, text)
+        want = test009Q
         cond = ['| b', '| -----', '| ~', '| v']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test009Q)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6111(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test011)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test011, text)
+        want = test011
         cond = ['| b', '| -----', '| ~']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test011)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6112(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test012)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test012, text)
+        want = test012
         cond = ['| b', '| -----', '| (no)']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test012)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6113(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test013)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test013, text)
+        want = test013
         cond = ['| b', '| -----', '| (yes)']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test013)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6114(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test014)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test014, text)
+        want = test014
         cond = ['| b', '| -----', '|']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test014)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6115(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test015)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test015, text)
+        want = test015Q
         cond = ['| b', '| -----', '| 5678']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test015Q)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6116(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test016)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test016, text)
+        want = test016
         cond = ['| b', '| -----', '| 123']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test016)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6117(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test017)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test017, text)
+        want = test017
         cond = ['| b', '| ------', '| 123.40']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test017)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6118(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test018)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test018, text)
+        want = test018
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test018)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6119(self) -> None:
         out = StringIO()
         res = print_tabtotext(out, test019)  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
+        want = test019q
         cond = ['| b', '| ---------------', '| 2021-12-31.2334']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        self.assertEqual(data, test019q)
+        back = loadGFM(text)
+        self.assertEqual(want, back)
     def test_6144(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
@@ -467,10 +497,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1     | y', '| 2     | x']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6171(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
@@ -480,10 +510,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6172(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
@@ -493,10 +523,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6173(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
@@ -506,10 +536,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1     | "y"', '| 2     | "x"']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6174(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
@@ -519,10 +549,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6175(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
@@ -533,10 +563,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1.00  | "y"', '| 2.00  | "x"']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6176(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
@@ -546,10 +576,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     @unittest.expectedFailure
     def test_6177(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
@@ -560,10 +590,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', X('| 1.00$ | "y"'), X('| 2.00$ | "x"')]
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6178(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
@@ -573,10 +603,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|        b | a', '| -------: | -------', '| 1.000000 | "y    "', '| 2.000000 | "x    "']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_6179(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
         out = StringIO()
@@ -586,10 +616,10 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|         b |       a', '| --------: | ------:', '|  1.000000 | "    y"', '| 22.000000 | "    x"']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
-        logg.info("%s => %s", want, data)
-        self.assertEqual(want, data)
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
 
     date_for_6220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
     def test_6220(self) -> None:
@@ -598,11 +628,12 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
+        want = self.date_for_6220
         cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        del data[1]["a"]
-        self.assertEqual(data, self.date_for_6220)
+        back = loadGFM(text)
+        del back[1]["a"]
+        self.assertEqual(want, back)
     date_for_6221: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_6221(self) -> None:
         out = StringIO()
@@ -610,11 +641,12 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
+        want = rev(self.date_for_6221)  # type: ignore[arg-type]
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
-        data = loadGFM(text)
-        del data[0]["a"]
-        self.assertEqual(rev(data), self.date_for_6221)  # type: ignore[arg-type]
+        back = loadGFM(text)
+        del back[0]["a"]
+        self.assertEqual(want, back)
 
     def test_9771(self) -> None:
         tmp = self.testdir()
@@ -624,8 +656,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test011Q)
+        want = test011Q
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9772(self) -> None:
         tmp = self.testdir()
@@ -635,8 +668,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test012)
+        want = test012
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9773(self) -> None:
         tmp = self.testdir()
@@ -646,8 +680,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test013)
+        want = test013
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9774(self) -> None:
         tmp = self.testdir()
@@ -657,8 +692,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test014)
+        want = test014
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9775(self) -> None:
         tmp = self.testdir()
@@ -668,8 +704,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test015)
+        want = test015
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9776(self) -> None:
         tmp = self.testdir()
@@ -679,8 +716,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test016)
+        want = test016
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9777(self) -> None:
         tmp = self.testdir()
@@ -690,8 +728,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test017)
+        want = test017
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9778(self) -> None:
         tmp = self.testdir()
@@ -701,8 +740,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test018Q)
+        want = test018Q
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9779(self) -> None:
         tmp = self.testdir()
@@ -712,8 +752,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test019)
+        want = test019
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9781(self) -> None:
         tmp = self.testdir()
@@ -723,8 +764,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test011Q)
+        want = test011Q
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         # self.rm_testdir()
     def test_9782(self) -> None:
         tmp = self.testdir()
@@ -733,9 +775,10 @@ class TabXlsxTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test012)
-        logg.info("data = %s", data)
+        want = test012
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
+        logg.info("data = %s", back)
         self.rm_testdir()
     def test_9783(self) -> None:
         tmp = self.testdir()
@@ -744,8 +787,9 @@ class TabXlsxTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test013)
+        want = test013
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9784(self) -> None:
         tmp = self.testdir()
@@ -754,8 +798,9 @@ class TabXlsxTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test014)
+        want = test014
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9785(self) -> None:
         tmp = self.testdir()
@@ -764,8 +809,9 @@ class TabXlsxTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test015)
+        want = test015
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9786(self) -> None:
         tmp = self.testdir()
@@ -774,8 +820,9 @@ class TabXlsxTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test016)
+        want = test016
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9787(self) -> None:
         tmp = self.testdir()
@@ -784,8 +831,9 @@ class TabXlsxTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test017)
+        want = test017
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9788(self) -> None:
         tmp = self.testdir()
@@ -794,8 +842,9 @@ class TabXlsxTest(unittest.TestCase):
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        data = read_workbook(filename)
-        self.assertEqual(data, test018Q)
+        want = test018Q
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         self.rm_testdir()
     def test_9789(self) -> None:
         tmp = self.testdir()
@@ -810,8 +859,9 @@ class TabXlsxTest(unittest.TestCase):
                 xmldata = zipdata.read()
                 logg.info("xmldata = %s", xmldata)
         #
-        data = read_workbook(filename)
-        self.assertEqual(data, test019)
+        want = test019
+        back = read_workbook(filename)
+        self.assertEqual(want, back)
         # self.rm_testdir()
 
 if __name__ == "__main__":
