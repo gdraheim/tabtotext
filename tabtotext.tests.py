@@ -117,6 +117,10 @@ table33: JSONList = [{"a": "x", "b": 3, "c": Date(2021,12,31)},
 table33Q: JSONList = [{"a": "x", "b": 3, "c": Date(2021,12,31)},
                      {"b": 2, "a": "y", "c": Date(2021,12,30)},
                      {"a": None, "b": None, "c": Date(2021,12,31)}]
+table44: JSONList = [{"a": "x", "b": 3, "c": True, "d": 0.4}, 
+                     {"b": 2, "a": "y", "c": False, "d": 0.3}, 
+                     {"a": None, "b": None, "c": True, "d": 0.2},
+                     {"a": "y", "b": 1, "d": 0.1}]
 
 class TabToTextTest(unittest.TestCase):
     def caller_testname(self) -> str:
@@ -2268,6 +2272,11 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table33, text.splitlines())
         cond = ['a;b;c', '~;~;2021-12-31', 'x;3;2021-12-31', 'y;2;2021-12-30']
         self.assertEqual(cond, text.splitlines())
+    def test_4534(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['a;b;c;d', '~;~;(yes);0.20', 'x;3;(yes);0.40', 'y;1;~;0.10', 'y;2;(no);0.30']
+        self.assertEqual(cond, text.splitlines())
     def test_4535(self) -> None:
         text = tabtotext.tabtoCSV(table01, ["b|a"])
         logg.debug("%s => %s", table01, text.splitlines())
@@ -3760,6 +3769,14 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"a": null, "c": "2021-12-31"},', 
                 ' {"a": "x", "b": 3, "c": "2021-12-31"},', 
                 ' {"a": "y", "b": 2, "c": "2021-12-30"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5534(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"a": null, "b": null, "c": true, "d": 0.20},', 
+                ' {"a": "x", "b": 3, "c": true, "d": 0.40},', 
+                ' {"a": "y", "b": 1, "d": 0.10},', 
+                ' {"a": "y", "b": 2, "c": false, "d": 0.30}', ']']
         self.assertEqual(cond, text.splitlines())
     def test_5535(self) -> None:
         text = tabtotext.tabtoJSON(table01, ["b|a"])
@@ -5378,6 +5395,15 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table33, text.splitlines())
         cond = ['| a     | b     | c', '| ----- | ----- | ----------', '| ~     | ~     | 2021-12-31', '| x     | 3     | 2021-12-31', '| y     | 2     | 2021-12-30']
         self.assertEqual(cond, text.splitlines())
+    def test_6534(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| a     | b     | c     | d', '| ----- | ----- | ----- | -----', 
+                '| ~     | ~     | (yes) | 0.20', 
+                '| x     | 3     | (yes) | 0.40', 
+                '| y     | 1     | ~     | 0.10', 
+                '| y     | 2     | (no)  | 0.30']
+        self.assertEqual(cond, text.splitlines())
     def test_6535(self) -> None:
         text = tabtotext.tabtoGFM(table01, ["b|a"])
         logg.debug("%s => %s", table01, text.splitlines())
@@ -5396,12 +5422,18 @@ class TabToTextTest(unittest.TestCase):
     def test_6538(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["b|a"])
         logg.debug("%s => %s", table33, text.splitlines())
-        cond = ['| b     | a     | c', '| ----- | ----- | ----------', '| 2     | y     | 2021-12-30', '| 3     | x     | 2021-12-31', '| ~     | ~     | 2021-12-31']
+        cond = ['| b     | a     | c', '| ----- | ----- | ----------', 
+                '| 2     | y     | 2021-12-30', 
+                '| 3     | x     | 2021-12-31', 
+                '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
     def test_6539(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["b|c|a"])
         logg.debug("%s => %s", table33, text.splitlines())
-        cond = ['| b     | c          | a', '| ----- | ---------- | -----', '| 2     | 2021-12-30 | y', '| 3     | 2021-12-31 | x', '| ~     | 2021-12-31 | ~']
+        cond = ['| b     | c          | a', '| ----- | ---------- | -----', 
+                '| 2     | 2021-12-30 | y', 
+                '| 3     | 2021-12-31 | x', 
+                '| ~     | 2021-12-31 | ~']
         self.assertEqual(cond, text.splitlines())
 
 
@@ -6723,6 +6755,15 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>~<br /></td><td>2021-12-31</td></tr>',
                   '<tr><td>x<br />3</td><td>2021-12-31</td></tr>', 
                   '<tr><td>y<br />2</td><td>2021-12-30</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7534(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>', '<tr><th>a<br />b</th><th>c</th><th>d</th></tr>', 
+                '<tr><td>~<br />~</td><td>(yes)</td><td>0.20</td></tr>', 
+                '<tr><td>x<br />3</td><td>(yes)</td><td>0.40</td></tr>', 
+                '<tr><td>y<br />1</td><td></td><td>0.10</td></tr>', 
+                '<tr><td>y<br />2</td><td>(no)</td><td>0.30</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
     def test_7535(self) -> None:
         text = tabtotext.tabtoHTML(table01, ["b|a"])
