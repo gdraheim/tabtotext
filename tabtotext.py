@@ -526,8 +526,10 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         combines = ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formats[name] = fmt
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [ name ]  # default sort by named headers (rows)
@@ -545,6 +547,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 combine[combines] = [ name ]
             elif name not in combine[combines]:
                 combine[combines] += [ name ]
+    logg.error("formats %s", formats)
     combined: Dict[str, List[str]] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
@@ -798,8 +801,10 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         combines = ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formats[name] = fmt
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [ name ]  # default sort by named headers (rows)
@@ -1098,8 +1103,10 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selcols, rename, orders = header, "", ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formats[name] = fmt
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [ name ]  # default sort by named headers (rows)
@@ -1281,8 +1288,10 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selcols, rename, orders = header, "", ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formats[name] = fmt
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [ name ]  # default sort by named headers (rows)
@@ -1497,8 +1506,10 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selcols, rename, orders = header, "", ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formats[name] = fmt
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [ name ]  # default sort by named headers (rows)
@@ -1731,8 +1742,10 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         combines = ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formats[name] = fmt
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [ name ]  # default sort by named headers (rows)
