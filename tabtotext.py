@@ -166,10 +166,11 @@ def unmatched(value: JSONItem, cond: str) -> bool:
             if cond.startswith(">"):
                 return value <= int(cond[1:])
         elif isinstance(value, float):
+            logg.error("float %s", cond)
             if cond.startswith("=~"):
                 return value-0.01 > float(cond[2:]) or float(cond[2:]) > value+0.01 
             if cond.startswith("<>"):
-                return value-0.01 < float(cond[2:]) and float(cond[2:]) < value+0.01 
+                return value-0.01 < float(cond[2:]) and float(cond[2:]) < value+0.01
             if cond.startswith("==") or cond.startswith("=~"):
                 return value != float(cond[2:]) # not recommended
             if cond.startswith("<="):
