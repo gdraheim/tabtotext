@@ -2295,8 +2295,6 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
 
 
-
-
     def test_5000(self) -> None:
         want = LIST
         back = json.loads("[]")
@@ -3741,6 +3739,57 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadJSON(text)
         self.assertEqual(want, back)
+    def test_5530(self) -> None:
+        text = tabtotext.tabtoJSON(table01, ["a|b"])
+        logg.debug("%s => %s", table01, text.splitlines())
+        cond = ['[', ' {"b": 1},', ' {"a": "x"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5531(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["a|b"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {"b": 2},', ' {"a": "x", "b": 0}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5532(self) -> None:
+        text = tabtotext.tabtoJSON(table22, ["a|b"])
+        logg.debug("%s => %s", table22, text.splitlines())
+        cond = ['[', ' {"a": "x", "b": 3},', ' {"a": "y", "b": 2}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5533(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['[', ' {"a": null, "c": "2021-12-31"},', 
+                ' {"a": "x", "b": 3, "c": "2021-12-31"},', 
+                ' {"a": "y", "b": 2, "c": "2021-12-30"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5535(self) -> None:
+        text = tabtotext.tabtoJSON(table01, ["b|a"])
+        logg.debug("%s => %s", table01, text.splitlines())
+        cond = ['[', ' {"b": 1},', ' {"a": "x"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5536(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["b|a"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {"b": 0, "a": "x"},', ' {"b": 2}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5537(self) -> None:
+        text = tabtotext.tabtoJSON(table22, ["b|a"])
+        logg.debug("%s => %s", table22, text.splitlines())
+        cond = ['[', ' {"b": 2, "a": "y"},', ' {"b": 3, "a": "x"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5538(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["b|a"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond =  ['[', ' {"b": 2, "a": "y", "c": "2021-12-30"},', 
+                 ' {"b": 3, "a": "x", "c": "2021-12-31"},', 
+                 ' {"a": null, "c": "2021-12-31"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5539(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["b|c|a"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['[', ' {"b": 2, "c": "2021-12-30", "a": "y"},',
+                ' {"b": 3, "c": "2021-12-31", "a": "x"},', 
+                ' {"c": "2021-12-31", "a": null}', ']']
+        self.assertEqual(cond, text.splitlines())
 
 
     def test_6003(self) -> None:
