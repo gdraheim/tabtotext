@@ -3502,7 +3502,7 @@ class TabToTextTest(unittest.TestCase):
     def test_5479(self) -> None:
         text = tabtotext.tabtoJSON(table33, ["c", "a"], ["c"])
         logg.debug("%s => %s", table33, text)
-        cond = ['c', '2021-12-30', '2021-12-31', '2021-12-31']
+        cond = ['[', ' {"c": "2021-12-30"},', ' {"c": "2021-12-31"},', ' {"c": "2021-12-31"}', ']']
         back = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
         self.assertEqual(cond, text.splitlines())
         data = tabtotext.loadJSON(text)
