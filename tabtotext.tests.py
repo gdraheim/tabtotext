@@ -1839,6 +1839,241 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, data)
         self.assertEqual(want, data)
+    def test_4403(self) -> None:
+        text = tabtotext.tabtoCSV(test003)
+        logg.debug("%s => %s", test003, text)
+        cond = ['']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, [])
+    def test_4404(self) -> None:
+        text = tabtotext.tabtoCSV(test004)
+        logg.debug("%s => %s", test004, text)
+        cond = ['', '', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, [])
+    def test_4405(self) -> None:
+        text = tabtotext.tabtoCSV(test005)
+        logg.debug("%s => %s", test005, text)
+        cond = ['a', 'x', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test005)
+    def test_4406(self) -> None:
+        text = tabtotext.tabtoCSV(test006)
+        logg.debug("%s => %s", test006, text)
+        cond = ['a;b', 'x;y', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test006)
+    def test_4407(self) -> None:
+        text = tabtotext.tabtoCSV(test007)
+        logg.debug("%s => %s", test007, text)
+        cond = ['a;b', 'x;y', '~;v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test007Q)
+    def test_4408(self) -> None:
+        text = tabtotext.tabtoCSV(test008)
+        logg.debug("%s => %s", test008, text)
+        cond = ['a;b', 'x;~', '~;v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test008Q)
+    def test_4409(self) -> None:
+        text = tabtotext.tabtoCSV(test009)
+        logg.debug("%s => %s", test009, text)
+        cond = ['b', '~', 'v']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test009Q)
+    def test_4411(self) -> None:
+        text = tabtotext.tabtoCSV(test011)
+        logg.debug("%s => %s", test011, text)
+        cond = ['b', '~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test011)
+    def test_4412(self) -> None:
+        text = tabtotext.tabtoCSV(test012)
+        logg.debug("%s => %s", test012, text)
+        cond = ['b', '(no)']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test012)
+    def test_4413(self) -> None:
+        text = tabtotext.tabtoCSV(test013)
+        logg.debug("%s => %s", test013, text)
+        cond = ['b', '(yes)']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test013)
+    def test_4414(self) -> None:
+        text = tabtotext.tabtoCSV(test014)
+        logg.debug("%s => %s", test014, text)
+        cond = ['b', '""']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test014)
+    def test_4415(self) -> None:
+        text = tabtotext.tabtoCSV(test015)
+        logg.debug("%s => %s", test015, text)
+        cond = ['b', '5678']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test015Q)
+    def test_4416(self) -> None:
+        text = tabtotext.tabtoCSV(test016)
+        logg.debug("%s => %s", test016, text)
+        cond = ['b', '123']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        if data[0]['b'] == "123":
+            data[0]['b'] = 123
+        self.assertEqual(data, test016)
+    def test_4417(self) -> None:
+        text = tabtotext.tabtoCSV(test017)
+        logg.debug("%s => %s", test017, text)
+        cond = ['b', '123.40']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        if data[0]['b'] == "123.40":
+            data[0]['b'] = 123.4
+        self.assertEqual(data, test017)
+    def test_4418(self) -> None:
+        text = tabtotext.tabtoCSV(test018)
+        logg.debug("%s => %s", test018, text)
+        cond = ['b', '2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test018)
+    def test_4419(self) -> None:
+        text = tabtotext.tabtoCSV(test019)
+        logg.debug("%s => %s", test019, text)
+        cond = ['b', '2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, test018)  # test019
+    def test_4420(self) -> None:
+        text = tabtotext.tabtoCSV(table01)
+        logg.debug("%s => %s", table01, text)
+        cond = ['a;b', 'x;~', '~;1']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, table01N)
+    def test_4421(self) -> None:
+        text = tabtotext.tabtoCSV(table02)
+        logg.debug("%s => %s", table02, text)
+        cond = ['a;b', 'x;0', '~;2']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, table02N)
+    def test_4422(self) -> None:
+        text = tabtotext.tabtoCSV(table22)
+        logg.debug("%s => %s", table22, text)
+        cond = ['a;b', 'x;3', 'y;2']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, table22)
+    def test_4423(self) -> None:
+        text = tabtotext.tabtoCSV(table33)
+        logg.debug("%s => %s", table33, text)
+        cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, table33Q)
+    def test_4430(self) -> None:
+        """ legend is ignored for CSV """
+        text = tabtotext.tabtoCSV(test011, legend="a result")
+        logg.debug("%s => %s", test011, text)
+        cond = ['b', '~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test011)
+    def test_4431(self) -> None:
+        """ legend is ignored for CSV """
+        text = tabtotext.tabtoCSV(test011, legend=["a result", "was found"])
+        logg.debug("%s => %s", test011, text)
+        cond = ['b', '~']
+        self.assertEqual(cond, text.splitlines())
+        csvdata = tabtotext.loadCSV(text)
+        data = csvdata
+        self.assertEqual(data, test011)
+    def test_4444(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
+        text = tabtotext.tabtoCSV(itemlist, sorts=['b', 'a'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a', '1;y', '2;x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_4445(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        text = tabtotext.tabtoCSV(itemlist, sorts=['b', 'a'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['b;a;c', '1;y;~', '2;x;~', '~;~;h', ]
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_4446(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        text = tabtotext.tabtoCSV(itemlist, sorts=['b', 'a'], reorder=['a', 'b'])
+        logg.debug("%s => %s", test004, text)
+        cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ]  # column a is now first
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
+        logg.info("%s => %s", want, data)
+        self.assertEqual(want, data)
+    def test_4460(self) -> None:
+        text = tabtotext.tabtoCSV(table01, ["b", "a"])
+        logg.debug("%s => %s", table01, text)
+        cond = ['b;a', '1;~', '~;x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table01N))
+    def test_4461(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["b", "a"])
+        logg.debug("%s => %s", table02, text)
+        cond = ['b;a', '0;x', '2;~']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, table02N)
+    def test_4462(self) -> None:
+        text = tabtotext.tabtoCSV(table22, ["b", "a"])
+        logg.debug("%s => %s", table22, text)
+        cond = ['b;a', '2;y', '3;x']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table22))
+    def test_4463(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["b", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['b;a;c', '2;y;2021-12-30', '3;x;2021-12-31', '~;~;2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table33Q[:2]) + table33Q[2:])
+    def test_4464(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["c", "a"])
+        logg.debug("%s => %s", table33, text)
+        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;~;~', '2021-12-31;x;3']
+        self.assertEqual(cond, text.splitlines())
+        data = tabtotext.loadCSV(text)
+        self.assertEqual(data, rev(table33Q[:1] + rev(table33Q[1:])))
+
+
+
+
     def test_5000(self) -> None:
         data = json.loads("[]")
         self.assertEqual(data, [])
