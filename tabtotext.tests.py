@@ -22,6 +22,9 @@ from io import StringIO
 
 import logging
 logg = logging.getLogger("TESTS")
+NIX = ""
+LIST: List[str] = []
+JSONLIST: List[Dict[str, str]] = []
 
 try:
     from tabtools import currency_default
@@ -1091,7 +1094,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4003(self) -> None:
         text = tabtotext.tabToCSV(test003)
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = LIST
         cond = ['']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
@@ -1099,7 +1102,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4004(self) -> None:
         text = tabtotext.tabToCSV(test004)
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = LIST
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
@@ -1531,7 +1534,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = LIST
         cond = ['']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
@@ -1542,7 +1545,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = LIST
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
@@ -1884,7 +1887,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4403(self) -> None:
         text = tabtotext.tabtoCSV(test003)
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = LIST
         cond = ['']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
@@ -1892,7 +1895,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4404(self) -> None:
         text = tabtotext.tabtoCSV(test004)
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = LIST
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
@@ -2250,16 +2253,16 @@ class TabToTextTest(unittest.TestCase):
 
 
     def test_5000(self) -> None:
-        want = []
+        want = LIST
         back = json.loads("[]")
         self.assertEqual(want, back)
     def test_5001(self) -> None:
-        want = [{}]
+        want = JSONLIST + [{}]
         back = json.loads("[{}]")
         self.assertEqual(want, back)
     def test_5002(self) -> None:
         try:
-            want = [{}]
+            want = JSONLIST + [{}]
             back = json.loads("[{},]")
             self.assertEqual(want, back)
         except json.decoder.JSONDecodeError as e:
@@ -3698,7 +3701,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6003(self) -> None:
         text = tabtotext.tabToGFM(test003)
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = LIST
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
@@ -3706,7 +3709,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6004(self) -> None:
         text = tabtotext.tabToGFM(test004)
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = LIST
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
@@ -4207,7 +4210,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = LIST
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
@@ -4218,7 +4221,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = LIST
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
@@ -4917,7 +4920,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6403(self) -> None:
         text = tabtotext.tabtoGFM(test003)
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = LIST
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
@@ -4925,7 +4928,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6404(self) -> None:
         text = tabtotext.tabtoGFM(test004)
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = LIST
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
