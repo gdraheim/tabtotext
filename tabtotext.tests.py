@@ -2248,6 +2248,51 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
+    def test_4530(self) -> None:
+        text = tabtotext.tabtoCSV(table01, ["a|b"])
+        logg.debug("%s => %s", table01, text.splitlines())
+        cond = ['a;b', '~;1', 'x;~']
+        self.assertEqual(cond, text.splitlines())
+    def test_4531(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["a|b"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['a;b', '~;2', 'x;0']
+        self.assertEqual(cond, text.splitlines())
+    def test_4532(self) -> None:
+        text = tabtotext.tabtoCSV(table22, ["a|b"])
+        logg.debug("%s => %s", table22, text.splitlines())
+        cond = ['a;b', 'x;3', 'y;2']
+        self.assertEqual(cond, text.splitlines())
+    def test_4533(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["a|b"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['a;b;c', '~;~;2021-12-31', 'x;3;2021-12-31', 'y;2;2021-12-30']
+        self.assertEqual(cond, text.splitlines())
+    def test_4535(self) -> None:
+        text = tabtotext.tabtoCSV(table01, ["b|a"])
+        logg.debug("%s => %s", table01, text.splitlines())
+        cond = ['b;a', '1;~', '~;x']
+        self.assertEqual(cond, text.splitlines())
+    def test_4536(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["b|a"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['b;a', '0;x', '2;~']
+        self.assertEqual(cond, text.splitlines())
+    def test_4537(self) -> None:
+        text = tabtotext.tabtoCSV(table22, ["b|a"])
+        logg.debug("%s => %s", table22, text.splitlines())
+        cond = ['b;a', '2;y', '3;x']
+        self.assertEqual(cond, text.splitlines())
+    def test_4538(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["b|a"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;a;c', '2;y;2021-12-30', '3;x;2021-12-31', '~;~;2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_4539(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["b|c|a"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;a', '2;2021-12-30;y', '3;2021-12-31;x', '~;2021-12-31;~']
+        self.assertEqual(cond, text.splitlines())
 
 
 
