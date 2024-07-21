@@ -1142,16 +1142,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4012(self) -> None:
         text = tabtotext.tabToCSV(test012)
         logg.debug("%s => %s", test012, text)
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test012)
     def test_4013(self) -> None:
         text = tabtotext.tabToCSV(test013)
@@ -1211,16 +1209,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table01, text)
         cond = ['a;b', 'x;~', '~;1']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, table01N)
     def test_4021(self) -> None:
         text = tabtotext.tabToCSV(table02)
         logg.debug("%s => %s", table02, text)
         cond = ['a;b', 'x;0', '~;2']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, table02N)
     def test_4022(self) -> None:
         text = tabtotext.tabToCSV(table22)
@@ -1242,8 +1238,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4031(self) -> None:
         """ legend is ignored for CSV """
@@ -1251,8 +1246,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4044(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -1289,16 +1283,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", data011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4052(self) -> None:
         text = tabtotext.tabToCSVx(data012)
         logg.debug("%s => %s", data012, text)
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test012)
     def test_4053(self) -> None:
         text = tabtotext.tabToCSVx(data013)
@@ -1575,8 +1567,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4112(self) -> None:
         out = StringIO()
@@ -1586,8 +1577,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test012, text)
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test012)
     def test_4113(self) -> None:
         out = StringIO()
@@ -1672,8 +1662,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4144(self) -> None:
         out = StringIO()
@@ -1893,16 +1882,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4412(self) -> None:
         text = tabtotext.tabtoCSV(test012)
         logg.debug("%s => %s", test012, text)
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test012)
     def test_4413(self) -> None:
         text = tabtotext.tabtoCSV(test013)
@@ -1962,16 +1949,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table01, text)
         cond = ['a;b', 'x;~', '~;1']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, table01N)
     def test_4421(self) -> None:
         text = tabtotext.tabtoCSV(table02)
         logg.debug("%s => %s", table02, text)
         cond = ['a;b', 'x;0', '~;2']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, table02N)
     def test_4422(self) -> None:
         text = tabtotext.tabtoCSV(table22)
@@ -1993,8 +1978,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4431(self) -> None:
         """ legend is ignored for CSV """
@@ -2002,8 +1986,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test011, text)
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadCSV(text)
-        data = csvdata
+        data = tabtotext.loadCSV(text)
         self.assertEqual(data, test011)
     def test_4444(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -3626,16 +3609,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table01, text)
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadGFM(text)
-        data = csvdata
+        data = tabtotext.loadGFM(text)
         self.assertEqual(data, table01N)
     def test_6021(self) -> None:
         text = tabtotext.tabToGFM(table02)
         logg.debug("%s => %s", table02, text)
         cond = ['| a     | b', '| ----- | -----', '| x     | 0', '| ~     | 2']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadGFM(text)
-        data = csvdata
+        data = tabtotext.loadGFM(text)
         self.assertEqual(data, table02N)
     def test_6022(self) -> None:
         text = tabtotext.tabToGFM(table22)
@@ -4760,16 +4741,14 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table01, text)
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadGFM(text)
-        data = csvdata
+        data = tabtotext.loadGFM(text)
         self.assertEqual(data, table01N)
     def test_6421(self) -> None:
         text = tabtotext.tabtoGFM(table02)
         logg.debug("%s => %s", table02, text)
         cond = ['| a     | b', '| ----- | -----', '| x     | 0', '| ~     | 2']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadGFM(text)
-        data = csvdata
+        data = tabtotext.loadGFM(text)
         self.assertEqual(data, table02N)
     def test_6422(self) -> None:
         text = tabtotext.tabtoGFM(table22)
@@ -5052,8 +5031,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>a</th><th>b</th></tr>',
                 '<tr><td>x</td><td></td></tr>', '<tr><td></td><td>1</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadHTML(text)
-        data = csvdata
+        data = tabtotext.loadHTML(text)
         self.assertEqual(data, table01N)
     def test_7021(self) -> None:
         text = tabtotext.tabToHTML(table02)
@@ -5061,8 +5039,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>a</th><th>b</th></tr>',  '<tr><td>x</td><td>0</td></tr>',
                 '<tr><td></td><td>2</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadHTML(text)
-        data = csvdata
+        data = tabtotext.loadHTML(text)
         self.assertEqual(data, table02N)
     def test_7022(self) -> None:
         text = tabtotext.tabToHTML(table22)
@@ -5882,8 +5859,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>a</th><th>b</th></tr>',
                 '<tr><td>x</td><td></td></tr>', '<tr><td></td><td>1</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadHTML(text)
-        data = csvdata
+        data = tabtotext.loadHTML(text)
         self.assertEqual(data, table01N)
     def test_7421(self) -> None:
         text = tabtotext.tabtoHTML(table02)
@@ -5891,8 +5867,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['<table>', '<tr><th>a</th><th>b</th></tr>',  '<tr><td>x</td><td>0</td></tr>',
                 '<tr><td></td><td>2</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-        csvdata = tabtotext.loadHTML(text)
-        data = csvdata
+        data = tabtotext.loadHTML(text)
         self.assertEqual(data, table02N)
     def test_7422(self) -> None:
         text = tabtotext.tabtoHTML(table22)
