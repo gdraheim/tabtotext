@@ -513,25 +513,35 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
+    combine: Dict[str, List[str]] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
-            selcol, rename = header.split("@", 1)
+            selcols, rename = header.split("@", 1)
             if "@" in rename:
                 rename, orders = rename.split("@", 1)
             else:
                 rename, orders = rename, ""
         else:
-            selcol, rename, orders = header, "", ""
-        if ":" in selcol:
-            name, fmt = selcol.split(":", 1)
-            formats[name] = fmt
-        else:
-            name = selcol
-        sortheaders += [ name ]  # default sort by named headers (rows)
-        if headernum < 10:  # and default order by named headers (cols)
-            headerorder[name] = orders or "@%i" % headernum
-        else:
-            headerorder[name] = orders or "@:%07i" % headernum
+            selcols, rename, orders = header, "", ""
+        combines = ""
+        for selcol in selcols.split("|"):
+            if ":" in selcol:
+                name, fmt = selcol.split(":", 1)
+                formats[name] = fmt
+            else:
+                name = selcol
+            sortheaders += [ name ]  # default sort by named headers (rows)
+            if headernum < 10:  # and default order by named headers (cols)
+                headerorder[name] = orders or "@%i" % headernum
+            else:
+                headerorder[name] = orders or "@:%07i" % headernum
+            if not combines:
+                combines = name
+            elif combines not in combine:
+                combine[combines] = [ name ]
+            elif name not in combine[combines]:
+                combine[combines] += [ name ]
+    combined: Dict[str, List[str]] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -545,6 +555,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 rename, orders = rename, ""
         else:
             selcols, rename, orders = selec, "", ""
+        combines = ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -567,6 +578,14 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 rename = "" # only the first
             if orders:
                 reorders[name] = orders
+            if not combines:
+                combines = name
+            elif combines not in combined:
+                combined[combines] = [ name ]
+            elif combines not in combined[combines]:
+                combined[combines] += [ name ]
+    if not selects:
+        combined = combine # argument
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1676,25 +1695,35 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
+    combine: Dict[str, List[str]] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
-            selcol, rename = header.split("@", 1)
+            selcols, rename = header.split("@", 1)
             if "@" in rename:
                 rename, orders = rename.split("@", 1)
             else:
                 rename, orders = rename, ""
         else:
-            selcol, rename, orders = header, "", ""
-        if ":" in selcol:
-            name, fmt = selcol.split(":", 1)
-            formats[name] = fmt
-        else:
-            name = selcol
-        sortheaders += [ name ]  # default sort by named headers (rows)
-        if headernum < 10:  # and default order by named headers (cols)
-            headerorder[name] = orders or "@%i" % headernum
-        else:
-            headerorder[name] = orders or "@:%07i" % headernum
+            selcols, rename, orders = header, "", ""
+        combines = ""
+        for selcol in selcols.split("|"):
+            if ":" in selcol:
+                name, fmt = selcol.split(":", 1)
+                formats[name] = fmt
+            else:
+                name = selcol
+            sortheaders += [ name ]  # default sort by named headers (rows)
+            if headernum < 10:  # and default order by named headers (cols)
+                headerorder[name] = orders or "@%i" % headernum
+            else:
+                headerorder[name] = orders or "@:%07i" % headernum
+            if not combines:
+                combines = name
+            elif combines not in combine:
+                combine[combines] = [ name ]
+            elif name not in combine[combines]:
+                combine[combines] += [ name ]
+    combined: Dict[str, List[str]] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -1708,6 +1737,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 rename, orders = rename, ""
         else:
             selcols, rename, orders = selec, "", ""
+        combines = ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -1731,6 +1761,14 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 rename = "" # only the first
             if orders:
                 reorders[name] = orders
+            if not combines:
+                combines = name
+            elif combines not in combined:
+                combined[combines] = [ name ]
+            elif combines not in combined[combines]:
+                combined[combines] += [ name ]
+    if not selects:
+        combined = combine # argument
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
