@@ -736,7 +736,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 rename, orders = rename, ""
         else:
             selcols, rename, orders = header, "", ""
-        for selcol in selcols.split("|"):
+        for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, fmt = selcol.split(":", 1)
                 formats[name] = fmt
@@ -747,6 +747,10 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 headerorder[name] = orders or "@%i" % headernum
             else:
                 headerorder[name] = orders or "@:%07i" % headernum
+            if colnum and colnum < 10:
+                headerorder[name] += "@%i" % colnum
+            elif colnum:
+                headerorder[name] += "@:%07i" % colnum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}

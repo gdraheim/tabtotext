@@ -524,7 +524,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         else:
             selcols, rename, orders = header, "", ""
         combines = ""
-        for selcol in selcols.split("|"):
+        for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, fmt = selcol.split(":", 1)
                 formats[name] = fmt
@@ -535,6 +535,10 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 headerorder[name] = orders or "@%i" % headernum
             else:
                 headerorder[name] = orders or "@:%07i" % headernum
+            if colnum and colnum < 10:
+                headerorder[name] += "@%i" % colnum
+            elif colnum:
+                headerorder[name] += "@:%07i" % colnum
             if not combines:
                 combines = name
             elif combines not in combine:
@@ -792,7 +796,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         else:
             selcols, rename, orders = header, "", ""
         combines = ""
-        for selcol in selcols.split("|"):
+        for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, fmt = selcol.split(":", 1)
                 formats[name] = fmt
@@ -803,6 +807,10 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 headerorder[name] = orders or "@%i" % headernum
             else:
                 headerorder[name] = orders or "@:%07i" % headernum
+            if colnum and colnum < 10:
+                headerorder[name] += "@%i" % colnum
+            elif colnum:
+                headerorder[name] += "@:%07i" % colnum
             if not combines:
                 combines = name
             elif combines not in combine:
@@ -1088,7 +1096,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 rename, orders = rename, ""
         else:
             selcols, rename, orders = header, "", ""
-        for selcol in selcols.split("|"):
+        for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, fmt = selcol.split(":", 1)
                 formats[name] = fmt
@@ -1099,6 +1107,10 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 headerorder[name] = orders or "@%i" % headernum
             else:
                 headerorder[name] = orders or "@:%07i" % headernum
+            if colnum and colnum < 10:
+                headerorder[name] += "@%i" % colnum
+            elif colnum:
+                headerorder[name] += "@:%07i" % colnum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -1267,7 +1279,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 rename, orders = rename, ""
         else:
             selcols, rename, orders = header, "", ""
-        for selcol in selcols.split("|"):
+        for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, fmt = selcol.split(":", 1)
                 formats[name] = fmt
@@ -1278,6 +1290,10 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 headerorder[name] = orders or "@%i" % headernum
             else:
                 headerorder[name] = orders or "@:%07i" % headernum
+            if colnum and colnum < 10:
+                headerorder[name] += "@%i" % colnum
+            elif colnum:
+                headerorder[name] += "@:%07i" % colnum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -1479,7 +1495,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 rename, orders = rename, ""
         else:
             selcols, rename, orders = header, "", ""
-        for selcol in selcols.split("|"):
+        for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, fmt = selcol.split(":", 1)
                 formats[name] = fmt
@@ -1490,6 +1506,10 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 headerorder[name] = orders or "@%i" % headernum
             else:
                 headerorder[name] = orders or "@:%07i" % headernum
+            if colnum and colnum < 10:
+                headerorder[name] += "@%i" % colnum
+            elif colnum:
+                headerorder[name] += "@:%07i" % colnum
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
@@ -1709,7 +1729,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         else:
             selcols, rename, orders = header, "", ""
         combines = ""
-        for selcol in selcols.split("|"):
+        for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, fmt = selcol.split(":", 1)
                 formats[name] = fmt
@@ -1720,6 +1740,10 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 headerorder[name] = orders or "@%i" % headernum
             else:
                 headerorder[name] = orders or "@:%07i" % headernum
+            if colnum and colnum < 10:
+                headerorder[name] += "@%i" % colnum
+            elif colnum:
+                headerorder[name] += "@:%07i" % colnum
             if not combines:
                 combines = name
             elif combines not in combine:
