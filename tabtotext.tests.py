@@ -2392,6 +2392,46 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table44, text.splitlines())
         cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
         self.assertEqual(cond, text.splitlines())
+    def test_4622(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d>0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        self.assertEqual(cond, text.splitlines())
+    def test_4623(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d>=0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        self.assertEqual(cond, text.splitlines())
+    def test_4624(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d>0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1']
+        self.assertEqual(cond, text.splitlines())
+    def test_4625(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d<=0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '~;0.20;3']
+        self.assertEqual(cond, text.splitlines())
+    def test_4626(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d<0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4']
+        self.assertEqual(cond, text.splitlines())
+    def test_4627(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d==0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4']
+        self.assertEqual(cond, text.splitlines())
+    def test_4628(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d=~0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4']
+        self.assertEqual(cond, text.splitlines())
+    def test_4629(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|d<>0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        self.assertEqual(cond, text.splitlines())
 
 
     def test_5000(self) -> None:
