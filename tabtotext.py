@@ -139,93 +139,39 @@ def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = 
     return str(value)
 def unmatched(value: JSONItem, cond: str) -> bool:
     try:
-        if value is None:
+        if value is None or value is False or value is True:
             if len(cond) >= 2 and cond[:2] in ["==", "=~", "<=", ">="]:
-                if cond[2:] in ["1", "yes", "(yes)", "*", "+"]:
-                    return True
-                return cond[2:] not in ["0", "no", "(no)", "",  "~"]
-        elif value is False:
-            if cond.startswith("==") or cond.startswith("=~"):
-                return cond[2:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
-            if cond.startswith("<>"):
-                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
-            if cond.startswith("<="):
-                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
-            if cond.startswith("<"):
-                return cond[1:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
-            if cond.startswith(">="):
-                return cond[2:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
-            if cond.startswith(">"):
+                if cond[2:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]:
+                    cond = cond[:2] + "1"
+                if cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]:
+                    cond = cond[:2] + "0"
+            elif len(cond) >= 1 and cond[:1] in ["<", ">"]:
                 if cond[1:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]:
-                    return True
-                return cond[1:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
-        elif value is True:
-            if cond.startswith("==") or cond.startswith("=~"):
-                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
-            if cond.startswith("<>"):
-                return cond[2:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
-            if cond.startswith("<="):
-                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
-            if cond.startswith("<"):
-                return cond[1:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
-            if cond.startswith(">="):
-                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
-            if cond.startswith(">"):
-                return cond[1:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
-        elif isinstance(value, int):
-            if cond.startswith("==") or cond.startswith("=~"):
-                return value != int(cond[2:])
-            if cond.startswith("<>"):
-                return value == int(cond[2:])
-            if cond.startswith("<="):
-                return value > int(cond[2:])
-            if cond.startswith("<"):
-                return value >= int(cond[1:])
-            if cond.startswith(">="):
-                return value < int(cond[2:])
-            if cond.startswith(">"):
-                return value <= int(cond[1:])
-        elif isinstance(value, float):
+                    cond = cond[:1] + "1"
+                if cond[1:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]:
+                    cond = cond[:1] + "0"
+            if value is True:
+                value = 1
+            else:
+                value = 0
+        if isinstance(value, Time) or isinstance(value, Date):
+            value = value.strftime(DATEFMT)
+        if isinstance(value, int) or isinstance(value, float):
+            eps = 0.005  # adding epsilon converts int-value to float-value
             if cond.startswith("=~"):
-                return value-0.01 > float(cond[2:]) or float(cond[2:]) > value+0.01 
+                return value-eps > float(cond[2:]) or float(cond[2:]) > value+eps
             if cond.startswith("<>"):
-                return value-0.01 < float(cond[2:]) and float(cond[2:]) < value+0.01
+                return value-eps < float(cond[2:]) and float(cond[2:]) < value+eps
             if cond.startswith("==") or cond.startswith("=~"):
-                return value != float(cond[2:]) # not recommended
+                return float(value) != float(cond[2:]) # not recommended
             if cond.startswith("<="):
-                return value > float(cond[2:])
+                return value-eps > float(cond[2:])
             if cond.startswith("<"):
-                return value >= float(cond[1:])
+                return value+eps >= float(cond[1:])
             if cond.startswith(">="):
-                return value < float(cond[2:])
+                return value+eps < float(cond[2:])
             if cond.startswith(">"):
-                return value <= float(cond[1:])
-        elif isinstance(value, Time):
-            if cond.startswith("==") or cond.startswith("=~"):
-                return value.strftime(DATEFMT) != cond[2:]
-            if cond.startswith("<>"):
-                return value.strftime(DATEFMT) == cond[2:]
-            if cond.startswith("<="):
-                return value.strftime(DATEFMT) > cond[2:]
-            if cond.startswith("<"):
-                return value.strftime(DATEFMT) >= cond[1:]
-            if cond.startswith(">="):
-                return value.strftime(DATEFMT) < cond[2:]
-            if cond.startswith(">"):
-                return value.strftime(DATEFMT) <= cond[1:]
-        elif isinstance(value, Date):
-            if cond.startswith("==") or cond.startswith("=~"):
-                return value.strftime(DATEFMT) != cond[2:]
-            if cond.startswith("<>"):
-                return value.strftime(DATEFMT) == cond[2:]
-            if cond.startswith("<="):
-                return value.strftime(DATEFMT) > cond[2:]
-            if cond.startswith("<"):
-                return value.strftime(DATEFMT) >= cond[1:]
-            if cond.startswith(">="):
-                return value.strftime(DATEFMT) < cond[2:]
-            if cond.startswith(">"):
-                return value.strftime(DATEFMT) <= cond[1:]
+                return value-eps <= float(cond[1:])
         else:
             if cond.startswith("=~"):
                 return str(value) != cond[2:]
