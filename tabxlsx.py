@@ -798,6 +798,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if col in formats and not noright:
             if formats[col].startswith(" "):
                 return True
+            if formats[col].startswith("{: "):
+                return True
             if formatleft.search(formats[col]):
                 return False
             if formatright.search(formats[col]):
