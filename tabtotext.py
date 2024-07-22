@@ -166,7 +166,6 @@ def unmatched(value: JSONItem, cond: str) -> bool:
             if cond.startswith(">"):
                 return value <= int(cond[1:])
         elif isinstance(value, float):
-            logg.error("float %s", cond)
             if cond.startswith("=~"):
                 return value-0.01 > float(cond[2:]) or float(cond[2:]) > value+0.01 
             if cond.startswith("<>"):
@@ -424,6 +423,10 @@ class NumFormatJSONItem(BaseFormatJSONItem):
     def __call__(self, col: str, val: JSONItem) -> str:
         if col in self.formats:
             fmt = self.formats[col]
+            if fmt.startswith("{:%") and fmt[-1] == "}" and fmt[-2] in "sf":
+                fmt = fmt.replace("{:%","{:")
+            if fmt.startswith("{:") and fmt[-1] == "}" and "%s" in fmt:
+                fmt = fmt[2:-1].replace("%s", "{:s}")
             if "{:" in fmt:
                 for fmt4 in fmt.split("|"):
                     val4 = val
@@ -442,11 +445,6 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                         return fmt % val
                     except Exception as e:
                         logg.debug("format <%s> does not apply: %e", fmt, e)
-            if "%s" in fmt:
-                try:
-                    return fmt % self.item(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", fmt, e)
             logg.debug("unknown format '%s' for col '%s'", fmt, col)
         if isinstance(val, float):
             return self.floatfmt % val
