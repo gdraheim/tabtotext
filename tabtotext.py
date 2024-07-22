@@ -257,6 +257,8 @@ class BaseFormatJSONItem(FormatJSONItem):
         if col in self.formats and not NORIGHT:
             if self.formats[col].startswith(" "):
                 return True
+            if self.formats[col].startswith("{: "):
+                return True
             if self.formatleft.search(self.formats[col]):
                 return False
             if self.formatright.search(self.formats[col]):
