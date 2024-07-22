@@ -2355,7 +2355,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4610(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b>|d|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '3;0.40;1']
         self.assertEqual(cond, text.splitlines())
     def test_4611(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b>x|d|#"])
@@ -2365,7 +2365,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4612(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b>1|d|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1']
         self.assertEqual(cond, text.splitlines())
     def test_4613(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b>=2|d|#"])
@@ -2375,12 +2375,12 @@ class TabToTextTest(unittest.TestCase):
     def test_4614(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b>2|d|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;d;#', '3;0.40;1', '~;0.20;3']
+        cond = ['b;d;#', '3;0.40;1']
         self.assertEqual(cond, text.splitlines())
     def test_4615(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b<=2|d|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', ]
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '~;0.20;3']
         self.assertEqual(cond, text.splitlines())
     def test_4616(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b<2|d|#"])
@@ -2453,7 +2453,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4630(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a>|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;a;#', '1;y;4', '2;y;2', '3;x;1', '~;~;3']
+        cond = ['b;a;#', '1;y;4', '2;y;2', '3;x;1']
         self.assertEqual(cond, text.splitlines())
     def test_4632(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a>x|#"])
@@ -2463,7 +2463,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4633(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a>=y|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;a;#', '1;y;4', '2;y;2', ]
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
         self.assertEqual(cond, text.splitlines())
     def test_4634(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a>x|#"])
@@ -2473,7 +2473,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4635(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a<=y|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;a;#', '1;y;4', '2;y;2', '3;x;1',]
+        cond = ['b;a;#', '1;y;4', '2;y;2', '3;x;1', '~;~;3']
         self.assertEqual(cond, text.splitlines())
     def test_4636(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a<y|#"])
@@ -2483,12 +2483,12 @@ class TabToTextTest(unittest.TestCase):
     def test_4637(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a==y|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;a;#', '1;y;4', '2;y;2',]
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
         self.assertEqual(cond, text.splitlines())
     def test_4638(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a=~y|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;a;#', '1;y;4', '2;y;2', ]
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
         self.assertEqual(cond, text.splitlines())
     def test_4639(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|a<>y|#"])
@@ -2503,7 +2503,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4641(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|c<>|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;c;#', '1;~;4', '3;(yes);1', '~;(yes);3']
+        cond = ['b;c;#', '1;~;4', '2;(no);2', '3;(yes);1', '~;(yes);3']
         self.assertEqual(cond, text.splitlines())
     def test_4642(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|c>false|#"])
@@ -2518,7 +2518,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4644(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|c>true|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond =  ['b;c;#', '1;~;4']
+        cond = ['b;c;#', '1;~;4']
         self.assertEqual(cond, text.splitlines())
     def test_4645(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|c<=true|#"])
@@ -2543,7 +2543,7 @@ class TabToTextTest(unittest.TestCase):
     def test_4649(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["b|c<>true|#"])
         logg.debug("%s => %s", table44, text.splitlines())
-        cond = ['b;c;#', '1;~;4', '2;(no);2']
+        cond = ['b;c;#', '1;~;4', '2;(no);2', '3;(yes);1', '~;(yes);3']
         self.assertEqual(cond, text.splitlines())
     def test_4660(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["a|b"], ["b|c>|#"])
