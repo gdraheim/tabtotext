@@ -816,15 +816,14 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         return str(value)
     def format(name: str, val: CellValue) -> str:
         if name in formats:
-            fmt4 = formats[name]
-            if "{:" in fmt4:
+            fmt = formats[name]
+            if fmt.startswith("{:") and fmt[-1] == "}" and "%s" in fmt:
+                fmt = fmt[2:-1].replace("%s", "{:s}")
+            if fmt.startswith("{:%") and fmt[-1] == "}" and fmt[-2] in "sf":
+                fmt = fmt.replace("{:%","{:")
+            if "{:" in fmt:
                 try:
-                    return fmt4.format(val)
-                except Exception as e:
-                    logg.debug("format <%s> does not apply: %s", fmt, e)
-            if "%s" in fmt4:
-                try:
-                    return fmt % strValue(val)
+                    return fmt.format(val)
                 except Exception as e:
                     logg.debug("format <%s> does not apply: %s", fmt, e)
         if isinstance(val, float):
@@ -841,18 +840,20 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if "#" in selected:
             row["#"] = num+1
             cols["#"] = len(str(num+1))
+        skip = False
         for name, value in asdict(item).items():
             if selected and name not in selected and "*" not in selected:
                continue
             try:
-                if name in filtered and unmatched(value, filtered[name]):
-                    continue
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(minwidth, len(name))
             cols[name] = max(cols[name], len(format(name, value)))
-        rows.append(row)
+        if not skip:
+            rows.append(row)
     def sortkey(header: str) -> str:
         if header in headerorder:
             return headerorder[header]

@@ -423,10 +423,10 @@ class NumFormatJSONItem(BaseFormatJSONItem):
     def __call__(self, col: str, val: JSONItem) -> str:
         if col in self.formats:
             fmt = self.formats[col]
-            if fmt.startswith("{:%") and fmt[-1] == "}" and fmt[-2] in "sf":
-                fmt = fmt.replace("{:%","{:")
             if fmt.startswith("{:") and fmt[-1] == "}" and "%s" in fmt:
                 fmt = fmt[2:-1].replace("%s", "{:s}")
+            if fmt.startswith("{:%") and fmt[-1] == "}" and fmt[-2] in "sf":
+                fmt = fmt.replace("{:%","{:")
             if "{:" in fmt:
                 for fmt4 in fmt.split("|"):
                     val4 = val
