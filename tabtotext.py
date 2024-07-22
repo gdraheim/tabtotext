@@ -140,18 +140,38 @@ def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = 
 def unmatched(value: JSONItem, cond: str) -> bool:
     try:
         if value is None:
-            if cond in ["<>"]:
-                return True
+            if len(cond) >= 2 and cond[:2] in ["==", "=~", "<=", ">="]:
+                if cond[2:] in ["1", "yes", "(yes)", "*", "+"]:
+                    return True
+                return cond[2:] not in ["0", "no", "(no)", "",  "~"]
         elif value is False:
-            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
-                return True
-            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
-                return True
+            if cond.startswith("==") or cond.startswith("=~"):
+                return cond[2:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
+            if cond.startswith("<>"):
+                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
+            if cond.startswith("<="):
+                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
+            if cond.startswith("<"):
+                return cond[1:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
+            if cond.startswith(">="):
+                return cond[2:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
+            if cond.startswith(">"):
+                if cond[1:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]:
+                    return True
+                return cond[1:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
         elif value is True:
-            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
-                return True
-            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
-                return True
+            if cond.startswith("==") or cond.startswith("=~"):
+                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
+            if cond.startswith("<>"):
+                return cond[2:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
+            if cond.startswith("<="):
+                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
+            if cond.startswith("<"):
+                return cond[1:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
+            if cond.startswith(">="):
+                return cond[2:] in ["0", "False", "false", "no", "(no)", "", "-", "~"]
+            if cond.startswith(">"):
+                return cond[1:] in ["1", "True", "true", "yes", "(yes)", "*", "+"]
         elif isinstance(value, int):
             if cond.startswith("==") or cond.startswith("=~"):
                 return value != int(cond[2:])
@@ -182,17 +202,17 @@ def unmatched(value: JSONItem, cond: str) -> bool:
                 return value <= float(cond[1:])
         elif isinstance(value, Time):
             if cond.startswith("==") or cond.startswith("=~"):
-                return value.strftime(TIMEFMT) != cond[2:]
+                return value.strftime(DATEFMT) != cond[2:]
             if cond.startswith("<>"):
-                return value.strftime(TIMEFMT) == cond[2:]
+                return value.strftime(DATEFMT) == cond[2:]
             if cond.startswith("<="):
-                return value.strftime(TIMEFMT) > cond[2:]
+                return value.strftime(DATEFMT) > cond[2:]
             if cond.startswith("<"):
-                return value.strftime(TIMEFMT) >= cond[1:]
+                return value.strftime(DATEFMT) >= cond[1:]
             if cond.startswith(">="):
-                return value.strftime(TIMEFMT) < cond[2:]
+                return value.strftime(DATEFMT) < cond[2:]
             if cond.startswith(">"):
-                return value.strftime(TIMEFMT) <= cond[1:]
+                return value.strftime(DATEFMT) <= cond[1:]
         elif isinstance(value, Date):
             if cond.startswith("==") or cond.startswith("=~"):
                 return value.strftime(DATEFMT) != cond[2:]
@@ -222,7 +242,7 @@ def unmatched(value: JSONItem, cond: str) -> bool:
             if cond.startswith(">"):
                 return str(value) <= cond[1:]
     except Exception as e:
-        logg.warning("unmatched value type %s does not work for cond %s", type(value), cond)
+        logg.warning("unmatched value %s does not work for cond (*%s)", type(value), cond)
     return False
 
 class DictParser:
