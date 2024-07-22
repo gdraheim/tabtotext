@@ -6061,9 +6061,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
-                '<tr><td>1</td><td>&quot;y&quot;</td></tr>',  # ,
-                '<tr><td>2</td><td>&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th>a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">2</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
@@ -6089,9 +6089,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats)
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b</th><th>a</th></tr>',  # ,
-                '<tr><td>1.00</td><td>&quot;y&quot;</td></tr>',  # ,
-                '<tr><td>2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th style="text-align: right">b</th><th>a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1.00</td><td>&quot;y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">2.00</td><td>&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
@@ -7156,9 +7156,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b<br />a</th></tr>',  # ,
-                '<tr><td>1<br />&quot;y&quot;</td></tr>',  # ,
-                '<tr><td>2<br />&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th style="text-align: right">b<br />a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1<br />&quot;y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">2<br />&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
@@ -7184,9 +7184,9 @@ class TabToTextTest(unittest.TestCase):
         headers = ['b', 'a']
         text = tabtotext.tabToHTML(itemlist, ['b', 'a'], formats, combine={'b': 'a'})
         logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>b<br />a</th></tr>',  # ,
-                '<tr><td>1.00<br />&quot;y&quot;</td></tr>',  # ,
-                '<tr><td>2.00<br />&quot;x&quot;</td></tr>', '</table>']
+        cond = ['<table>', '<tr><th style="text-align: right">b<br />a</th></tr>',  # ,
+                '<tr><td style="text-align: right">1.00<br />&quot;y&quot;</td></tr>',  # ,
+                '<tr><td style="text-align: right">2.00<br />&quot;x&quot;</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
