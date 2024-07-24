@@ -159,19 +159,19 @@ def unmatched(value: JSONItem, cond: str) -> bool:
         if isinstance(value, int) or isinstance(value, float):
             eps = 0.005  # adding epsilon converts int-value to float-value
             if cond.startswith("=~"):
-                return value-eps > float(cond[2:]) or float(cond[2:]) > value+eps
+                return value - eps > float(cond[2:]) or float(cond[2:]) > value + eps
             if cond.startswith("<>"):
-                return value-eps < float(cond[2:]) and float(cond[2:]) < value+eps
+                return value - eps < float(cond[2:]) and float(cond[2:]) < value + eps
             if cond.startswith("==") or cond.startswith("=~"):
-                return float(value) != float(cond[2:]) # not recommended
+                return float(value) != float(cond[2:])  # not recommended
             if cond.startswith("<="):
-                return value-eps > float(cond[2:])
+                return value - eps > float(cond[2:])
             if cond.startswith("<"):
-                return value+eps >= float(cond[1:])
+                return value + eps >= float(cond[1:])
             if cond.startswith(">="):
-                return value+eps < float(cond[2:])
+                return value + eps < float(cond[2:])
             if cond.startswith(">"):
-                return value-eps <= float(cond[1:])
+                return value - eps <= float(cond[1:])
         else:
             if cond.startswith("=~"):
                 return str(value) != cond[2:]
@@ -394,7 +394,7 @@ class NumFormatJSONItem(BaseFormatJSONItem):
             if fmt.startswith("{:") and fmt[-1] == "}" and "%s" in fmt:
                 fmt = fmt[2:-1].replace("%s", "{:s}")
             if fmt.startswith("{:%") and fmt[-1] == "}" and fmt[-2] in "sf":
-                fmt = fmt.replace("{:%","{:")
+                fmt = fmt.replace("{:%", "{:")
             if "{:" in fmt:
                 for fmt4 in fmt.split("|"):
                     val4 = val
@@ -431,7 +431,7 @@ class FormatGFM(NumFormatJSONItem):
         return NumFormatJSONItem.__call__(self, col, val).replace(self.tab, rep)
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
-              sorts: Sequence[str] = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
+              sorts: Sequence[str] = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
               ) -> str:
     if isinstance(result, Dict):
@@ -444,7 +444,7 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = cast(JSONList, result)
     return tabToGFM(results, sorts, formats, selects, noheaders=noheaders, legend=legend, tab=tab)
 def tabToGFM(result: Iterable[JSONDict],  # ..
-             sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
+             sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
              reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
@@ -456,26 +456,26 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
             if "@" in header:
                 names, renamed = header.split("@", 1)
                 if renamed:
-                    rename = "@" +renamed
+                    rename = "@" + renamed
             else:
                 names, rename = header, ""
             cols: List[str] = []
             for name in names.split("|"):
                 if name in formats:
-                    cols += [ name + ":" + formats[name]]
+                    cols += [name + ":" + formats[name]]
                 else:
-                    cols += [ name ]
-            headers += [ "|".join(cols) + rename ]
+                    cols += [name]
+            headers += ["|".join(cols) + rename]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
         formatter = formats
-    return tabtoGFM(result, headers, selects, legend=legend, # ..
-                    noheaders=noheaders, tab=tab, # ..
+    return tabtoGFM(result, headers, selects, legend=legend,  # ..
+                    noheaders=noheaders, tab=tab,  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, legend: LegendList = [], noheaders: bool = False,  tab: str = "|",  #
+def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+             *, legend: LegendList = [], noheaders: bool = False, tab: str = "|",  #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
@@ -499,7 +499,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [ name ]  # default sort by named headers (rows)
+            sortheaders += [name]  # default sort by named headers (rows)
             if headernum < 10:  # and default order by named headers (cols)
                 headerorder[name] = orders or "@%i" % headernum
             else:
@@ -511,9 +511,9 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             if not combines:
                 combines = name
             elif combines not in combine:
-                combine[combines] = [ name ]
+                combine[combines] = [name]
             elif name not in combine[combines]:
-                combine[combines] += [ name ]
+                combine[combines] += [name]
     combined: Dict[str, List[str]] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
@@ -548,17 +548,17 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = "" # only the first
+                rename = ""  # only the first
             if orders:
                 reorders[name] = orders
             if not combines:
                 combines = name
             elif combines not in combined:
-                combined[combines] = [ name ]
+                combined[combines] = [name]
             elif combines not in combined[combines]:
-                combined[combines] += [ name ]
+                combined[combines] += [name]
     if not selects:
-        combined = combine # argument
+        combined = combine  # argument
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -572,12 +572,12 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     for num, item in enumerate(data):
         row: JSONDict = {}
         if "#" in selected:
-            row["#"] = num+1
-            cols["#"] = len(str(num+1))
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
-               continue
+                continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
@@ -697,8 +697,8 @@ class FormatHTML(NumFormatJSONItem):
     def __init__(self, formats: Dict[str, str] = {}):
         NumFormatJSONItem.__init__(self, formats)
 
-def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # .. 
-               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [], # ..
+def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
+               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
                *, legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -723,39 +723,39 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
             if "@" in header:
                 names, renamed = header.split("@", 1)
                 if renamed:
-                    rename = "@" +renamed
+                    rename = "@" + renamed
             else:
                 names, rename = header, ""
             cols: List[str] = []
             for name in names.split("|"):
                 if name in formats:
-                    cols += [ name + ":" + formats[name]]
+                    cols += [name + ":" + formats[name]]
                 else:
-                    cols += [ name ]
+                    cols += [name]
                 if name in combine:
                     adds = combine[name]
                     if adds in formats:
-                        cols += [ adds + ":" + formats[adds]]
+                        cols += [adds + ":" + formats[adds]]
                     else:
-                        cols += [ adds ]
-                    combined += [ adds ]
-            headers += [ "|".join(cols) + rename ]
+                        cols += [adds]
+                    combined += [adds]
+            headers += ["|".join(cols) + rename]
         for name in combine:
             if name not in combined:
                 adds = combine[name]
-                headers += [ name + "|" + adds]
+                headers += [name + "|" + adds]
         logg.debug("headers = %s", headers)
         logg.debug("combine < %s", combine)
     else:
         sorting = sorts
         formatter = formats
-    return tabtoHTML(result, headers, selects, # ..
-                     legend=legend, # ..
+    return tabtoHTML(result, headers, selects,  # ..
+                     legend=legend,  # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, legend: LegendList = [], #
-             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+              *, legend: LegendList = [],
+              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
@@ -778,7 +778,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [ name ]  # default sort by named headers (rows)
+            sortheaders += [name]  # default sort by named headers (rows)
             if headernum < 10:  # and default order by named headers (cols)
                 headerorder[name] = orders or "@%i" % headernum
             else:
@@ -790,9 +790,9 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             if not combines:
                 combines = name
             elif combines not in combine:
-                combine[combines] = [ name ]
+                combine[combines] = [name]
             elif name not in combine[combines]:
-                combine[combines] += [ name ]
+                combine[combines] += [name]
     logg.debug("combine > %s", combine)
     combined: Dict[str, List[str]] = {}
     reorders: Dict[str, str] = {}
@@ -829,17 +829,17 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = "" # only the first
+                rename = ""  # only the first
             if orders:
                 reorders[name] = orders
             if not combines:
                 combines = name
             elif combines not in combined:
-                combined[combines] = [ name ]
+                combined[combines] = [name]
             elif combines not in combined[combines]:
-                combined[combines] += [ name ]
+                combined[combines] += [name]
     if not selects:
-        combined = combine # argument
+        combined = combine  # argument
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -852,12 +852,12 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     for num, item in enumerate(data):
         row: JSONDict = {}
         if "#" in selected:
-            row["#"] = num+1
-            cols["#"] = len(str(num+1))
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
-               continue
+                continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
@@ -878,7 +878,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         return value
     combining = []
     for combines in combined:
-        combining += combined[combines] 
+        combining += combined[combines]
     for name in combined:
         if name not in cols:  # if target does not exist in dataset
             for added in combined[name]:
@@ -892,7 +892,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             for adds in combined[name]:
                 if adds in cols:
                     html = html.replace("</th>", "<br />{}</th>".format(escape(adds)))
-        headers += [ html ]
+        headers += [html]
     lines = ["<tr>" + "".join(headers) + "</tr>"]
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = dict([(name, "") for name in cols.keys()])  # initialized with all columns to empty string
@@ -907,7 +907,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 for adds in combined[name]:
                     if adds in cols:
                         html = html.replace("</td>", "<br />{}</td>".format(escape(values[adds])))
-            cells += [ html ]
+            cells += [html]
         lines.append("<tr>" + "".join(cells) + "</tr>")
     return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts, reorder)
 
@@ -1044,27 +1044,27 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
             if "@" in header:
                 names, renamed = header.split("@", 1)
                 if renamed:
-                    rename = "@" +renamed
+                    rename = "@" + renamed
             else:
                 names, rename = header, ""
             cols: List[str] = []
             for name in names.split("|"):
                 if name in formats:
-                    cols += [ name + ":" + formats[name]]
+                    cols += [name + ":" + formats[name]]
                 else:
-                    cols += [ name ]
-            headers += [ "|".join(cols) + rename ]
+                    cols += [name]
+            headers += ["|".join(cols) + rename]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
         formatter = formats
-    return tabtoJSON(result, headers, selects, # ..
-                    legend=legend, datedelim=datedelim, # ..
-                    reorder=reorder, sorts=sorts, formatter=formatter)
+    return tabtoJSON(result, headers, selects,  # ..
+                     legend=legend, datedelim=datedelim,  # ..
+                     reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, legend: LegendList = [], datedelim: str = '-', #
-             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+              *, legend: LegendList = [], datedelim: str = '-',
+              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
@@ -1085,7 +1085,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [ name ]  # default sort by named headers (rows)
+            sortheaders += [name]  # default sort by named headers (rows)
             if headernum < 10:  # and default order by named headers (cols)
                 headerorder[name] = orders or "@%i" % headernum
             else:
@@ -1127,7 +1127,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = "" # only the first
+                rename = ""  # only the first
             if orders:
                 reorders[name] = orders
     format: FormatJSONItem
@@ -1144,12 +1144,12 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     for num, item in enumerate(data):
         row: JSONDict = {}
         if "#" in selected:
-            row["#"] = num+1
-            cols["#"] = len(str(num+1))
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
-               continue
+                continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
@@ -1234,27 +1234,27 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
             if "@" in header:
                 names, renamed = header.split("@", 1)
                 if renamed:
-                    rename = "@" +renamed
+                    rename = "@" + renamed
             else:
                 names, rename = header, ""
             cols: List[str] = []
             for name in names.split("|"):
                 if name in formats:
-                    cols += [ name + ":" + formats[name]]
+                    cols += [name + ":" + formats[name]]
                 else:
-                    cols += [ name ]
-            headers += [ "|".join(cols) + rename ]
+                    cols += [name]
+            headers += ["|".join(cols) + rename]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
         formatter = formats
-    return tabtoYAML(result, headers, selects, # ..
-                     legend=legend, datedelim=datedelim, # ..
+    return tabtoYAML(result, headers, selects,  # ..
+                     legend=legend, datedelim=datedelim,  # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, legend: LegendList = [], datedelim: str = '-',  #
-             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+              *, legend: LegendList = [], datedelim: str = '-',  #
+              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
@@ -1275,7 +1275,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [ name ]  # default sort by named headers (rows)
+            sortheaders += [name]  # default sort by named headers (rows)
             if headernum < 10:  # and default order by named headers (cols)
                 headerorder[name] = orders or "@%i" % headernum
             else:
@@ -1317,7 +1317,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = "" # only the first
+                rename = ""  # only the first
             if orders:
                 reorders[name] = orders
     format: FormatJSONItem
@@ -1334,16 +1334,16 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     for num, item in enumerate(data):
         row: JSONDict = {}
         if "#" in selected:
-            row["#"] = num+1
-            cols["#"] = len(str(num+1))
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
-               continue
+                continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass 
+            except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -1457,27 +1457,27 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
             if "@" in header:
                 names, renamed = header.split("@", 1)
                 if renamed:
-                    rename = "@" +renamed
+                    rename = "@" + renamed
             else:
                 names, rename = header, ""
             cols: List[str] = []
             for name in names.split("|"):
                 if name in formats:
-                    cols += [ name + ":" + formats[name]]
+                    cols += [name + ":" + formats[name]]
                 else:
-                    cols += [ name ]
-            headers += [ "|".join(cols) + rename ]
+                    cols += [name]
+            headers += ["|".join(cols) + rename]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
         formatter = formats
-    return tabtoTOML(result, headers, selects, # ..
-                     legend=legend, datedelim=datedelim, # ..
+    return tabtoTOML(result, headers, selects,  # ..
+                     legend=legend, datedelim=datedelim,  # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, legend: LegendList = [], datedelim: str = '-', #
-             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+              *, legend: LegendList = [], datedelim: str = '-',
+              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
@@ -1498,7 +1498,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [ name ]  # default sort by named headers (rows)
+            sortheaders += [name]  # default sort by named headers (rows)
             if headernum < 10:  # and default order by named headers (cols)
                 headerorder[name] = orders or "@%i" % headernum
             else:
@@ -1540,7 +1540,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = "" # only the first
+                rename = ""  # only the first
             if orders:
                 reorders[name] = orders
     format: FormatJSONItem
@@ -1557,16 +1557,16 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     for num, item in enumerate(data):
         row: JSONDict = {}
         if "#" in selected:
-            row["#"] = num+1
-            cols["#"] = len(str(num+1))
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
-               continue
+                continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass 
+            except: pass
             row[name] = value
             if name not in cols:
                 cols[name] = max(MINWIDTH, len(name))
@@ -1683,7 +1683,7 @@ def tabToCSVx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToCSV(results, sorts, formats, selects, datedelim=datedelim, noheaders=noheaders, legend=legend)
-def tabToCSV(result: Iterable[JSONDict], # ..
+def tabToCSV(result: Iterable[JSONDict],  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
              *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [], tab: str = ";",
              reorder: ColSortList = []) -> str:
@@ -1696,26 +1696,26 @@ def tabToCSV(result: Iterable[JSONDict], # ..
             if "@" in header:
                 names, renamed = header.split("@", 1)
                 if renamed:
-                    rename = "@" +renamed
+                    rename = "@" + renamed
             else:
                 names, rename = header, ""
             cols: List[str] = []
             for name in names.split("|"):
                 if name in formats:
-                    cols += [ name + ":" + formats[name]]
+                    cols += [name + ":" + formats[name]]
                 else:
-                    cols += [ name ]
-            headers += [ "|".join(cols) + rename ]
+                    cols += [name]
+            headers += ["|".join(cols) + rename]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
         formatter = formats
-    return tabtoCSV(result, headers, selects, # ..
-                    legend=legend, datedelim=datedelim, noheaders=noheaders, tab=tab, # ..
+    return tabtoCSV(result, headers, selects,  # ..
+                    legend=legend, datedelim=datedelim, noheaders=noheaders, tab=tab,  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
-def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [], # ..
-             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = ";", #
+def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = ";",
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
@@ -1739,7 +1739,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [ name ]  # default sort by named headers (rows)
+            sortheaders += [name]  # default sort by named headers (rows)
             if headernum < 10:  # and default order by named headers (cols)
                 headerorder[name] = orders or "@%i" % headernum
             else:
@@ -1751,9 +1751,9 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             if not combines:
                 combines = name
             elif combines not in combine:
-                combine[combines] = [ name ]
+                combine[combines] = [name]
             elif name not in combine[combines]:
-                combine[combines] += [ name ]
+                combine[combines] += [name]
     combined: Dict[str, List[str]] = {}
     reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
@@ -1789,17 +1789,17 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = "" # only the first
+                rename = ""  # only the first
             if orders:
                 reorders[name] = orders
             if not combines:
                 combines = name
             elif combines not in combined:
-                combined[combines] = [ name ]
+                combined[combines] = [name]
             elif combines not in combined[combines]:
-                combined[combines] += [ name ]
+                combined[combines] += [name]
     if not selects:
-        combined = combine # argument
+        combined = combine  # argument
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1812,15 +1812,15 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     sortrow = RowSortCallable(selected or sorts or sortheaders, datedelim)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for num, item in enumerate(data):           
+    for num, item in enumerate(data):
         row: JSONDict = {}
         if "#" in selected:
-            row["#"] = num+1
-            cols["#"] = len(str(num+1))
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             if selected and name not in selected and "*" not in selected:
-               continue
+                continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
@@ -1874,7 +1874,7 @@ class DictParserCSV(DictParser):
                     newrow[key] = self.convert.toJSONItem(val)
             yield newrow
 
-def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem], # ..
+def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
@@ -2258,9 +2258,9 @@ class TabHeaders(TabHeaderCols):
                         newcol = col._replace(formats=fieldspec.formats)
                         self.cols[old] = newcol
 
-def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict], # ..
-        formats: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-        *, defaultformat: str = "") -> str:
+def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
+                    formats: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
+                    *, defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
