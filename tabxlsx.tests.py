@@ -4,7 +4,6 @@ __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 
 __version__ = "1.6.3283"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable, cast
-import tabtotext
 import unittest
 import datetime
 import sys
@@ -29,9 +28,9 @@ except ImportError as e:
     def X(line: str) -> str:
         return line
 
-from tabxlsx import print_tabtotext, CellValue
-from tabxlsx import load_workbook, save_workbook, write_workbook, read_workbook
 from tabtotext import loadCSV, loadGFM
+from tabxlsx import load_workbook, save_workbook, write_workbook, read_workbook
+from tabxlsx import print_tabtotext, CellValue
 
 def get_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back  # type: ignore
@@ -205,7 +204,7 @@ class TabXlsxTest(unittest.TestCase):
         want = test009Q
         cond = ['b', '~', 'v']
         self.assertEqual(cond, text.splitlines())
-        back =loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4111(self) -> None:
         out = StringIO()
@@ -310,7 +309,6 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(want, back)
-
 
     def test_6103(self) -> None:
         out = StringIO()
