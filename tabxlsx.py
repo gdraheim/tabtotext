@@ -481,7 +481,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
             formattings[name] = fmt
         else:
             name = selcol
-        sortheaders += [ name ]  # default sort by named headers (rows)
+        sortheaders += [name]  # default sort by named headers (rows)
         if headernum < 10:  # and default order by named headers (cols)
             headerorder[name] = orders or "@%i" % headernum
         else:
@@ -531,8 +531,8 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         if "#" in headers:
-            item["#"] = num+1
-            cols["#"] = len(str(num+1))
+            item["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         for name, value in item.items():
             paren = 0
             if name not in cols:
@@ -616,11 +616,11 @@ def unmatched(value: CellValue, cond: str) -> bool:
                 return value <= int(cond[1:])
         elif isinstance(value, float):
             if cond.startswith("=~"):
-                return value-0.01 > float(cond[2:]) or float(cond[2:]) > value+0.01 
+                return value - 0.01 > float(cond[2:]) or float(cond[2:]) > value + 0.01
             if cond.startswith("<>"):
-                return value-0.01 < float(cond[2:]) and float(cond[2:]) < value+0.01 
+                return value - 0.01 < float(cond[2:]) and float(cond[2:]) < value + 0.01
             if cond.startswith("==") or cond.startswith("=~"):
-                return value != float(cond[2:]) # not recommended
+                return value != float(cond[2:])  # not recommended
             if cond.startswith("<="):
                 return value > float(cond[2:])
             if cond.startswith("<"):
@@ -746,7 +746,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [ name ]  # default sort by named headers (rows)
+            sortheaders += [name]  # default sort by named headers (rows)
             if headernum < 10:  # and default order by named headers (cols)
                 headerorder[name] = orders or "@%i" % headernum
             else:
@@ -787,7 +787,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = "" # only the first
+                rename = ""  # only the first
             if orders:
                 reorders[name] = orders
     if reorders:
@@ -822,7 +822,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             if fmt.startswith("{:") and fmt[-1] == "}" and "%s" in fmt:
                 fmt = fmt[2:-1].replace("%s", "{:s}")
             if fmt.startswith("{:%") and fmt[-1] == "}" and fmt[-2] in "sf":
-                fmt = fmt.replace("{:%","{:")
+                fmt = fmt.replace("{:%", "{:")
             if "{:" in fmt:
                 try:
                     return fmt.format(val)
@@ -840,12 +840,12 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     for num, item in enumerate(data):
         row: Dict[str, CellValue] = {}
         if "#" in selected:
-            row["#"] = num+1
-            cols["#"] = len(str(num+1))
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
         skip = False
         for name, value in asdict(item).items():
             if selected and name not in selected and "*" not in selected:
-               continue
+                continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
@@ -1007,7 +1007,7 @@ def read2_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> Tuple
     headers: List[str] = []
     for line in inp:
         if lead and not line.startswith(lead):
-           break
+            break
         vals = line.split(tab)
         if lead:
             del vals[0]
