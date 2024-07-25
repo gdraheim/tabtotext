@@ -4149,6 +4149,499 @@ class TabToTextTest(unittest.TestCase):
         cond = ['[', ' {"b": 1, "d": 0.10},', ' {"b": 2, "d": 0.30},',
                 ' {"b": 3, "d": 0.40},', ' {"b": null, "d": 0.20}', ']']
         self.assertEqual(cond, text.splitlines())
+    def test_5608(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["#|b|d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['#;b;d', '1;3;0.40', '2;2;0.30', '3;~;0.20', '4;1;0.10']
+        cond = ['[',
+                ' {"#": 1, "b": 3, "d": 0.40},',
+                ' {"#": 2, "b": 2, "d": 0.30},',
+                ' {"#": 3, "b": null, "d": 0.20},',
+                ' {"#": 4, "b": 1, "d": 0.10}',
+                ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5609(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 1, "d": 0.10, "#": 4},',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5610(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b>|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '3;0.40;1']
+        cond = ['[',
+                ' {"b": 1, "d": 0.10, "#": 4},',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5611(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b>x|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 1, "d": 0.10, "#": 4},',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5612(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b>1|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1']
+        cond = ['[', ' {"b": 2, "d": 0.30, "#": 2},', ' {"b": 3, "d": 0.40, "#": 1}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5613(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b>=2|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', ]
+        cond = ['[', ' {"b": 2, "d": 0.30, "#": 2},', ' {"b": 3, "d": 0.40, "#": 1}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5614(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b>2|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '3;0.40;1']
+        cond = ['[', ' {"b": 3, "d": 0.40, "#": 1}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5615(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b<=2|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 1, "d": 0.10, "#": 4},',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5616(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b<2|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '~;0.20;3']
+        cond = ['[', ' {"b": 1, "d": 0.10, "#": 4},', ' {"b": null, "d": 0.20, "#": 3}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5617(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b==1|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', ]
+        cond = ['[', ' {"b": 1, "d": 0.10, "#": 4}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5618(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b=~1|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', ]
+        cond = ['[', ' {"b": 1, "d": 0.10, "#": 4}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5619(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b<>1|d|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5620(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d>|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 1, "d": 0.10, "#": 4},',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5621(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d>x|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 1, "d": 0.10, "#": 4},',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5622(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d>0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5623(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d>=0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5624(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d>0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1']
+        cond = ['[', ' {"b": 2, "d": 0.30, "#": 2},', ' {"b": 3, "d": 0.40, "#": 1}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5625(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d<=0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4', '~;0.20;3']
+        cond = ['[', ' {"b": 1, "d": 0.10, "#": 4},', ' {"b": null, "d": 0.20, "#": 3}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5626(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d<0.2|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4']
+        cond = ['[', ' {"b": 1, "d": 0.10, "#": 4}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5627(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d==0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4']
+        cond = ['[', ' {"b": 1, "d": 0.10, "#": 4}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5628(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d=~0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '1;0.10;4']
+        cond = ['[', ' {"b": 1, "d": 0.10, "#": 4}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5629(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|d<>0.1|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;d;#', '2;0.30;2', '3;0.40;1', '~;0.20;3']
+        cond = ['[',
+                ' {"b": 2, "d": 0.30, "#": 2},',
+                ' {"b": 3, "d": 0.40, "#": 1},',
+                ' {"b": null, "d": 0.20, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5630(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a>|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '1;y;4', '2;y;2', '3;x;1']
+        cond = ['[',
+                ' {"b": 1, "a": "y", "#": 4},',
+                ' {"b": 2, "a": "y", "#": 2},',
+                ' {"b": 3, "a": "x", "#": 1}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5632(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a>x|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
+        cond = ['[',
+                ' {"b": 1, "a": "y", "#": 4},',
+                ' {"b": 2, "a": "y", "#": 2},',
+                ' {"b": null, "a": null, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5633(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a>=y|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
+        cond = ['[',
+                ' {"b": 1, "a": "y", "#": 4},',
+                ' {"b": 2, "a": "y", "#": 2},',
+                ' {"b": null, "a": null, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5634(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a>x|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
+        cond = ['[',
+                ' {"b": 1, "a": "y", "#": 4},',
+                ' {"b": 2, "a": "y", "#": 2},',
+                ' {"b": null, "a": null, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5635(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a<=y|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '1;y;4', '2;y;2', '3;x;1', '~;~;3']
+        cond = ['[',
+                ' {"b": 1, "a": "y", "#": 4},',
+                ' {"b": 2, "a": "y", "#": 2},',
+                ' {"b": 3, "a": "x", "#": 1},',
+                ' {"b": null, "a": null, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5636(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a<y|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '3;x;1', '~;~;3']
+        cond = ['[', ' {"b": 3, "a": "x", "#": 1},', ' {"b": null, "a": null, "#": 3}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5637(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a==y|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
+        cond = ['[',
+                ' {"b": 1, "a": "y", "#": 4},',
+                ' {"b": 2, "a": "y", "#": 2},',
+                ' {"b": null, "a": null, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5638(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a=~y|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '1;y;4', '2;y;2', '~;~;3']
+        cond = ['[',
+                ' {"b": 1, "a": "y", "#": 4},',
+                ' {"b": 2, "a": "y", "#": 2},',
+                ' {"b": null, "a": null, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5639(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|a<>y|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;a;#', '3;x;1', '~;~;3']
+        cond = ['[', ' {"b": 3, "a": "x", "#": 1},', ' {"b": null, "a": null, "#": 3}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5640(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c>|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5641(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c<>|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '2;(no);2', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 2, "c": false, "#": 2},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5642(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c>false|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5643(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c>=true|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5644(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c>true|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4']
+        cond = ['[', ' {"b": 1, "#": 4}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5645(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c<=true|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '2;(no);2', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 2, "c": false, "#": 2},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5646(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c<true|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '2;(no);2']
+        cond = ['[', ' {"b": 1, "#": 4},', ' {"b": 2, "c": false, "#": 2}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5647(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c==true|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5648(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c=~true|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5649(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["b|c<>true|#"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['b;c;#', '1;~;4', '2;(no);2', '3;(yes);1', '~;(yes);3']
+        cond = ['[',
+                ' {"b": 1, "#": 4},',
+                ' {"b": 2, "c": false, "#": 2},',
+                ' {"b": 3, "c": true, "#": 1},',
+                ' {"b": null, "c": true, "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5660(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c>|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '2;2021-12-30;2', '3;2021-12-31;1', '~;2021-12-31;3']
+        cond = ['[',
+                ' {"b": 2, "c": "2021-12-30", "#": 2},',
+                ' {"b": 3, "c": "2021-12-31", "#": 1},',
+                ' {"c": "2021-12-31", "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5661(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c<>|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '2;2021-12-30;2', '3;2021-12-31;1', '~;2021-12-31;3']
+        cond = ['[',
+                ' {"b": 2, "c": "2021-12-30", "#": 2},',
+                ' {"b": 3, "c": "2021-12-31", "#": 1},',
+                ' {"c": "2021-12-31", "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5662(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c>2021-12-30|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '3;2021-12-31;1', '~;2021-12-31;3']
+        cond = ['[',
+                ' {"b": 3, "c": "2021-12-31", "#": 1},',
+                ' {"c": "2021-12-31", "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5663(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c>=2021-12-30|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '2;2021-12-30;2', '3;2021-12-31;1', '~;2021-12-31;3']
+        cond = ['[',
+                ' {"b": 2, "c": "2021-12-30", "#": 2},',
+                ' {"b": 3, "c": "2021-12-31", "#": 1},',
+                ' {"c": "2021-12-31", "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5664(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c>2021-12-31|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#']
+        cond = ['[', '', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5665(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c<=2021-12-31|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '2;2021-12-30;2', '3;2021-12-31;1', '~;2021-12-31;3']
+        cond = ['[',
+                ' {"b": 2, "c": "2021-12-30", "#": 2},',
+                ' {"b": 3, "c": "2021-12-31", "#": 1},',
+                ' {"c": "2021-12-31", "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5666(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c<2021-12-31|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '2;2021-12-30;2']
+        cond = ['[', ' {"b": 2, "c": "2021-12-30", "#": 2}', ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5667(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c==2021-12-31|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '3;2021-12-31;1', '~;2021-12-31;3']
+        cond = ['[',
+                ' {"b": 3, "c": "2021-12-31", "#": 1},',
+                ' {"c": "2021-12-31", "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5668(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c=~2021-12-31|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '3;2021-12-31;1', '~;2021-12-31;3']
+        cond = ['[',
+                ' {"b": 3, "c": "2021-12-31", "#": 1},',
+                ' {"c": "2021-12-31", "#": 3}',
+                ']']
+
+        self.assertEqual(cond, text.splitlines())
+    def test_5669(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["b|c<>2021-12-31|#"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        cond = ['b;c;#', '2;2021-12-30;2']
+        cond = ['[', ' {"b": 2, "c": "2021-12-30", "#": 2}', ']']
+
+        self.assertEqual(cond, text.splitlines())
 
     def test_6003(self) -> None:
         text = tabtotext.tabToGFM(test003)
