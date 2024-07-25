@@ -534,10 +534,8 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
             item["#"] = num + 1
             cols["#"] = len(str(num + 1))
         for name, value in item.items():
-            paren = 0
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(strNone(value)))
+            oldlen = cols[name] if name in cols else MINWIDTH
+            cols[name] = max(oldlen, len(strNone(value)))
         rows.append(item)
     row = 0
     workbook = Workbook()
@@ -720,7 +718,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     none_string = "~"
     true_string = "(yes)"
     false_string = "(no)"
-    minwidth = 5
+    minwidth = MINWIDTH
     floatfmt = "%4.2f"
     noright = fmt in ["data"]
     noheaders = fmt in ["data", "text", "list"]
@@ -851,9 +849,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
-            if name not in cols:
-                cols[name] = max(minwidth, len(name))
-            cols[name] = max(cols[name], len(format(name, value)))
+            oldlen = cols[name] if name in cols else minwidth
+            cols[name] = max(oldlen, len(format(name, value)))
         if not skip:
             rows.append(row)
     def sortkey(header: str) -> str:
