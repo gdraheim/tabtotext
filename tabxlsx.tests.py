@@ -19,6 +19,9 @@ from io import StringIO
 
 import logging
 logg = logging.getLogger("XLSX")
+NIX = ""
+LIST: List[str] = []
+JSONLIST: List[Dict[str, str]] = []
 
 try:
     from tabtools import currency_default
@@ -136,7 +139,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = JSONLIST
         cond = ['']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
@@ -147,7 +150,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = JSONLIST
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
@@ -317,7 +320,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
-        want = []
+        want = JSONLIST
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
@@ -328,7 +331,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
-        want = []
+        want = JSONLIST
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
