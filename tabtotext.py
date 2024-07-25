@@ -481,6 +481,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
+    freehdrs: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
             selcols, rename = header.split("@", 1)
@@ -492,7 +493,20 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selcols, rename, orders = header, "", ""
         combines = ""
         for colnum, selcol in enumerate(selcols.split("|")):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names3: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon3, brace3 = freepart.find(":"), freepart.find("}")
+                    if brace3 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end3 = brace3 if colon3 == -1 else min(colon3, brace3)
+                    name3 = freepart[:end3]
+                    names3.append(name3)
+                name = " ".join(names3)
+                freehdrs[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -519,6 +533,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
+    freecols: Dict[str, str] = {}
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
@@ -530,7 +545,20 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selcols, rename, orders = selec, "", ""
         combines = ""
         for selcol in selcols.split("|"):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names4: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon4, brace4 = freepart.find(":"), freepart.find("}")
+                    if brace4 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end4 = brace4 if colon4 == -1 else min(colon4, brace4)
+                    name4 = freepart[:end4]
+                    names4.append(name4)
+                name = " ".join(names4)
+                freecols[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 fmt = form if "{" in form else ("{:" + form + "}")
                 formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
@@ -559,6 +587,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 combined[combines] += [name]
     if not selects:
         combined = combine  # argument
+        freecols = freehdrs
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -583,9 +612,21 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(format(name, value)))
+            oldlen = cols[name] if name in cols else MINWIDTH
+            cols[name] = max(oldlen, len(format(name, value)))
+        for freecol, freeformat in freecols.items():
+            try:
+                freenames = freecol.split(" ")
+                freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
+                for name, value in item.items():
+                    if name in freenames:
+                        freeitem[name] = format(name, value)
+                freevalue = freeformat.format(**freeitem)
+                row[freecol] = freevalue
+                oldlen = cols[freecol] if freecol in cols else MINWIDTH
+                cols[freecol] = max(oldlen, len(freevalue))
+            except Exception as e:
+                logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
     def rightF(col: str, formatter: str) -> str:
@@ -760,6 +801,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
+    freehdrs: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
             selcols, rename = header.split("@", 1)
@@ -771,7 +813,20 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selcols, rename, orders = header, "", ""
         combines = ""
         for colnum, selcol in enumerate(selcols.split("|")):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names3: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon3, brace3 = freepart.find(":"), freepart.find("}")
+                    if brace3 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end3 = brace3 if colon3 == -1 else min(colon3, brace3)
+                    name3 = freepart[:end3]
+                    names3.append(name3)
+                name = " ".join(names3)
+                freehdrs[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -799,6 +854,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
+    freecols: Dict[str, str] = {}
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
@@ -810,7 +866,20 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selcols, rename, orders = selec, "", ""
         combines = ""
         for selcol in selcols.split("|"):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names4: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon4, brace4 = freepart.find(":"), freepart.find("}")
+                    if brace4 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end4 = brace4 if colon4 == -1 else min(colon4, brace4)
+                    name4 = freepart[:end4]
+                    names4.append(name4)
+                name = " ".join(names4)
+                freecols[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -840,6 +909,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 combined[combines] += [name]
     if not selects:
         combined = combine  # argument
+        freecols = freehdrs
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -863,9 +933,21 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(format(name, value)))
+            oldlen = cols[name] if name in cols else MINWIDTH
+            cols[name] = max(oldlen, len(format(name, value)))
+        for freecol, freeformat in freecols.items():
+            try:
+                freenames = freecol.split(" ")
+                freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
+                for name, value in item.items():
+                    if name in freenames:
+                        freeitem[name] = format(name, value)
+                freevalue = freeformat.format(**freeitem)
+                row[freecol] = freevalue
+                oldlen = cols[freecol] if freecol in cols else MINWIDTH
+                cols[freecol] = max(oldlen, len(freevalue))
+            except Exception as e:
+                logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
     def rightTH(col: str, value: str) -> str:
@@ -1068,6 +1150,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
+    freehdrs: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
             selcols, rename = header.split("@", 1)
@@ -1078,7 +1161,20 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         else:
             selcols, rename, orders = header, "", ""
         for colnum, selcol in enumerate(selcols.split("|")):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names3: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon3, brace3 = freepart.find(":"), freepart.find("}")
+                    if brace3 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end3 = brace3 if colon3 == -1 else min(colon3, brace3)
+                    name3 = freepart[:end3]
+                    names3.append(name3)
+                name = " ".join(names3)
+                freehdrs[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1098,6 +1194,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
+    freecols: Dict[str, str] = {}
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
@@ -1108,7 +1205,20 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         else:
             selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names4: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon4, brace4 = freepart.find(":"), freepart.find("}")
+                    if brace4 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end4 = brace4 if colon4 == -1 else min(colon4, brace4)
+                    name4 = freepart[:end4]
+                    names4.append(name4)
+                name = " ".join(names4)
+                freecols[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1130,6 +1240,8 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 rename = ""  # only the first
             if orders:
                 reorders[name] = orders
+    if not selects:
+        freecols = freehdrs
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1155,9 +1267,21 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(format(name, value)))
+            oldlen = cols[name] if name in cols else MINWIDTH
+            cols[name] = max(oldlen, len(format(name, value)))
+        for freecol, freeformat in freecols.items():
+            try:
+                freenames = freecol.split(" ")
+                freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
+                for name, value in item.items():
+                    if name in freenames:
+                        freeitem[name] = format(name, value)
+                freevalue = freeformat.format(**freeitem)
+                row[freecol] = freevalue
+                oldlen = cols[freecol] if freecol in cols else MINWIDTH
+                cols[freecol] = max(oldlen, len(freevalue))
+            except Exception as e:
+                logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
     lines = []
@@ -1258,6 +1382,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
+    freehdrs: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
             selcols, rename = header.split("@", 1)
@@ -1268,7 +1393,20 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         else:
             selcols, rename, orders = header, "", ""
         for colnum, selcol in enumerate(selcols.split("|")):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names3: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon3, brace3 = freepart.find(":"), freepart.find("}")
+                    if brace3 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end3 = brace3 if colon3 == -1 else min(colon3, brace3)
+                    name3 = freepart[:end3]
+                    names3.append(name3)
+                name = " ".join(names3)
+                freehdrs[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1288,6 +1426,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
+    freecols: Dict[str, str] = {}
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
@@ -1298,7 +1437,20 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         else:
             selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names4: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon4, brace4 = freepart.find(":"), freepart.find("}")
+                    if brace4 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end4 = brace4 if colon4 == -1 else min(colon4, brace4)
+                    name4 = freepart[:end4]
+                    names4.append(name4)
+                name = " ".join(names4)
+                freecols[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1320,6 +1472,8 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 rename = ""  # only the first
             if orders:
                 reorders[name] = orders
+    if not selects:
+        freecols = freehdrs
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1345,9 +1499,21 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(format(name, value)))
+            oldlen = cols[name] if name in cols else MINWIDTH
+            cols[name] = max(oldlen, len(format(name, value)))
+        for freecol, freeformat in freecols.items():
+            try:
+                freenames = freecol.split(" ")
+                freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
+                for name, value in item.items():
+                    if name in freenames:
+                        freeitem[name] = format(name, value)
+                freevalue = freeformat.format(**freeitem)
+                row[freecol] = freevalue
+                oldlen = cols[freecol] if freecol in cols else MINWIDTH
+                cols[freecol] = max(oldlen, len(freevalue))
+            except Exception as e:
+                logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
     is_simple = re.compile("^\\w[\\w_-]*$")
@@ -1481,6 +1647,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
+    freehdrs: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
             selcols, rename = header.split("@", 1)
@@ -1491,7 +1658,20 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         else:
             selcols, rename, orders = header, "", ""
         for colnum, selcol in enumerate(selcols.split("|")):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names3: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon3, brace3 = freepart.find(":"), freepart.find("}")
+                    if brace3 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end3 = brace3 if colon3 == -1 else min(colon3, brace3)
+                    name3 = freepart[:end3]
+                    names3.append(name3)
+                name = " ".join(names3)
+                freehdrs[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1511,6 +1691,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
+    freecols: Dict[str, str] = {}
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
@@ -1521,7 +1702,20 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         else:
             selcols, rename, orders = selec, "", ""
         for selcol in selcols.split("|"):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names4: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon4, brace4 = freepart.find(":"), freepart.find("}")
+                    if brace4 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end4 = brace4 if colon4 == -1 else min(colon4, brace4)
+                    name4 = freepart[:end4]
+                    names4.append(name4)
+                name = " ".join(names4)
+                freecols[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1543,6 +1737,8 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 rename = ""  # only the first
             if orders:
                 reorders[name] = orders
+    if not selects:
+        freecols = freehdrs
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1568,9 +1764,21 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(format(name, value)))
+            oldlen = cols[name] if name in cols else MINWIDTH
+            cols[name] = max(oldlen, len(format(name, value)))
+        for freecol, freeformat in freecols.items():
+            try:
+                freenames = freecol.split(" ")
+                freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
+                for name, value in item.items():
+                    if name in freenames:
+                        freeitem[name] = format(name, value)
+                freevalue = freeformat.format(**freeitem)
+                row[freecol] = freevalue
+                oldlen = cols[freecol] if freecol in cols else MINWIDTH
+                cols[freecol] = max(oldlen, len(freevalue))
+            except Exception as e:
+                logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
     is_simple = re.compile("^\\w[\\w_-]*$")
@@ -1721,6 +1929,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     headerorder: Dict[str, str] = {}
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
+    freehdrs: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
             selcols, rename = header.split("@", 1)
@@ -1732,7 +1941,20 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selcols, rename, orders = header, "", ""
         combines = ""
         for colnum, selcol in enumerate(selcols.split("|")):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names3: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon3, brace3 = freepart.find(":"), freepart.find("}")
+                    if brace3 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end3 = brace3 if colon3 == -1 else min(colon3, brace3)
+                    name3 = freepart[:end3]
+                    names3.append(name3)
+                name = " ".join(names3)
+                freehdrs[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1759,6 +1981,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
+    freecols: Dict[str, str] = {}
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
@@ -1770,7 +1993,20 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selcols, rename, orders = selec, "", ""
         combines = ""
         for selcol in selcols.split("|"):
-            if ":" in selcol:
+            if "{" in selcol and "{:" not in selcol:
+                names4: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon4, brace4 = freepart.find(":"), freepart.find("}")
+                    if brace4 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end4 = brace4 if colon4 == -1 else min(colon4, brace4)
+                    name4 = freepart[:end4]
+                    names4.append(name4)
+                name = " ".join(names4)
+                freecols[name] = selcol
+            elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmt = form if "{" in form else ("{:" + form + "}")
@@ -1800,6 +2036,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 combined[combines] += [name]
     if not selects:
         combined = combine  # argument
+        freecols = freehdrs
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1826,9 +2063,21 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             row[name] = value
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(format(name, value)))
+            oldlen = cols[name] if name in cols else MINWIDTH
+            cols[name] = max(oldlen, len(format(name, value)))
+        for freecol, freeformat in freecols.items():
+            try:
+                freenames = freecol.split(" ")
+                freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
+                for name, value in item.items():
+                    if name in freenames:
+                        freeitem[name] = format(name, value)
+                freevalue = freeformat.format(**freeitem)
+                row[freecol] = freevalue
+                oldlen = cols[freecol] if freecol in cols else MINWIDTH
+                cols[freecol] = max(oldlen, len(freevalue))
+            except Exception as e:
+                logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
     lines = []
