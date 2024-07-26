@@ -3,7 +3,7 @@
 TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
 The output can be piped as a markdown table or csv-like data as well."""
 
-from typing import Union, List, Dict, Tuple, Optional, TextIO, Iterable, cast
+from typing import Union, List, Dict, Tuple, Optional, TextIO, Iterable, NamedTuple
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -411,16 +411,18 @@ def load_workbook(filename: str) -> Workbook:
                                 ws[r].value = value
     return workbook
 
-def read2_workbook(filename: str) -> Tuple[List[Dict[str, CellValue]], List[str]]:
+# .....................................................................
+class TabText(NamedTuple):
+    data: List[Dict[str, CellValue]]
+    headers: List[str]
+
+def tabtextfileXLSX(filename: str) -> TabText:
     workbook = load_workbook(filename)
-    return data2_workbook(workbook)
-def read_workbook(filename: str) -> List[Dict[str, CellValue]]:
-    workbook = load_workbook(filename)
-    return data_workbook(workbook)
+    return tabtext_workbook(workbook)
 def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
-    data, _ = data2_workbook(workbook)
+    data, _ = tabtext_workbook(workbook)
     return data
-def data2_workbook(workbook: Workbook) -> Tuple[List[Dict[str, CellValue]], List[str]]:
+def tabtext_workbook(workbook: Workbook) -> TabText:
     ws = workbook.active
     cols: List[str] = []
     for col in range(MAXCOL):
@@ -449,7 +451,7 @@ def data2_workbook(workbook: Workbook) -> Tuple[List[Dict[str, CellValue]], List
             break
         newrow = dict(zip(cols, record))
         data.append(newrow)  # type: ignore[arg-type]
-    return data, cols
+    return TabText(data, cols)
 
 def currency() -> str:
     """ make dependent on locale ? """
@@ -674,7 +676,8 @@ def unmatched(value: CellValue, cond: str) -> bool:
 
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
-                    headers: List[str] = [], selects: List[str] = [], defaultformat: str = "") -> str:
+                    headers: List[str] = [], selects: List[str] = [], 
+                    *, noheaders: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     def detectfileformat(filename: str) -> Optional[str]:
@@ -721,7 +724,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     minwidth = MINWIDTH
     floatfmt = "%4.2f"
     noright = fmt in ["data"]
-    noheaders = fmt in ["data", "text", "list"]
+    noheaders = noheaders or fmt in ["data", "text", "list"]
     formatleft = re.compile("[{]:[^{}]*<[^{}]*[}]")
     formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
@@ -761,7 +764,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             elif ">" in name:
                 name, cond = name.split("<", 1)
                 filtered[name] = "<" + cond
-            elif "~" in name:
+            elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
             selected.append(name)
@@ -904,10 +907,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         print((" ".join(line)).rstrip(), file=out)
     return "GFM"
 
-def read_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> List[Dict[str, CellValue]]:
-    data, cols = read2_tabtotext(input, defaultformat)
-    return data
-def read2_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> Tuple[List[Dict[str, CellValue]], List[str]]:
+def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
     def detectfileformat(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
         if ext in [".txt", ".md", ".markdown"]:
@@ -927,7 +927,7 @@ def read2_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> Tuple
     elif "." in input:
         fmt = detectfileformat(input) or defaultformat
         if fmt in ["xls", "xlsx"]:
-            return read2_workbook(input)
+            return tabtextfileXLSX(input)
         inp = open(input, "rt", encoding="utf-8")
         done = input
     else:
@@ -982,7 +982,7 @@ def read2_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> Tuple
                                     nextrecord[nam] = Time.strptime("%Y-%m%d", val).date()
                                 except:
                                     nextrecord[nam] = val.strip()
-        return (data, list(reader.fieldnames if reader.fieldnames else []))
+        return TabText(data, list(reader.fieldnames if reader.fieldnames else []))
     # must have headers
     lookingfor = "headers"
     headers: List[str] = []
@@ -1022,7 +1022,7 @@ def read2_tabtotext(input: Union[TextIO, str], defaultformat: str = "") -> Tuple
                             except:
                                 record[headers[col]] = val.strip()
         data.append(record)
-    return (data, headers)
+    return TabText(data, headers)
 
 
 if __name__ == "__main__":
@@ -1032,6 +1032,8 @@ if __name__ == "__main__":
     cmdline = OptionParser("tab-xlsx [-options] input.xlsx [output.xlsx]", epilog=__doc__)
     cmdline.add_option("-v", "--verbose", action="count", default=0)
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true", 
+                       help="do not print headers (csv,md,tab,wide)", default=False)
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
                        help="select columns to show (a,x=b)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
@@ -1053,8 +1055,9 @@ if __name__ == "__main__":
         cmdline.print_help()
         logg.error("no input filename given")
         sys.exit(1)
-    data, headers = read2_tabtotext(args[0], defaultformat="xlsx")
-    logg.debug("data = %s", data)
+    tabtext = tabtextfile(args[0], defaultformat="xlsx")
+    logg.debug("headers = %s", tabtext.headers)
+    logg.debug("data = %s", tabtext.data)
     if len(args) > 1:
         output = args[1]
         defaultformat = ""
@@ -1087,4 +1090,4 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, data, headers, opt.labels, defaultformat=defaultformat)
+    print_tabtotext(output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, defaultformat=defaultformat)
