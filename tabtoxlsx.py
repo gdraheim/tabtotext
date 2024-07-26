@@ -183,24 +183,8 @@ def tabtextfileXLSX(filename: str) -> TabText:
 
 
 if __name__ == "__main__":
-    from tabtotext import tab_sorts_from, tab_selects_from, tab_formats_from, tabToCustomTab, readFromFile
+    from tabtotext import tabtextfile, print_tabtotext
     from os.path import splitext
-    def saveFileToFileXLSX(filename: str, fmt: str = NIX, selects: str = NIX, sorting: str = NIX, formatting: str = NIX) -> List[str]:
-        formats = tab_formats_from(formatting or selects or sorting)
-        sorts = tab_sorts_from(sorting or selects)
-        onlycols = tab_selects_from(selects)
-        reorder = []
-        if selects:
-            reorder = list(onlycols.keys())
-        # .....
-        result = readFromFile(filename, fmt)
-        if onlycols:
-            data = tabToCustomTab(result)
-        else:
-            data = result
-        saveToXLSX(filename + ".xlsx", result, sorts=sorts, formats=formats, reorder=reorder)
-        return [filename + ".xlsx", "{:3d} rows".format(len(result))]
-
     DONE = (logging.WARNING + logging.ERROR) // 2
     logging.addLevelName(DONE, "DONE")
     from optparse import OptionParser
@@ -208,12 +192,8 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-S", "--sort-by", "--sort-columns", metavar="LIST", action="append",  # ..
-                       help="reorder columns for sorting (a,x)", default=[])
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
                        help="select columns to show (a,x=b)", default=[])
-    cmdline.add_option("-F", "--formats", "--format-columns", metavar="LIST", action="append",  # ..
-                       help="apply formatting to columns (a:.2f,b:_d)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
@@ -234,7 +214,8 @@ if __name__ == "__main__":
                     previous = line
                 raise SystemExit()
             # ....
-            done = saveFileToFileXLSX(arg, opt.inputformat,  # ..
-                                      selects=",".join(opt.labels), sorting=",".join(opt.sort_by), formatting=",".join(opt.formats))
-            if done:
-                logg.log(DONE, " %s", " ".join(done))
+            tabtext = tabtextfile(arg, opt.inputformat)
+            xlsx = arg + ".xlsx"
+            saveToXLSX(xlsx, tabtext.data, tabtext.headers, opt.labels)
+            if tabtext.data:
+                logg.log(DONE, " @ %s: %3d rows", xlsx, len(tabtext.data))
