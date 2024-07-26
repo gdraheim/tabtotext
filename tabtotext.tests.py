@@ -4511,10 +4511,10 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
-        cond = ['| a     | b     | c', 
+        cond = ['| a     | b     | c',
                 '| ----- | ----- | -----',
-                '| y     | 1     | ~', 
-                '| x     | 2     | ~', 
+                '| y     | 1     | ~',
+                '| x     | 2     | ~',
                 '| ~     | ~     | h', ]
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
