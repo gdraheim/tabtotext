@@ -677,7 +677,7 @@ def unmatched(value: CellValue, cond: str) -> bool:
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selects: List[str] = [], 
-                    *, noheaders: bool = False, defaultformat: str = "") -> str:
+                    *, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     def detectfileformat(filename: str) -> Optional[str]:
@@ -866,6 +866,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                     sortvalue += "\n?"
             return sortvalue
         return "XLSX"
+    # print ..........................................
+    same = []
     # CSV
     if fmt in ["list", "csv", "scsv", "xlsx", "xls", "tab", "dat", "ifs", "data"]:
         tab1 = tab if tab else ";"
@@ -874,11 +876,16 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                                 restval='~', quoting=csv.QUOTE_MINIMAL, delimiter=tab1)
         if not noheaders:
             writer.writeheader()
+        old: Dict[str, str] = {}
         for row in sorted(rows, key=sortrow):
             rowvalues: Dict[str, str] = {}
             for name, value in asdict(row).items():
                 rowvalues[name] = format(name, value)
-            writer.writerow(rowvalues)
+            if unique:
+                same = [sel for sel in selected if sel in rowvalues and sel in old and rowvalues[sel] == old[sel]]
+            if not selected or same != selected:
+                writer.writerow(rowvalues)
+            old = rowvalues
         return "CSV"
     # GFM
     def rightF(col: str, formatter: str) -> str:
@@ -898,13 +905,18 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
                           for name in sorted(cols.keys(), key=sortkey)]
             print(" ".join(seperators).rstrip(), file=out)
+    oldvalues: Dict[str, str] = {}
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in asdict(item).items():
             values[name] = format(name, value)
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, none_string)
                 for name in sorted(cols.keys(), key=sortkey)]
-        print((" ".join(line)).rstrip(), file=out)
+        if unique:
+            same = [sel for sel in selected if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]
+        if not selected or same != selected:
+            print((" ".join(line)).rstrip(), file=out)
+        oldvalues = values
     return "GFM"
 
 def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
@@ -1034,6 +1046,8 @@ if __name__ == "__main__":
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true", 
                        help="do not print headers (csv,md,tab,wide)", default=False)
+    cmdline.add_option("-U", "--unique", action="store_true", 
+                       help="remove same lines in sorted --labels", default=False)
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
                        help="select columns to show (a,x=b)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
@@ -1090,4 +1104,4 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, defaultformat=defaultformat)
+    print_tabtotext(output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, unique=opt.unique, defaultformat=defaultformat)
