@@ -480,7 +480,7 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-             *, legend: LegendList = [], noheaders: bool = False, tab: str = "|",  #
+             *, legend: LegendList = [], noheaders: bool = False, unique: bool = False, tab: str = "|",  #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoGFM:")
     renameheaders: Dict[str, str] = {}
@@ -684,13 +684,19 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
                           for name in sorted(cols.keys(), key=sortkey)]
             lines.append(" ".join(seperators))
+    old: Dict[str, str] = {}
+    same: List[str] = []
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in item.items():
             values[name] = format(name, value)
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, _None_String)
                 for name in sorted(cols.keys(), key=sortkey)]
-        lines.append((" ".join(line)).rstrip())
+        if unique:
+            same = [sel for sel in selected if sel in values and sel in old and values[sel] == old[sel]]
+        if not selected or same != selected:
+            lines.append((" ".join(line)).rstrip())
+        old = values
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts, reorder)
 
 def legendToGFM(legend: LegendList, sorts: RowSortList = [], reorder: ColSortList = []) -> str:
@@ -2114,7 +2120,7 @@ def tabToCSV(result: Iterable[JSONDict],  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = ";",
+             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, unique: bool = False, tab: str = ";",
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoCSV:")
     renameheaders: Dict[str, str] = {}
@@ -2304,12 +2310,18 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    old: Dict[str, str] = {}
+    same: List[str] = []
     lines = []
     for item in sorted(rows, key=sortrow):
-        values: JSONDict = dict([(name, _None_String) for name in cols.keys()])
+        values: Dict[str, str] = dict([(name, _None_String) for name in cols.keys()])
         for name, value in item.items():
             values[name] = format(name, value)
-        lines.append(values)
+        if unique:
+            same = [sel for sel in selected if sel in values and sel in old and values[sel] == old[sel]]
+        if not selected or same != selected:
+            lines.append(values)
+        old = values
     import csv
     # csvfile = open(csv_filename, "w")
     csvfile = StringIO()
@@ -2359,7 +2371,7 @@ class DictParserCSV(DictParser):
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-                    *, datedelim: str = '-', noheaders: bool = False, defaultformat: str = "") -> str:
+                    *, datedelim: str = '-', noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
@@ -2372,7 +2384,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = output
         out = sys.stdout
         done = output
-    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim, noheaders=noheaders, defaultformat=defaultformat)
+    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
         results.append(line)
@@ -2383,10 +2395,10 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
 
 def tabtotext(fmt: str, data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-              *, datedelim: str = '-', noheaders: bool = False, defaultformat: str = "") -> str:
+              *, datedelim: str = '-', noheaders: bool = False, unique:bool = False, defaultformat: str = "") -> str:
     fmt = fmt if fmt not in ["", "-"] else defaultformat
     if fmt.lower() in ["md", "markdown"]:
-        return tabtoGFM(data, headers, selects, legend=legend)
+        return tabtoGFM(data, headers, selects, legend=legend, noheaders=noheaders, unique=unique)
     if fmt.lower() in ["html", "htm"]:
         return tabtoHTML(data, headers, selects, legend=legend)
     if fmt.lower() in ["json", "jsn"]:
@@ -2396,23 +2408,23 @@ def tabtotext(fmt: str, data: Iterable[JSONDict],  # ..
     if fmt.lower() in ["toml", "tml"]:
         return  tabtoTOML(data, headers, selects, datedelim=datedelim)
     if fmt.lower() in ["wide"]:
-        return  tabtoGFM(data, headers, selects, tab='', noheaders=noheaders)
+        return  tabtoGFM(data, headers, selects, tab='', noheaders=noheaders, unique=unique)
     if fmt.lower() in ["text"]:
-        return  tabtoGFM(data, headers, selects, tab='', noheaders=True)
+        return  tabtoGFM(data, headers, selects, tab='', noheaders=True, unique=unique)
     if fmt.lower() in ["tabs"]:
-        return  tabtoGFM(data, headers, selects, tab='\t', noheaders=noheaders)
+        return  tabtoGFM(data, headers, selects, tab='\t', noheaders=noheaders, unique=unique)
     if fmt.lower() in ["tab"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=noheaders)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=noheaders, unique=unique)
     if fmt.lower() in ["data"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=True)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=True, unique=unique)
     if fmt.lower() in ["ifs", "dat"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True, unique=unique)
     if fmt.lower() in ["csv", "scsv"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=noheaders)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=noheaders, unique=unique)
     if fmt.lower() in ["list"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=True)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=True, unique=unique)
     if fmt.lower() in ["xlsx", "xls"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',', noheaders=noheaders)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',', noheaders=noheaders, unique=unique)
     return tabtoGFM(data, headers, selects, legend=legend)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
@@ -2721,6 +2733,8 @@ if __name__ == "__main__":
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true", 
                        help="do not print headers (csv,md,tab,wide)", default=False)
+    cmdline.add_option("-U", "--unique", action="store_true", 
+                       help="remove same lines in sorted --labels (csv,md,tab,wide)", default=False)
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
                        help="select columns to show (a|b:.2f)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
@@ -2746,6 +2760,6 @@ if __name__ == "__main__":
                 raise SystemExit()
             # ....
             tabtext = tabtextfile(arg, opt.inputformat)
-            done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, defaultformat=opt.format)
+            done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, unique=opt.unique, defaultformat=opt.format)
             if done:
                 logg.log(DONE, " %s", done)
