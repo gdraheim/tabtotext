@@ -2359,7 +2359,7 @@ class DictParserCSV(DictParser):
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-                    *, datedelim: str = '-', defaultformat: str = "") -> str:
+                    *, datedelim: str = '-', noheaders: bool = False, defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
@@ -2372,16 +2372,18 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = output
         out = sys.stdout
         done = output
-    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim, defaultformat=defaultformat)
+    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim, noheaders=noheaders, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
         results.append(line)
         out.write(line)
+    if noheaders:
+        return ""
     return ": %s results %s" % (len(results), done)
 
 def tabtotext(fmt: str, data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-              *, datedelim: str = '-', defaultformat: str = "") -> str:
+              *, datedelim: str = '-', noheaders: bool = False, defaultformat: str = "") -> str:
     fmt = fmt if fmt not in ["", "-"] else defaultformat
     if fmt.lower() in ["md", "markdown"]:
         return tabtoGFM(data, headers, selects, legend=legend)
@@ -2394,23 +2396,23 @@ def tabtotext(fmt: str, data: Iterable[JSONDict],  # ..
     if fmt.lower() in ["toml", "tml"]:
         return  tabtoTOML(data, headers, selects, datedelim=datedelim)
     if fmt.lower() in ["wide"]:
-        return  tabtoGFM(data, headers, selects, tab='')
+        return  tabtoGFM(data, headers, selects, tab='', noheaders=noheaders)
     if fmt.lower() in ["text"]:
         return  tabtoGFM(data, headers, selects, tab='', noheaders=True)
     if fmt.lower() in ["tabs"]:
-        return  tabtoGFM(data, headers, selects, tab='\t')
+        return  tabtoGFM(data, headers, selects, tab='\t', noheaders=noheaders)
     if fmt.lower() in ["tab"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t')
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=noheaders)
     if fmt.lower() in ["data"]:
         return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=True)
     if fmt.lower() in ["ifs", "dat"]:
         return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
     if fmt.lower() in ["csv", "scsv"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';')
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=noheaders)
     if fmt.lower() in ["list"]:
         return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=True)
     if fmt.lower() in ["xlsx", "xls"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',')
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',', noheaders=noheaders)
     return tabtoGFM(data, headers, selects, legend=legend)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
@@ -2427,11 +2429,11 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
     return tabToFMT(output, results, sorts, formats, selects, datedelim=datedelim, legend=legend, combine=combine)
 def tabToFMT(fmt: str, result: JSONList,  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-             *, datedelim: str = '-', legend: LegendList = [],  #
+             *, datedelim: str = '-', noheaders: bool = False, legend: LegendList = [],  #
              reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     fmt = fmt or ""
     if fmt.lower() in ["md", "markdown"]:
-        return tabToGFM(result, sorts, formats, selects, reorder=reorder, legend=legend)
+        return tabToGFM(result, sorts, formats, selects, reorder=reorder, legend=legend, noheaders=noheaders)
     if fmt.lower() in ["html", "htm"]:
         return tabToHTML(result, sorts, formats, selects, reorder=reorder, legend=legend, combine=combine)
     if fmt.lower() in ["json", "jsn"]:
@@ -2441,23 +2443,23 @@ def tabToFMT(fmt: str, result: JSONList,  # ..
     if fmt.lower() in ["toml", "tml"]:
         return tabToTOML(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim)
     if fmt.lower() in ["wide"]:
-        return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='')
+        return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='', noheaders=noheaders)
     if fmt.lower() in ["text"]:
         return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='', noheaders=True)
     if fmt.lower() in ["tabs"]:
-        return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='\t')
+        return tabToGFM(result, sorts, formats, selects, reorder=reorder, tab='\t', noheaders=noheaders)
     if fmt.lower() in ["tab"]:
-        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab='\t')
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=noheaders)
     if fmt.lower() in ["data"]:
         return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab='\t', noheaders=True)
     if fmt.lower() in ["ifs", "dat"]:
         return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
     if fmt.lower() in ["csv", "scsv"]:
-        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=';')
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=';', noheaders=noheaders)
     if fmt.lower() in ["list"]:
         return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=';', noheaders=True)
     if fmt.lower() in ["xlsx", "xls"]:
-        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=',')
+        return tabToCSV(result, sorts, formats, selects, reorder=reorder, datedelim=datedelim, tab=',', noheaders=noheaders)
     return tabToGFM(result, sorts, formats, selects, reorder=reorder, legend=legend)
 
 def saveToFMT(filename: str, fmt: str, result: JSONList,  # ..
@@ -2717,12 +2719,10 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-S", "--sort-by", "--sort-columns", metavar="LIST", action="append",  # ..
-                       help="reorder columns for sorting (a,x)", default=[])
+    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true", 
+                       help="do not print headers (csv,md,tab,wide)", default=False)
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
-                       help="select columns to show (a,x=b)", default=[])
-    cmdline.add_option("-F", "--formats", "--format-columns", metavar="LIST", action="append",  # ..
-                       help="apply formatting to columns (a:.2f,b:_d)", default=[])
+                       help="select columns to show (a|b:.2f)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default="")
     cmdline.add_option("-O", "--output", metavar="CON", default="-", help="redirect output to filename")
@@ -2746,6 +2746,6 @@ if __name__ == "__main__":
                 raise SystemExit()
             # ....
             tabtext = tabtextfile(arg, opt.inputformat)
-            done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, opt.labels, defaultformat=opt.format)
+            done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, defaultformat=opt.format)
             if done:
                 logg.log(DONE, " %s", done)
