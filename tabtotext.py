@@ -45,6 +45,7 @@ FLOATFMT = "%4.2f"
 NORIGHT = False
 MINWIDTH = 5
 NIX = ""
+STRLIST: List[str] = []
 COL_SEP = "|"
 
 JSONData = Union[str, int, float, bool, Date, Time, None]
@@ -90,6 +91,10 @@ def _dataitem_replace(obj: DataItem, values: JSONDict, dict_factory: Type[Dict[s
         else:
             result[name] = cast(JSONItem, getattr(obj, name))
     return result
+
+class TabText(NamedTuple):
+    data: JSONList
+    headers: List[str]
 
 # helper functions
 
@@ -711,11 +716,16 @@ def loadGFM(text: str, datedelim: str = '-', tab: str = '|') -> JSONList:
 def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|') -> JSONList:
     parser = DictParserGFM(datedelim=datedelim, tab=tab)
     return list(parser.load(filename))
+def tabtextfileGFM(filename: str, datedelim: str = '-', tab: str = '|') -> TabText:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab)
+    data =  list(parser.load(filename))
+    return TabText(data, parser.headers)
 
 class DictParserGFM(DictParser):
     def __init__(self, *, datedelim: str = '-', tab: str = '|') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.tab = tab
+        self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(open(filename))
     def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
@@ -735,6 +745,7 @@ class DictParserGFM(DictParser):
                 if at == "start":
                     cols = [name.strip() for name in line.split(tab)]
                     at = "header"
+                    self.headers = cols
                     continue
                 if at == "header":
                     newcols = [name.strip() for name in line.split(tab)]
@@ -1076,17 +1087,22 @@ def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line and line.strip()]) + "</ul>"
 
-def readFromHTML(filename: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserHTML(datedelim)
-    return list(parser.load(filename))
 def loadHTML(text: str, datedelim: str = '-') -> JSONList:
     parser = DictParserHTML(datedelim)
     return list(parser.loads(text))
+def readFromHTML(filename: str, datedelim: str = '-') -> JSONList:
+    parser = DictParserHTML(datedelim)
+    return list(parser.load(filename))
+def tabtextfileHTML(filename: str, datedelim: str = '-') -> TabText:
+    parser = DictParserHTML(datedelim)
+    data = list(parser.load(filename))
+    return TabText(data, parser.headers)
 
 class DictParserHTML(DictParser):
     def __init__(self, datedelim: str = '-', convert_charrefs: bool = True) -> None:
         self.convert = ParseJSONItem(datedelim)
         self.convert_charrefs = convert_charrefs
+        self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(open(filename))
     def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
@@ -1150,6 +1166,7 @@ class DictParserHTML(DictParser):
                     if isinstance(val, str):
                         record[key] = self.convert.toJSONItem(val)
                 yield record
+        self.headers = parser.th
 
 # ================================= #### JSON
 class FormatJSON(BaseFormatJSONItem):
@@ -1398,12 +1415,14 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         lines.append(" {" + ", ".join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
-def readFromJSON(filename: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserJSON(datedelim)
-    return list(parser.load(filename))
 def loadJSON(text: str, datedelim: str = '-') -> JSONList:
     parser = DictParserJSON(datedelim)
     return list(parser.loads(text))
+def readFromJSON(filename: str, datedelim: str = '-') -> JSONList:
+    parser = DictParserJSON(datedelim)
+    return list(parser.load(filename))
+def tabtextfileJSON(filename: str, datedelim: str = '-') -> TabText:
+    return TabText(readFromJSON(filename, datedelim), [])
 
 class DictParserJSON(DictParser):
     def __init__(self, datedelim: str = '-') -> None:
@@ -1670,6 +1689,9 @@ def loadYAML(text: str, datedelim: str = '-') -> JSONList:
 def readFromYAML(filename: str, datedelim: str = '-') -> JSONList:
     parser = DictParserYAML(datedelim=datedelim)
     return list(parser.load(filename))
+def tabtextfileYAML(filename: str, datedelim: str = '-') -> TabText:
+    return TabText(readFromYAML(filename, datedelim), [])
+
 def DictReaderYAML(rows: Iterable[str], *, datedelim: str = '-') -> Iterator[JSONDict]:
     parser = DictParserYAML(datedelim=datedelim)
     return parser.read(rows)
@@ -1967,6 +1989,8 @@ def loadTOML(text: str, datedelim: str = '-') -> JSONList:
 def readFromTOML(filename: str, datedelim: str = '-') -> JSONList:
     parser = DictParserTOML(datedelim=datedelim)
     return list(parser.load(filename))
+def tabtextfileTOML(filename: str, datedelim: str = '-') -> TabText:
+    return TabText(readFromTOML(filename, datedelim), [])
 
 class DictParserTOML(DictParser):
     def __init__(self, *, datedelim: str = '-') -> None:
@@ -2297,17 +2321,22 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         writer.writerow(line)
     return csvfile.getvalue()
 
-def readFromCSV(filename: str, datedelim: str = '-', tab: str = ";") -> JSONList:
-    parser = DictParserCSV(datedelim=datedelim, tab=tab)
-    return list(parser.load(filename))
 def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     parser = DictParserCSV(datedelim=datedelim, tab=tab)
     return list(parser.loads(text))
+def readFromCSV(filename: str, datedelim: str = '-', tab: str = ";") -> JSONList:
+    parser = DictParserCSV(datedelim=datedelim, tab=tab)
+    return list(parser.load(filename))
+def tabtextfileCSV(filename: str, datedelim: str = '-', tab: str = ";") -> TabText:
+    parser = DictParserCSV(datedelim=datedelim, tab=tab)
+    data = list(parser.load(filename))
+    return TabText(data, parser.headers)
 
 class DictParserCSV(DictParser):
     def __init__(self, *, datedelim: str = '-', tab: str = ";") -> None:
         self.convert = ParseJSONItem(datedelim)
         self.tab = tab
+        self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.reads(open(filename), tab=tab)
     def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
@@ -2315,13 +2344,16 @@ class DictParserCSV(DictParser):
     def reads(self, csvfile: TextIOWrapper, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         tab = tab if tab is not None else self.tab
         import csv
-        for row in csv.DictReader(csvfile, restval='ignore',
-                                  quoting=csv.QUOTE_MINIMAL, delimiter=tab):
+        reader = csv.DictReader(csvfile, restval='ignore',
+                                  quoting=csv.QUOTE_MINIMAL, delimiter=tab)
+        for row in reader:
             newrow: JSONDict = dict(row)
             for key, val in newrow.items():
                 if isinstance(val, str):
                     newrow[key] = self.convert.toJSONItem(val)
             yield newrow
+        if reader.fieldnames is not None:
+            self.headers = list(reader.fieldnames)
 
 # .......................................................................................
 
@@ -2340,7 +2372,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = output
         out = sys.stdout
         done = output
-    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim)
+    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
         results.append(line)
@@ -2350,34 +2382,35 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
 def tabtotext(fmt: str, data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
               *, datedelim: str = '-', defaultformat: str = "") -> str:
+    fmt = fmt if fmt not in ["", "-"] else defaultformat
     if fmt.lower() in ["md", "markdown"]:
-        lines = tabtoGFM(data, headers, selects, legend=legend)
+        return tabtoGFM(data, headers, selects, legend=legend)
     if fmt.lower() in ["html", "htm"]:
-        lines = tabtoHTML(data, headers, selects, legend=legend)
+        return tabtoHTML(data, headers, selects, legend=legend)
     if fmt.lower() in ["json", "jsn"]:
-        lines = tabtoJSON(data, headers, selects, datedelim=datedelim)
+        return tabtoJSON(data, headers, selects, datedelim=datedelim)
     if fmt.lower() in ["yaml", "yml"]:
-        lines = tabtoYAML(data, headers, selects, datedelim=datedelim)
+        return  tabtoYAML(data, headers, selects, datedelim=datedelim)
     if fmt.lower() in ["toml", "tml"]:
-        lines = tabtoTOML(data, headers, selects, datedelim=datedelim)
+        return  tabtoTOML(data, headers, selects, datedelim=datedelim)
     if fmt.lower() in ["wide"]:
-        lines = tabtoGFM(data, headers, selects, tab='')
+        return  tabtoGFM(data, headers, selects, tab='')
     if fmt.lower() in ["text"]:
-        lines = tabtoGFM(data, headers, selects, tab='', noheaders=True)
+        return  tabtoGFM(data, headers, selects, tab='', noheaders=True)
     if fmt.lower() in ["tabs"]:
-        lines = tabtoGFM(data, headers, selects, tab='\t')
+        return  tabtoGFM(data, headers, selects, tab='\t')
     if fmt.lower() in ["tab"]:
-        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t')
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t')
     if fmt.lower() in ["data"]:
-        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=True)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=True)
     if fmt.lower() in ["ifs", "dat"]:
-        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
     if fmt.lower() in ["csv", "scsv"]:
-        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';')
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';')
     if fmt.lower() in ["list"]:
-        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=True)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=True)
     if fmt.lower() in ["xlsx", "xls"]:
-        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',')
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',')
     return tabtoGFM(data, headers, selects, legend=legend)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
@@ -2502,39 +2535,45 @@ def detectcontentformat(filename: str) -> Optional[str]:
     return None
 
 def readFromFile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> JSONList:
+    tabtext = tabtextfile(filename, fmt, defaultfileformat)
+    return tabtext.data
+def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
+    tabtext = tabtextfileFMT(fmt, filename, defaultformat)
+    return tabtext.data
+def tabtextfile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> TabText:
     if not fmt:
         fmt = detectfileformat(filename) or detectcontentformat(filename) or defaultfileformat
         if not fmt:
             logg.warning("could not detect format of '%s'", filename)
-            return []
+            return TabText([], [])
     # assert fmt
-    return readFromFMT(fmt, filename, defaultfileformat)
-def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
+    return tabtextfileFMT(fmt, filename, defaultfileformat)
+def tabtextfileFMT(fmt: str, filename: str, defaultformat: str = NIX) -> TabText:
     if not fmt:
         fmt = detectfileformat(filename) or NIX
         if not fmt:
             fmt = defaultformat
         if not fmt:
-            return []
+            return TabText([], [])
     if fmt.lower() in ["md", "markdown"]:
-        return readFromGFM(filename)
+        return tabtextfileGFM(filename)
     if fmt.lower() in ["html", "htm"]:
-        return readFromHTML(filename)
+        return tabtextfileHTML(filename)
     if fmt.lower() in ["json", "jsn"]:
-        return readFromJSON(filename)
+        return tabtextfileJSON(filename)
     if fmt.lower() in ["yaml", "yml"]:
-        return readFromYAML(filename)
+        return tabtextfileYAML(filename)
     if fmt.lower() in ["toml"]:
-        return readFromTOML(filename)
+        return tabtextfileTOML(filename)
     if fmt.lower() in ["tab"]:
-        return readFromCSV(filename, tab='\t')
+        return tabtextfileCSV(filename, tab='\t')
     if fmt.lower() in ["csv", "scsv"]:
-        return readFromCSV(filename, tab=';')
+        return tabtextfileCSV(filename, tab=';')
     if fmt.lower() in ["xlsx", "xls"]:
         import tabtoxlsx
-        return tabtoxlsx.readFromXLSX(filename)
-    logg.debug(" readFromFMT  - unrecognized input format %s: %s", fmt, filename)
-    return []
+        return tabtoxlsx.tabtextfileXLSX(filename)
+    logg.debug(" tabtextfileFMT  - unrecognized input format %s: %s", fmt, filename)
+    return TabText([], [])
 
 # ----------------------------------------------------------------------
 def tab_formats_from(columns: str) -> Dict[str, str]:
@@ -2706,7 +2745,7 @@ if __name__ == "__main__":
                 previous = line
                 raise SystemExit()
             # ....
-            done = tabFileToPrintWith(arg, opt.inputformat, opt.output, opt.format, selects=",".join(opt.labels),  # ..
-                                      sorts=",".join(opt.sort_by), formats=",".join(opt.formats))
+            tabtext = tabtextfile(arg, opt.inputformat)
+            done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, opt.labels, defaultformat=opt.format)
             if done:
                 logg.log(DONE, " %s", done)

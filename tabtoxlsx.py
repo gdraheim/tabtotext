@@ -10,7 +10,7 @@ __version__ = "1.6.3283"
 
 import logging
 from typing import Union, Dict, List, Any
-from tabtotext import JSONList, JSONDict, strNone
+from tabtotext import JSONList, JSONDict, TabText, strNone
 from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable
 from tabtools import currency_default
 
@@ -147,6 +147,9 @@ def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [],  #
     workbook.save(filename)
 
 def readFromXLSX(filename: str) -> JSONList:
+    tabtext = tabtextfileXLSX(filename)
+    return tabtext.data
+def tabtextfileXLSX(filename: str) -> TabText:
     workbook = load_workbook(filename)
     ws = workbook.active
     cols = []
@@ -176,7 +179,7 @@ def readFromXLSX(filename: str) -> JSONList:
             break
         newrow = dict(zip(cols, record))
         data.append(newrow)
-    return data
+    return TabText(data, cols)
 
 
 if __name__ == "__main__":
