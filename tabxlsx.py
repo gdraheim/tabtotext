@@ -26,7 +26,7 @@ logg = getLogger("tabxlsx")
 DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%Y-%m-%d.%H%M"
 FLOATFMT = "%4.2f"
-MINWIDTH = 4
+MINWIDTH = 5
 MAXCOL = 1000
 MAXROWS = 100000
 NIX = ""
@@ -727,16 +727,11 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     formats: Dict[str, str] = {}
     sortheaders: List[str] = []
-    headerorder: Dict[str, str] = {}
     for headernum, header in enumerate(headers):
         if "@" in header:
             selcols, rename = header.split("@", 1)
-            if "@" in rename:
-                rename, orders = rename.split("@", 1)
-            else:
-                rename, orders = rename, ""
         else:
-            selcols, rename, orders = header, "", ""
+            selcols, rename = header, ""
         for colnum, selcol in enumerate(selcols.split("|")):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -745,27 +740,14 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             else:
                 name = selcol
             sortheaders += [name]  # default sort by named headers (rows)
-            if headernum < 10:  # and default order by named headers (cols)
-                headerorder[name] = orders or "@%i" % headernum
-            else:
-                headerorder[name] = orders or "@:%07i" % headernum
-            if colnum and colnum < 10:
-                headerorder[name] += "@%i" % colnum
-            elif colnum:
-                headerorder[name] += "@:%07i" % colnum
-    reorders: Dict[str, str] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selec in selects:
         if "@" in selec:
             selcols, rename = selec.split("@", 1)
-            if "@" in rename:
-                rename, orders = rename.split("@", 1)
-            else:
-                rename, orders = "", ""
         else:
-            selcols, rename, orders = selec, "", ""
+            selcols, rename = selec, ""
         for selcol in selcols.split("|"):
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
@@ -786,11 +768,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             if rename:
                 renaming[name] = rename
                 rename = ""  # only the first
-            if orders:
-                reorders[name] = orders
-    if reorders:
-        headerorder = reorders  # selects overrides headers defaults
-    logg.debug("sortheaders = %s | formats = %s | headerorder = %s", sortheaders, formats, headerorder)
+    if not selects:
+        selected = sortheaders
+    logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
     # .......................................
     def rightalign(col: str) -> bool:
         if col in formats and not noright:
@@ -854,8 +834,12 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if not skip:
             rows.append(row)
     def sortkey(header: str) -> str:
-        if header in headerorder:
-            return headerorder[header]
+        if header in selected:
+            num = selected.index(header)
+            if num < 10:
+                return ":%i" % num
+            else:
+                return "::%07i" % num
         return header
     def sortrow(row: Dict[str, CellValue]) -> str:
         item = asdict(row)
