@@ -604,7 +604,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             if newsort:
                 newsorts[name] = newsort
             if neworder:
-               reorders[name] = neworder
+                reorders[name] = neworder
     logg.debug("reorders = %s", reorders)
     logg.debug("newsorts = %s", newsorts)
     if sorts:
@@ -618,7 +618,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                         newsorts[name] = "@%i" % num
                     else:
                         newsorts[name] = "@%07i" % num
-            sortcolumns = sorted(newsorts, key = lambda x: newsorts[x])
+            sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
@@ -958,7 +958,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             if newsort:
                 newsorts[name] = newsort
             if neworder:
-               reorders[name] = neworder
+                reorders[name] = neworder
     logg.debug("reorders = %s", reorders)
     logg.debug("newsorts = %s", newsorts)
     if sorts:
@@ -972,7 +972,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%i" % num
                     else:
                         newsorts[name] = "@%07i" % num
-            sortcolumns = sorted(newsorts, key = lambda x: newsorts[x])
+            sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
@@ -1329,7 +1329,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             if newsort:
                 newsorts[name] = newsort
             if neworder:
-               reorders[name] = neworder
+                reorders[name] = neworder
     logg.debug("reorders = %s", reorders)
     logg.debug("newsorts = %s", newsorts)
     if sorts:
@@ -1343,7 +1343,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%i" % num
                     else:
                         newsorts[name] = "@%07i" % num
-            sortcolumns = sorted(newsorts, key = lambda x: newsorts[x])
+            sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
@@ -1592,7 +1592,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             if newsort:
                 newsorts[name] = newsort
             if neworder:
-               reorders[name] = neworder
+                reorders[name] = neworder
     logg.debug("reorders = %s", reorders)
     logg.debug("newsorts = %s", newsorts)
     if sorts:
@@ -1606,7 +1606,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%i" % num
                     else:
                         newsorts[name] = "@%07i" % num
-            sortcolumns = sorted(newsorts, key = lambda x: newsorts[x])
+            sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
@@ -1888,7 +1888,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             if newsort:
                 newsorts[name] = newsort
             if neworder:
-               reorders[name] = neworder
+                reorders[name] = neworder
     logg.debug("reorders = %s", reorders)
     logg.debug("newsorts = %s", newsorts)
     if sorts:
@@ -1902,7 +1902,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%i" % num
                     else:
                         newsorts[name] = "@%07i" % num
-            sortcolumns = sorted(newsorts, key = lambda x: newsorts[x])
+            sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
@@ -2220,7 +2220,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             if newsort:
                 newsorts[name] = newsort
             if neworder:
-               reorders[name] = neworder
+                reorders[name] = neworder
     logg.debug("reorders = %s", reorders)
     logg.debug("newsorts = %s", newsorts)
     if sorts:
@@ -2234,7 +2234,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                         newsorts[name] = "@%i" % num
                     else:
                         newsorts[name] = "@%07i" % num
-            sortcolumns = sorted(newsorts, key = lambda x: newsorts[x])
+            sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
@@ -2340,42 +2340,45 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = output
         out = sys.stdout
         done = output
-    if fmt.lower() in ["md", "markdown"]:
-        lines = tabtoGFM(data, headers , selects,  legend=legend)
-    elif fmt.lower() in ["html", "htm"]:
-        lines = tabtoHTML(data, headers, selects,  legend=legend)
-    elif fmt.lower() in ["json", "jsn"]:
-        lines = tabtoJSON(data, headers, selects,  datedelim=datedelim)
-    elif fmt.lower() in ["yaml", "yml"]:
-        lines = tabtoYAML(data, headers, selects,  datedelim=datedelim)
-    elif fmt.lower() in ["toml", "tml"]:
-        lines = tabtoTOML(data, headers, selects,  datedelim=datedelim)
-    elif fmt.lower() in ["wide"]:
-        lines = tabtoGFM(data, headers, selects,  tab='')
-    elif fmt.lower() in ["text"]:
-        lines = tabtoGFM(data, headers, selects,  tab='', noheaders=True)
-    elif fmt.lower() in ["tabs"]:
-        lines = tabtoGFM(data, headers, selects,  tab='\t')
-    elif fmt.lower() in ["tab"]:
-        lines = tabtoCSV(data, headers, selects,  datedelim=datedelim, tab='\t')
-    elif fmt.lower() in ["data"]:
-        lines = tabtoCSV(data, headers, selects,  datedelim=datedelim, tab='\t', noheaders=True)
-    elif fmt.lower() in ["ifs", "dat"]:
-        lines = tabtoCSV(data, headers, selects,  datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
-    elif fmt.lower() in ["csv", "scsv"]:
-        lines = tabtoCSV(data, headers, selects,  datedelim=datedelim, tab=';')
-    elif fmt.lower() in ["list"]:
-        lines = tabtoCSV(data, headers, selects,  datedelim=datedelim, tab=';', noheaders=True)
-    elif fmt.lower() in ["xlsx", "xls"]:
-        lines = tabtoCSV(data, headers, selects,  datedelim=datedelim, tab=',')
-    else:
-        lines = tabtoGFM(data, headers, selects,  legend=legend)
+    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim)
     results: List[str] = []
-    # lines = tabToFMT(fmt, list(data), headers, {}, selects, legend=legend)
     for line in lines:
         results.append(line)
         out.write(line)
     return ": %s results %s" % (len(results), done)
+
+def tabtotext(fmt: str, data: Iterable[JSONDict],  # ..
+              headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
+              *, datedelim: str = '-', defaultformat: str = "") -> str:
+    if fmt.lower() in ["md", "markdown"]:
+        lines = tabtoGFM(data, headers, selects, legend=legend)
+    if fmt.lower() in ["html", "htm"]:
+        lines = tabtoHTML(data, headers, selects, legend=legend)
+    if fmt.lower() in ["json", "jsn"]:
+        lines = tabtoJSON(data, headers, selects, datedelim=datedelim)
+    if fmt.lower() in ["yaml", "yml"]:
+        lines = tabtoYAML(data, headers, selects, datedelim=datedelim)
+    if fmt.lower() in ["toml", "tml"]:
+        lines = tabtoTOML(data, headers, selects, datedelim=datedelim)
+    if fmt.lower() in ["wide"]:
+        lines = tabtoGFM(data, headers, selects, tab='')
+    if fmt.lower() in ["text"]:
+        lines = tabtoGFM(data, headers, selects, tab='', noheaders=True)
+    if fmt.lower() in ["tabs"]:
+        lines = tabtoGFM(data, headers, selects, tab='\t')
+    if fmt.lower() in ["tab"]:
+        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t')
+    if fmt.lower() in ["data"]:
+        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=True)
+    if fmt.lower() in ["ifs", "dat"]:
+        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True)
+    if fmt.lower() in ["csv", "scsv"]:
+        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';')
+    if fmt.lower() in ["list"]:
+        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=True)
+    if fmt.lower() in ["xlsx", "xls"]:
+        lines = tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',')
+    return tabtoGFM(data, headers, selects, legend=legend)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
