@@ -874,7 +874,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                                 restval='~', quoting=csv.QUOTE_MINIMAL, delimiter=tab1)
         if not noheaders:
             writer.writeheader()
-        for row in sorted(data, key=sortrow):
+        for row in sorted(rows, key=sortrow):
             rowvalues: Dict[str, str] = {}
             for name, value in asdict(row).items():
                 rowvalues[name] = format(name, value)
@@ -898,7 +898,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
                           for name in sorted(cols.keys(), key=sortkey)]
             print(" ".join(seperators).rstrip(), file=out)
-    for item in sorted(data, key=sortrow):
+    for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in asdict(item).items():
             values[name] = format(name, value)
