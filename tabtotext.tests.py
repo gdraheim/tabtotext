@@ -3880,6 +3880,282 @@ class TabToTextTest(unittest.TestCase):
                 ' {"a b c": "null+null = true"}',
                 ']']
         self.assertEqual(cond, text.splitlines())
+    def test_5705(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["{a}+{b} = {c}", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond =  ['[',
+  ' {"a b c": "\\"x\\"+3 = true", "d": 0.40},',
+  ' {"a b c": "\\"y\\"+1 = ~", "d": 0.10},',
+  ' {"a b c": "\\"y\\"+2 = false", "d": 0.30},',
+  ' {"a b c": "null+null = true", "d": 0.20}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5706(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["d", "{a}+{b} = {c}"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"d": 0.10, "a b c": "\\"y\\"+1 = ~"},',
+  ' {"d": 0.20, "a b c": "null+null = true"},',
+  ' {"d": 0.30, "a b c": "\\"y\\"+2 = false"},',
+  ' {"d": 0.40, "a b c": "\\"x\\"+3 = true"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5712(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["a|b"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {"info": "\\"x\\"+0"},', ' {"info": "~+2"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5713(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = \\"2021-12-31\\""},',
+  ' {"info": "\\"y\\"+2 = \\"2021-12-30\\""},',
+  ' {"info": "null+~ = \\"2021-12-31\\""}',
+  ']']
+    def test_5714(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true"},',
+  ' {"info": "\\"y\\"+1 = ~"},',
+  ' {"info": "\\"y\\"+2 = false"},',
+  ' {"info": "null+null = true"}',
+  ']']
+    def test_5715(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true", "d": 0.40},',
+  ' {"info": "\\"y\\"+1 = ~", "d": 0.10},',
+  ' {"info": "\\"y\\"+2 = false", "d": 0.30},',
+  ' {"info": "null+null = true", "d": 0.20}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5716(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a|b"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"d": 0.10, "info": "\\"y\\"+1 = ~"},',
+  ' {"d": 0.20, "info": "null+null = true"},',
+  ' {"d": 0.30, "info": "\\"y\\"+2 = false"},',
+  ' {"d": 0.40, "info": "\\"x\\"+3 = true"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5722(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["a@x"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {"info": "\\"x\\"+0"},', ' {"info": "~+2"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5723(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = \\"2021-12-31\\""},',
+  ' {"info": "\\"y\\"+2 = \\"2021-12-30\\""},',
+  ' {"info": "null+~ = \\"2021-12-31\\""}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5724(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true"},',
+  ' {"info": "\\"y\\"+1 = ~"},',
+  ' {"info": "\\"y\\"+2 = false"},',
+  ' {"info": "null+null = true"}',
+  ']']
+    def test_5725(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true", "d": 0.40},',
+  ' {"info": "\\"y\\"+1 = ~", "d": 0.10},',
+  ' {"info": "\\"y\\"+2 = false", "d": 0.30},',
+  ' {"info": "null+null = true", "d": 0.20}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5726(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"d": 0.10, "info": "\\"y\\"+1 = ~"},',
+  ' {"d": 0.20, "info": "null+null = true"},',
+  ' {"d": 0.30, "info": "\\"y\\"+2 = false"},',
+  ' {"d": 0.40, "info": "\\"x\\"+3 = true"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5732(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["a@x"], ["{x}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {"info": "\\"x\\"+0"},', ' {"info": "~+2"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5733(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = \\"2021-12-31\\""},',
+  ' {"info": "\\"y\\"+2 = \\"2021-12-30\\""},',
+  ' {"info": "null+~ = \\"2021-12-31\\""}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5734(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true"},',
+  ' {"info": "\\"y\\"+1 = ~"},',
+  ' {"info": "\\"y\\"+2 = false"},',
+  ' {"info": "null+null = true"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5735(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x"], ["{x}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true", "d": 0.40},',
+  ' {"info": "\\"y\\"+1 = ~", "d": 0.10},',
+  ' {"info": "\\"y\\"+2 = false", "d": 0.30},',
+  ' {"info": "null+null = true", "d": 0.20}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5736(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x"], ["d", "{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"d": 0.10, "info": "\\"y\\"+1 = ~"},',
+  ' {"d": 0.20, "info": "null+null = true"},',
+  ' {"d": 0.30, "info": "\\"y\\"+2 = false"},',
+  ' {"d": 0.40, "info": "\\"x\\"+3 = true"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5742(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["a@x|b@y"], ["{x}+{y}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {"info": "\\"x\\"+0"},', ' {"info": "~+2"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5743(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a@x|b@y"], ["{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = \\"2021-12-31\\""},',
+  ' {"info": "\\"y\\"+2 = \\"2021-12-30\\""},',
+  ' {"info": "null+~ = \\"2021-12-31\\""}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5744(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true"},',
+  ' {"info": "\\"y\\"+1 = ~"},',
+  ' {"info": "\\"y\\"+2 = false"},',
+  ' {"info": "null+null = true"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5745(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["{x}+{y} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": "\\"x\\"+3 = true", "d": 0.40},',
+  ' {"info": "\\"y\\"+1 = ~", "d": 0.10},',
+  ' {"info": "\\"y\\"+2 = false", "d": 0.30},',
+  ' {"info": "null+null = true", "d": 0.20}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5746(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["d", "{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"d": 0.10, "info": "\\"y\\"+1 = ~"},',
+  ' {"d": 0.20, "info": "null+null = true"},',
+  ' {"d": 0.30, "info": "\\"y\\"+2 = false"},',
+  ' {"d": 0.40, "info": "\\"x\\"+3 = true"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5752(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {},', ' {"info": "x"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5753(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[', ' {"info": null},', ' {"info": "x"},', ' {"info": "y"}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5754(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": null},',
+  ' {"info": "x"},',
+  ' {"info": "y"},',
+  ' {"info": "y"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5755(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["x@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": null, "d": 0.20},',
+  ' {"info": "x", "d": 0.40},',
+  ' {"info": "y", "d": 0.10},',
+  ' {"info": "y", "d": 0.30}',
+  ']']
+    def test_5756(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["d", "x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"d": 0.10, "info": "y"},',
+  ' {"d": 0.20, "info": null},',
+  ' {"d": 0.30, "info": "y"},',
+  ' {"d": 0.40, "info": "x"}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5762(self) -> None:
+        text = tabtotext.tabtoJSON(table02, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['[', ' {"mm": 2},', ' {"info": "x", "mm": 0}', ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5763(self) -> None:
+        text = tabtotext.tabtoJSON(table33, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": null},',
+  ' {"info": "x", "mm": 3},',
+  ' {"info": "y", "mm": 2}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5764(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": null, "mm": null},',
+  ' {"info": "x", "mm": 3},',
+  ' {"info": "y", "mm": 1},',
+  ' {"info": "y", "mm": 2}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5765(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["x@info|y@mm", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"info": null, "mm": null, "d": 0.20},',
+  ' {"info": "x", "mm": 3, "d": 0.40},',
+  ' {"info": "y", "mm": 1, "d": 0.10},',
+  ' {"info": "y", "mm": 2, "d": 0.30}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
+    def test_5766(self) -> None:
+        text = tabtotext.tabtoJSON(table44, ["a@x|b@y"], ["d", "x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['[',
+  ' {"d": 0.10, "info": "y", "mm": 1},',
+  ' {"d": 0.20, "info": null, "mm": null},',
+  ' {"d": 0.30, "info": "y", "mm": 2},',
+  ' {"d": 0.40, "info": "x", "mm": 3}',
+  ']']
+        self.assertEqual(cond, text.splitlines())
 
     def test_6003(self) -> None:
         text = tabtotext.tabToGFM(test003)
@@ -6016,6 +6292,230 @@ class TabToTextTest(unittest.TestCase):
                 '| y+2 = (no)',
                 '| ~+~ = (yes)']
         self.assertEqual(cond, text.splitlines())
+    def test_6705(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["{a}+{b} = {c}", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| a b c       | d', '| ----------- | -----', 
+                '| x+3 = (yes) | 0.40', '| y+1 = ~     | 0.10', 
+                '| y+2 = (no)  | 0.30', '| ~+~ = (yes) | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6706(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["d", "{a}+{b} = {c}"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| d     | a b c', '| ----- | -----------', 
+                '| 0.10  | y+1 = ~', '| 0.20  | ~+~ = (yes)', 
+                '| 0.30  | y+2 = (no)', '| 0.40  | x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6712(self) -> None:
+        text = tabtotext.tabtoGFM(table02, ["a|b"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['| info', '| -----', '| x+0', '| ~+2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6713(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond =  ['| info', '| ----------------', '| x+3 = 2021-12-31', '| y+2 = 2021-12-30', '| ~+~ = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_6714(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info', '| -----------', 
+                '| x+3 = (yes)', '| y+1 = ~', 
+                '| y+2 = (no)', '| ~+~ = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6715(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info        | d', '| ----------- | -----', 
+                '| x+3 = (yes) | 0.40', '| y+1 = ~     | 0.10', 
+                '| y+2 = (no)  | 0.30', '| ~+~ = (yes) | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6716(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a|b"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| d     | info', '| ----- | -----------', 
+                '| 0.10  | y+1 = ~', '| 0.20  | ~+~ = (yes)', 
+                '| 0.30  | y+2 = (no)', '| 0.40  | x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6722(self) -> None:
+        text = tabtotext.tabtoGFM(table02, ["a@x"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['| info', '| -----', '| x+0', '| ~+2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6723(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info', '| ----------------', 
+                '| x+3 = 2021-12-31', '| y+2 = 2021-12-30', '| ~+~ = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_6724(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info', '| -----------', 
+                '| x+3 = (yes)', '| y+1 = ~', '| y+2 = (no)', '| ~+~ = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6725(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info        | d', '| ----------- | -----', 
+                '| x+3 = (yes) | 0.40', '| y+1 = ~     | 0.10', 
+                '| y+2 = (no)  | 0.30', '| ~+~ = (yes) | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6726(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| d     | info', '| ----- | -----------', 
+                '| 0.10  | y+1 = ~', '| 0.20  | ~+~ = (yes)', 
+                '| 0.30  | y+2 = (no)', '| 0.40  | x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6732(self) -> None:
+        text = tabtotext.tabtoGFM(table02, ["a@x"], ["{x}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['| info', '| -----', '| x+0', '| ~+2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6733(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond =  ['| info', '| ----------------', '| x+3 = 2021-12-31', 
+                 '| y+2 = 2021-12-30', '| ~+~ = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_6734(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info', '| -----------', '| x+3 = (yes)', 
+                '| y+1 = ~', '| y+2 = (no)', '| ~+~ = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6735(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x"], ["{x}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info        | d', '| ----------- | -----', 
+                '| x+3 = (yes) | 0.40', 
+                '| y+1 = ~     | 0.10', 
+                '| y+2 = (no)  | 0.30', 
+                '| ~+~ = (yes) | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6736(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x"], ["d", "{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| d     | info', '| ----- | -----------', 
+                '| 0.10  | y+1 = ~', '| 0.20  | ~+~ = (yes)', 
+                '| 0.30  | y+2 = (no)', '| 0.40  | x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6742(self) -> None:
+        text = tabtotext.tabtoGFM(table02, ["a@x|b@y"], ["{x}+{y}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['| info', '| -----', '| x+0', '| ~+2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6743(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["a@x|b@y"], ["{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info',
+  '| ----------------',
+  '| x+3 = 2021-12-31',
+  '| y+2 = 2021-12-30',
+  '| ~+~ = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_6744(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info',
+  '| -----------',
+  '| x+3 = (yes)',
+  '| y+1 = ~',
+  '| y+2 = (no)',
+  '| ~+~ = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6745(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["{x}+{y} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info        | d', '| ----------- | -----', 
+              '| x+3 = (yes) | 0.40', 
+              '| y+1 = ~     | 0.10', 
+              '| y+2 = (no)  | 0.30', 
+              '| ~+~ = (yes) | 0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_6746(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["d", "{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| d     | info', '| ----- | -----------', 
+                '| 0.10  | y+1 = ~', '| 0.20  | ~+~ = (yes)', 
+                '| 0.30  | y+2 = (no)', '| 0.40  | x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_6752(self) -> None:
+        text = tabtotext.tabtoGFM(table02, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['| info', '| -----', '| ~', '| x']
+        self.assertEqual(cond, text.splitlines())
+    def test_6753(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info', '| -----', '| ~', '| x', '| y']
+        self.assertEqual(cond, text.splitlines())
+    def test_6754(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info', '| -----', '| ~', '| x', '| y', '| y']
+        self.assertEqual(cond, text.splitlines())
+    def test_6755(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["x@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info  | d',
+  '| ----- | -----',
+  '| ~     | 0.20',
+  '| x     | 0.40',
+  '| y     | 0.10',
+  '| y     | 0.30']
+        self.assertEqual(cond, text.splitlines())
+    def test_6756(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["d", "x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| d     | info',
+  '| ----- | -----',
+  '| 0.10  | y',
+  '| 0.20  | ~',
+  '| 0.30  | y',
+  '| 0.40  | x']
+        self.assertEqual(cond, text.splitlines())
+    def test_6762(self) -> None:
+        text = tabtotext.tabtoGFM(table02, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['| info  | mm', '| ----- | -----', '| ~     | 2', '| x     | 0']
+        self.assertEqual(cond, text.splitlines())
+    def test_6763(self) -> None:
+        text = tabtotext.tabtoGFM(table33, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info  | mm', '| ----- | -----', '| ~     | ~', '| x     | 3', '| y     | 2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6764(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info  | mm',
+  '| ----- | -----',
+  '| ~     | ~',
+  '| x     | 3',
+  '| y     | 1',
+  '| y     | 2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6765(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["x@info|y@mm", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| info  | mm    | d',
+  '| ----- | ----- | -----',
+  '| ~     | ~     | 0.20',
+  '| x     | 3     | 0.40',
+  '| y     | 1     | 0.10',
+  '| y     | 2     | 0.30']
+        self.assertEqual(cond, text.splitlines())
+    def test_6766(self) -> None:
+        text = tabtotext.tabtoGFM(table44, ["a@x|b@y"], ["d", "x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['| d     | info  | mm',
+  '| ----- | ----- | -----',
+  '| 0.10  | y     | 1',
+  '| 0.20  | ~     | ~',
+  '| 0.30  | y     | 2',
+  '| 0.40  | x     | 3']
+        self.assertEqual(cond, text.splitlines())
 
     def test_7003(self) -> None:
         text = tabtotext.tabToHTML(test003)
@@ -8130,6 +8630,339 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>y+2 = (no)</td></tr>',
                 '<tr><td>~+~ = (yes)</td></tr>',
                 '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7705(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"], ["{a}+{b} = {c}", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>a b c</th><th>d</th></tr>',
+  '<tr><td>x+3 = (yes)</td><td>0.40</td></tr>',
+  '<tr><td>y+1 = ~</td><td>0.10</td></tr>',
+  '<tr><td>y+2 = (no)</td><td>0.30</td></tr>',
+  '<tr><td>~+~ = (yes)</td><td>0.20</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7706(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"], ["d", "{a}+{b} = {c}"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>d</th><th>a b c</th></tr>',
+  '<tr><td>0.10</td><td>y+1 = ~</td></tr>',
+  '<tr><td>0.20</td><td>~+~ = (yes)</td></tr>',
+  '<tr><td>0.30</td><td>y+2 = (no)</td></tr>',
+  '<tr><td>0.40</td><td>x+3 = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7712(self) -> None:
+        text = tabtotext.tabtoHTML(table02, ["a|b"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+0</td></tr>',
+  '<tr><td>~+2</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7713(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+3 = 2021-12-31</td></tr>',
+  '<tr><td>y+2 = 2021-12-30</td></tr>',
+  '<tr><td>~+~ = 2021-12-31</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7714(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+3 = (yes)</td></tr>',
+  '<tr><td>y+1 = ~</td></tr>',
+  '<tr><td>y+2 = (no)</td></tr>',
+  '<tr><td>~+~ = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7715(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>d</th></tr>',
+  '<tr><td>x+3 = (yes)</td><td>0.40</td></tr>',
+  '<tr><td>y+1 = ~</td><td>0.10</td></tr>',
+  '<tr><td>y+2 = (no)</td><td>0.30</td></tr>',
+  '<tr><td>~+~ = (yes)</td><td>0.20</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7716(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a|b"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>d</th><th>info</th></tr>',
+  '<tr><td>0.10</td><td>y+1 = ~</td></tr>',
+  '<tr><td>0.20</td><td>~+~ = (yes)</td></tr>',
+  '<tr><td>0.30</td><td>y+2 = (no)</td></tr>',
+  '<tr><td>0.40</td><td>x+3 = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7722(self) -> None:
+        text = tabtotext.tabtoHTML(table02, ["a@x"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+0</td></tr>',
+  '<tr><td>~+2</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7723(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>', '<tr><th>info</th></tr>', 
+                '<tr><td>x+3 = 2021-12-31</td></tr>', 
+                '<tr><td>y+2 = 2021-12-30</td></tr>', 
+                '<tr><td>~+~ = 2021-12-31</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7724(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond =  ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+3 = (yes)</td></tr>',
+  '<tr><td>y+1 = ~</td></tr>',
+  '<tr><td>y+2 = (no)</td></tr>',
+  '<tr><td>~+~ = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7725(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>d</th></tr>',
+  '<tr><td>x+3 = (yes)</td><td>0.40</td></tr>',
+  '<tr><td>y+1 = ~</td><td>0.10</td></tr>',
+  '<tr><td>y+2 = (no)</td><td>0.30</td></tr>',
+  '<tr><td>~+~ = (yes)</td><td>0.20</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7726(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>d</th><th>info</th></tr>',
+  '<tr><td>0.10</td><td>y+1 = ~</td></tr>',
+  '<tr><td>0.20</td><td>~+~ = (yes)</td></tr>',
+  '<tr><td>0.30</td><td>y+2 = (no)</td></tr>',
+  '<tr><td>0.40</td><td>x+3 = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7732(self) -> None:
+        text = tabtotext.tabtoHTML(table02, ["a@x"], ["{x}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+0</td></tr>',
+  '<tr><td>~+2</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7733(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+3 = 2021-12-31</td></tr>',
+  '<tr><td>y+2 = 2021-12-30</td></tr>',
+  '<tr><td>~+~ = 2021-12-31</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7734(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+3 = (yes)</td></tr>',
+  '<tr><td>y+1 = ~</td></tr>',
+  '<tr><td>y+2 = (no)</td></tr>',
+  '<tr><td>~+~ = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7735(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x"], ["{x}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>d</th></tr>',
+  '<tr><td>x+3 = (yes)</td><td>0.40</td></tr>',
+  '<tr><td>y+1 = ~</td><td>0.10</td></tr>',
+  '<tr><td>y+2 = (no)</td><td>0.30</td></tr>',
+  '<tr><td>~+~ = (yes)</td><td>0.20</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7736(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x"], ["d", "{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>d</th><th>info</th></tr>',
+  '<tr><td>0.10</td><td>y+1 = ~</td></tr>',
+  '<tr><td>0.20</td><td>~+~ = (yes)</td></tr>',
+  '<tr><td>0.30</td><td>y+2 = (no)</td></tr>',
+  '<tr><td>0.40</td><td>x+3 = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7742(self) -> None:
+        text = tabtotext.tabtoHTML(table02, ["a@x|b@y"], ["{x}+{y}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+0</td></tr>',
+  '<tr><td>~+2</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7743(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["a@x|b@y"], ["{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>x+3 = 2021-12-31</td></tr>',
+  '<tr><td>y+2 = 2021-12-30</td></tr>',
+  '<tr><td>~+~ = 2021-12-31</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7744(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', 'x+3 = (yes)', 'y+1 = ~', 'y+2 = (no)', '~+~ = (yes)']
+        cond = ['<table>','<tr><th>info</th></tr>',
+  '<tr><td>x+3 = (yes)</td></tr>',
+  '<tr><td>y+1 = ~</td></tr>',
+  '<tr><td>y+2 = (no)</td></tr>',
+  '<tr><td>~+~ = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7745(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["{x}+{y} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>d</th></tr>',
+  '<tr><td>x+3 = (yes)</td><td>0.40</td></tr>',
+  '<tr><td>y+1 = ~</td><td>0.10</td></tr>',
+  '<tr><td>y+2 = (no)</td><td>0.30</td></tr>',
+  '<tr><td>~+~ = (yes)</td><td>0.20</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7746(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["d", "{x}+{y} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>d</th><th>info</th></tr>',
+  '<tr><td>0.10</td><td>y+1 = ~</td></tr>',
+  '<tr><td>0.20</td><td>~+~ = (yes)</td></tr>',
+  '<tr><td>0.30</td><td>y+2 = (no)</td></tr>',
+  '<tr><td>0.40</td><td>x+3 = (yes)</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7752(self) -> None:
+        text = tabtotext.tabtoHTML(table02, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td></td></tr>',
+  '<tr><td>x</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7753(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>~</td></tr>',
+  '<tr><td>x</td></tr>',
+  '<tr><td>y</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7754(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th></tr>',
+  '<tr><td>~</td></tr>',
+  '<tr><td>x</td></tr>',
+  '<tr><td>y</td></tr>',
+  '<tr><td>y</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7755(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["x@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>d</th></tr>',
+  '<tr><td>~</td><td>0.20</td></tr>',
+  '<tr><td>x</td><td>0.40</td></tr>',
+  '<tr><td>y</td><td>0.10</td></tr>',
+  '<tr><td>y</td><td>0.30</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7756(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["d", "x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>d</th><th>info</th></tr>',
+  '<tr><td>0.10</td><td>y</td></tr>',
+  '<tr><td>0.20</td><td>~</td></tr>',
+  '<tr><td>0.30</td><td>y</td></tr>',
+  '<tr><td>0.40</td><td>x</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7762(self) -> None:
+        text = tabtotext.tabtoHTML(table02, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>mm</th></tr>',
+  '<tr><td></td><td>2</td></tr>',
+  '<tr><td>x</td><td>0</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7763(self) -> None:
+        text = tabtotext.tabtoHTML(table33, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>mm</th></tr>',
+  '<tr><td>~</td><td></td></tr>',
+  '<tr><td>x</td><td>3</td></tr>',
+  '<tr><td>y</td><td>2</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7764(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>info</th><th>mm</th></tr>',
+  '<tr><td>~</td><td>~</td></tr>',
+  '<tr><td>x</td><td>3</td></tr>',
+  '<tr><td>y</td><td>1</td></tr>',
+  '<tr><td>y</td><td>2</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7765(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["x@info|y@mm", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info;mm;d', '~;~;0.20', 'x;3;0.40', 'y;1;0.10', 'y;2;0.30']
+        cond = ['<table>',
+  '<tr><th>info</th><th>mm</th><th>d</th></tr>',
+  '<tr><td>~</td><td>~</td><td>0.20</td></tr>',
+  '<tr><td>x</td><td>3</td><td>0.40</td></tr>',
+  '<tr><td>y</td><td>1</td><td>0.10</td></tr>',
+  '<tr><td>y</td><td>2</td><td>0.30</td></tr>',
+  '</table>']
+        self.assertEqual(cond, text.splitlines())
+    def test_7766(self) -> None:
+        text = tabtotext.tabtoHTML(table44, ["a@x|b@y"], ["d", "x@info|y@mm"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['<table>',
+  '<tr><th>d</th><th>info</th><th>mm</th></tr>',
+  '<tr><td>0.10</td><td>y</td><td>1</td></tr>',
+  '<tr><td>0.20</td><td>~</td><td>~</td></tr>',
+  '<tr><td>0.30</td><td>y</td><td>2</td></tr>',
+  '<tr><td>0.40</td><td>x</td><td>3</td></tr>',
+  '</table>']
         self.assertEqual(cond, text.splitlines())
 
     def test_7803(self) -> None:
