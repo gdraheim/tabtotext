@@ -726,6 +726,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     formats: Dict[str, str] = {}
+    renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
     for header in headers:
         combines = ""
@@ -741,6 +742,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             else:
                 name = selcol
             sortheaders += [name]  # default sort by named headers (rows)
+            if rename:
+                renameheaders[name] = rename
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
@@ -769,10 +772,33 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = ""  # only the first
     if not selects:
         selected = sortheaders
+        renaming = renameheaders
     logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
+    newsorts: Dict[str, str] = {}
+    colnames: Dict[str, str] = {}
+    for name, rename in renaming.items():
+        if "@" in rename:
+            newname, newsort = rename.split("@", 1)
+        elif rename and rename[0].isalpha():
+            newname, newsort = rename, ""
+        else:
+            newname, newsort = "", rename
+        if newname:
+            colnames[name] = newname
+        if newsort:
+            newsorts[name] = newsort
+    sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+    if newsorts:
+        for num, name in enumerate(sortcolumns):
+            if name not in newsorts:
+                if num < 10:
+                    newsorts[name] = "@%i" % num
+                else:
+                    newsorts[name] = "@%07i" % num
+        sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     # .......................................
     def rightalign(col: str) -> bool:
         if col in formats and not noright:
@@ -824,20 +850,24 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             cols["#"] = len(str(num + 1))
         skip = False
         for name, value in asdict(item).items():
-            if selected and name not in selected and "*" not in selected:
+            selname = name
+            if name in renameheaders and renameheaders[name] in selected:
+                selname = renameheaders[name]
+            if selected and selname not in selected and "*" not in selected:
                 continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
             except: pass
-            row[name] = value
-            oldlen = cols[name] if name in cols else minwidth
-            cols[name] = max(oldlen, len(format(name, value)))
+            colname = selname if selname not in colnames else colnames[selname]
+            row[colname] = value
+            oldlen = cols[colname] if colname in cols else minwidth
+            cols[colname] = max(oldlen, len(format(colname, value)))
         if not skip:
             rows.append(row)
     def sortkey(header: str) -> str:
-        if header in selected:
-            num = selected.index(header)
+        if header in selcolumns:
+            num = selcolumns.index(header)
             if num < 10:
                 return ":%i" % num
             else:
@@ -845,7 +875,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         return header
     def sortrow(row: Dict[str, CellValue]) -> str:
         item = asdict(row)
-        sorts = sortheaders
+        sorts = sortcolumns
         if sorts:
             sortvalue = ""
             for sort in sorts:
