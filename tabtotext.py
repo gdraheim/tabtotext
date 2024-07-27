@@ -592,28 +592,19 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         logg.debug("combined : %s", combined)
         logg.debug("freecols : %s", freecols)
         logg.debug("renaming : %s", renaming)
-    reorders: Dict[str, str] = {}
     newsorts: Dict[str, str] = {}
     colnames: Dict[str, str] = {}
     for name, rename in renaming.items():
         if "@" in rename:
-            newname, neworder = rename.split("@", 1)
+            newname, newsort = rename.split("@", 1)
         elif rename and rename[0].isalpha():
-            newname, neworder = rename, ""
+            newname, newsort = rename, ""
         else:
-            newname, neworder = "", rename
+            newname, newsort = "", rename
         if newname:
             colnames[name] = newname
-        if neworder:
-            if ":" in neworder:
-                neworder, newsort = neworder.split(":", 1)
-            else:
-                newsort = neworder
-            if newsort:
-                newsorts[name] = newsort
-            if neworder:
-                reorders[name] = neworder
-    logg.debug("reorders = %s", reorders)
+        if newsort:
+            newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
     if sorts:
@@ -629,7 +620,6 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                         newsorts[name] = "@%07i" % num
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
-    logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -638,7 +628,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         format = FormatGFM(formats, tab=tab)
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
-    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorders or reorder)
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -969,28 +959,19 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         logg.debug("combined : %s", combined)
         logg.debug("freecols : %s", freecols)
         logg.debug("renaming : %s", renaming)
-    reorders: Dict[str, str] = {}
     newsorts: Dict[str, str] = {}
     colnames: Dict[str, str] = {}
     for name, rename in renaming.items():
         if "@" in rename:
-            newname, neworder = rename.split("@", 1)
+            newname, newsort = rename.split("@", 1)
         elif rename and rename[0].isalpha():
-            newname, neworder = rename, ""
+            newname, newsort = rename, ""
         else:
-            newname, neworder = "", rename
+            newname, newsort = "", rename
         if newname:
             colnames[name] = newname
-        if neworder:
-            if ":" in neworder:
-                neworder, newsort = neworder.split(":", 1)
-            else:
-                newsort = neworder
-            if newsort:
-                newsorts[name] = newsort
-            if neworder:
-                reorders[name] = neworder
-    logg.debug("reorders = %s", reorders)
+        if newsort:
+            newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
     if sorts:
@@ -1006,7 +987,6 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%07i" % num
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
-    logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1015,7 +995,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = FormatHTML(formats)
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
-    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorders or reorder)
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -1354,28 +1334,19 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         renaming = renameheaders
         logg.debug("freecols : %s", freecols)
         logg.debug("renaming : %s", renaming)
-    reorders: Dict[str, str] = {}
     newsorts: Dict[str, str] = {}
     colnames: Dict[str, str] = {}
     for name, rename in renaming.items():
         if "@" in rename:
-            newname, neworder = rename.split("@", 1)
+            newname, newsort = rename.split("@", 1)
         elif rename and rename[0].isalpha():
-            newname, neworder = rename, ""
+            newname, newsort = rename, ""
         else:
-            newname, neworder = "", rename
+            newname, newsort = "", rename
         if newname:
             colnames[name] = newname
-        if neworder:
-            if ":" in neworder:
-                neworder, newsort = neworder.split(":", 1)
-            else:
-                newsort = neworder
-            if newsort:
-                newsorts[name] = newsort
-            if neworder:
-                reorders[name] = neworder
-    logg.debug("reorders = %s", reorders)
+        if newsort:
+            newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
     if sorts:
@@ -1391,7 +1362,6 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%07i" % num
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
-    logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1402,7 +1372,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         logg.debug("legend is ignored for JSON output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
-    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorders or reorder)
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -1635,28 +1605,19 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         renaming = renameheaders
         logg.debug("freecols : %s", freecols)
         logg.debug("renaming : %s", renaming)
-    reorders: Dict[str, str] = {}
     newsorts: Dict[str, str] = {}
     colnames: Dict[str, str] = {}
     for name, rename in renaming.items():
         if "@" in rename:
-            newname, neworder = rename.split("@", 1)
+            newname, newsort = rename.split("@", 1)
         elif rename and rename[0].isalpha():
-            newname, neworder = rename, ""
+            newname, newsort = rename, ""
         else:
-            newname, neworder = "", rename
+            newname, newsort = "", rename
         if newname:
             colnames[name] = newname
-        if neworder:
-            if ":" in neworder:
-                neworder, newsort = neworder.split(":", 1)
-            else:
-                newsort = neworder
-            if newsort:
-                newsorts[name] = newsort
-            if neworder:
-                reorders[name] = neworder
-    logg.debug("reorders = %s", reorders)
+        if newsort:
+            newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
     if sorts:
@@ -1672,7 +1633,6 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%07i" % num
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
-    logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1683,7 +1643,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         logg.debug("legend is ignored for YAML output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
-    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorders or reorder)
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -1954,23 +1914,15 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     colnames: Dict[str, str] = {}
     for name, rename in renaming.items():
         if "@" in rename:
-            newname, neworder = rename.split("@", 1)
+            newname, newsort = rename.split("@", 1)
         elif rename and rename[0].isalpha():
-            newname, neworder = rename, ""
+            newname, newsort = rename, ""
         else:
-            newname, neworder = "", rename
+            newname, newsort = "", rename
         if newname:
             colnames[name] = newname
-        if neworder:
-            if ":" in neworder:
-                neworder, newsort = neworder.split(":", 1)
-            else:
-                newsort = neworder
-            if newsort:
-                newsorts[name] = newsort
-            if neworder:
-                reorders[name] = neworder
-    logg.debug("reorders = %s", reorders)
+        if newsort:
+            newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
     if sorts:
@@ -1986,7 +1938,6 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         newsorts[name] = "@%07i" % num
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
-    logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -1997,7 +1948,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         logg.debug("legend is ignored for TOML output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
-    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorders or reorder)
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -2297,28 +2248,19 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         logg.debug("combined : %s", combined)
         logg.debug("freecols : %s", freecols)
         logg.debug("renaming : %s", renaming)
-    reorders: Dict[str, str] = {}
     newsorts: Dict[str, str] = {}
     colnames: Dict[str, str] = {}
     for name, rename in renaming.items():
         if "@" in rename:
-            newname, neworder = rename.split("@", 1)
+            newname, newsort = rename.split("@", 1)
         elif rename and rename[0].isalpha():
-            newname, neworder = rename, ""
+            newname, newsort = rename, ""
         else:
-            newname, neworder = "", rename
+            newname, newsort = "", rename
         if newname:
             colnames[name] = newname
-        if neworder:
-            if ":" in neworder:
-                neworder, newsort = neworder.split(":", 1)
-            else:
-                newsort = neworder
-            if newsort:
-                newsorts[name] = newsort
-            if neworder:
-                reorders[name] = neworder
-    logg.debug("reorders = %s", reorders)
+        if newsort:
+            newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
     if sorts:
@@ -2334,7 +2276,6 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                         newsorts[name] = "@%07i" % num
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
-    logg.debug("reorders : %s", reorders)
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
@@ -2345,7 +2286,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         logg.debug("legend is ignored for CSV output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
-    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorders or reorder)
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}

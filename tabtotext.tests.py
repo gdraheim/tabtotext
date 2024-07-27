@@ -863,19 +863,6 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
-    def test_4146(self) -> None:
-        out = StringIO()
-        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'], defaultformat="csv")
-        logg.info("print_tabtotext %s", res)
-        text = out.getvalue()
-        logg.debug("%s => %s", test004, text)
-        cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ]  # column a is now first
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
-        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
     def test_4171(self) -> None:
         out = StringIO()
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -2393,19 +2380,6 @@ class TabToTextTest(unittest.TestCase):
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
         out = StringIO()
         res = tabtotext.print_tabtotext(out, itemlist, ['a@:2', 'b@:1'], defaultformat="json")
-        logg.info("print_tabtotext %s", res)
-        text = out.getvalue()
-        logg.debug("%s => %s", test004, text)
-        cond = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
-        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
-    def test_5147(self) -> None:
-        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        out = StringIO()
-        res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'], defaultformat="json")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -4965,23 +4939,6 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
-    def test_6146(self) -> None:
-        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        out = StringIO()
-        res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'])
-        logg.info("print_tabtotext %s", res)
-        text = out.getvalue()
-        logg.debug("%s => %s", test004, text)
-        cond = ['| a     | b     | c',
-                '| ----- | ----- | -----',
-                '| y     | 1     | ~',
-                '| x     | 2     | ~',
-                '| ~     | ~     | h', ]
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
-        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
     def test_6171(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
@@ -5135,7 +5092,7 @@ class TabToTextTest(unittest.TestCase):
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6222)
-        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
+        cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         del back[0]["a"]
@@ -5148,7 +5105,7 @@ class TabToTextTest(unittest.TestCase):
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6223)
-        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
+        cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 1     | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         del back[0]["a"]
@@ -5161,7 +5118,7 @@ class TabToTextTest(unittest.TestCase):
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6224)
-        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
+        cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 1     | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         del back[0]["a"]
@@ -5169,12 +5126,12 @@ class TabToTextTest(unittest.TestCase):
     date_for_6225: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_6225(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6225, ["b", "a@@1:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6225, ["b", "a@@:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6225)
-        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 3']
+        cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         del back[0]["a"]
@@ -5182,12 +5139,12 @@ class TabToTextTest(unittest.TestCase):
     date_for_6226: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_6226(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6226, ["b@@3:3", "a@@1:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6226, ["b@@:3", "a@@:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6226)
-        cond = ['| a     | b', '| ----- | -----', '| ~     | 2', '| x     | 1']
+        cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 1     | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         del back[0]["a"]
@@ -5195,19 +5152,19 @@ class TabToTextTest(unittest.TestCase):
     date_for_6231: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6231(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6231, ["b@@3:1", "a@@1:3"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6231, ["b@@:1", "a@@:3"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6231)
-        cond = ['| a     | b', '| ----- | -----', '| y     | 2', '| x     | 3']
+        cond = ['| b     | a', '| ----- | -----', '| 2     | y', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
     date_for_6232: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6232(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6232, ["b@@1:3", "a@@3:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6232, ["b@@:3", "a@@:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5219,19 +5176,19 @@ class TabToTextTest(unittest.TestCase):
     date_for_6241: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6241(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6241, ["b:02i@@3:1", "a:s@@1:3"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6241, ["b:02i@@:1", "a:s@@:3"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6241)
-        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
     date_for_6242: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6242(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6242, ["b:02i@@1:3", "a:s@@3:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6242, ["b:02i@@:3", "a:s@@:1"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5243,7 +5200,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6243: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6243(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6243, ["b@@3:1", "a@@1:3"], [
+        res = tabtotext.print_tabtotext(out, self.date_for_6243, ["b@@:1", "a@@:3"], [
                                         "b:02i", "a:s"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
@@ -5257,7 +5214,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6244: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6244(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6244, ["b@@1:3", "a@@3:1"], [
+        res = tabtotext.print_tabtotext(out, self.date_for_6244, ["b@@:3", "a@@:1"], [
                                         "b:02i", "a:s"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
@@ -5270,7 +5227,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6245: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6245(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6245, ["b@@3:1", "a@@1:3"], [
+        res = tabtotext.print_tabtotext(out, self.date_for_6245, ["b@@:1", "a@@:3"], [
                                         "a:s", "b:02i", ])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
@@ -5283,7 +5240,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6246: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6246(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6246, ["b@@1:3", "a@@3:1"], [
+        res = tabtotext.print_tabtotext(out, self.date_for_6246, ["b@@:3", "a@@:1"], [
                                         "a:s", "b:02i"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
@@ -5297,7 +5254,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6247: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6247(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6247, ["b@@3:1", "a@@1:3"], [
+        res = tabtotext.print_tabtotext(out, self.date_for_6247, ["b@@:1", "a@@:3"], [
                                         "a:s@@4:1", "b:02i", ])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
@@ -5311,7 +5268,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6248: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6248(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6248, ["b@@1:3", "a@@3:1"], [
+        res = tabtotext.print_tabtotext(out, self.date_for_6248, ["b@@:3", "a@@:1"], [
                                         "a:s@@1:4", "b:02i"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
@@ -5325,14 +5282,14 @@ class TabToTextTest(unittest.TestCase):
     def test_6251(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.date_for_6251, ["b:02i@@3:1", "a:s@@1:3"])
+        res = tabtotext.print_tabtotext(out, self.date_for_6251, ["b:02i@@:1", "a:s@@:3"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
         text = open(out).read()
         logg.debug("%s => %s", res, text)
         want = rev(self.date_for_6251)
-        cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
+        cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
@@ -5340,7 +5297,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6252(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.date_for_6252, ["b:02i@@1:3", "a:s@@3:1"])
+        res = tabtotext.print_tabtotext(out, self.date_for_6252, ["b:02i@@:3", "a:s@@:1"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
@@ -5355,7 +5312,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6253(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.date_for_6253, ["b@@3:1", "a@@1:3"], ["b:02i", "a:s"])
+        res = tabtotext.print_tabtotext(out, self.date_for_6253, ["b@@:1", "a@@:3"], ["b:02i", "a:s"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
@@ -5371,7 +5328,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6254(self) -> None:
         tmp = self.testdir()
         out = path.join(tmp, "output.md")
-        res = tabtotext.print_tabtotext(out, self.date_for_6254, ["b@@1:3", "a@@3:1"], ["b:02i", "a:s"])
+        res = tabtotext.print_tabtotext(out, self.date_for_6254, ["b@@:3", "a@@:1"], ["b:02i", "a:s"])
         logg.info("print_tabtotext %s", res)
         size = path.getsize(out)
         logg.info("generated [%s] %s", size, out)
@@ -7202,20 +7159,6 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['<table>', '<tr><th>b</th><th>a</th><th>c</th></tr>', '<tr><td>1</td><td>y</td><td></td></tr>',
                 '<tr><td>2</td><td>x</td><td></td></tr>', '<tr><td></td><td></td><td>h</td></tr>', '</table>']
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadHTML(text)
-        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': 'h'}, ]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
-    def test_7146(self) -> None:
-        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
-        out = StringIO()
-        res = tabtotext.print_tabtotext(out, itemlist, ['b@2:1', 'a@1:2'], defaultformat="html")
-        logg.info("print_tabtotext %s", res)
-        text = out.getvalue()
-        logg.debug("%s => %s", test004, text)
-        cond = ['<table>', '<tr><th>a</th><th>b</th><th>c</th></tr>', '<tr><td>y</td><td>1</td><td></td></tr>',
-                '<tr><td>x</td><td>2</td><td></td></tr>', '<tr><td></td><td></td><td>h</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': 'h'}, ]
