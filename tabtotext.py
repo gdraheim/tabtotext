@@ -458,19 +458,19 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
         for header in sorts:
-            if "@" in header:
-                names, renamed = header.split("@", 1)
-                if renamed:
-                    rename = "@" + renamed
-            else:
-                names, rename = header, ""
             cols: List[str] = []
-            for name in names.split("|"):
-                if name in formats:
-                    cols += [name + ":" + formats[name]]
+            for headercol in header.split("|"):
+                if "@" in headercol:
+                    name, suffix = headercol.split("@", 1)
+                    if suffix:
+                        renames = "@" + suffix
                 else:
-                    cols += [name]
-            headers += ["|".join(cols) + rename]
+                    name, renames = headercol, ""
+                if name in formats:
+                    cols += [name + ":" + formats[name] + renames]
+                else:
+                    cols += [name + renames]
+            headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
@@ -825,18 +825,19 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
     combined: List[str] = []
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
         for header in sorts:
-            if "@" in header:
-                names, renamed = header.split("@", 1)
-                if renamed:
-                    rename = "@" + renamed
-            else:
-                names, rename = header, ""
+            logg.info(" = header = %s", header)
             cols: List[str] = []
-            for name in names.split("|"):
-                if name in formats:
-                    cols += [name + ":" + formats[name]]
+            for headercol in header.split("|"):
+                if "@" in headercol:
+                    name, suffix = headercol.split("@", 1)
+                    if suffix:
+                        renames = "@" + suffix
                 else:
-                    cols += [name]
+                    name, renames = headercol, ""
+                if name in formats:
+                    cols += [name + ":" + formats[name] + renames]
+                else:
+                    cols += [name + renames]
                 if name in combine:
                     adds = combine[name]
                     if adds in formats:
@@ -844,11 +845,7 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
                     else:
                         cols += [adds]
                     combined += [adds]
-            headers += ["|".join(cols) + rename]
-        for name in combine:
-            if name not in combined:
-                adds = combine[name]
-                headers += [name + "|" + adds]
+            headers += ["|".join(cols)]
         logg.debug("headers = %s", headers)
         logg.debug("combine < %s", combine)
     else:
@@ -1240,19 +1237,19 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
         for header in sorts:
-            if "@" in header:
-                names, renamed = header.split("@", 1)
-                if renamed:
-                    rename = "@" + renamed
-            else:
-                names, rename = header, ""
             cols: List[str] = []
-            for name in names.split("|"):
-                if name in formats:
-                    cols += [name + ":" + formats[name]]
+            for headercol in header.split("|"):
+                if "@" in headercol:
+                    name, suffix = headercol.split("@", 1)
+                    if suffix:
+                        renames = "@" + suffix
                 else:
-                    cols += [name]
-            headers += ["|".join(cols) + rename]
+                    name, renames = headercol, ""
+                if name in formats:
+                    cols += [name + ":" + formats[name] + renames]
+                else:
+                    cols += [name + renames]
+            headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
@@ -1521,19 +1518,19 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
         for header in sorts:
-            if "@" in header:
-                names, renamed = header.split("@", 1)
-                if renamed:
-                    rename = "@" + renamed
-            else:
-                names, rename = header, ""
             cols: List[str] = []
-            for name in names.split("|"):
-                if name in formats:
-                    cols += [name + ":" + formats[name]]
+            for headercol in header.split("|"):
+                if "@" in headercol:
+                    name, suffix = headercol.split("@", 1)
+                    if suffix:
+                        renames = "@" + suffix
                 else:
-                    cols += [name]
-            headers += ["|".join(cols) + rename]
+                    name, renames = headercol, ""
+                if name in formats:
+                    cols += [name + ":" + formats[name] + renames]
+                else:
+                    cols += [name + renames]
+            headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
@@ -1836,19 +1833,18 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
         for header in sorts:
-            if "@" in header:
-                names, renamed = header.split("@", 1)
-                if renamed:
-                    rename = "@" + renamed
-            else:
-                names, rename = header, ""
             cols: List[str] = []
-            for name in names.split("|"):
-                if name in formats:
-                    cols += [name + ":" + formats[name]]
+            for headercol in header.split("|"):
+                if "@" in headercol:
+                    name, suffix = headercol.split("@", 1)
+                    if suffix:
+                        renames = "@" + suffix
                 else:
-                    cols += [name]
-            headers += ["|".join(cols) + rename]
+                    name, renames = headercol, ""
+                if name in formats:
+                    cols += [name + ":" + formats[name] + renames]
+                else:
+                    cols += [name + renames]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
@@ -2166,19 +2162,19 @@ def tabToCSV(result: Iterable[JSONDict],  # ..
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
         for header in sorts:
-            if "@" in header:
-                names, renamed = header.split("@", 1)
-                if renamed:
-                    rename = "@" + renamed
-            else:
-                names, rename = header, ""
             cols: List[str] = []
-            for name in names.split("|"):
-                if name in formats:
-                    cols += [name + ":" + formats[name]]
+            for headercol in header.split("|"):
+                if "@" in headercol:
+                    name, suffix = headercol.split("@", 1)
+                    if suffix:
+                        renames = "@" + suffix
                 else:
-                    cols += [name]
-            headers += ["|".join(cols) + rename]
+                    name, renames = headercol, ""
+                if name in formats:
+                    cols += [name + ":" + formats[name] + renames]
+                else:
+                    cols += [name + renames]
+            headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
     else:
         sorting = sorts
