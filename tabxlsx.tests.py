@@ -33,7 +33,7 @@ except ImportError as e:
 
 # ..............................
 from tabxlsx import print_tabtotext, CellValue
-from tabxlsx import load_workbook, save_workbook, write_workbook, read_workbook
+from tabxlsx import load_workbook, save_workbook, write_workbook, tabtextfileXLSX
 from tabtotext import loadCSV, loadGFM
 
 def get_caller_name() -> str:
@@ -659,7 +659,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test011Q
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9772(self) -> None:
@@ -671,7 +671,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test012
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9773(self) -> None:
@@ -683,7 +683,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test013
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9774(self) -> None:
@@ -695,7 +695,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test014
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9775(self) -> None:
@@ -707,7 +707,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test015
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9776(self) -> None:
@@ -719,7 +719,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test016
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9777(self) -> None:
@@ -731,7 +731,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test017
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9778(self) -> None:
@@ -743,7 +743,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test018Q
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9779(self) -> None:
@@ -755,7 +755,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
         want = test019
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9781(self) -> None:
@@ -767,7 +767,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test011Q
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         # self.rm_testdir()
     def test_9782(self) -> None:
@@ -778,7 +778,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test012
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         logg.info("data = %s", back)
         self.rm_testdir()
@@ -790,7 +790,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test013
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9784(self) -> None:
@@ -801,7 +801,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test014
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9785(self) -> None:
@@ -812,7 +812,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test015
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9786(self) -> None:
@@ -823,7 +823,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test016
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9787(self) -> None:
@@ -834,7 +834,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test017
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9788(self) -> None:
@@ -845,7 +845,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         want = test018Q
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
     def test_9789(self) -> None:
@@ -862,7 +862,7 @@ class TabXlsxTest(unittest.TestCase):
                 logg.info("xmldata = %s", xmldata)
         #
         want = test019
-        back = read_workbook(filename)
+        back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         # self.rm_testdir()
 
