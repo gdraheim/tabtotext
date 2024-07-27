@@ -674,9 +674,10 @@ def unmatched(value: CellValue, cond: str) -> bool:
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selects: List[str] = [], 
-                    *, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+                    *, minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
+    minwidth = minwidth or MINWIDTH
     def detectfileformat(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
         if ext in [".txt", ".md", ".markdown"]:
@@ -718,7 +719,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     none_string = "~"
     true_string = "(yes)"
     false_string = "(no)"
-    minwidth = MINWIDTH
     floatfmt = "%4.2f"
     noright = fmt in ["data"]
     noheaders = noheaders or fmt in ["data", "text", "list"]
@@ -861,7 +861,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else max(minwidth, colname)
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         if not skip:
             rows.append(row)

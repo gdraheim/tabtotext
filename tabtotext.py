@@ -480,9 +480,10 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-             *, legend: LegendList = [], noheaders: bool = False, unique: bool = False, tab: str = "|",  #
+             *, legend: LegendList = [], minwidth: int = 0, noheaders: bool = False, unique: bool = False, tab: str = "|",  #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoGFM:")
+    minwidth = minwidth or MINWIDTH
     renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
@@ -524,7 +525,6 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 combine[combines] += [name]
             if rename:
                 renameheaders[name] = rename
-                rename = ""  # only the first
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -573,7 +573,6 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = ""  # only the first
             if not combines:
                 combines = name
             elif combines not in combined:
@@ -650,7 +649,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else MINWIDTH
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
             try:
@@ -665,7 +664,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 value = freeformat.format(**freeitem)
                 colname = freecol if freecol not in colnames else colnames[freecol]
                 row[colname] = value
-                oldlen = cols[colname] if colname in cols else MINWIDTH
+                oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
@@ -846,8 +845,10 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [],
+              *, legend: LegendList = [], minwidth: int = 0,
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    logg.debug("tabtoHTML")
+    minwidth = minwidth or MINWIDTH
     renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
@@ -889,7 +890,6 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 combine[combines] += [name]
             if rename:
                 renameheaders[name] = rename
-                rename = ""  # only the first
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -940,7 +940,6 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = ""  # only the first
             if not combines:
                 combines = name
             elif combines not in combined:
@@ -1017,7 +1016,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else MINWIDTH
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
             try:
@@ -1032,7 +1031,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 value = freeformat.format(**freeitem)
                 colname = freecol if freecol not in colnames else colnames[freecol]
                 row[colname] = value
-                oldlen = cols[colname] if colname in cols else MINWIDTH
+                oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
@@ -1239,8 +1238,9 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], datedelim: str = '-',
+              *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    minwidth = minwidth or MINWIDTH
     logg.debug("tabtoJSON:")
     renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
@@ -1276,7 +1276,6 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             sortheaders += [name]  # default sort by named headers (rows)
             if rename:
                 renameheaders[name] = rename
-                rename = ""  # only the first
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -1324,7 +1323,6 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = ""  # only the first
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
     logg.debug("selected = %s", selected)
@@ -1394,7 +1392,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else MINWIDTH
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
             try:
@@ -1409,7 +1407,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 value = freeformat.format(**freeitem)
                 colname = freecol if freecol not in colnames else colnames[freecol]
                 row[colname] = value
-                oldlen = cols[colname] if colname in cols else MINWIDTH
+                oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
@@ -1510,8 +1508,9 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], datedelim: str = '-',  #
+              *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',  #
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    minwidth = minwidth or MINWIDTH
     logg.debug("tabtoYAML:")
     renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
@@ -1547,7 +1546,6 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             sortheaders += [name]  # default sort by named headers (rows)
             if rename:
                 renameheaders[name] = rename
-                rename = ""  # only the first
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -1595,7 +1593,6 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = ""  # only the first
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
     logg.debug("selected = %s", selected)
@@ -1665,7 +1662,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else MINWIDTH
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
             try:
@@ -1680,7 +1677,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 value = freeformat.format(**freeitem)
                 colname = freecol if freecol not in colnames else colnames[freecol]
                 row[colname] = value
-                oldlen = cols[colname] if colname in cols else MINWIDTH
+                oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
@@ -1814,8 +1811,9 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
                      reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], datedelim: str = '-',
+              *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    minwidth = minwidth or MINWIDTH
     logg.debug("tabtoGFM:")
     renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
@@ -1851,7 +1849,6 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             sortheaders += [name]  # default sort by named headers (rows)
             if rename:
                 renameheaders[name] = rename
-                rename = ""  # only the first
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -1899,7 +1896,6 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = ""  # only the first
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
     logg.debug("selected = %s", selected)
@@ -1970,7 +1966,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else MINWIDTH
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
             try:
@@ -1985,7 +1981,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 value = freeformat.format(**freeitem)
                 colname = freecol if freecol not in colnames else colnames[freecol]
                 row[colname] = value
-                oldlen = cols[colname] if colname in cols else MINWIDTH
+                oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
@@ -2135,8 +2131,9 @@ def tabToCSV(result: Iterable[JSONDict],  # ..
                     reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, unique: bool = False, tab: str = ";",
+             *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-', noheaders: bool = False, unique: bool = False, tab: str = ";",
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    minwidth = minwidth or MINWIDTH
     logg.debug("tabtoCSV:")
     renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
@@ -2179,7 +2176,6 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 combine[combines] += [name]
             if rename:
                 renameheaders[name] = rename
-                rename = ""  # only the first
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -2229,7 +2225,6 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             selected.append(name)
             if rename:
                 renaming[name] = rename
-                rename = ""  # only the first
             if not combines:
                 combines = name
             elif combines not in combined:
@@ -2309,7 +2304,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else MINWIDTH
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
             try:
@@ -2324,7 +2319,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 value = freeformat.format(**freeitem)
                 colname = freecol if freecol not in colnames else colnames[freecol]
                 row[colname] = value
-                oldlen = cols[colname] if colname in cols else MINWIDTH
+                oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
