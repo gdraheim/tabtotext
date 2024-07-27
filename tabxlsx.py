@@ -469,25 +469,18 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
     sortheaders: List[str] = []
     headerorder: Dict[str, str] = {}
     formattings: Dict[str, str] = {}
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcol, rename = header.split("@", 1)
-            if "@" in rename:
-                rename, orders = rename.split("@", 1)
+    for header in headers:
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
             else:
-                rename, orders = rename, ""
-        else:
-            selcol, rename, orders = header, "", ""
-        if ":" in selcol:
-            name, fmt = selcol.split(":", 1)
-            formattings[name] = fmt
-        else:
-            name = selcol
-        sortheaders += [name]  # default sort by named headers (rows)
-        if headernum < 10:  # and default order by named headers (cols)
-            headerorder[name] = orders or "@%i" % headernum
-        else:
-            headerorder[name] = orders or "@:%07i" % headernum
+                selcol, rename = selheader, ""
+            if ":" in selcol:
+                name, fmt = selcol.split(":", 1)
+                formattings[name] = fmt
+            else:
+                name = selcol
+            sortheaders += [name]  # default sort by named headers (rows)
     def strNone(value: CellValue) -> str:
         if isinstance(value, Time):
             return value.strftime(TIMEFMT)
@@ -495,8 +488,12 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
             return value.strftime(DATEFMT)
         return str(value)
     def sortkey(header: str) -> str:
-        if header in headerorder:
-            return headerorder[header]
+        if header in sortheaders:
+            num = sortheaders.index(header)
+            if num < 10:
+                return ":%i" % num
+            else:
+                return "::%07i" % num
         return header
     def sortrow(row: Dict[str, CellValue]) -> str:
         def asdict(item: Dict[str, CellValue]) -> Dict[str, CellValue]:
@@ -730,12 +727,13 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     formats: Dict[str, str] = {}
     sortheaders: List[str] = []
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcols, rename = header.split("@", 1)
-        else:
-            selcols, rename = header, ""
-        for colnum, selcol in enumerate(selcols.split("|")):
+    for header in headers:
+        combines = ""
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
+            else:
+                selcol, rename = selheader, ""
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 fmt = form if "{" in form else ("{:" + form + "}")
@@ -746,12 +744,13 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
     selected: List[str] = []
-    for selec in selects:
-        if "@" in selec:
-            selcols, rename = selec.split("@", 1)
-        else:
-            selcols, rename = selec, ""
-        for selcol in selcols.split("|"):
+    for selecheader in selects:
+        combines = ""
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 fmt = form if "{" in form else ("{:" + form + "}")

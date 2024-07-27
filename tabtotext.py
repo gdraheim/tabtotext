@@ -488,13 +488,13 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
     freehdrs: Dict[str, str] = {}
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcols, rename = header.split("@", 1)
-        else:
-            selcols, rename = header, ""
+    for header in headers:
         combines = ""
-        for colnum, selcol in enumerate(selcols.split("|")):
+        for headercol in header.split("|"):
+            if "@" in headercol:
+                selcol, rename = headercol.split("@", 1)
+            else:
+                selcol, rename = headercol, ""
             if "{" in selcol and "{:" not in selcol:
                 names3: List[str] = []
                 freeparts = selcol.split("{")
@@ -535,13 +535,13 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     freecols: Dict[str, str] = {}
-    for selec in selects:
-        if "@" in selec:
-            selcols, rename = selec.split("@", 1)
-        else:
-            selcols, rename = selec, ""
+    for selecheader in selects:
         combines = ""
-        for selcol in selcols.split("|"):
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
             if "{" in selcol and "{:" not in selcol:
                 names4: List[str] = []
                 freeparts = selcol.split("{")
@@ -852,13 +852,13 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
     freehdrs: Dict[str, str] = {}
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcols, rename = header.split("@", 1)
-        else:
-            selcols, rename = header, ""
+    for header in headers:
         combines = ""
-        for colnum, selcol in enumerate(selcols.split("|")):
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
+            else:
+                selcol, rename = selheader, ""
             if "{" in selcol and "{:" not in selcol:
                 names3: List[str] = []
                 freeparts = selcol.split("{")
@@ -900,13 +900,13 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     freecols: Dict[str, str] = {}
-    for selec in selects:
-        if "@" in selec:
-            selcols, rename = selec.split("@", 1)
-        else:
-            selcols, rename = selec, ""
+    for selecheader in selects:
         combines = ""
-        for selcol in selcols.split("|"):
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
             if "{" in selcol and "{:" not in selcol:
                 names4: List[str] = []
                 freeparts = selcol.split("{")
@@ -1241,16 +1241,13 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     freehdrs: Dict[str, str] = {}
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcols, rename = header.split("@", 1)
-            if "@" in rename:
-                rename, orders = rename.split("@", 1)
+    for header in headers:
+        combines = ""
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
             else:
-                rename, orders = rename, ""
-        else:
-            selcols, rename, orders = header, "", ""
-        for colnum, selcol in enumerate(selcols.split("|")):
+                selcol, rename = selheader, ""
             if "{" in selcol and "{:" not in selcol:
                 names3: List[str] = []
                 freeparts = selcol.split("{")
@@ -1283,16 +1280,13 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     freecols: Dict[str, str] = {}
-    for selec in selects:
-        if "@" in selec:
-            selcols, rename = selec.split("@", 1)
-            if "@" in rename:
-                rename, orders = rename.split("@", 1)
+    for selecheader in selects:
+        combines = ""
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
             else:
-                rename, orders = rename, ""
-        else:
-            selcols, rename, orders = selec, "", ""
-        for selcol in selcols.split("|"):
+                selcol, rename = selec, ""
             if "{" in selcol and "{:" not in selcol:
                 names4: List[str] = []
                 freeparts = selcol.split("{")
@@ -1514,12 +1508,13 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     freehdrs: Dict[str, str] = {}
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcols, rename = header.split("@", 1)
-        else:
-            selcols, rename = header, ""
-        for colnum, selcol in enumerate(selcols.split("|")):
+    for header in headers:
+        combines = ""
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
+            else:
+                selcol, rename = selheader, ""
             if "{" in selcol and "{:" not in selcol:
                 names3: List[str] = []
                 freeparts = selcol.split("{")
@@ -1552,12 +1547,13 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     freecols: Dict[str, str] = {}
-    for selec in selects:
-        if "@" in selec:
-            selcols, rename = selec.split("@", 1)
-        else:
-            selcols, rename = selec, ""
-        for selcol in selcols.split("|"):
+    for selecheader in selects:
+        combines = ""
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
             if "{" in selcol and "{:" not in selcol:
                 names4: List[str] = []
                 freeparts = selcol.split("{")
@@ -1813,12 +1809,13 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     freehdrs: Dict[str, str] = {}
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcols, rename = header.split("@", 1)
-        else:
-            selcols, rename = header, ""
-        for colnum, selcol in enumerate(selcols.split("|")):
+    for header in headers:
+        combines = ""
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
+            else:
+                selcol, rename = selheader, ""
             if "{" in selcol and "{:" not in selcol:
                 names3: List[str] = []
                 freeparts = selcol.split("{")
@@ -1851,12 +1848,13 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     freecols: Dict[str, str] = {}
-    for selec in selects:
-        if "@" in selec:
-            selcols, rename = selec.split("@", 1)
-        else:
-            selcols, rename = selec, ""
-        for selcol in selcols.split("|"):
+    for selecheader in selects:
+        combines = ""
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
             if "{" in selcol and "{:" not in selcol:
                 names4: List[str] = []
                 freeparts = selcol.split("{")
@@ -2128,13 +2126,13 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
     freehdrs: Dict[str, str] = {}
-    for headernum, header in enumerate(headers):
-        if "@" in header:
-            selcols, rename = header.split("@", 1)
-        else:
-            selcols, rename = header, ""
+    for header in headers:
         combines = ""
-        for colnum, selcol in enumerate(selcols.split("|")):
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
+            else:
+                selcol, rename = selheader, ""
             if "{" in selcol and "{:" not in selcol:
                 names3: List[str] = []
                 freeparts = selcol.split("{")
@@ -2175,13 +2173,13 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     filtered: Dict[str, str] = {}
     selected: List[str] = []
     freecols: Dict[str, str] = {}
-    for selec in selects:
-        if "@" in selec:
-            selcols, rename = selec.split("@", 1)
-        else:
-            selcols, rename = selec, ""
+    for selecheader in selects:
         combines = ""
-        for selcol in selcols.split("|"):
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
             if "{" in selcol and "{:" not in selcol:
                 names4: List[str] = []
                 freeparts = selcol.split("{")
