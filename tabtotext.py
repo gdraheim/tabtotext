@@ -2235,6 +2235,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         logg.debug("renaming : %s", renaming)
     reorders: Dict[str, str] = {}
     newsorts: Dict[str, str] = {}
+    colnames: Dict[str, str] = {}
     for name, rename in renaming.items():
         if "@" in rename:
             newname, neworder = rename.split("@", 1)
@@ -2242,6 +2243,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             newname, neworder = rename, ""
         else:
             newname, neworder = "", rename
+        if newname:
+            colnames[name] = newname
         if neworder:
             if ":" in neworder:
                 neworder, newsort = neworder.split(":", 1)
@@ -2253,10 +2256,11 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 reorders[name] = neworder
     logg.debug("reorders = %s", reorders)
     logg.debug("newsorts = %s", newsorts)
+    logg.debug("colnames = %s", colnames)
     if sorts:
         sortcolumns = sorts
     else:
-        sortcolumns = selected or sortheaders
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
@@ -2275,7 +2279,9 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         format = FormatCSV(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for CSV output")
-    sortkey = ColSortCallable(selected or sorts or sortheaders, reorders or reorder)
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorders or reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
@@ -2284,28 +2290,37 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if "#" in selected:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
+        logg.error("==>")
         skip = False
         for name, value in item.items():
-            if selected and name not in selected and "*" not in selected:
+            selname = name
+            if name in renameheaders and renameheaders[name] in selected:
+                selname = renameheaders[name]
+            if selected and selname not in selected and "*" not in selected:
                 continue
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
             except: pass
-            row[name] = value
-            oldlen = cols[name] if name in cols else MINWIDTH
-            cols[name] = max(oldlen, len(format(name, value)))
+            colname = selname if selname not in colnames else colnames[selname]
+            row[colname] = value
+            oldlen = cols[colname] if colname in cols else MINWIDTH
+            cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
             try:
                 freenames = freecol.split(" ")
                 freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
                 for name, value in item.items():
-                    if name in freenames:
-                        freeitem[name] = format(name, value)
-                freevalue = freeformat.format(**freeitem)
-                row[freecol] = freevalue
-                oldlen = cols[freecol] if freecol in cols else MINWIDTH
-                cols[freecol] = max(oldlen, len(freevalue))
+                    itemname = name
+                    if name in renameheaders and renameheaders[name] in freenames:
+                        itemname = renameheaders[name]
+                    if itemname in freenames:
+                        freeitem[itemname] = format(name, value)
+                value = freeformat.format(**freeitem)
+                colname = freecol if freecol not in colnames else colnames[freecol]
+                row[colname] = value
+                oldlen = cols[colname] if colname in cols else MINWIDTH
+                cols[colname] = max(oldlen, len(value))
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:

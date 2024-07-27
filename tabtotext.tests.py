@@ -1725,6 +1725,136 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table44, text.splitlines())
         cond = ['a b c', 'x+3 = (yes)', 'y+1 = ~', 'y+2 = (no)', '~+~ = (yes)']
         self.assertEqual(cond, text.splitlines())
+    def test_4705(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["{a}+{b} = {c}", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['a b c;d',
+                  'x+3 = (yes);0.40',
+                    'y+1 = ~;0.10',
+                    'y+2 = (no);0.30',
+                    '~+~ = (yes);0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_4706(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["d", "{a}+{b} = {c}"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['d;a b c', '0.10;y+1 = ~', '0.20;~+~ = (yes)', 
+                '0.30;y+2 = (no)', '0.40;x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_4712(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["a|b"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['info', 'x+0', '~+2']
+        self.assertEqual(cond, text.splitlines())
+    def test_4713(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', 'x+3 = 2021-12-31', 'y+2 = 2021-12-30', '~+~ = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_4714(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', 'x+3 = (yes)', 'y+1 = ~', 'y+2 = (no)', '~+~ = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_4715(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info;d',
+                  'x+3 = (yes);0.40',
+                    'y+1 = ~;0.10',
+                    'y+2 = (no);0.30',
+                    '~+~ = (yes);0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_4716(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a|b"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['d;info', '0.10;y+1 = ~', '0.20;~+~ = (yes)', 
+                '0.30;y+2 = (no)', '0.40;x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_4722(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["a@x"], ["{a}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['info', 'x+0', '~+2']
+        self.assertEqual(cond, text.splitlines())
+    def test_4723(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', 'x+3 = 2021-12-31', 'y+2 = 2021-12-30', '~+~ = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_4724(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', 'x+3 = (yes)', 'y+1 = ~', 'y+2 = (no)', '~+~ = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_4725(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["{a}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info;d',
+                  'x+3 = (yes);0.40',
+                    'y+1 = ~;0.10',
+                    'y+2 = (no);0.30',
+                    '~+~ = (yes);0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_4726(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["d", "{a}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['d;info', '0.10;y+1 = ~', '0.20;~+~ = (yes)', 
+                '0.30;y+2 = (no)', '0.40;x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_4732(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["a@x"], ["{x}+{b}@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['info', 'x+0', '~+2']
+        self.assertEqual(cond, text.splitlines())
+    def test_4733(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', 'x+3 = 2021-12-31', 'y+2 = 2021-12-30', '~+~ = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+    def test_4734(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', 'x+3 = (yes)', 'y+1 = ~', 'y+2 = (no)', '~+~ = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_4735(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["{x}+{b} = {c}@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info;d',
+                  'x+3 = (yes);0.40',
+                    'y+1 = ~;0.10',
+                    'y+2 = (no);0.30',
+                    '~+~ = (yes);0.20']
+        self.assertEqual(cond, text.splitlines())
+    def test_4736(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["d", "{x}+{b} = {c}@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['d;info', '0.10;y+1 = ~', '0.20;~+~ = (yes)', 
+                '0.30;y+2 = (no)', '0.40;x+3 = (yes)']
+        self.assertEqual(cond, text.splitlines())
+    def test_4752(self) -> None:
+        text = tabtotext.tabtoCSV(table02, ["a@x"], ["x@info"])
+        logg.debug("%s => %s", table02, text.splitlines())
+        cond = ['info', '~', 'x']
+        self.assertEqual(cond, text.splitlines())
+    def test_4753(self) -> None:
+        text = tabtotext.tabtoCSV(table33, ["a@x"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', '~', 'x', 'y']
+        self.assertEqual(cond, text.splitlines())
+    def test_4754(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info', '~', 'x', 'y', 'y']
+        self.assertEqual(cond, text.splitlines())
+    def test_4755(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["x@info", "d"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['info;d', '~;0.20', 'x;0.40', 'y;0.10', 'y;0.30']
+        self.assertEqual(cond, text.splitlines())
+    def test_4756(self) -> None:
+        text = tabtotext.tabtoCSV(table44, ["a@x"], ["d", "x@info"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        cond = ['d;info', '0.10;y', '0.20;~', '0.30;y', '0.40;x']
+        self.assertEqual(cond, text.splitlines())
 
     def test_5000(self) -> None:
         want = LIST
