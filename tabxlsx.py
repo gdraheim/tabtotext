@@ -861,7 +861,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
-            oldlen = cols[colname] if colname in cols else minwidth
+            oldlen = cols[colname] if colname in cols else max(minwidth, colname)
             cols[colname] = max(oldlen, len(format(colname, value)))
         if not skip:
             rows.append(row)
