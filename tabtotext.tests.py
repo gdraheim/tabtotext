@@ -10610,7 +10610,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(_none(want), _none(back))
-        self.rm_testdir()
+         self.rm_testdir()
 
 if __name__ == "__main__":
     # unittest.main()
