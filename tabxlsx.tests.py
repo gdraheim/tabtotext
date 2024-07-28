@@ -1031,7 +1031,7 @@ class TabXlsxTest(unittest.TestCase):
                 xmldata = zipdata.read()
                 logg.info("xmldata = %s", xmldata)
         #
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        want = rev(table33Q[:2]) + table33Q[2:]
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
@@ -1082,7 +1082,7 @@ class TabXlsxTest(unittest.TestCase):
                 xmldata = zipdata.read()
                 logg.info("xmldata = %s", xmldata)
         #
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        want = rev(table33Q[:2]) + table33Q[2:]
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()

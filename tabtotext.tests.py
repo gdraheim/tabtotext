@@ -570,8 +570,8 @@ class TabToTextTest(unittest.TestCase):
     def test_4065(self) -> None:
         text = tabtotext.tabToCSV(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;~;~', '2021-12-31;x;3']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;x;3', '2021-12-31;~;~']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
@@ -1271,11 +1271,11 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
-    def test_4464(self) -> None:
+    def test_4465(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;~;~', '2021-12-31;x;3']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;x;3', '2021-12-31;~;~']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
@@ -1306,8 +1306,8 @@ class TabToTextTest(unittest.TestCase):
     def test_4469(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["c", "a", "b"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;~;~', '2021-12-31;x;3']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;x;3', '2021-12-31;~;~']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
@@ -4800,10 +4800,12 @@ class TabToTextTest(unittest.TestCase):
     def test_6065(self) -> None:
         text = tabtotext.tabToGFM(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['| c          | a     | b', '| ---------- | ----- | -----',
-                '| 2021-12-30 | y     | 2', '| 2021-12-31 | ~     | ~',
-                '| 2021-12-31 | x     | 3']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond  = ['| c          | a     | b',
+  '| ---------- | ----- | -----',
+  '| 2021-12-30 | y     | 2',
+  '| 2021-12-31 | x     | 3',
+  '| 2021-12-31 | ~     | ~']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
@@ -5922,14 +5924,16 @@ class TabToTextTest(unittest.TestCase):
     def test_6465(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['| c          | a     | b', '| ---------- | ----- | -----',
-                '| 2021-12-30 | y     | 2', '| 2021-12-31 | ~     | ~',
-                '| 2021-12-31 | x     | 3']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['| c          | a     | b',
+  '| ---------- | ----- | -----',
+  '| 2021-12-30 | y     | 2',
+  '| 2021-12-31 | x     | 3',
+  '| 2021-12-31 | ~     | ~']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
-    def test_6465(self) -> None:
+    def test_6466(self) -> None:
         text = tabtotext.tabtoGFM(table02, ["b", "a"], ["b", "a"])
         logg.debug("%s => %s", table02, text)
         want = table02N
@@ -5957,11 +5961,11 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6469(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["c", "a"], ["c", "a", "b"])
-        logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['| c          | a     | b', '| ---------- | ----- | -----',
-                '| 2021-12-30 | y     | 2', '| 2021-12-31 | ~     | ~',
-                '| 2021-12-31 | x     | 3']
+        logg.debug("%s => %s", table33, text.splitlines())
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['| c          | a     | b', '| ---------- | ----- | -----', 
+                '| 2021-12-30 | y     | 2', '| 2021-12-31 | x     | 3', 
+                '| 2021-12-31 | ~     | ~']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
@@ -7412,11 +7416,13 @@ class TabToTextTest(unittest.TestCase):
     def test_7065(self) -> None:
         text = tabtotext.tabToHTML(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['<table>', '<tr><th>c</th><th>a</th><th>b</th></tr>',
-                '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
-                '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
-                '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>', '</table>']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['<table>',
+  '<tr><th>c</th><th>a</th><th>b</th></tr>',
+  '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
+  '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>',
+  '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
+  '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
@@ -8191,11 +8197,13 @@ class TabToTextTest(unittest.TestCase):
     def test_7465(self) -> None:
         text = tabtotext.tabtoHTML(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['<table>', '<tr><th>c</th><th>a</th><th>b</th></tr>',
-                '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
-                '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
-                '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>', '</table>']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['<table>',
+  '<tr><th>c</th><th>a</th><th>b</th></tr>',
+  '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
+  '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>',
+  '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
+  '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
@@ -8231,11 +8239,13 @@ class TabToTextTest(unittest.TestCase):
     def test_7469(self) -> None:
         text = tabtotext.tabtoHTML(table33, ["c", "a"], ["c", "a", "b"])
         logg.debug("%s => %s", table33, text)
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
-        cond = ['<table>', '<tr><th>c</th><th>a</th><th>b</th></tr>',
-                '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
-                '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
-                '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>', '</table>']
+        want = rev(table33Q[:2]) + table33Q[2:]
+        cond = ['<table>',
+  '<tr><th>c</th><th>a</th><th>b</th></tr>',
+  '<tr><td>2021-12-30</td><td>y</td><td>2</td></tr>',
+  '<tr><td>2021-12-31</td><td>x</td><td>3</td></tr>',
+  '<tr><td>2021-12-31</td><td>~</td><td></td></tr>',
+  '</table>']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
@@ -10265,7 +10275,7 @@ class TabToTextTest(unittest.TestCase):
                 xmldata = zipdata.read()
                 logg.info("xmldata = %s", xmldata)
         #
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        want = rev(table33Q[:2]) + table33Q[2:]
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
@@ -10319,7 +10329,7 @@ class TabToTextTest(unittest.TestCase):
                 xmldata = zipdata.read()
                 logg.info("xmldata = %s", xmldata)
         #
-        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        want = rev(table33Q[:2]) + table33Q[2:]
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()

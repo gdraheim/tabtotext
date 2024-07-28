@@ -354,8 +354,12 @@ class RowSortCallable:
                     elif isinstance(value, float):
                         val = "%.6f" % value
                         sortvalue += "\n" + (":" * val.index(".")) + val
+                    elif isinstance(value, Time):
+                        sortvalue += "\n" + value.strftime("%Y%m%d.%H%MS")
+                    elif isinstance(value, Date):
+                        sortvalue += "\n" + value.strftime("%Y%m%d")
                     else:
-                        sortvalue += "\n" + strJSONItem(value, self.datedelim)
+                        sortvalue += "\n" + str(value)
                 else:
                     sortvalue += "\n?"
             return sortvalue

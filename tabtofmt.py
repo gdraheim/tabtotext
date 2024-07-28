@@ -120,6 +120,10 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Dict[
                     elif isinstance(value, float):
                         val = "%.6f" % value
                         sortvalue += "\n" + (";" * val.index(".")) + val
+                    elif isinstance(value, Time):
+                        sortvalue += "\n" + value.strftime("%Y%m%d.%H%MS")
+                    elif isinstance(value, Date):
+                        sortvalue += "\n" + value.strftime("%Y%m%d")
                     else:
                         sortvalue += "\n" + strJSON(value)
                 else:

@@ -597,9 +597,9 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
                         val = "%.6f" % value
                         sortvalue += "\n" + (":" * val.index(".")) + val
                     elif isinstance(value, Time):
-                        sortvalue += "\n" + value.strftime(TIMEFMT)
+                        sortvalue += "\n" + value.strftime("%Y%m%d.%H%MS")
                     elif isinstance(value, Date):
-                        sortvalue += "\n" + value.strftime(DATEFMT)
+                        sortvalue += "\n" + value.strftime("%Y%m%d")
                     else:
                         sortvalue += "\n" + str(value)
                 else:
