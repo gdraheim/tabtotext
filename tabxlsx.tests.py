@@ -13,6 +13,8 @@ import os.path as path
 import shutil
 import json
 import inspect
+from datetime import date as Date
+from datetime import datetime as Time
 from zipfile import ZipFile
 from dataclasses import dataclass
 from io import StringIO
@@ -35,6 +37,9 @@ except ImportError as e:
 from tabtotext import loadCSV, loadGFM
 from tabxlsx import tabtoXLSX, tabtextfileXLSX
 from tabxlsx import print_tabtotext, CellValue
+
+def readFromXLSX(filename: str) -> List[Dict[str, CellValue]]:
+    return tabtextfileXLSX(filename).data
 
 def get_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back  # type: ignore
@@ -104,6 +109,45 @@ data016: DataList = [Item1(123)]
 data017: DataList = [Item1(123.4)]
 data018: DataList = [Item1(datetime.date(2021, 12, 31))]
 data019: DataList = [Item1(datetime.datetime(2021, 12, 31))]
+
+table01: JSONList = [{"a": "x"}, {"b": 1}]
+table01N: JSONList = [{'a': 'x', 'b': None}, {'a': None, 'b': 1}]
+table02: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
+table02N: JSONList = [{'a': 'x', 'b': 0}, {'a': None, 'b': 2}]
+table22: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
+table33: JSONList = [{"a": "x", "b": 3, "c": Date(2021, 12, 31)},
+                     {"b": 2, "a": "y", "c": Date(2021, 12, 30)},
+                     {"a": None, "c": Time(2021, 12, 31, 23, 34)}]
+table33Q: JSONList = [{"a": "x", "b": 3, "c": Date(2021, 12, 31)},
+                      {"b": 2, "a": "y", "c": Date(2021, 12, 30)},
+                      {"a": None, "b": None, "c": Date(2021, 12, 31)}]
+table44: JSONList = [{"a": "x", "b": 3, "c": True, "d": 0.4},
+                     {"b": 2, "a": "y", "c": False, "d": 0.3},
+                     {"a": None, "b": None, "c": True, "d": 0.2},
+                     {"a": "y", "b": 1, "d": 0.1}]
+table44N: JSONList = [{"a": "x", "b": 3, "c": True, "d": 0.4},
+                      {"b": 2, "a": "y", "c": False, "d": 0.3},
+                      {"a": None, "b": None, "c": True, "d": 0.2},
+                      {"a": "y", "b": 1, "c": None, "d": 0.1}]
+
+def _none(data: JSONList, none: str = "") -> JSONList:
+    rows: JSONList = []
+    for datarow in data:
+        row: JSONDict = datarow.copy()
+        for name, value in row.items():
+            if value is None:
+                row[name] = none
+        rows.append(row)
+    return rows
+def _date(data: JSONList, none: str = "") -> JSONList:
+    rows: JSONList = []
+    for datarow in data:
+        row: JSONDict = datarow.copy()
+        for name, value in row.items():
+            if isinstance(value, Time):
+                row[name] = value.date()
+        rows.append(row)
+    return rows
 
 class TabXlsxTest(unittest.TestCase):
     def caller_testname(self) -> str:
@@ -650,7 +694,7 @@ class TabXlsxTest(unittest.TestCase):
         del back[0]["a"]
         self.assertEqual(want, back)
 
-    def test_8711(self) -> None:
+    def test_8011(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test011)
@@ -662,7 +706,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8712(self) -> None:
+    def test_8012(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test012)
@@ -674,7 +718,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8713(self) -> None:
+    def test_8013(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test013)
@@ -686,7 +730,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8714(self) -> None:
+    def test_8014(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test014)
@@ -698,7 +742,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8715(self) -> None:
+    def test_8015(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test015)
@@ -710,7 +754,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8716(self) -> None:
+    def test_8016(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test016)
@@ -722,7 +766,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8717(self) -> None:
+    def test_8017(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test017)
@@ -734,7 +778,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8718(self) -> None:
+    def test_8018(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test018)
@@ -746,7 +790,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8719(self) -> None:
+    def test_8019(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test019)
@@ -758,7 +802,31 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8731(self) -> None:
+    def test_8023(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        want = table33Q
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8024(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table44.xlsx")
+        tabtoXLSX(filename, table44)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        want = table44N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(back))
+        self.rm_testdir()
+    def test_8031(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test011)
@@ -770,7 +838,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         # self.rm_testdir()
-    def test_8732(self) -> None:
+    def test_8032(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test012)
@@ -782,7 +850,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(want, back)
         logg.info("data = %s", back)
         self.rm_testdir()
-    def test_8733(self) -> None:
+    def test_8033(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test013)
@@ -793,7 +861,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8734(self) -> None:
+    def test_8034(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test014)
@@ -804,7 +872,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8735(self) -> None:
+    def test_8035(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test015)
@@ -815,7 +883,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8736(self) -> None:
+    def test_8036(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test016)
@@ -826,7 +894,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8737(self) -> None:
+    def test_8037(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test017)
@@ -837,7 +905,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8738(self) -> None:
+    def test_8038(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test018)
@@ -848,7 +916,7 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         self.rm_testdir()
-    def test_8739(self) -> None:
+    def test_8039(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test019)

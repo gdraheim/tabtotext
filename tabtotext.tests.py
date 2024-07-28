@@ -124,6 +124,25 @@ table44N: JSONList = [{"a": "x", "b": 3, "c": True, "d": 0.4},
                       {"a": None, "b": None, "c": True, "d": 0.2},
                       {"a": "y", "b": 1, "c": None, "d": 0.1}]
 
+def _none(data: JSONList, none: str = "") -> JSONList:
+    rows: JSONList = []
+    for datarow in data:
+        row: JSONDict = datarow.copy()
+        for name, value in row.items():
+            if value is None:
+                row[name] = none
+        rows.append(row)
+    return rows
+def _date(data: JSONList, none: str = "") -> JSONList:
+    rows: JSONList = []
+    for datarow in data:
+        row: JSONDict = datarow.copy()
+        for name, value in row.items():
+            if isinstance(value, Time):
+                row[name] = value.date()
+        rows.append(row)
+    return rows
+
 class TabToTextTest(unittest.TestCase):
     def caller_testname(self) -> str:
         name = get_caller_caller_name()
@@ -9813,7 +9832,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8711(self) -> None:
+    def test_8011(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test011)
@@ -9826,7 +9845,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8712(self) -> None:
+    def test_8012(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test012)
@@ -9839,7 +9858,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8713(self) -> None:
+    def test_8013(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test013)
@@ -9852,7 +9871,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8714(self) -> None:
+    def test_8014(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test014)
@@ -9865,7 +9884,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8715(self) -> None:
+    def test_8015(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test015)
@@ -9878,7 +9897,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8716(self) -> None:
+    def test_8016(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test016)
@@ -9891,7 +9910,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8717(self) -> None:
+    def test_8017(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test017)
@@ -9904,7 +9923,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8718(self) -> None:
+    def test_8018(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test018)
@@ -9917,7 +9936,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8719(self) -> None:
+    def test_8019(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test019)
@@ -9930,7 +9949,72 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8731(self) -> None:
+    def test_8020(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table01.xlsx")
+        tabtoXLSX(filename, table01)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        want = table01N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8021(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table02.xlsx")
+        tabtoXLSX(filename, table02)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        want = table02N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8022(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table22.xlsx")
+        tabtoXLSX(filename, table22)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        want = table22
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8023(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        want = table33Q
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8024(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table44.xlsx")
+        tabtoXLSX(filename, table44)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        want = table44N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(back))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8031(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test011, legend=["a result"])
@@ -9943,7 +10027,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         # self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8732(self) -> None:
+    def test_8032(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test012, legend=["a result"])
@@ -9956,7 +10040,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("data = %s", back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8733(self) -> None:
+    def test_8033(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test013, legend=["a result"])
@@ -9968,7 +10052,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8734(self) -> None:
+    def test_8034(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test014, legend=["a result"])
@@ -9980,7 +10064,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8735(self) -> None:
+    def test_8035(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test015, legend=["a result"])
@@ -9992,7 +10076,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8736(self) -> None:
+    def test_8036(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test016, legend=["a result"])
@@ -10004,7 +10088,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8737(self) -> None:
+    def test_8037(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test017, legend=["a result"])
@@ -10016,7 +10100,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8738(self) -> None:
+    def test_8038(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test018, legend=["a result"])
@@ -10028,7 +10112,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_8739(self) -> None:
+    def test_8039(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test019, legend=["a result"])
