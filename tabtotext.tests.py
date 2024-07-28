@@ -1907,6 +1907,18 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", table44, text.splitlines())
         cond = ['d;info;mm', '0.10;y;1', '0.20;~;~', '0.30;y;2', '0.40;x;3']
         self.assertEqual(cond, text.splitlines())
+    def test_4911(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("csv", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['a;b', 'x;2', 'y;3']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadCSV(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_4920(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@csv"])
         logg.debug("%s => %s", table01, text)
@@ -4310,6 +4322,42 @@ class TabToTextTest(unittest.TestCase):
                 ' {"d": 0.40, "info": "x", "mm": 3}',
                 ']']
         self.assertEqual(cond, text.splitlines())
+    def test_5914(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("json", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['[', ' {"a": "x", "b": 2},', ' {"a": "y", "b": 3}', ']']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadJSON(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
+    def test_5915(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("yaml", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadYAML(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
+    def test_5916(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("toml", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['[[data]]', 'a = "x"', 'b = 2', '[[data]]', 'a = "y"', 'b = 3', ]
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadTOML(text)
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
 
     def test_6003(self) -> None:
         text = tabtotext.tabToGFM(test003)
@@ -6664,6 +6712,39 @@ class TabToTextTest(unittest.TestCase):
                 '| 0.20  | ~     | ~',
                 '| 0.30  | y     | 2',
                 '| 0.40  | x     | 3']
+        self.assertEqual(cond, text.splitlines())
+    def test_6910(self) -> None:
+        item = Item2("x", 2)
+        text = tabtotext.tabToFMTx("def", item)
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b', '| ----- | -----', '| x     | 2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6911(self) -> None:
+        item = Item2("x", 2)
+        itemlist: DataList = [item]
+        text = tabtotext.tabToFMTx("def", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['| a     | b', '| ----- | -----', '| x     | 2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6918(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("tabs", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['\t a     \t b', '\t ----- \t -----', '\t x     \t 2', '\t y     \t 3']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadGFM(text, tab='\t')
+        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
+    def test_6919(self) -> None:
+        item1 = Item2("x", 2)
+        item2 = Item2("y", 3)
+        itemlist: DataList = [item1, item2]
+        text = tabtotext.tabToFMTx("wide", itemlist)
+        logg.debug("%s => %s", test004, text)
+        cond = ['a     b', 'x     2', 'y     3']
         self.assertEqual(cond, text.splitlines())
     def test_6920(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@md"])
@@ -9720,21 +9801,7 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': '"    x"', 'b': 22.0}, {'a': '"    y"', 'b': 1.0}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
-
-    def test_8690(self) -> None:
-        item = Item2("x", 2)
-        text = tabtotext.tabToFMTx("def", item)
-        logg.debug("%s => %s", test004, text)
-        cond = ['| a     | b', '| ----- | -----', '| x     | 2']
-        self.assertEqual(cond, text.splitlines())
-    def test_8691(self) -> None:
-        item = Item2("x", 2)
-        itemlist: DataList = [item]
-        text = tabtotext.tabToFMTx("def", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['| a     | b', '| ----- | -----', '| x     | 2']
-        self.assertEqual(cond, text.splitlines())
-    def test_8692(self) -> None:
+    def test_7911(self) -> None:
         item1 = Item2("x", 2)
         item2 = Item2("y", 3)
         itemlist: DataList = [item1, item2]
@@ -9744,77 +9811,9 @@ class TabToTextTest(unittest.TestCase):
                 '<tr><td>x</td><td>2</td></tr>',
                 '<tr><td>y</td><td>3</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
-    def test_8693(self) -> None:
-        item1 = Item2("x", 2)
-        item2 = Item2("y", 3)
-        itemlist: DataList = [item1, item2]
-        text = tabtotext.tabToFMTx("csv", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['a;b', 'x;2', 'y;3']
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
-        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
-    def test_8694(self) -> None:
-        item1 = Item2("x", 2)
-        item2 = Item2("y", 3)
-        itemlist: DataList = [item1, item2]
-        text = tabtotext.tabToFMTx("json", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['[', ' {"a": "x", "b": 2},', ' {"a": "y", "b": 3}', ']']
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadJSON(text)
-        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
-    def test_8695(self) -> None:
-        item1 = Item2("x", 2)
-        item2 = Item2("y", 3)
-        itemlist: DataList = [item1, item2]
-        text = tabtotext.tabToFMTx("yaml", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['data:', '- a: "x"', '  b: 2', '- a: "y"', '  b: 3', ]
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadYAML(text)
-        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
-    def test_8696(self) -> None:
-        item1 = Item2("x", 2)
-        item2 = Item2("y", 3)
-        itemlist: DataList = [item1, item2]
-        text = tabtotext.tabToFMTx("toml", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['[[data]]', 'a = "x"', 'b = 2', '[[data]]', 'a = "y"', 'b = 3', ]
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadTOML(text)
-        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
-    def test_8698(self) -> None:
-        item1 = Item2("x", 2)
-        item2 = Item2("y", 3)
-        itemlist: DataList = [item1, item2]
-        text = tabtotext.tabToFMTx("tabs", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['\t a     \t b', '\t ----- \t -----', '\t x     \t 2', '\t y     \t 3']
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab='\t')
-        want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
-        logg.info("%s => %s", want, back)
-        self.assertEqual(want, back)
-    def test_8699(self) -> None:
-        item1 = Item2("x", 2)
-        item2 = Item2("y", 3)
-        itemlist: DataList = [item1, item2]
-        text = tabtotext.tabToFMTx("wide", itemlist)
-        logg.debug("%s => %s", test004, text)
-        cond = ['a     b', 'x     2', 'y     3']
-        self.assertEqual(cond, text.splitlines())
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9771(self) -> None:
+    def test_8771(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test011)
@@ -9827,7 +9826,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9772(self) -> None:
+    def test_8772(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test012)
@@ -9840,7 +9839,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9773(self) -> None:
+    def test_8773(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test013)
@@ -9853,7 +9852,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9774(self) -> None:
+    def test_8774(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test014)
@@ -9866,7 +9865,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9775(self) -> None:
+    def test_8775(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test015)
@@ -9879,7 +9878,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9776(self) -> None:
+    def test_8776(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test016)
@@ -9892,7 +9891,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9777(self) -> None:
+    def test_8777(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test017)
@@ -9905,7 +9904,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9778(self) -> None:
+    def test_8778(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test018)
@@ -9918,7 +9917,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9779(self) -> None:
+    def test_8779(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test019)
@@ -9931,7 +9930,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9781(self) -> None:
+    def test_8781(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test011, legend=["a result"])
@@ -9944,7 +9943,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         # self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9782(self) -> None:
+    def test_8782(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test012, legend=["a result"])
@@ -9957,7 +9956,7 @@ class TabToTextTest(unittest.TestCase):
         logg.info("data = %s", back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9783(self) -> None:
+    def test_8783(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test013, legend=["a result"])
@@ -9969,7 +9968,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9784(self) -> None:
+    def test_8784(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test014, legend=["a result"])
@@ -9981,7 +9980,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9785(self) -> None:
+    def test_8785(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test015, legend=["a result"])
@@ -9993,7 +9992,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9786(self) -> None:
+    def test_8786(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test016, legend=["a result"])
@@ -10005,7 +10004,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9787(self) -> None:
+    def test_8787(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test017, legend=["a result"])
@@ -10017,7 +10016,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9788(self) -> None:
+    def test_8788(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test018, legend=["a result"])
@@ -10029,7 +10028,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
-    def test_9789(self) -> None:
+    def test_8789(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
         tabtoXLSX(filename, test019, legend=["a result"])
