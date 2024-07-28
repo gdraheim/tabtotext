@@ -433,19 +433,6 @@ if __name__ == "__main__":
         cmdline.print_help()
     else:
         for arg in args:
-            if arg in ["help"]:
-                cmdline.print_help()
-                print("\nCommands:")
-                previous = ""
-                for line in open(__file__):
-                    if previous.strip().replace("elif arg", "if arg").startswith("if arg in"):
-                        if "#" in line:
-                            print(previous.strip().split(" arg in")[1], line.strip().split("#")[1])
-                        else:
-                            print(previous.strip().split(" arg in")[1], line.strip())
-                    previous = line
-                raise SystemExit()
-            # ....
             tabtext = tabtextfile(arg, opt.inputformat)
             xlsx = arg + ".xlsx"
             saveToXLSX(xlsx, tabtext.data, tabtext.headers, opt.labels)
