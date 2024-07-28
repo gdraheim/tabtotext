@@ -254,7 +254,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
         if "#" in selected:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
-        logg.error("==>")
+        logg.error("[%s]==> %s", num, item)
         skip = False
         for name, value in item.items():
             selname = name
@@ -341,7 +341,8 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
         for name in cols:
             value = values[name]
             if value is None:
-                pass
+                # <c r="A2" s="0" t="str"><f aca="false">&quot;&quot;</f><v></v></c>
+                set_cell(ws, row, col, _Empty_String, txt_style)
             elif isinstance(value, DayOrTime):
                 set_cell(ws, row, col, value, dat_style)
             elif isinstance(value, int):

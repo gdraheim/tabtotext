@@ -651,7 +651,9 @@ def make_workbook(rows: List[Dict[str, CellValue]],
             value = values[name]
             at = {"column": col + 1, "row": row + 1}
             if value is None:
-                pass
+                ws.cell(**at).value = ""
+                ws.cell(**at).alignment = Alignment(horizontal="left")
+                ws.cell(**at).number_format = "General"
             elif isinstance(value, Time):
                 ws.cell(**at).value = value
                 ws.cell(**at).alignment = Alignment(horizontal="right")
@@ -671,7 +673,6 @@ def make_workbook(rows: List[Dict[str, CellValue]],
                 if name in formats and "$}" in formats[name]:
                     ws.cell(**at).number_format = "#,##0.00" + currency()
             else:
-                ws.cell(**at).value = value
                 ws.cell(**at).value = value
                 ws.cell(**at).alignment = Alignment(horizontal="left")
                 ws.cell(**at).number_format = "General"
