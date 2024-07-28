@@ -9,7 +9,7 @@ __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 
 __version__ = "1.6.3283"
 
 import logging
-from typing import Union, Dict, List, Any, Iterable
+from typing import Union, Dict, List, Any, Sequence, Iterable
 from tabtotext import JSONList, JSONDict, TabText, strNone
 from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable, unmatched
 from tabtotext import FormatCSV, FormatJSONItem, FormatsDict
