@@ -553,10 +553,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     if newsorts:
         for num, name in enumerate(sortcolumns):
             if name not in newsorts:
-                if num < 10:
-                    newsorts[name] = "@%i" % num
-                else:
-                    newsorts[name] = "@%07i" % num
+                newsorts[name] = ("@" * len(str(num)) + str(num))
         sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
         logg.debug("sortcolumns : %s", sortcolumns)
     if selected:
@@ -572,10 +569,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     def sortkey(header: str) -> str:
         if header in selheaders:
             num = selheaders.index(header)
-            if num < 10:
-                return ":%i" % num
-            else:
-                return "::%07i" % num
+            return ("@" * len(str(num)) + str(num))
         return header
     def sortrow(row: Dict[str, CellValue]) -> str:
         def asdict(item: Dict[str, CellValue]) -> Dict[str, CellValue]:
@@ -824,10 +818,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     if newsorts:
         for num, name in enumerate(sortcolumns):
             if name not in newsorts:
-                if num < 10:
-                    newsorts[name] = "@%i" % num
-                else:
-                    newsorts[name] = "@%07i" % num
+                newsorts[name] =  ("@" * len(str(num)) + str(num))
         sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     # .......................................
@@ -893,10 +884,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     def sortkey(header: str) -> str:
         if header in selcolumns:
             num = selcolumns.index(header)
-            if num < 10:
-                return ":%i" % num
-            else:
-                return "::%07i" % num
+            return ("@" * len(str(num)) + str(num))
         return header
     def sortrow(row: Dict[str, CellValue]) -> str:
         item = asdict(row)

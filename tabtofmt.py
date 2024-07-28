@@ -96,7 +96,8 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Dict[
                     return sortheaders[header]
             else:
                 if header in sortheaders:
-                    return "%07i" % sortheaders.index(header)
+                    num = sortheaders.index(header)
+                    return ("@" * len(str(num)) + str(num))
         return header
     def sortrow(row: JSONDict) -> str:
         item = asdict(row)

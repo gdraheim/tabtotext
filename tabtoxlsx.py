@@ -232,10 +232,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
-                    if num < 10:
-                        newsorts[name] = "@%i" % num
-                    else:
-                        newsorts[name] = "@%07i" % num
+                    newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem

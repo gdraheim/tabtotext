@@ -383,7 +383,8 @@ class ColSortCallable:
                     return sortheaders[header]
             else:
                 if header in sortheaders:
-                    return "%07i" % sortheaders.index(header)
+                    num = sortheaders.index(header)
+                    return ("@" * len(str(num)) + str(num))
         return header
 
 LegendList = Union[Dict[str, str], Sequence[str]]
@@ -613,10 +614,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
-                    if num < 10:
-                        newsorts[name] = "@%i" % num
-                    else:
-                        newsorts[name] = "@%07i" % num
+                    newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem
@@ -980,10 +978,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
-                    if num < 10:
-                        newsorts[name] = "@%i" % num
-                    else:
-                        newsorts[name] = "@%07i" % num
+                    newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem
@@ -1354,10 +1349,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
-                    if num < 10:
-                        newsorts[name] = "@%i" % num
-                    else:
-                        newsorts[name] = "@%07i" % num
+                    newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem
@@ -1624,10 +1616,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
-                    if num < 10:
-                        newsorts[name] = "@%i" % num
-                    else:
-                        newsorts[name] = "@%07i" % num
+                    newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem
@@ -1928,10 +1917,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
-                    if num < 10:
-                        newsorts[name] = "@%i" % num
-                    else:
-                        newsorts[name] = "@%07i" % num
+                    newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem
@@ -2265,10 +2251,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
-                    if num < 10:
-                        newsorts[name] = "@%i" % num
-                    else:
-                        newsorts[name] = "@%07i" % num
+                    newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem
