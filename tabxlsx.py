@@ -11,6 +11,7 @@ from io import StringIO, TextIOWrapper
 from zipfile import ZipFile, ZIP_DEFLATED
 from xml.etree import ElementTree as ET
 import os.path as fs
+import os
 import re
 
 # Actually, we implement what we need for tabtoxlsx
