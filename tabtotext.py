@@ -2417,8 +2417,8 @@ def tabtotext(data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
               *, fmt: str= "", datedelim: str = '-', tab: str = "|", minwidth: int = 0, 
               noheaders: bool = False, unique:bool = False, defaultformat: str = "") -> str:
-    hdrs = [x for x in headers if not x.startswith("@")]
-    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1)) for x in headers if x.startswith("@"))
+    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1)) for x in selects if x.startswith("@"))
+    selects = [x for x in selects if not x.startswith("@")]
     fmt = fmt if fmt not in ["", "-"] else defaultformat
     # formats
     if fmt in ["htm", "html"] or "@htm" in spec or "@html" in spec:
@@ -2458,12 +2458,20 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     if fmt in ["list"] or "@list" in spec:
         fmt = "CSV"; tab=";"; noheaders=True  # nopep8
     if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
-        fmt = "XLS"  # nopep8
+        fmt = "XLS"; tab=","  # nopep8
     # override
-    if "@tab" in spec:
-        tab = spec["@tab"]
+    if "@delimiter" in spec:
+        tab = spec["@delimiter"]
+    elif "@delim" in spec:
+        tab = spec["@delim"]
+    elif "@semicolon" in spec:
+        tab = ";"
+    elif "@colon" in spec:
+        tab = ":"
+    elif "@cut" in spec:
+        tab = "\t"
     if "@datedelim" in spec:
-        tab = spec["@datedelim"] or "-"
+        datedelim = spec["@datedelim"] or "-"
     if "@noheaders" in spec:
         noheaders = True
     if "@unique" in spec:
@@ -2472,18 +2480,18 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         legend = []
     # render
     if fmt == "HTML":
-        return tabtoHTML(data, hdrs, selects, legend=legend, minwidth=minwidth)
+        return tabtoHTML(data, headers, selects, legend=legend, minwidth=minwidth)
     if fmt == "JSON":
-        return tabtoJSON(data, hdrs, selects, datedelim=datedelim, minwidth=minwidth)
+        return tabtoJSON(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "YAML":
-        return  tabtoYAML(data, hdrs, selects, datedelim=datedelim, minwidth=minwidth)
+        return  tabtoYAML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "TOML":
-        return  tabtoTOML(data, hdrs, selects, datedelim=datedelim, minwidth=minwidth)
+        return  tabtoTOML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "CSV":
-        return  tabtoCSV(data, hdrs, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
     if fmt == "XLS":
-        return  tabtoCSV(data, hdrs, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
-    return  tabtoGFM(data, hdrs, selects, legend=legend, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+    return  tabtoGFM(data, headers, selects, legend=legend, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
@@ -2531,7 +2539,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
     if fmt in ["list"]:
         fmt = "CSV"; tab=";"; noheaders=True  # nopep8
     if fmt in ["xlsx", "xls"]:
-        fmt = "XLS"  # nopep8
+        fmt = "XLS"; tab="," # nopep8
     # render
     if fmt == "HTML":
         return tabToHTML(data, sorts, formats, selects, legend=legend)
@@ -2811,28 +2819,19 @@ if __name__ == "__main__":
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
                        help="select columns to show (a|b:.2f)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="json|yaml|html|wide|md|htm|tab|csv", default="")
-    cmdline.add_option("-O", "--output", metavar="CON", default="-", help="redirect output to filename")
+    cmdline.add_option("-o", "--output", "--format", metavar="FMT", help="(file.)json|yaml|html|wide|md|htm|tab|csv", default="")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     if not args:
         cmdline.print_help()
     else:
-        for arg in args:
-            if arg in ["help"]:
-                cmdline.print_help()
-                print("\nCommands:")
-                previous = ""
-                for line in open(__file__):
-                    if previous.strip().replace("elif arg", "if arg").startswith("if arg in"):
-                        if "#" in line:
-                            print(previous.strip().split(" arg in")[1], line.strip().split("#")[1])
-                        else:
-                            print(previous.strip().split(" arg in")[1], line.strip())
-                previous = line
-                raise SystemExit()
-            # ....
-            tabtext = tabtextfile(arg, opt.inputformat)
-            done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, unique=opt.unique, defaultformat=opt.format)
-            if done:
-                logg.log(DONE, " %s", done)
+        selects = []
+        filename = args[0]
+        if len(args) > 1:
+            selects = args[1:] + opt.labels
+        else:
+            selects = opt.labels
+        tabtext = tabtextfile(filename, opt.inputformat)
+        done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selects, noheaders=opt.noheaders, unique=opt.unique)
+        if done:
+            logg.log(DONE, " %s", done)
