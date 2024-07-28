@@ -16,6 +16,7 @@ import os.path as path
 import shutil
 import json
 import inspect
+from subprocess import getoutput as sh
 from zipfile import ZipFile
 from dataclasses import dataclass
 from io import StringIO
@@ -10522,6 +10523,93 @@ class TabToTextTest(unittest.TestCase):
         want = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_9020(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table01.xlsx")
+        tabtoXLSX(filename, table01)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        cond = ['a;b', 'x;~', '~;1']
+        cond = ['a;b', ';1', 'x;']
+        want = table01N
+        want = rev(table01N)
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadCSV(text)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_9021(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table02.xlsx")
+        tabtoXLSX(filename, table02)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        want = rev(table02N)
+        cond = ['a;b', 'x;0', '~;2']
+        cond = ['a;b', ';2', 'x;0']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadCSV(text)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_9022(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table22.xlsx")
+        tabtoXLSX(filename, table22)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        want = table22
+        cond = ['a;b', 'x;3', 'y;2']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadCSV(text)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_9023(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        want = table33Q
+        want = table33Q[2:3] + table33Q[0:1] + table33Q[1:2] 
+        cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
+        cond = ['a;b;c', ';;2021-12-31', 'x;3;2021-12-31', 'y;2;2021-12-30']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadCSV(text)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_9024(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table44.xlsx")
+        tabtoXLSX(filename, table44)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(5000, sz)
+        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        want = table44N
+        want = table44N[2:3] + table44N[0:1] + table44N[3:4]  + table44N[1:2] 
+        cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', '~;~;(yes);0.20', 'y;1;~;0.10']
+        cond = ['a;b;c;d', ';;(yes);0.20', 'x;3;(yes);0.40', 'y;1;;0.10', 'y;2;(no);0.30']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadCSV(text)
+        self.assertEqual(_none(want), _none(back))
         self.rm_testdir()
 
 if __name__ == "__main__":
