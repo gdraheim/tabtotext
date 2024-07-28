@@ -622,7 +622,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
             if selected and selname not in selected and "*" not in selected:
                 continue
             colname = selname if selname not in colnames else colnames[selname]
-            row[colname] = value # do not format the value here!
+            row[colname] = value  # do not format the value here!
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(strNone(value)))
         rows.append(row)
@@ -631,7 +631,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     return make_workbook(sortedrows, sortedcols, cols, formats)
 
 
-def make_workbook(rows: List[Dict[str, CellValue]], 
+def make_workbook(rows: List[Dict[str, CellValue]],
                   cols: List[str], colwidth: Dict[str, int],
                   formats: Dict[str, str]) -> Workbook:
     row = 0
@@ -682,11 +682,12 @@ def make_workbook(rows: List[Dict[str, CellValue]],
 
 # ...........................................................
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
-                    headers: List[str] = [], selects: List[str] = [], 
+                    headers: List[str] = [], selects: List[str] = [],
                     *, minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
-    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1)) for x in selects if x.startswith("@"))
+    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
+                                for x in selects if x.startswith("@"))
     selects = [x for x in selects if not x.startswith("@")]
     minwidth = minwidth or MINWIDTH
     def detectfileformat(filename: str) -> Optional[str]:
@@ -721,33 +722,33 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
         fmt = "GFM"  # nopep8
     if fmt in ["md2"] or "@md2" in spec:
-        fmt = "GFM"; minwidth=2  # nopep8
+        fmt = "GFM"; minwidth = 2  # nopep8
     if fmt in ["md3"] or "@md3" in spec:
-        fmt = "GFM"; minwidth=3  # nopep8
+        fmt = "GFM"; minwidth = 3  # nopep8
     if fmt in ["md4"] or "@md4" in spec:
-        fmt = "GFM"; minwidth=4  # nopep8
+        fmt = "GFM"; minwidth = 4  # nopep8
     if fmt in ["md5"] or "@md5" in spec:
-        fmt = "GFM"; minwidth=5  # nopep8
+        fmt = "GFM"; minwidth = 5  # nopep8
     if fmt in ["md6"] or "@md6" in spec:
-        fmt = "GFM"; minwidth=6  # nopep8
+        fmt = "GFM"; minwidth = 6  # nopep8
     if fmt in ["wide"] or "@wide" in spec:
-        fmt = "GFM"; tab=""  # nopep8
+        fmt = "GFM"; tab = ""  # nopep8
     if fmt in ["text"] or "@text" in spec:
-        fmt = "GFM"; tab=""; noheaders=True  # nopep8
+        fmt = "GFM"; tab = ""; noheaders = True  # nopep8
     if fmt in ["tabs"] or "@tabs" in spec:
-        fmt = "GFM"; tab="\t"  # nopep8
+        fmt = "GFM"; tab = "\t"  # nopep8
     if fmt in ["tab"] or "@tab" in spec:
-        fmt = "CSV"; tab="\t"  # nopep8
+        fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"] or "@data" in spec:
-        fmt = "CSV"; tab="\t"; noheaders=True  # nopep8
+        fmt = "CSV"; tab = "\t"; noheaders = True  # nopep8
     if fmt in ["dat", "ifs"] or "@dat" in spec or "@ifs" in spec:
-        fmt = "CSV"; tab=os.environ.get("IFS", "\t"); noheaders=True  # nopep8
+        fmt = "CSV"; tab = os.environ.get("IFS", "\t"); noheaders = True  # nopep8
     if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
-        fmt = "CSV"; tab=";"  # nopep8
+        fmt = "CSV"; tab = ";"  # nopep8
     if fmt in ["list"] or "@list" in spec:
-        fmt = "CSV"; tab=";"; noheaders=True  # nopep8
+        fmt = "CSV"; tab = ";"; noheaders = True  # nopep8
     if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
-        fmt = "XLS"; tab=","  # nopep8
+        fmt = "XLS"; tab = ","  # nopep8
     # override
     if "@tab" in spec:
         tab = spec["@tab"]
@@ -1097,9 +1098,9 @@ if __name__ == "__main__":
     cmdline = OptionParser("tab-xlsx [-options] input.xlsx [output.xlsx]", epilog=__doc__)
     cmdline.add_option("-v", "--verbose", action="count", default=0)
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true", 
+    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true",
                        help="do not print headers (csv,md,tab,wide)", default=False)
-    cmdline.add_option("-U", "--unique", action="store_true", 
+    cmdline.add_option("-U", "--unique", action="store_true",
                        help="remove same lines in sorted --labels", default=False)
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     cmdline.add_option("-o", "--format", metavar="FMT", help="data|text|list|wide|md|tab|csv or file", default="")
@@ -1157,4 +1158,5 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, tabtext.data, tabtext.headers, selects, noheaders=opt.noheaders, unique=opt.unique, defaultformat=defaultformat)
+    print_tabtotext(output, tabtext.data, tabtext.headers, selects,
+                    noheaders=opt.noheaders, unique=opt.unique, defaultformat=defaultformat)

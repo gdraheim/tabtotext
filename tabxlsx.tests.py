@@ -32,9 +32,9 @@ except ImportError as e:
         return line
 
 # ..............................
-from tabxlsx import print_tabtotext, CellValue
-from tabxlsx import tabtoXLSX, tabtextfileXLSX
 from tabtotext import loadCSV, loadGFM
+from tabxlsx import tabtoXLSX, tabtextfileXLSX
+from tabxlsx import print_tabtotext, CellValue
 
 def get_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back  # type: ignore
