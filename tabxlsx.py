@@ -3,7 +3,7 @@
 TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
 The output can be piped as a markdown table or csv-like data as well."""
 
-from typing import Union, List, Dict, Tuple, Optional, TextIO, Iterable, NamedTuple
+from typing import Union, List, Dict, Tuple, Optional, TextIO, Iterable, NamedTuple, Any
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -462,25 +462,106 @@ def currency() -> str:
     currency_euro = 0x20AC
     return chr(currency_euro)
 
-def write_workbook(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = []) -> None:
-    workbook = make_workbook(data, headers)
+def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], minwidth: int = 0) -> None:
+    workbook = make_tabtoXLSX(data, headers, selects, minwidth)
     save_workbook(filename, workbook)
-def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = []) -> Workbook:
+def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], minwidth: int = 0) -> Workbook:
+    minwidth = minwidth or MINWIDTH
+    logg.debug("tabtoXLSX:")
+    renameheaders: Dict[str, str] = {}
     sortheaders: List[str] = []
-    headerorder: Dict[str, str] = {}
-    formattings: Dict[str, str] = {}
+    formats: Dict[str, str] = {}
+    combine: Dict[str, List[str]] = {}
     for header in headers:
+        combines = ""
         for selheader in header.split("|"):
             if "@" in selheader:
                 selcol, rename = selheader.split("@", 1)
             else:
                 selcol, rename = selheader, ""
             if ":" in selcol:
-                name, fmt = selcol.split(":", 1)
-                formattings[name] = fmt
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             sortheaders += [name]  # default sort by named headers (rows)
+            if not combines:
+                combines = name
+            elif combines not in combine:
+                combine[combines] = [name]
+            elif name not in combine[combines]:
+                combine[combines] += [name]
+            if rename:
+                renameheaders[name] = rename
+    logg.debug("renameheaders = %s", renameheaders)
+    logg.debug("sortheaders = %s", sortheaders)
+    logg.debug("formats = %s", formats)
+    logg.debug("combine = %s", combine)
+    combined: Dict[str, List[str]] = {}
+    renaming: Dict[str, str] = {}
+    selected: List[str] = []
+    for selecheader in selects:
+        combines = ""
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
+            if ":" in selcol:
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+            else:
+                name = selcol
+            selected.append(name)
+            if rename:
+                renaming[name] = rename
+            if not combines:
+                combines = name
+            elif combines not in combined:
+                combined[combines] = [name]
+            elif combines not in combined[combines]:
+                combined[combines] += [name]
+    logg.debug("combined = %s", combined)
+    logg.debug("renaming = %s", renaming)
+    logg.debug("selected = %s", selected)
+    if not selects:
+        combined = combine  # argument
+        renaming = renameheaders
+        logg.debug("combined : %s", combined)
+        logg.debug("renaming : %s", renaming)
+    newsorts: Dict[str, str] = {}
+    colnames: Dict[str, str] = {}
+    for name, rename in renaming.items():
+        if "@" in rename:
+            newname, newsort = rename.split("@", 1)
+        elif rename and rename[0].isalpha():
+            newname, newsort = rename, ""
+        else:
+            newname, newsort = "", rename
+        if newname:
+            colnames[name] = newname
+        if newsort:
+            newsorts[name] = newsort
+    logg.debug("newsorts = %s", newsorts)
+    logg.debug("colnames = %s", colnames)
+    sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+    if newsorts:
+        for num, name in enumerate(sortcolumns):
+            if name not in newsorts:
+                if num < 10:
+                    newsorts[name] = "@%i" % num
+                else:
+                    newsorts[name] = "@%07i" % num
+        sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
+        logg.debug("sortcolumns : %s", sortcolumns)
+    if selected:
+        selheaders = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    else:
+        selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
     def strNone(value: CellValue) -> str:
         if isinstance(value, Time):
             return value.strftime(TIMEFMT)
@@ -488,8 +569,8 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
             return value.strftime(DATEFMT)
         return str(value)
     def sortkey(header: str) -> str:
-        if header in sortheaders:
-            num = sortheaders.index(header)
+        if header in selheaders:
+            num = selheaders.index(header)
             if num < 10:
                 return ":%i" % num
             else:
@@ -501,7 +582,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
                 return item._asdict()  # type: ignore[union-attr, no-any-return, arg-type, attr-defined]
             return item
         item = asdict(row)
-        sorts = sortheaders
+        sorts = sortcolumns
         if sorts:
             # numbers before empty before strings
             sortvalue = ""
@@ -529,29 +610,45 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
     rows: List[Dict[str, CellValue]] = []
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
+        row: Dict[str, CellValue] = {}
         if "#" in headers:
             item["#"] = num + 1
             cols["#"] = len(str(num + 1))
         for name, value in item.items():
-            oldlen = cols[name] if name in cols else MINWIDTH
-            cols[name] = max(oldlen, len(strNone(value)))
-        rows.append(item)
+            selname = name
+            if name in renameheaders and renameheaders[name] in selected:
+                selname = renameheaders[name]
+            if selected and selname not in selected and "*" not in selected:
+                continue
+            colname = selname if selname not in colnames else colnames[selname]
+            row[colname] = value # do not format the value here!
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
+            cols[colname] = max(oldlen, len(strNone(value)))
+        rows.append(row)
+    sortedrows = list(sorted(rows, key=sortrow))
+    sortedcols = list(sorted(cols.keys(), key=sortkey))
+    return make_workbook(sortedrows, sortedcols, cols, formats)
+
+
+def make_workbook(rows: List[Dict[str, CellValue]], 
+                  cols: List[str], colwidth: Dict[str, int],
+                  formats: Dict[str, str]) -> Workbook:
     row = 0
     workbook = Workbook()
     ws = workbook.active
     ws.title = "data"
     col = 0
-    for name in sorted(cols.keys(), key=sortkey):
+    for name in cols:
         ws.cell(row=1, column=col + 1).value = name
         ws.cell(row=1, column=col + 1).alignment = Alignment(horizontal="right")
         col += 1
-    for item in sorted(rows, key=sortrow):
+    for item in rows:
         row += 1
-        values: Dict[str, CellValue] = dict([(name, "") for name in cols.keys()])
+        values: Dict[str, CellValue] = dict([(name, "") for name in cols])
         for name, value in item.items():
             values[name] = value
         col = 0
-        for name in sorted(cols.keys(), key=sortkey):
+        for name in cols:
             value = values[name]
             at = {"column": col + 1, "row": row + 1}
             if value is None:
@@ -572,7 +669,7 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
                 ws.cell(**at).value = value
                 ws.cell(**at).alignment = Alignment(horizontal="right")
                 ws.cell(**at).number_format = "#,##0.00"
-                if name in formattings and "$}" in formattings[name]:
+                if name in formats and "$}" in formats[name]:
                     ws.cell(**at).number_format = "#,##0.00" + currency()
             else:
                 ws.cell(**at).value = value
@@ -583,95 +680,6 @@ def make_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [])
     return workbook
 
 # ...........................................................
-def unmatched(value: CellValue, cond: str) -> bool:
-    try:
-        if value is None:
-            if cond in ["<>"]:
-                return True
-        elif value is False:
-            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
-                return True
-            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
-                return True
-        elif value is True:
-            if cond in ["<>0", "<>False", "<>false", "<>no", "<>(no)"]:
-                return True
-            if cond in ["==1", "==True", "==true", "==yes", "==(yes)"]:
-                return True
-        elif isinstance(value, int):
-            if cond.startswith("==") or cond.startswith("=~"):
-                return value != int(cond[2:])
-            if cond.startswith("<>"):
-                return value == int(cond[2:])
-            if cond.startswith("<="):
-                return value > int(cond[2:])
-            if cond.startswith("<"):
-                return value >= int(cond[1:])
-            if cond.startswith(">="):
-                return value < int(cond[2:])
-            if cond.startswith(">"):
-                return value <= int(cond[1:])
-        elif isinstance(value, float):
-            if cond.startswith("=~"):
-                return value - 0.01 > float(cond[2:]) or float(cond[2:]) > value + 0.01
-            if cond.startswith("<>"):
-                return value - 0.01 < float(cond[2:]) and float(cond[2:]) < value + 0.01
-            if cond.startswith("==") or cond.startswith("=~"):
-                return value != float(cond[2:])  # not recommended
-            if cond.startswith("<="):
-                return value > float(cond[2:])
-            if cond.startswith("<"):
-                return value >= float(cond[1:])
-            if cond.startswith(">="):
-                return value < float(cond[2:])
-            if cond.startswith(">"):
-                return value <= float(cond[1:])
-        elif isinstance(value, Time):
-            if cond.startswith("==") or cond.startswith("=~"):
-                return value.strftime(TIMEFMT) != cond[2:]
-            if cond.startswith("<>"):
-                return value.strftime(TIMEFMT) == cond[2:]
-            if cond.startswith("<="):
-                return value.strftime(TIMEFMT) > cond[2:]
-            if cond.startswith("<"):
-                return value.strftime(TIMEFMT) >= cond[1:]
-            if cond.startswith(">="):
-                return value.strftime(TIMEFMT) < cond[2:]
-            if cond.startswith(">"):
-                return value.strftime(TIMEFMT) <= cond[1:]
-        elif isinstance(value, Date):
-            if cond.startswith("==") or cond.startswith("=~"):
-                return value.strftime(DATEFMT) != cond[2:]
-            if cond.startswith("<>"):
-                return value.strftime(DATEFMT) == cond[2:]
-            if cond.startswith("<="):
-                return value.strftime(DATEFMT) > cond[2:]
-            if cond.startswith("<"):
-                return value.strftime(DATEFMT) >= cond[1:]
-            if cond.startswith(">="):
-                return value.strftime(DATEFMT) < cond[2:]
-            if cond.startswith(">"):
-                return value.strftime(DATEFMT) <= cond[1:]
-        else:
-            if cond.startswith("=~"):
-                return str(value) != cond[2:]
-            if cond.startswith("=="):
-                return str(value) != cond[2:]
-            if cond.startswith("<>"):
-                return str(value) == cond[2:]
-            if cond.startswith("<="):
-                return str(value) > cond[2:]
-            if cond.startswith("<"):
-                return str(value) >= cond[1:]
-            if cond.startswith(">="):
-                return str(value) < cond[2:]
-            if cond.startswith(">"):
-                return str(value) <= cond[1:]
-    except Exception as e:
-        logg.warning("unmatched value type %s does not work for cond %s", type(value), cond)
-    return False
-
-
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selects: List[str] = [], 
                     *, minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
@@ -697,7 +705,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     elif "." in output:
         fmt = detectfileformat(output) or defaultformat
         if fmt in ["xls", "xlsx"]:
-            write_workbook(output, data, headers)
+            tabtoXLSX(output, data, headers, selects)
             return "XLSX"
         out = open(output, "wt", encoding="utf-8")
         done = output
@@ -745,7 +753,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             if rename:
                 renameheaders[name] = rename
     renaming: Dict[str, str] = {}
-    filtered: Dict[str, str] = {}
     selected: List[str] = []
     for selecheader in selects:
         combines = ""
@@ -760,15 +767,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            if "<" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif ">" in name:
-                name, cond = name.split("<", 1)
-                filtered[name] = "<" + cond
-            elif "=" in name:
-                name, cond = name.split("=", 1)
-                filtered[name] = "=" + cond
             selected.append(name)
             if rename:
                 renaming[name] = rename
@@ -848,23 +846,17 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if "#" in selected:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
-        skip = False
         for name, value in asdict(item).items():
             selname = name
             if name in renameheaders and renameheaders[name] in selected:
                 selname = renameheaders[name]
             if selected and selname not in selected and "*" not in selected:
                 continue
-            try:
-                if name in filtered:
-                    skip = skip or unmatched(value, filtered[name])
-            except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
-        if not skip:
-            rows.append(row)
+        rows.append(row)
     def sortkey(header: str) -> str:
         if header in selcolumns:
             num = selcolumns.index(header)

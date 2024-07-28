@@ -33,7 +33,7 @@ except ImportError as e:
 
 # ..............................
 from tabxlsx import print_tabtotext, CellValue
-from tabxlsx import load_workbook, save_workbook, write_workbook, tabtextfileXLSX
+from tabxlsx import tabtoXLSX, tabtextfileXLSX
 from tabtotext import loadCSV, loadGFM
 
 def get_caller_name() -> str:
@@ -653,7 +653,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9771(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test011)
+        tabtoXLSX(filename, test011)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -665,7 +665,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9772(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test012)
+        tabtoXLSX(filename, test012)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -677,7 +677,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9773(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test013)
+        tabtoXLSX(filename, test013)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -689,7 +689,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9774(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test014)
+        tabtoXLSX(filename, test014)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -701,7 +701,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9775(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test015)
+        tabtoXLSX(filename, test015)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -713,7 +713,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9776(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test016)
+        tabtoXLSX(filename, test016)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -725,7 +725,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9777(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test017)
+        tabtoXLSX(filename, test017)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -737,7 +737,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9778(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test018)
+        tabtoXLSX(filename, test018)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -749,7 +749,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9779(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test019)
+        tabtoXLSX(filename, test019)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -761,7 +761,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9781(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test011)
+        tabtoXLSX(filename, test011)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -773,7 +773,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9782(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test012)
+        tabtoXLSX(filename, test012)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
@@ -785,7 +785,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9783(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test013)
+        tabtoXLSX(filename, test013)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
@@ -796,7 +796,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9784(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test014)
+        tabtoXLSX(filename, test014)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
@@ -807,7 +807,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9785(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test015)
+        tabtoXLSX(filename, test015)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
@@ -818,7 +818,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9786(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test016)
+        tabtoXLSX(filename, test016)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
@@ -829,7 +829,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9787(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test017)
+        tabtoXLSX(filename, test017)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
@@ -840,7 +840,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9788(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test018)
+        tabtoXLSX(filename, test018)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
@@ -851,7 +851,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_9789(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        write_workbook(filename, test019)
+        tabtoXLSX(filename, test019)
         sz = path.getsize(filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
