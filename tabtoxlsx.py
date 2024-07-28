@@ -62,7 +62,7 @@ def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: RowSort
                 reorder: ColSortList = []) -> None:
     if isinstance(result, Dict):
         result = [result]
-    saveToXLSX(filename, result, sorts, formats, legend, reorder)
+    saveToXLSX(filename, result, sorts, formats, legend=legend, reorder=reorder)
 
 def saveToXLSX(filename: str, result: JSONList, 
                sorts: RowSortList = [],  formats: Dict[str, str] = {}, selects: List[str] = [],
