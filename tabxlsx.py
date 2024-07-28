@@ -3,7 +3,7 @@
 TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
 The output can be piped as a markdown table or csv-like data as well."""
 
-from typing import Union, List, Dict, Tuple, Optional, TextIO, Iterable, NamedTuple, Any
+from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Any
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -685,6 +685,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                     *, minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
+    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1)) for x in selects if x.startswith("@"))
+    selects = [x for x in selects if not x.startswith("@")]
     minwidth = minwidth or MINWIDTH
     def detectfileformat(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
@@ -715,14 +717,43 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         done = output
     #
     tab = '|'
-    if fmt in ["wide", "text"]:
-        tab = ''
-    if fmt in ["tabs", "tab", "dat", "ifs", "data"]:
-        tab = '\t'
-    if fmt in ["csv", "scsv", "list"]:
-        tab = ';'
-    if fmt in ["xls", "sxlx"]:
-        tab = ','
+    if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
+        fmt = "GFM"  # nopep8
+    if fmt in ["md2"] or "@md2" in spec:
+        fmt = "GFM"; minwidth=2  # nopep8
+    if fmt in ["md3"] or "@md3" in spec:
+        fmt = "GFM"; minwidth=3  # nopep8
+    if fmt in ["md4"] or "@md4" in spec:
+        fmt = "GFM"; minwidth=4  # nopep8
+    if fmt in ["md5"] or "@md5" in spec:
+        fmt = "GFM"; minwidth=5  # nopep8
+    if fmt in ["md6"] or "@md6" in spec:
+        fmt = "GFM"; minwidth=6  # nopep8
+    if fmt in ["wide"] or "@wide" in spec:
+        fmt = "GFM"; tab=""  # nopep8
+    if fmt in ["text"] or "@text" in spec:
+        fmt = "GFM"; tab=""; noheaders=True  # nopep8
+    if fmt in ["tabs"] or "@tabs" in spec:
+        fmt = "GFM"; tab="\t"  # nopep8
+    if fmt in ["tab"] or "@tab" in spec:
+        fmt = "CSV"; tab="\t"  # nopep8
+    if fmt in ["data"] or "@data" in spec:
+        fmt = "CSV"; tab="\t"; noheaders=True  # nopep8
+    if fmt in ["dat", "ifs"] or "@dat" in spec or "@ifs" in spec:
+        fmt = "CSV"; tab=os.environ.get("IFS", "\t"); noheaders=True  # nopep8
+    if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
+        fmt = "CSV"; tab=";"  # nopep8
+    if fmt in ["list"] or "@list" in spec:
+        fmt = "CSV"; tab=";"; noheaders=True  # nopep8
+    if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
+        fmt = "XLS"; tab=","  # nopep8
+    # override
+    if "@tab" in spec:
+        tab = spec["@tab"]
+    if "@noheaders" in spec:
+        noheaders = True
+    if "@unique" in spec:
+        unique = True
     #
     none_string = "~"
     true_string = "(yes)"
@@ -890,7 +921,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     # print ..........................................
     same = []
     # CSV
-    if fmt in ["list", "csv", "scsv", "xlsx", "xls", "tab", "dat", "ifs", "data"]:
+    if fmt in ["CSV"]:
         tab1 = tab if tab else ";"
         import csv
         writer = csv.DictWriter(out, fieldnames=sorted(cols.keys(), key=sortkey),
@@ -1069,8 +1100,6 @@ if __name__ == "__main__":
                        help="do not print headers (csv,md,tab,wide)", default=False)
     cmdline.add_option("-U", "--unique", action="store_true", 
                        help="remove same lines in sorted --labels", default=False)
-    cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
-                       help="select columns to show (a,x=b)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     cmdline.add_option("-o", "--format", metavar="FMT", help="data|text|list|wide|md|tab|csv or file", default="")
     cmdline.add_option("--ifs", action="store_true", help="-o ifs: $IFS-seperated table")
@@ -1090,13 +1119,15 @@ if __name__ == "__main__":
         cmdline.print_help()
         logg.error("no input filename given")
         sys.exit(1)
+    filename = args[0]
     tabtext = tabtextfile(args[0], defaultformat="xlsx")
     logg.debug("headers = %s", tabtext.headers)
     logg.debug("data = %s", tabtext.data)
     if len(args) > 1:
-        output = args[1]
-        defaultformat = ""
-    elif "."in opt.format:
+        selects = args[1:]
+    else:
+        selects = []
+    if "."in opt.format:
         output = opt.format
         defaultformat = ""
     else:
@@ -1125,4 +1156,4 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, tabtext.data, tabtext.headers, opt.labels, noheaders=opt.noheaders, unique=opt.unique, defaultformat=defaultformat)
+    print_tabtotext(output, tabtext.data, tabtext.headers, selects, noheaders=opt.noheaders, unique=opt.unique, defaultformat=defaultformat)
