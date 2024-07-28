@@ -10746,6 +10746,45 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8530(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table01.xlsx")
+        tabtoXLSX(filename, table01, ["a|b"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = table01N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8535(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table01.xlsx")
+        tabtoXLSX(filename, table01, ["b|a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = table01N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+
+## sh
+
+    @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_9020(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "table01.xlsx")
