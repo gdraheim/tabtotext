@@ -7,7 +7,7 @@ The various output formats can be read back.
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3283"
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Iterable, Iterator, TextIO, NamedTuple
+from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Tuple, Iterable, Iterator, TextIO, NamedTuple
 from collections import OrderedDict
 from html import escape
 from datetime import date as Date
@@ -2290,7 +2290,6 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if "#" in selected:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
-        logg.error("==>")
         skip = False
         for name, value in item.items():
             selname = name
@@ -2393,13 +2392,19 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         done = "stream"
     elif "." in output:
         fmt = detectfileformat(output) or defaultformat
+        if fmt in ["xls", "xlsx", "XLS", "XLSX"]:
+            try:
+                import tabtoxlsx
+                return tabtoxlsx.save_tabtoXLSX(output, data, headers, selects, legend=legend)
+            except Exception as e:
+                logg.error("could not write %s: %s", output, e)
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
         fmt = output
         out = sys.stdout
         done = output
-    lines = tabtotext(fmt, data, headers, selects, legend=legend, datedelim=datedelim, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
+    lines = tabtotext(data, [F"@{fmt}"]+headers, selects, legend=legend, datedelim=datedelim, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
         results.append(line)
@@ -2408,39 +2413,75 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         return ""
     return ": %s results %s" % (len(results), done)
 
-def tabtotext(fmt: str, data: Iterable[JSONDict],  # ..
+def tabtotext(data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-              *, datedelim: str = '-', noheaders: bool = False, unique:bool = False, defaultformat: str = "") -> str:
+              *, fmt: str= "", datedelim: str = '-', minwidth: int = 0, 
+              noheaders: bool = False, unique:bool = False, defaultformat: str = "") -> str:
+    hdrs = [x for x in headers if not x.startswith("@")]
+    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1)) for x in headers if x.startswith("@"))
     fmt = fmt if fmt not in ["", "-"] else defaultformat
-    if fmt.lower() in ["md", "markdown"]:
-        return tabtoGFM(data, headers, selects, legend=legend, noheaders=noheaders, unique=unique)
-    if fmt.lower() in ["html", "htm"]:
-        return tabtoHTML(data, headers, selects, legend=legend)
-    if fmt.lower() in ["json", "jsn"]:
-        return tabtoJSON(data, headers, selects, datedelim=datedelim)
-    if fmt.lower() in ["yaml", "yml"]:
-        return  tabtoYAML(data, headers, selects, datedelim=datedelim)
-    if fmt.lower() in ["toml", "tml"]:
-        return  tabtoTOML(data, headers, selects, datedelim=datedelim)
-    if fmt.lower() in ["wide"]:
-        return  tabtoGFM(data, headers, selects, tab='', noheaders=noheaders, unique=unique)
-    if fmt.lower() in ["text"]:
-        return  tabtoGFM(data, headers, selects, tab='', noheaders=True, unique=unique)
-    if fmt.lower() in ["tabs"]:
-        return  tabtoGFM(data, headers, selects, tab='\t', noheaders=noheaders, unique=unique)
-    if fmt.lower() in ["tab"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=noheaders, unique=unique)
-    if fmt.lower() in ["data"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab='\t', noheaders=True, unique=unique)
-    if fmt.lower() in ["ifs", "dat"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=os.environ.get("IFS", "\t"), noheaders=True, unique=unique)
-    if fmt.lower() in ["csv", "scsv"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=noheaders, unique=unique)
-    if fmt.lower() in ["list"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=';', noheaders=True, unique=unique)
-    if fmt.lower() in ["xlsx", "xls"]:
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=',', noheaders=noheaders, unique=unique)
-    return tabtoGFM(data, headers, selects, legend=legend)
+    # formats
+    if fmt in ["htm", "html"] or "@htm" in spec or "@html" in spec:
+        fmt = "HTML"  # nopep8
+    if fmt in ["jsn", "json"] or "@jsn" in spec or "@json" in spec:
+        fmt = "JSON"  # nopep8
+    if fmt in ["yml", "yaml"] or "@yml" in spec or "@yaml" in spec:
+        fmt = "YAML"  # nopep8
+    if fmt in ["tml", "toml"] or "@tml" in spec or "@toml" in spec:
+        fmt = "TOML"  # nopep8
+    if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
+        fmt = "GFM"  # nopep8
+    if fmt in ["md2"] or "@md2" in spec:
+        fmt = "GFM"; minwidth=2  # nopep8
+    if fmt in ["md3"] or "@md3" in spec:
+        fmt = "GFM"; minwidth=3  # nopep8
+    if fmt in ["md4"] or "@md4" in spec:
+        fmt = "GFM"; minwidth=4  # nopep8
+    if fmt in ["md5"] or "@md5" in spec:
+        fmt = "GFM"; minwidth=5  # nopep8
+    if fmt in ["md6"] or "@md6" in spec:
+        fmt = "GFM"; minwidth=6  # nopep8
+    if fmt in ["text"] or "@text" in spec:
+        fmt = "GFM"; tab=""; noheaders=True  # nopep8
+    if fmt in ["tabs"] or "@tabs" in spec:
+        fmt = "GFM"; tab="\t"  # nopep8
+    if fmt in ["tab"] or "@tab" in spec:
+        fmt = "CVS"; tab="\t"  # nopep8
+    if fmt in ["data"] or "@data" in spec:
+        fmt = "CVS"; tab="\t"; noheaders=True  # nopep8
+    if fmt in ["dat", "ifs"] or "@dat" in spec or "@ifs" in spec:
+        fmt = "CVS"; tab=os.environ.get("IFS", "\t"); noheaders=True  # nopep8
+    if fmt in ["cvs", "scvs"] or "@cvs" in spec or "@scvs" in spec:
+        fmt = "CVS"; tab=";"  # nopep8
+    if fmt in ["list"] or "@list" in spec:
+        fmt = "CVS"; tab=";"; noheaders=True  # nopep8
+    if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
+        fmt = "XLS"  # nopep8
+    # override
+    if "@tab" in spec:
+        tab = spec["@tab"]
+    if "@datedelim" in spec:
+        tab = spec["@datedelim"] or "-"
+    if "@noheaders" in spec:
+        noheaders = True
+    if "@unique" in spec:
+        unique = True
+    if "@nolegend" in spec:
+        legend = []
+    # render
+    if fmt == "HTML":
+        return tabtoHTML(data, hdrs, selects, legend=legend, minwidth=minwidth)
+    if fmt == "JSON":
+        return tabtoJSON(data, hdrs, selects, datedelim=datedelim, minwidth=minwidth)
+    if fmt == "YAML":
+        return  tabtoYAML(data, hdrs, selects, datedelim=datedelim, minwidth=minwidth)
+    if fmt == "TOML":
+        return  tabtoTOML(data, hdrs, selects, datedelim=datedelim, minwidth=minwidth)
+    if fmt == "CVS":
+        return  tabtoCSV(data, hdrs, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+    if fmt == "XLS":
+        return  tabtoCSV(data, hdrs, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+    return  tabtoGFM(data, hdrs, selects, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..

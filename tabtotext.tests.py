@@ -35,16 +35,14 @@ except ImportError as e:
         return line
 
 try:
-    from tabtoxlsx import saveToXLSX, readFromXLSX  # type: ignore
-    from tabtotext import RowSortList, ColSortList, LegendList
+    from tabtoxlsx import tabtoXLSX, readFromXLSX  # type: ignore
     skipXLSX = False
 except Exception as e:
     logg.warning("skipping tabtoxlsx: %s", e)
     skipXLSX = True
-    def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [], formats: Dict[str, str] = {},  #
-                   legend: LegendList = [],  #
-                   reorder: ColSortList = []) -> None:
-        pass
+    def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+             *, legend: List[str] = [], minwidth: int = 0) -> str:
+        return "skipped"
     def readFromXLSX(filename: str) -> JSONList:
         return []
 
@@ -9317,7 +9315,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9771(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test011)
+        tabtoXLSX(filename, test011)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9330,7 +9328,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9772(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test012)
+        tabtoXLSX(filename, test012)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9343,7 +9341,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9773(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test013)
+        tabtoXLSX(filename, test013)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9356,7 +9354,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9774(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test014)
+        tabtoXLSX(filename, test014)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9369,7 +9367,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9775(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test015)
+        tabtoXLSX(filename, test015)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9382,7 +9380,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9776(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test016)
+        tabtoXLSX(filename, test016)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9395,7 +9393,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9777(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test017)
+        tabtoXLSX(filename, test017)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9408,7 +9406,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9778(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test018)
+        tabtoXLSX(filename, test018)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9421,7 +9419,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9779(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test019)
+        tabtoXLSX(filename, test019)
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
@@ -9434,7 +9432,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9781(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test011, legend="a result")
+        tabtoXLSX(filename, test011, legend=["a result"])
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3500)
@@ -9447,7 +9445,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9782(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test012, legend="a result")
+        tabtoXLSX(filename, test012, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)
@@ -9460,7 +9458,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9783(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test013, legend="a result")
+        tabtoXLSX(filename, test013, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)
@@ -9472,7 +9470,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9784(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test014, legend="a result")
+        tabtoXLSX(filename, test014, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)
@@ -9484,7 +9482,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9785(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test015, legend="a result")
+        tabtoXLSX(filename, test015, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)
@@ -9496,7 +9494,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9786(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test016, legend="a result")
+        tabtoXLSX(filename, test016, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)
@@ -9508,7 +9506,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9787(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test017, legend="a result")
+        tabtoXLSX(filename, test017, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)
@@ -9520,7 +9518,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9788(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test018, legend="a result")
+        tabtoXLSX(filename, test018, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)
@@ -9532,7 +9530,7 @@ class TabToTextTest(unittest.TestCase):
     def test_9789(self) -> None:
         tmp = self.testdir()
         filename = path.join(tmp, "output.xlsx")
-        saveToXLSX(filename, test019, legend="a result")
+        tabtoXLSX(filename, test019, legend=["a result"])
         sz = path.getsize(filename)
         self.assertGreater(sz, 3500)
         self.assertGreater(6000, sz)

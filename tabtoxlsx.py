@@ -9,9 +9,10 @@ __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 
 __version__ = "1.6.3283"
 
 import logging
-from typing import Union, Dict, List, Any
+from typing import Union, Dict, List, Any, Iterable
 from tabtotext import JSONList, JSONDict, TabText, strNone
-from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable
+from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable, unmatched
+from tabtotext import FormatCSV, FormatJSONItem, FormatsDict
 from tabtools import currency_default
 
 try:
@@ -24,6 +25,7 @@ except ImportError:
     from tabxlsx import Workbook, Worksheet, CellStyle as Style, Alignment, get_column_letter
     from tabxlsx import load_workbook  # type: ignore
 
+from collections import OrderedDict
 import datetime
 DayOrTime = (datetime.date, datetime.datetime)
 
@@ -62,19 +64,249 @@ def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: RowSort
         result = [result]
     saveToXLSX(filename, result, sorts, formats, legend, reorder)
 
-def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [],  #
-               formats: Dict[str, str] = {}, legend: LegendList = [],  #
-               reorder: ColSortList = []) -> None:
-    sortkey = ColSortCallable(sorts, reorder)
-    sortrow = RowSortCallable(sorts)
+def saveToXLSX(filename: str, result: JSONList, 
+               sorts: RowSortList = [],  formats: Dict[str, str] = {}, selects: List[str] = [],
+               legend: LegendList = [],  reorder: ColSortList = []) -> None:
+    """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
+    headers: List[str] = []
+    sorting: RowSortList = []
+    formatter: FormatsDict = {}
+    if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        for header in sorts:
+            cols: List[str] = []
+            for headercol in header.split("|"):
+                if "@" in headercol:
+                    name, suffix = headercol.split("@", 1)
+                    if suffix:
+                        renames = "@" + suffix
+                else:
+                    name, renames = headercol, ""
+                if name in formats:
+                    cols += [name + ":" + formats[name] + renames]
+                else:
+                    cols += [name + renames]
+            headers += ["|".join(cols)]
+        logg.info("headers = %s", headers)
+    else:
+        sorting = sorts
+        formatter = formats
+    save_tabtoXLSX(filename, result, headers, selects, legend=legend, #  ....
+                   reorder=reorder, sorts=sorts, formatter=formatter)
+
+def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+             *, legend: List[str] = [], minwidth: int = 0) -> str:
+    return save_tabtoXLSX(filename, data, headers, selects, legend=legend)
+
+def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+             *, legend: LegendList = [], minwidth: int = 0, 
+             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    minwidth = minwidth or MINWIDTH
+    logg.debug("tabtoXLSX:")
+    renameheaders: Dict[str, str] = {}
+    sortheaders: List[str] = []
+    formats: Dict[str, str] = {}
+    combine: Dict[str, List[str]] = {}
+    freehdrs: Dict[str, str] = {}
+    for header in headers:
+        combines = ""
+        for selheader in header.split("|"):
+            if "@" in selheader:
+                selcol, rename = selheader.split("@", 1)
+            else:
+                selcol, rename = selheader, ""
+            if "{" in selcol and "{:" not in selcol:
+                names3: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon3, brace3 = freepart.find(":"), freepart.find("}")
+                    if brace3 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end3 = brace3 if colon3 == -1 else min(colon3, brace3)
+                    name3 = freepart[:end3]
+                    names3.append(name3)
+                name = " ".join(names3)
+                freehdrs[name] = selcol
+            elif ":" in selcol:
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+            else:
+                name = selcol
+            sortheaders += [name]  # default sort by named headers (rows)
+            if not combines:
+                combines = name
+            elif combines not in combine:
+                combine[combines] = [name]
+            elif name not in combine[combines]:
+                combine[combines] += [name]
+            if rename:
+                renameheaders[name] = rename
+    logg.debug("renameheaders = %s", renameheaders)
+    logg.debug("sortheaders = %s", sortheaders)
+    logg.debug("formats = %s", formats)
+    logg.debug("combine = %s", combine)
+    logg.debug("freehdrs = %s", freehdrs)
+    combined: Dict[str, List[str]] = {}
+    renaming: Dict[str, str] = {}
+    filtered: Dict[str, str] = {}
+    selected: List[str] = []
+    freecols: Dict[str, str] = {}
+    for selecheader in selects:
+        combines = ""
+        for selec in selecheader.split("|"):
+            if "@" in selec:
+                selcol, rename = selec.split("@", 1)
+            else:
+                selcol, rename = selec, ""
+            if "{" in selcol and "{:" not in selcol:
+                names4: List[str] = []
+                freeparts = selcol.split("{")
+                for freepart in freeparts[1:]:
+                    colon4, brace4 = freepart.find(":"), freepart.find("}")
+                    if brace4 == -1:
+                        logg.error("no closing '}' for '{%s' in %s", freepart, selcol)
+                        continue
+                    end4 = brace4 if colon4 == -1 else min(colon4, brace4)
+                    name4 = freepart[:end4]
+                    names4.append(name4)
+                name = " ".join(names4)
+                freecols[name] = selcol
+            elif ":" in selcol:
+                name, form = selcol.split(":", 1)
+                if isinstance(formats, dict):
+                    fmt = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+            else:
+                name = selcol
+            if "<" in name:
+                name, cond = name.split("<", 1)
+                filtered[name] = "<" + cond
+            elif ">" in name:
+                name, cond = name.split(">", 1)
+                filtered[name] = ">" + cond
+            elif "=" in name:
+                name, cond = name.split("=", 1)
+                filtered[name] = "=" + cond
+            selected.append(name)
+            if rename:
+                renaming[name] = rename
+            if not combines:
+                combines = name
+            elif combines not in combined:
+                combined[combines] = [name]
+            elif combines not in combined[combines]:
+                combined[combines] += [name]
+    logg.debug("combined = %s", combined)
+    logg.debug("renaming = %s", renaming)
+    logg.debug("filtered = %s", filtered)
+    logg.debug("selected = %s", selected)
+    logg.debug("freecols = %s", freecols)
+    if not selects:
+        combined = combine  # argument
+        freecols = freehdrs
+        renaming = renameheaders
+        logg.debug("combined : %s", combined)
+        logg.debug("freecols : %s", freecols)
+        logg.debug("renaming : %s", renaming)
+    newsorts: Dict[str, str] = {}
+    colnames: Dict[str, str] = {}
+    for name, rename in renaming.items():
+        if "@" in rename:
+            newname, newsort = rename.split("@", 1)
+        elif rename and rename[0].isalpha():
+            newname, newsort = rename, ""
+        else:
+            newname, newsort = "", rename
+        if newname:
+            colnames[name] = newname
+        if newsort:
+            newsorts[name] = newsort
+    logg.debug("newsorts = %s", newsorts)
+    logg.debug("colnames = %s", colnames)
+    if sorts:
+        sortcolumns = sorts
+    else:
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+        if newsorts:
+            for num, name in enumerate(sortcolumns):
+                if name not in newsorts:
+                    if num < 10:
+                        newsorts[name] = "@%i" % num
+                    else:
+                        newsorts[name] = "@%07i" % num
+            sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
+            logg.debug("sortcolumns : %s", sortcolumns)
+    format: FormatJSONItem
+    if formatter and isinstance(formatter, FormatJSONItem):
+        format = formatter
+    else:
+        logg.debug("formats = %s", formats)
+        format = FormatCSV(formats)
+    if legend:
+        logg.debug("legend is ignored for CSV output")
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
+    sortrow = RowSortCallable(sortcolumns)
+    rows: List[JSONDict] = []
     cols: Dict[str, int] = {}
-    for item in result:
+    for num, item in enumerate(data):
+        row: JSONDict = {}
+        if "#" in selected:
+            row["#"] = num + 1
+            cols["#"] = len(str(num + 1))
+        logg.error("==>")
+        skip = False
         for name, value in item.items():
-            paren = 0
-            if name not in cols:
-                cols[name] = max(MINWIDTH, len(name))
-            cols[name] = max(cols[name], len(strNone(value)))
+            selname = name
+            if name in renameheaders and renameheaders[name] in selected:
+                selname = renameheaders[name]
+            if selected and selname not in selected and "*" not in selected:
+                continue
+            try:
+                if name in filtered:
+                    skip = skip or unmatched(value, filtered[name])
+            except: pass
+            colname = selname if selname not in colnames else colnames[selname]
+            row[colname] = value # do not format the value here!
+            oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
+            cols[colname] = max(oldlen, len(format(colname, value)))
+        for freecol, freeformat in freecols.items():
+            try:
+                freenames = freecol.split(" ")
+                freeitem: JSONDict = dict([(freename, "") for freename in freenames])
+                for name, value in item.items():
+                    itemname = name
+                    if name in renameheaders and renameheaders[name] in freenames:
+                        itemname = renameheaders[name]
+                    if itemname in freenames:
+                        freeitem[itemname] = format(name, value)
+                value = freeformat.format(**freeitem)
+                colname = freecol if freecol not in colnames else colnames[freecol]
+                row[colname] = value
+                oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
+                cols[colname] = max(oldlen, len(value))
+            except Exception as e:
+                logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
+        if not skip:
+            rows.append(row)
+    if isinstance(legend, dict):
+        newlegend = OrderedDict()
+        for name in sorted(legend.keys(), key=sortkey):
+            newlegend[name] = legend[name]
+        legend = newlegend
     #
+    sortedrows = list(sorted(rows, key=sortrow))
+    sortedcols = list(sorted(cols.keys(), key=sortkey))
+    workbook: Workbook # type: ignore[no-any-unimported]
+    workbook = make_workbook(sortedrows, sortedcols, cols, formats, legend) 
+    workbook.save(filename)
+    return "XLSX"
+
+def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
+               formats: Dict[str, str], legend: LegendList) -> Any: # Workbook
     row = 0
     workbook = Workbook()
     ws = workbook.active
@@ -99,17 +331,17 @@ def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [],  #
     eur_style.number_format = '#,##0.00%c' % currency_default
     eur_style.alignment = Alignment(horizontal='right')
     col = 0
-    for name in sorted(cols.keys(), key=sortkey):
+    for name in cols:
         set_cell(ws, row, col, name, hdr_style)
-        set_width(ws, col, cols[name] + 1 + int(cols[name] / 3))
+        set_width(ws, col, colwidth[name] + 1 + int(colwidth[name] / 3))
         col += 1
     row += 1
-    for item in sorted(result, key=sortrow):
-        values: JSONDict = dict([(name, "") for name in cols.keys()])
+    for item in rows:
+        values: JSONDict = dict([(name, "") for name in cols])
         for name, value in item.items():
             values[name] = value
         col = 0
-        for name in sorted(cols.keys(), key=sortkey):
+        for name in cols:
             value = values[name]
             if value is None:
                 pass
@@ -138,13 +370,13 @@ def saveToXLSX(filename: str, result: JSONList, sorts: RowSortList = [],  #
         if isinstance(legend, str):
             set_cell(ws, 0, 1, legend, txt_style)
         elif isinstance(legend, dict):
-            for row, name in enumerate(sorted(legend.keys(), key=sortkey)):
+            for row, name in enumerate(legend):
                 set_cell(ws, row, 0, name, txt_style)
                 set_cell(ws, row, 1, legend[name], txt_style)
         else:
             for row, line in enumerate(legend):
                 set_cell(ws, row, 1, line, txt_style)
-    workbook.save(filename)
+    return workbook
 
 def readFromXLSX(filename: str) -> JSONList:
     tabtext = tabtextfileXLSX(filename)
