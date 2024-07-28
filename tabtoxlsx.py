@@ -64,9 +64,9 @@ def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: RowSort
         result = [result]
     saveToXLSX(filename, result, sorts, formats, legend=legend, reorder=reorder)
 
-def saveToXLSX(filename: str, result: JSONList, 
-               sorts: RowSortList = [],  formats: Dict[str, str] = {}, selects: List[str] = [],
-               legend: LegendList = [],  reorder: ColSortList = []) -> None:
+def saveToXLSX(filename: str, result: JSONList,
+               sorts: RowSortList = [], formats: Dict[str, str] = {}, selects: List[str] = [],
+               legend: LegendList = [], reorder: ColSortList = []) -> None:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
     sorting: RowSortList = []
@@ -90,16 +90,16 @@ def saveToXLSX(filename: str, result: JSONList,
     else:
         sorting = sorts
         formatter = formats
-    save_tabtoXLSX(filename, result, headers, selects, legend=legend, #  ....
+    save_tabtoXLSX(filename, result, headers, selects, legend=legend,  # ....
                    reorder=reorder, sorts=sorts, formatter=formatter)
 
 def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-             *, legend: List[str] = [], minwidth: int = 0) -> str:
+              *, legend: List[str] = [], minwidth: int = 0) -> str:
     return save_tabtoXLSX(filename, data, headers, selects, legend=legend)
 
 def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-             *, legend: LegendList = [], minwidth: int = 0, 
-             reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+                   *, legend: LegendList = [], minwidth: int = 0,
+                   reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
@@ -270,7 +270,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
                     skip = skip or unmatched(value, filtered[name])
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
-            row[colname] = value # do not format the value here!
+            row[colname] = value  # do not format the value here!
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
             cols[colname] = max(oldlen, len(format(colname, value)))
         for freecol, freeformat in freecols.items():
@@ -300,13 +300,13 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
     #
     sortedrows = list(sorted(rows, key=sortrow))
     sortedcols = list(sorted(cols.keys(), key=sortkey))
-    workbook: Workbook # type: ignore[no-any-unimported]
-    workbook = make_workbook(sortedrows, sortedcols, cols, formats, legend) 
+    workbook: Workbook  # type: ignore[no-any-unimported]
+    workbook = make_workbook(sortedrows, sortedcols, cols, formats, legend)
     workbook.save(filename)
     return "XLSX"
 
 def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
-               formats: Dict[str, str], legend: LegendList) -> Any: # Workbook
+                  formats: Dict[str, str], legend: LegendList) -> Any:  # Workbook
     row = 0
     workbook = Workbook()
     ws = workbook.active
