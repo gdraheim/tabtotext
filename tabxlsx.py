@@ -470,6 +470,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
@@ -487,7 +488,9 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name]  # headers make a default column order
+            if rename:
+                sortheaders += [name]  # headers does not sort anymore
             if not combines:
                 combines = name
             elif combines not in combine:
@@ -559,7 +562,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     if selected:
         selheaders = [(name if name not in colnames else colnames[name]) for name in (selected)]
     else:
-        selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+        selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     def strNone(value: CellValue) -> str:
         if isinstance(value, Time):
             return value.strftime(TIMEFMT)

@@ -72,7 +72,8 @@ def saveToXLSX(filename: str, result: JSONList,
     sorting: RowSortList = []
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
-        for header in sorts:
+        sortheaders: List[str] = []
+        for m, header in enumerate(sorts):
             cols: List[str] = []
             for headercol in header.split("|"):
                 if "@" in headercol:
@@ -81,17 +82,20 @@ def saveToXLSX(filename: str, result: JSONList,
                         renames = "@" + suffix
                 else:
                     name, renames = headercol, ""
+                sortheaders += [name]
                 if name in formats:
                     cols += [name + ":" + formats[name] + renames]
                 else:
                     cols += [name + renames]
             headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
+        logg.info("sorting = %s", sortheaders)
+        sorting = sortheaders
     else:
         sorting = sorts
         formatter = formats
     save_tabtoXLSX(filename, result, headers, selects, legend=legend,  # ....
-                   reorder=reorder, sorts=sorts, formatter=formatter)
+                   reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
               *, legend: List[str] = [], minwidth: int = 0) -> str:
@@ -103,6 +107,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
@@ -134,7 +139,9 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name] # headers make a default column order
+            if rename:
+                sortheaders += [name]  # headers does not sort anymore
             if not combines:
                 combines = name
             elif combines not in combine:
@@ -244,7 +251,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
     if legend:
         logg.debug("legend is ignored for CSV output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
-    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []

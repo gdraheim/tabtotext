@@ -464,6 +464,7 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
     sorting: RowSortList = []
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        sortheaders: List[str] = []
         for header in sorts:
             cols: List[str] = []
             for headercol in header.split("|"):
@@ -473,18 +474,21 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
                         renames = "@" + suffix
                 else:
                     name, renames = headercol, ""
+                sortheaders += [name]
                 if name in formats:
                     cols += [name + ":" + formats[name] + renames]
                 else:
                     cols += [name + renames]
             headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
+        logg.info("sorting = %s", sortheaders)
+        sorting = sortheaders
     else:
         sorting = sorts
         formatter = formats
     return tabtoGFM(result, headers, selects, legend=legend,  # ..
                     noheaders=noheaders, tab=tab,  # ..
-                    reorder=reorder, sorts=sorts, formatter=formatter)
+                    reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
              *, legend: LegendList = [], minwidth: int = 0, noheaders: bool = False, unique: bool = False, tab: str = "|",  #
@@ -492,6 +496,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     logg.debug("tabtoGFM:")
     minwidth = minwidth or MINWIDTH
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
@@ -523,7 +528,9 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name] # headers make a default column order
+            if rename:
+                sortheaders += [name]  # headers does not sort anymore
             if not combines:
                 combines = name
             elif combines not in combine:
@@ -630,7 +637,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         logg.debug("formats = %s | tab=%s", formats, tab)
         format = FormatGFM(formats, tab=tab)
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
-    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
@@ -817,6 +824,7 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
     formatter: FormatsDict = {}
     combined: List[str] = []
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        sortheaders: List[str] = []
         for header in sorts:
             logg.info(" = header = %s", header)
             cols: List[str] = []
@@ -827,6 +835,7 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
                         renames = "@" + suffix
                 else:
                     name, renames = headercol, ""
+                sortheaders += [name]
                 if name in formats:
                     cols += [name + ":" + formats[name] + renames]
                 else:
@@ -841,12 +850,14 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
             headers += ["|".join(cols)]
         logg.debug("headers = %s", headers)
         logg.debug("combine < %s", combine)
+        logg.info("sorting = %s", sortheaders)
+        sorting = sortheaders
     else:
         sorting = sorts
         formatter = formats
     return tabtoHTML(result, headers, selects,  # ..
                      legend=legend,  # ..
-                     reorder=reorder, sorts=sorts, formatter=formatter)
+                     reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
               *, legend: LegendList = [], minwidth: int = 0,
@@ -854,6 +865,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     logg.debug("tabtoHTML")
     minwidth = minwidth or MINWIDTH
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
@@ -885,7 +897,9 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name]  # headers make a default column order
+            if rename:
+                sortheaders += [name]  # headers does not sort anymore
             if not combines:
                 combines = name
             elif combines not in combine:
@@ -994,7 +1008,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         logg.debug("formats = %s |")
         format = FormatHTML(formats)
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
-    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
@@ -1216,6 +1230,7 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
     sorting: RowSortList = []
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        sortheaders: List[str] = []
         for header in sorts:
             cols: List[str] = []
             for headercol in header.split("|"):
@@ -1225,18 +1240,21 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
                         renames = "@" + suffix
                 else:
                     name, renames = headercol, ""
+                sortheaders += [name]
                 if name in formats:
                     cols += [name + ":" + formats[name] + renames]
                 else:
                     cols += [name + renames]
             headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
+        logg.info("sorting = %s", sortheaders)
+        sorting = sortheaders
     else:
         sorting = sorts
         formatter = formats
     return tabtoJSON(result, headers, selects,  # ..
                      legend=legend, datedelim=datedelim,  # ..
-                     reorder=reorder, sorts=sorts, formatter=formatter)
+                     reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
               *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',
@@ -1244,6 +1262,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoJSON:")
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     freehdrs: Dict[str, str] = {}
@@ -1274,7 +1293,9 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name]  # headers make a default column order
+            if rename:
+                sortheaders += [name]  # headers does not sort anymore
             if rename:
                 renameheaders[name] = rename
     logg.debug("renameheaders = %s", renameheaders)
@@ -1367,7 +1388,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     if legend:
         logg.debug("legend is ignored for JSON output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
-    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
@@ -1483,6 +1504,7 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
     sorting: RowSortList = []
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        sortheaders: List[str] = []
         for header in sorts:
             cols: List[str] = []
             for headercol in header.split("|"):
@@ -1492,18 +1514,21 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
                         renames = "@" + suffix
                 else:
                     name, renames = headercol, ""
+                sortheaders += [name]
                 if name in formats:
                     cols += [name + ":" + formats[name] + renames]
                 else:
                     cols += [name + renames]
             headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
+        logg.info("sorting = %s", sortheaders)
+        sorting = sortheaders
     else:
         sorting = sorts
         formatter = formats
     return tabtoYAML(result, headers, selects,  # ..
                      legend=legend, datedelim=datedelim,  # ..
-                     reorder=reorder, sorts=sorts, formatter=formatter)
+                     reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
               *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',  #
@@ -1511,6 +1536,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoYAML:")
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     freehdrs: Dict[str, str] = {}
@@ -1541,7 +1567,9 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name]  # headers make a default column order
+            if rename:
+                sortheaders += [name]  # headers does not sort anymore
             if rename:
                 renameheaders[name] = rename
     logg.debug("renameheaders = %s", renameheaders)
@@ -1634,7 +1662,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     if legend:
         logg.debug("legend is ignored for YAML output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
-    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
@@ -1784,6 +1812,7 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
     sorting: RowSortList = []
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        sortheaders: List[str] = []
         for header in sorts:
             cols: List[str] = []
             for headercol in header.split("|"):
@@ -1793,17 +1822,20 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
                         renames = "@" + suffix
                 else:
                     name, renames = headercol, ""
+                sortheaders += [name]
                 if name in formats:
                     cols += [name + ":" + formats[name] + renames]
                 else:
                     cols += [name + renames]
         logg.info("headers = %s", headers)
+        logg.info("sorting = %s", sortheaders)
+        sorting = sortheaders
     else:
         sorting = sorts
         formatter = formats
     return tabtoTOML(result, headers, selects,  # ..
                      legend=legend, datedelim=datedelim,  # ..
-                     reorder=reorder, sorts=sorts, formatter=formatter)
+                     reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
               *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',
@@ -1811,6 +1843,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoGFM:")
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     freehdrs: Dict[str, str] = {}
@@ -1841,7 +1874,9 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name]  # headers make a default column order
+            if rename:
+                sortheaders += [name]  # headers does not sort anymore
             if rename:
                 renameheaders[name] = rename
     logg.debug("renameheaders = %s", renameheaders)
@@ -1935,7 +1970,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     if legend:
         logg.debug("legend is ignored for TOML output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
-    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
@@ -2100,6 +2135,7 @@ def tabToCSV(result: Iterable[JSONDict],  # ..
     sorting: RowSortList = []
     formatter: FormatsDict = {}
     if isinstance(sorts, Sequence) and isinstance(formats, dict):
+        sortheaders: List[str] = []
         for header in sorts:
             cols: List[str] = []
             for headercol in header.split("|"):
@@ -2109,18 +2145,21 @@ def tabToCSV(result: Iterable[JSONDict],  # ..
                         renames = "@" + suffix
                 else:
                     name, renames = headercol, ""
+                sortheaders += [name]
                 if name in formats:
                     cols += [name + ":" + formats[name] + renames]
                 else:
                     cols += [name + renames]
             headers += ["|".join(cols)]
         logg.info("headers = %s", headers)
+        logg.info("sorting = %s", sortheaders)
+        sorting = sortheaders
     else:
         sorting = sorts
         formatter = formats
     return tabtoCSV(result, headers, selects,  # ..
                     legend=legend, datedelim=datedelim, noheaders=noheaders, tab=tab,  # ..
-                    reorder=reorder, sorts=sorts, formatter=formatter)
+                    reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
              *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-', noheaders: bool = False, unique: bool = False, tab: str = ";",
@@ -2128,6 +2167,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoCSV:")
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     formats: Dict[str, str] = {}
     combine: Dict[str, List[str]] = {}
@@ -2159,7 +2199,9 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name]
+            if rename:
+                sortheaders += [name]  # default sort by named headers (rows)
             if not combines:
                 combines = name
             elif combines not in combine:
@@ -2168,6 +2210,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 combine[combines] += [name]
             if rename:
                 renameheaders[name] = rename
+    logg.debug("showheaders = %s", showheaders)
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -2269,7 +2312,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     if legend:
         logg.debug("legend is ignored for CSV output")
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
-    selheaders = [(name if name not in colnames else colnames[name]) for name in (sortheaders)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
     rows: List[JSONDict] = []
@@ -2393,7 +2436,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = output
         out = sys.stdout
         done = output
-    lines = tabtotext(data, [F"@{fmt}"] + headers, selects, legend=legend, datedelim=datedelim,
+    lines = tabtotext(data, headers, [F"@{fmt}"] + selects, legend=legend, datedelim=datedelim,
                       noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
