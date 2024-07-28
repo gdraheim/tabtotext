@@ -702,9 +702,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(5000, sz)
-        want = test011Q
+        want = test011
         back = tabtextfileXLSX(filename).data
-        self.assertEqual(want, back)
+        self.assertEqual(_none(want), back)
         self.rm_testdir()
     def test_8012(self) -> None:
         tmp = self.testdir()
@@ -834,9 +834,9 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        want = test011Q
+        want = test011
         back = tabtextfileXLSX(filename).data
-        self.assertEqual(want, back)
+        self.assertEqual(_none(want), back)
         # self.rm_testdir()
     def test_8032(self) -> None:
         tmp = self.testdir()
@@ -1083,6 +1083,186 @@ class TabXlsxTest(unittest.TestCase):
                 logg.info("xmldata = %s", xmldata)
         #
         want = rev(table33Q[:2]) + table33Q[2:]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8470(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table01.xlsx")
+        tabtoXLSX(filename, table01, ["b", "a"], ["a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'a': None}, {'a': 'x'}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8471(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table02.xlsx")
+        tabtoXLSX(filename, table02, ["b", "a"], ["a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'a': None}, {'a': 'x'}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8472(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table22.xlsx")
+        tabtoXLSX(filename, table22, ["b", "a"], ["a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'a': 'x'}, {'a': 'y'}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8473(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"], ["a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8474(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["c", "a"], ["a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8475(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table02.xlsx")
+        tabtoXLSX(filename, table02, ["b", "a"], ["b"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'b': 0}, {'b': 2}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8476(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table22.xlsx")
+        tabtoXLSX(filename, table22, ["b", "a"], ["b"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'b': 2}, {'b': 3}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8477(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"], ["b"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'b': 2}, {'b': 3}, {'b': None}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8478(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["c", "a"], ["b"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'b': 2}, {'b': 3}, {'b': None}]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8479(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["c", "a"], ["c"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want: JSONList
+        want = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
