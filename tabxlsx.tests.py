@@ -933,6 +933,159 @@ class TabXlsxTest(unittest.TestCase):
         back = tabtextfileXLSX(filename).data
         self.assertEqual(want, back)
         # self.rm_testdir()
+    def test_8060(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl01.xlsx")
+        tabtoXLSX(filename, table01, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table01N)
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    def test_8061(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl02.xlsx")
+        tabtoXLSX(filename, table02, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = table02N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    def test_8062(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl22.xlsx")
+        tabtoXLSX(filename, table22, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table22)
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    def test_8063(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:2]) + table33Q[2:]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8064(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table44.xlsx")
+        tabtoXLSX(filename, table44, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = table44N[3:] + table44N[1:2] + table44N[0:1] + table44N[2:3] 
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(back))
+        self.rm_testdir()
+    def test_8065(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["c", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8467(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table22.xlsx")
+        tabtoXLSX(filename, table22, ["b", "a"], ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table22) 
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8468(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"], ["b", "a", "c"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:2]) + table33Q[2:]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    def test_8469(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"], ["c", "a", "b"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
 
 if __name__ == "__main__":
     # unittest.main()

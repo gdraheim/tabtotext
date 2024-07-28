@@ -558,6 +558,16 @@ class TabToTextTest(unittest.TestCase):
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
     def test_4064(self) -> None:
+        text = tabtotext.tabToCSV(table44, ["b", "a"])
+        logg.debug("%s => %s", table33, text)
+        want = table44N[3:] + table44N[1:2] + table44N[0:1] + table44N[2:3] 
+        cond = ['b;a;c;d', '1;y;~;0.10', '2;y;(no);0.30', '3;x;(yes);0.40', '~;~;(yes);0.20']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadCSV(text)
+        logg.info("want %s", want)
+        logg.info("back %s", back)
+        self.assertEqual(want, back)
+    def test_4065(self) -> None:
         text = tabtotext.tabToCSV(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -1269,7 +1279,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
-    def test_4465(self) -> None:
+    def test_4466(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b", "a"], ["b", "a"])
         logg.debug("%s => %s", table02, text)
         want = table02N
@@ -1277,7 +1287,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
-    def test_4466(self) -> None:
+    def test_4467(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b", "a"], ["b", "a"])
         logg.debug("%s => %s", table22, text)
         want = rev(table22)
@@ -1285,7 +1295,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
-    def test_4467(self) -> None:
+    def test_4468(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b", "a"], ["b", "a", "c"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:2]) + table33Q[2:]
@@ -1293,7 +1303,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadCSV(text)
         self.assertEqual(want, back)
-    def test_4468(self) -> None:
+    def test_4469(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["c", "a", "b"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -4778,6 +4788,16 @@ class TabToTextTest(unittest.TestCase):
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
     def test_6064(self) -> None:
+        text = tabtotext.tabToGFM(table44, ["b", "a"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        want = table44N[3:] + table44N[1:2] + table44N[0:1] + table44N[2:3] 
+        cond = ['| b     | a     | c     | d', '| ----- | ----- | ----- | -----', 
+                '| 1     | y     | ~     | 0.10', '| 2     | y     | (no)  | 0.30', 
+                '| 3     | x     | (yes) | 0.40', '| ~     | ~     | (yes) | 0.20']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6065(self) -> None:
         text = tabtotext.tabToGFM(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -5899,7 +5919,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
-    def test_6464(self) -> None:
+    def test_6465(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -5917,7 +5937,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
-    def test_6466(self) -> None:
+    def test_6467(self) -> None:
         text = tabtotext.tabtoGFM(table22, ["b", "a"], ["b", "a"])
         logg.debug("%s => %s", table22, text)
         want = rev(table22)
@@ -5925,7 +5945,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
-    def test_6467(self) -> None:
+    def test_6468(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["b", "a"], ["b", "a", "c"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:2]) + table33Q[2:]
@@ -5935,7 +5955,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         self.assertEqual(want, back)
-    def test_6468(self) -> None:
+    def test_6469(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["c", "a"], ["c", "a", "b"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -7378,6 +7398,18 @@ class TabToTextTest(unittest.TestCase):
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
     def test_7064(self) -> None:
+        text = tabtotext.tabToHTML(table44, ["b", "a"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        want = table44N[3:] + table44N[1:2] + table44N[0:1] + table44N[2:3] 
+        cond = ['<table>', '<tr><th>b</th><th>a</th><th>c</th><th>d</th></tr>', 
+                '<tr><td>1</td><td>y</td><td></td><td>0.10</td></tr>', 
+                '<tr><td>2</td><td>y</td><td>(no)</td><td>0.30</td></tr>', 
+                '<tr><td>3</td><td>x</td><td>(yes)</td><td>0.40</td></tr>', 
+                '<tr><td>~</td><td>~</td><td>(yes)</td><td>0.20</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadHTML(text)
+        self.assertEqual(want, back)
+    def test_7065(self) -> None:
         text = tabtotext.tabToHTML(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -8156,7 +8188,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
-    def test_7464(self) -> None:
+    def test_7465(self) -> None:
         text = tabtotext.tabtoHTML(table33, ["c", "a"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -8167,7 +8199,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
-    def test_7465(self) -> None:
+    def test_7466(self) -> None:
         text = tabtotext.tabtoHTML(table02, ["b", "a"], ["b", "a"])
         logg.debug("%s => %s", table02, text)
         want = table02N
@@ -8176,7 +8208,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
-    def test_7466(self) -> None:
+    def test_7467(self) -> None:
         text = tabtotext.tabtoHTML(table22, ["b", "a"], ["b", "a"])
         logg.debug("%s => %s", table22, text)
         want = rev(table22)
@@ -8185,7 +8217,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
-    def test_7467(self) -> None:
+    def test_7468(self) -> None:
         text = tabtotext.tabtoHTML(table33, ["b", "a"], ["b", "a", "c"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:2]) + table33Q[2:]
@@ -8196,7 +8228,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadHTML(text)
         self.assertEqual(want, back)
-    def test_7468(self) -> None:
+    def test_7469(self) -> None:
         text = tabtotext.tabtoHTML(table33, ["c", "a"], ["c", "a", "b"])
         logg.debug("%s => %s", table33, text)
         want = rev(table33Q[:1] + rev(table33Q[1:]))
@@ -10128,7 +10160,169 @@ class TabToTextTest(unittest.TestCase):
         want = test019
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
-        # self.rm_testdir()
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8060(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl01.xlsx")
+        tabtoXLSX(filename, table01, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table01N)
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8061(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl02.xlsx")
+        tabtoXLSX(filename, table02, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = table02N
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8062(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl22.xlsx")
+        tabtoXLSX(filename, table22, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table22)
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), back)
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8063(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "tabl33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:2]) + table33Q[2:]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8064(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table44.xlsx")
+        tabtoXLSX(filename, table44, ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = table44N[3:] + table44N[1:2] + table44N[0:1] + table44N[2:3] 
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(back))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8065(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["c", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8467(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table22.xlsx")
+        tabtoXLSX(filename, table22, ["b", "a"], ["b", "a"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table22) 
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8468(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"], ["b", "a", "c"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:2]) + table33Q[2:]
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_8469(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table33.xlsx")
+        tabtoXLSX(filename, table33, ["b", "a"], ["c", "a", "b"])
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3500)
+        self.assertGreater(6000, sz)
+        #
+        with ZipFile(filename) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+                xmldata = zipdata.read()
+                logg.info("xmldata = %s", xmldata)
+        #
+        want = rev(table33Q[:1] + rev(table33Q[1:]))
+        back = readFromXLSX(filename)
+        self.assertEqual(_none(want), _none(_date(back)))
+        self.rm_testdir()
 
 if __name__ == "__main__":
     # unittest.main()
