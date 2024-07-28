@@ -2512,16 +2512,8 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "TOML"  # nopep8
     if fmt in ["md", "markdown"]:
         fmt = "GFM"  # nopep8
-    if fmt in ["md2"]:
-        fmt = "GFM"; minwidth=2  # nopep8
-    if fmt in ["md3"]:
-        fmt = "GFM"; minwidth=3  # nopep8
-    if fmt in ["md4"]:
-        fmt = "GFM"; minwidth=4  # nopep8
-    if fmt in ["md5"]:
-        fmt = "GFM"; minwidth=5  # nopep8
-    if fmt in ["md6"]:
-        fmt = "GFM"; minwidth=6  # nopep8
+    if fmt in ["md2", "md3", "md4", "md5", "md6"]:
+        fmt = "GFM"  # nopep8
     if fmt in ["text"]:
         fmt = "GFM"; tab=""; noheaders=True  # nopep8
     if fmt in ["wide"]:
