@@ -727,7 +727,7 @@ def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|') -> JSONList
     return list(parser.load(filename))
 def tabtextfileGFM(filename: str, datedelim: str = '-', tab: str = '|') -> TabText:
     parser = DictParserGFM(datedelim=datedelim, tab=tab)
-    data =  list(parser.load(filename))
+    data = list(parser.load(filename))
     return TabText(data, parser.headers)
 
 class DictParserGFM(DictParser):
@@ -2371,7 +2371,7 @@ class DictParserCSV(DictParser):
         tab = tab if tab is not None else self.tab
         import csv
         reader = csv.DictReader(csvfile, restval='ignore',
-                                  quoting=csv.QUOTE_MINIMAL, delimiter=tab)
+                                quoting=csv.QUOTE_MINIMAL, delimiter=tab)
         for row in reader:
             newrow: JSONDict = dict(row)
             for key, val in newrow.items():
@@ -2404,7 +2404,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = output
         out = sys.stdout
         done = output
-    lines = tabtotext(data, [F"@{fmt}"]+headers, selects, legend=legend, datedelim=datedelim, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
+    lines = tabtotext(data, [F"@{fmt}"] + headers, selects, legend=legend, datedelim=datedelim,
+                      noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
         results.append(line)
@@ -2415,50 +2416,53 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
 
 def tabtotext(data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-              *, fmt: str= "", datedelim: str = '-', tab: str = "|", minwidth: int = 0, 
-              noheaders: bool = False, unique:bool = False, defaultformat: str = "") -> str:
-    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1)) for x in selects if x.startswith("@"))
+              *, fmt: str = "", datedelim: str = '-', tab: str = "|", minwidth: int = 0,
+              noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+    spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
+                                for x in selects if x.startswith("@"))
     selects = [x for x in selects if not x.startswith("@")]
     fmt = fmt if fmt not in ["", "-"] else defaultformat
     # formats
     if fmt in ["htm", "html"] or "@htm" in spec or "@html" in spec:
-        fmt = "HTML"  # nopep8
+        fmt = "HTML"
     if fmt in ["jsn", "json"] or "@jsn" in spec or "@json" in spec:
-        fmt = "JSON"  # nopep8
+        fmt = "JSON"
     if fmt in ["yml", "yaml"] or "@yml" in spec or "@yaml" in spec:
-        fmt = "YAML"  # nopep8
+        fmt = "YAML"
     if fmt in ["tml", "toml"] or "@tml" in spec or "@toml" in spec:
-        fmt = "TOML"  # nopep8
+        fmt = "TOML"
     if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
         fmt = "GFM"  # nopep8
     if fmt in ["md2"] or "@md2" in spec:
-        fmt = "GFM"; minwidth=2  # nopep8
+        fmt = "GFM"; minwidth = 2  # nopep8
     if fmt in ["md3"] or "@md3" in spec:
-        fmt = "GFM"; minwidth=3  # nopep8
+        fmt = "GFM"; minwidth = 3  # nopep8
     if fmt in ["md4"] or "@md4" in spec:
-        fmt = "GFM"; minwidth=4  # nopep8
+        fmt = "GFM"; minwidth = 4  # nopep8
     if fmt in ["md5"] or "@md5" in spec:
-        fmt = "GFM"; minwidth=5  # nopep8
+        fmt = "GFM"; minwidth = 5  # nopep8
     if fmt in ["md6"] or "@md6" in spec:
-        fmt = "GFM"; minwidth=6  # nopep8
+        fmt = "GFM"; minwidth = 6  # nopep8
     if fmt in ["wide"] or "@wide" in spec:
-        fmt = "GFM"; tab=""  # nopep8
+        fmt = "GFM"; tab = ""  # nopep8
     if fmt in ["text"] or "@text" in spec:
-        fmt = "GFM"; tab=""; noheaders=True  # nopep8
+        fmt = "GFM"; tab = ""; noheaders = True  # nopep8
     if fmt in ["tabs"] or "@tabs" in spec:
-        fmt = "GFM"; tab="\t"  # nopep8
+        fmt = "GFM"; tab = "\t"  # nopep8
     if fmt in ["tab"] or "@tab" in spec:
-        fmt = "CSV"; tab="\t"  # nopep8
+        fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"] or "@data" in spec:
-        fmt = "CSV"; tab="\t"; noheaders=True  # nopep8
+        fmt = "CSV"; tab = "\t"
+        noheaders = True  # nopep8
     if fmt in ["dat", "ifs"] or "@dat" in spec or "@ifs" in spec:
-        fmt = "CSV"; tab=os.environ.get("IFS", "\t"); noheaders=True  # nopep8
+        fmt = "CSV"; tab = os.environ.get("IFS", "\t"); noheaders = True  # nopep8
     if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
-        fmt = "CSV"; tab=";"  # nopep8
+        fmt = "CSV"; tab = ";"  # nopep8
     if fmt in ["list"] or "@list" in spec:
-        fmt = "CSV"; tab=";"; noheaders=True  # nopep8
+        fmt = "CSV"; tab = ";"
+        noheaders = True  # nopep8
     if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
-        fmt = "XLS"; tab=","  # nopep8
+        fmt = "XLS"; tab = ","  # nopep8
     # override
     if "@delimiter" in spec:
         tab = spec["@delimiter"]
@@ -2484,14 +2488,14 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     if fmt == "JSON":
         return tabtoJSON(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "YAML":
-        return  tabtoYAML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
+        return tabtoYAML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "TOML":
-        return  tabtoTOML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
+        return tabtoTOML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "CSV":
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+        return tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
     if fmt == "XLS":
-        return  tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
-    return  tabtoGFM(data, headers, selects, legend=legend, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+        return tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+    return tabtoGFM(data, headers, selects, legend=legend, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
@@ -2523,37 +2527,37 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
     if fmt in ["md2", "md3", "md4", "md5", "md6"]:
         fmt = "GFM"  # nopep8
     if fmt in ["text"]:
-        fmt = "GFM"; tab=""; noheaders=True  # nopep8
+        fmt = "GFM"; tab = ""; noheaders = True  # nopep8
     if fmt in ["wide"]:
-        fmt = "GFM"; tab=""  # nopep8
+        fmt = "GFM"; tab = ""  # nopep8
     if fmt in ["tabs"]:
-        fmt = "GFM"; tab="\t"  # nopep8
+        fmt = "GFM"; tab = "\t"  # nopep8
     if fmt in ["tab"]:
-        fmt = "CSV"; tab="\t"  # nopep8
+        fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"]:
-        fmt = "CSV"; tab="\t"; noheaders=True  # nopep8
+        fmt = "CSV"; tab = "\t"; noheaders = True  # nopep8
     if fmt in ["dat", "ifs"]:
-        fmt = "CSV"; tab=os.environ.get("IFS", "\t"); noheaders=True  # nopep8
+        fmt = "CSV"; tab = os.environ.get("IFS", "\t"); noheaders = True  # nopep8
     if fmt in ["csv", "scsv"]:
-        fmt = "CSV"; tab=";"  # nopep8
+        fmt = "CSV"; tab = ";"  # nopep8
     if fmt in ["list"]:
-        fmt = "CSV"; tab=";"; noheaders=True  # nopep8
+        fmt = "CSV"; tab = ";"; noheaders = True  # nopep8
     if fmt in ["xlsx", "xls"]:
-        fmt = "XLS"; tab="," # nopep8
+        fmt = "XLS"; tab = ","  # nopep8
     # render
     if fmt == "HTML":
         return tabToHTML(data, sorts, formats, selects, legend=legend)
     if fmt == "JSON":
         return tabToJSON(data, sorts, formats, selects, datedelim=datedelim)
     if fmt == "YAML":
-        return  tabToYAML(data, sorts, formats, selects, datedelim=datedelim)
+        return tabToYAML(data, sorts, formats, selects, datedelim=datedelim)
     if fmt == "TOML":
-        return  tabToTOML(data, sorts, formats, selects, datedelim=datedelim)
+        return tabToTOML(data, sorts, formats, selects, datedelim=datedelim)
     if fmt == "CSV":
-        return  tabToCSV(data, sorts, formats, selects, datedelim=datedelim, tab=tab, noheaders=noheaders)
+        return tabToCSV(data, sorts, formats, selects, datedelim=datedelim, tab=tab, noheaders=noheaders)
     if fmt == "XLS":
-        return  tabToCSV(data, sorts, formats, selects, datedelim=datedelim, tab=tab, noheaders=noheaders)
-    return  tabToGFM(data, sorts, formats, selects, legend=legend, tab=tab, noheaders=noheaders)
+        return tabToCSV(data, sorts, formats, selects, datedelim=datedelim, tab=tab, noheaders=noheaders)
+    return tabToGFM(data, sorts, formats, selects, legend=legend, tab=tab, noheaders=noheaders)
 
 def saveToFMT(filename: str, fmt: str, result: JSONList,  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
@@ -2812,14 +2816,15 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true", 
+    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true",
                        help="do not print headers (csv,md,tab,wide)", default=False)
-    cmdline.add_option("-U", "--unique", action="store_true", 
+    cmdline.add_option("-U", "--unique", action="store_true",
                        help="remove same lines in sorted --labels (csv,md,tab,wide)", default=False)
     cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
                        help="select columns to show (a|b:.2f)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
-    cmdline.add_option("-o", "--output", "--format", metavar="FMT", help="(file.)json|yaml|html|wide|md|htm|tab|csv", default="")
+    cmdline.add_option("-o", "--output", "--format", metavar="FMT",
+                       help="(file.)json|yaml|html|wide|md|htm|tab|csv", default="")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     if not args:
