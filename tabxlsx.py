@@ -591,7 +591,11 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
                     elif value is True:
                         sortvalue += "\n!"
                     elif isinstance(value, int):
-                        sortvalue += "\n%020i" % value
+                        val = "%i" % value
+                        sortvalue += "\n" + (":" * len(val)) + val
+                    elif isinstance(value, float):
+                        val = "%.6f" % value
+                        sortvalue += "\n" + (":" * val.index(".")) + val
                     elif isinstance(value, Time):
                         sortvalue += "\n" + value.strftime(TIMEFMT)
                     elif isinstance(value, Date):
@@ -901,7 +905,11 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                     elif value is True:
                         sortvalue += "\n!"
                     elif isinstance(value, int):
-                        sortvalue += "\n%020i" % value
+                        val = "%i" % value
+                        sortvalue += "\n" + (":" * len(val)) + val
+                    elif isinstance(value, float):
+                        val = "%.6f" % value
+                        sortvalue += "\n" + (":" * val.index(".")) + val
                     else:
                         sortvalue += "\n" + strValue(value)
                 else:

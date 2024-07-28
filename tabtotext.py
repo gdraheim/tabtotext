@@ -349,9 +349,11 @@ class RowSortCallable:
                     elif value is True:
                         sortvalue += "\n!"
                     elif isinstance(value, int):
-                        sortvalue += "\n%020i" % value
+                        val = "%i" % value
+                        sortvalue += "\n" + (":" * len(val)) + val
                     elif isinstance(value, float):
-                        sortvalue += "\n%020.6f" % value
+                        val = "%.6f" % value
+                        sortvalue += "\n" + (":" * val.index(".")) + val
                     else:
                         sortvalue += "\n" + strJSONItem(value, self.datedelim)
                 else:
