@@ -2428,7 +2428,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = defaultformat
         done = "stream"
     elif "." in output:
-        fmt = detectfileformat(output) or defaultformat
+        fmt = extension(output) or defaultformat
         if fmt in ["xls", "xlsx", "XLS", "XLSX"]:
             try:
                 import tabtoxlsx
@@ -2607,7 +2607,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
 def saveToFMT(filename: str, fmt: str, result: JSONList,  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
               *, datedelim: str = '-', legend: LegendList = [], reorder: ColSortList = []) -> str:
-    fmt = fmt or detectfileformat(filename) or ""
+    fmt = fmt or extension(filename) or ""
     dat = tabToFMT(fmt, result, sorts, formats, selects, datedelim=datedelim, legend=legend, reorder=reorder)
     if filename:
         with open(filename, "w") as f:
@@ -2628,54 +2628,9 @@ def viewFMT(fmt: str) -> str:
         return htmlprog()
     return editprog()
 
-def detectfileformat(filename: str) -> Optional[str]:
+def extension(filename: str) -> Optional[str]:
     _, ext = os.path.splitext(filename.lower())
-    if ext in [".txt", ".md", ".markdown"]:
-        return "md"
-    if ext in [".csv", ".scsv"]:
-        return "csv"
-    if ext in [".dat", ".tcsv"]:
-        return "tab"
-    if ext in [".jsn", ".json"]:
-        return "json"
-    if ext in [".yml", ".yaml"]:
-        return "yaml"
-    if ext in [".tml", ".toml"]:
-        return "toml"
-    if ext in [".htm", ".html", ".xhtml"]:
-        return "html"
-    if ext in [".xls", ".xlsx"]:
-        return "xlsx"
-    return None
-def detectcontentformat(filename: str) -> Optional[str]:
-    first = b""
-    with open(filename, "rb") as f:
-        for x in range(255):
-            c = f.read(1)
-            if not c:
-                break
-            if c in [b"|"]:
-                return "md"
-            if c in [b";"]:
-                return "csv"
-            if c in [b"\t"]:
-                return "tab"
-            if c in [b"<"]:
-                return "html"
-            if c in [b"{"]:
-                return "json"
-            if c in [b":"]:
-                return "yaml"
-            if c in [b"["]:
-                return "toml"
-            if c.isalnum() or ord(c) <= 0x20:
-                logg.debug("buff %c [%i]", ord(c), ord(c))
-                first += c
-                if first == b"PK\03\04":
-                    return "xlsx"
-                continue
-            else:
-                logg.debug("skip %c [%i]", ord(c), ord(c))
+    if ext: return ext[1:]
     return None
 
 def readFromFile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> JSONList:
@@ -2686,7 +2641,7 @@ def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
     return tabtext.data
 def tabtextfile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> TabText:
     if not fmt:
-        fmt = detectfileformat(filename) or detectcontentformat(filename) or defaultfileformat
+        fmt = extension(filename) or defaultfileformat
         if not fmt:
             logg.warning("could not detect format of '%s'", filename)
             return TabText([], [])
@@ -2694,7 +2649,7 @@ def tabtextfile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> 
     return tabtextfileFMT(fmt, filename, defaultfileformat)
 def tabtextfileFMT(fmt: str, filename: str, defaultformat: str = NIX) -> TabText:
     if not fmt:
-        fmt = detectfileformat(filename) or NIX
+        fmt = extension(filename) or NIX
         if not fmt:
             fmt = defaultformat
         if not fmt:
@@ -2794,7 +2749,7 @@ def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
                datedelim: str = '-', legend: LegendList = [],  # ...
                reorder: ColSortList = []) -> str:
     data = tabToTab(result, selects)
-    FMT = fmt or detectfileformat(OUTPUT) or "md"
+    FMT = fmt or extension(OUTPUT) or "md"
     if OUTPUT in ["", "-", "CON"]:
         print(tabToFMT(FMT, data, formats=formats, sorts=sorts, reorder=reorder, datedelim=datedelim, legend=legend))
     elif OUTPUT:
@@ -2845,7 +2800,7 @@ def tabFileToPrintWith(filename: str, fileformat: str, output: str = NIX, fmt: s
                        formats: Union[str, FormatsDict] = NIX,  # ...
                        datedelim: str = '-', legend: LegendList = [],  # ...
                        reorder: ColSortList = []) -> str:
-    fileformat = fileformat or detectfileformat(filename) or detectcontentformat(filename) or "md"
+    fileformat = fileformat or extension(filename) or "md"
     if not fileformat:
         logg.error("could not detect format of '%s'", filename)
         return ""

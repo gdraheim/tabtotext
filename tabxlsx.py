@@ -694,16 +694,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                                 for x in selects if x.startswith("@"))
     selects = [x for x in selects if not x.startswith("@")]
     minwidth = minwidth or MINWIDTH
-    def detectfileformat(filename: str) -> Optional[str]:
+    def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
-        if ext in [".txt", ".md", ".markdown"]:
-            return "md"
-        if ext in [".csv", ".scsv"]:
-            return "csv"
-        if ext in [".dat", ".tcsv"]:
-            return "tab"
-        if ext in [".xls", ".xlsx"]:
-            return "xlsx"
+        if ext: return ext[1:]
         return None
     #
     if isinstance(output, TextIO) or isinstance(output, StringIO):
@@ -711,7 +704,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         fmt = defaultformat
         done = "stream"
     elif "." in output:
-        fmt = detectfileformat(output) or defaultformat
+        fmt = extension(output) or defaultformat
         if fmt in ["xls", "xlsx"]:
             tabtoXLSX(output, data, headers, selects)
             return "XLSX"
@@ -981,16 +974,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     return "GFM"
 
 def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
-    def detectfileformat(filename: str) -> Optional[str]:
+    def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
-        if ext in [".txt", ".md", ".markdown"]:
-            return "md"
-        if ext in [".csv", ".scsv"]:
-            return "csv"
-        if ext in [".dat", ".tcsv"]:
-            return "tab"
-        if ext in [".xls", ".xlsx"]:
-            return "xlsx"
+        if ext: return ext[1:]
         return None
     #
     if isinstance(input, TextIO) or isinstance(input, StringIO):
@@ -998,7 +984,7 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
         fmt = defaultformat
         done = "stream"
     elif "." in input:
-        fmt = detectfileformat(input) or defaultformat
+        fmt = extension(input) or defaultformat
         if fmt in ["xls", "xlsx"]:
             return tabtextfileXLSX(input)
         inp = open(input, "rt", encoding="utf-8")
