@@ -3271,7 +3271,37 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadYAML(text)
         self.assertEqual(want, back)
-    def test_5321(self) -> None:
+    def test_5324(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, table44, defaultformat="yaml")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text.splitlines())
+        want = table44
+        cond = ['data:', 
+               '- a: "x"', '  b: 3', '  c: true', '  d: 0.40', 
+               '- a: "y"', '  b: 2', '  c: false', '  d: 0.30', 
+               '- a: null', '  b: null', '  c: true', '  d: 0.20', 
+               '- a: "y"', '  b: 1', '  d: 0.10']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadYAML(text)
+        self.assertEqual(want, back)
+    def test_5329(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, table44, defaultformat="yml")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test019, text.splitlines())
+        want = table44
+        cond = ['data:', 
+               '- a:"x"', '  b:3', '  c:true', '  d:0.40', 
+               '- a:"y"', '  b:2', '  c:false', '  d:0.30', 
+               '- a:null', '  b:null', '  c:true', '  d:0.20', 
+               '- a:"y"', '  b:1', '  d:0.10']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadYAML(text)
+        self.assertEqual(want, back)
+    def test_5361(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test011, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3282,7 +3312,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5322(self) -> None:
+    def test_5362(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test012, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3293,7 +3323,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5323(self) -> None:
+    def test_5363(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test013, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3304,7 +3334,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5324(self) -> None:
+    def test_5364(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test014, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3315,7 +3345,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5325(self) -> None:
+    def test_5365(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test015, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3326,7 +3356,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5326(self) -> None:
+    def test_5366(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test016, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3337,7 +3367,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5327(self) -> None:
+    def test_5367(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test017, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3348,7 +3378,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5328(self) -> None:
+    def test_5368(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test018, defaultformat="toml")
         logg.info("print_tabtotext %s", res)
@@ -3359,7 +3389,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
-    def test_5329(self) -> None:
+    def test_5369(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, test019, defaultformat="toml")
         logg.info("print_tabtotext %s", res)

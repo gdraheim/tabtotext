@@ -1511,7 +1511,7 @@ class FormatYAML(FormatJSON):
 
 def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
                sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-               *, datedelim: str = '-', legend: LegendList = []) -> str:
+               *, datedelim: str = '-', padding: str = " ", legend: LegendList = []) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1520,10 +1520,10 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToYAML(results, sorts, formats, datedelim=datedelim, legend=legend)
+    return tabToYAML(results, sorts, formats, datedelim=datedelim, padding=padding, legend=legend)
 def tabToYAML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-              *, datedelim: str = '-', legend: LegendList = [],  #
+              *, datedelim: str = '-', padding: str = " ", legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -1553,11 +1553,11 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
         sorting = sorts
         formatter = formats
     return tabtoYAML(result, headers, selects,  # ..
-                     legend=legend, datedelim=datedelim,  # ..
+                     legend=legend, datedelim=datedelim, padding=padding, # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',  #
+              *, legend: LegendList = [], padding: str = " ", minwidth: int = 0, datedelim: str = '-',  #
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoYAML:")
@@ -1732,6 +1732,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    pad = " " * len(padding)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
         return (name if is_simple.match(name) else '"%s"' % name)
@@ -1740,7 +1741,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = ['%s: %s' % (as_name(name), values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        line = ['%s:%s%s' % (as_name(name), pad, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
         lines.append("- " + "\n  ".join(line))
     return "data:\n" + "\n".join(lines) + "\n"
 
@@ -2493,8 +2494,10 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         fmt = "JSON"
     if fmt in ["jsn"] or "@jsn" in spec:
         fmt = "JSON"; padding = ""
-    if fmt in ["yml", "yaml"] or "@yml" in spec or "@yaml" in spec:
+    if fmt in ["yaml"] or "@yaml" in spec:
         fmt = "YAML"
+    if fmt in ["yml"] or "@yml" in spec:
+        fmt = "YAML"; padding = ""
     if fmt in ["tml", "toml"] or "@tml" in spec or "@toml" in spec:
         fmt = "TOML"
     if fmt in ["md"] or "@md" in spec:
@@ -2562,7 +2565,7 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     if fmt == "JSON":
         return tabtoJSON(data, headers, selects, datedelim=datedelim, padding=padding, minwidth=minwidth)
     if fmt == "YAML":
-        return tabtoYAML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
+        return tabtoYAML(data, headers, selects, datedelim=datedelim, padding=padding, minwidth=minwidth)
     if fmt == "TOML":
         return tabtoTOML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "CSV":
@@ -2600,8 +2603,10 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "JSON"  # nopep8
     if fmt in ["jsn"]:
         fmt = "JSON"; padding=""  # nopep8
-    if fmt in ["yml", "yaml"]:
+    if fmt in ["yaml"]:
         fmt = "YAML"  # nopep8
+    if fmt in ["yml"]:
+        fmt = "YAML"; padding=""  # nopep8
     if fmt in ["tml", "toml"]:
         fmt = "TOML"  # nopep8
     if fmt in ["md"]:
@@ -2636,7 +2641,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
     if fmt == "JSON":
         return tabToJSON(data, sorts, formats, selects, padding=padding, datedelim=datedelim)
     if fmt == "YAML":
-        return tabToYAML(data, sorts, formats, selects, datedelim=datedelim)
+        return tabToYAML(data, sorts, formats, selects, padding=padding, datedelim=datedelim)
     if fmt == "TOML":
         return tabToTOML(data, sorts, formats, selects, datedelim=datedelim)
     if fmt == "CSV":
