@@ -1832,7 +1832,7 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     return tabToTOML(results, sorts, formats, selects, datedelim=datedelim, legend=legend)
 def tabToTOML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-              *, datedelim: str = '-', legend: LegendList = [],  #
+              *, datedelim: str = '-', padding: str = " ", legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -1861,11 +1861,11 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
         sorting = sorts
         formatter = formats
     return tabtoTOML(result, headers, selects,  # ..
-                     legend=legend, datedelim=datedelim,  # ..
+                     legend=legend, padding=padding, datedelim=datedelim,  # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',
+              *, legend: LegendList = [], padding: str = " ", minwidth: int = 0, datedelim: str = '-',
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoGFM:")
@@ -2041,6 +2041,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    pad = " " * len(padding)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
         return (name if is_simple.match(name) else '"%s"' % name)
@@ -2050,7 +2051,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         for name, value in item.items():
             if value is not None:
                 values[name] = format(name, value)
-        line = ['%s = %s' % (as_name(name), values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        line = ['%s%s=%s%s' % (as_name(name), pad, pad, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
         lines.append("[[data]]\n" + "\n".join(line))
     return "\n".join(lines) + "\n"
 
@@ -2498,8 +2499,10 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         fmt = "YAML"
     if fmt in ["yml"] or "@yml" in spec:
         fmt = "YAML"; padding = ""
-    if fmt in ["tml", "toml"] or "@tml" in spec or "@toml" in spec:
+    if fmt in ["toml"] or "@toml" in spec:
         fmt = "TOML"
+    if fmt in ["tml"] or "@tml" in spec:
+        fmt = "TOML"; padding = ""
     if fmt in ["md"] or "@md" in spec:
         fmt = "GFM"  # nopep8
     if fmt in ["markdown"] or "@markdown" in spec:
@@ -2567,7 +2570,7 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     if fmt == "YAML":
         return tabtoYAML(data, headers, selects, datedelim=datedelim, padding=padding, minwidth=minwidth)
     if fmt == "TOML":
-        return tabtoTOML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
+        return tabtoTOML(data, headers, selects, datedelim=datedelim, padding=padding, minwidth=minwidth)
     if fmt == "CSV":
         return tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
     if fmt == "XLS":
@@ -2576,7 +2579,8 @@ def tabtotext(data: Iterable[JSONDict],  # ..
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-              *, datedelim: str = '-', legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
+              *, datedelim: str = '-', legend: LegendList = [], noheaders: bool = False, tab: str = "|", padding: str = " ", xmlns: str = "", #
+              combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -2585,10 +2589,10 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToFMT(output, results, sorts, formats, selects, datedelim=datedelim, legend=legend, combine=combine)
+    return tabToFMT(output, results, sorts, formats, selects, datedelim=datedelim, legend=legend, noheaders=noheaders, tab=tab, padding=padding, xmlns=xmlns, combine=combine)
 def tabToFMT(fmt: str, data: JSONList,  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|", padding: str = " ", xmlns: str = " ", #
+             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|", padding: str = " ", xmlns: str = "", #
              reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     # formats
     if fmt in ["html"]:
@@ -2599,6 +2603,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "HTML"; tab = ""; padding = ""; xmlns = "1999/xhtml"
     if fmt in ["xhtml"]:
         fmt = "HTML"; xmlns = "1999/xhtml"
+    logg.fatal("xmlns =%s", xmlns)
     if fmt in ["json"]:
         fmt = "JSON"  # nopep8
     if fmt in ["jsn"]:
@@ -2607,8 +2612,10 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "YAML"  # nopep8
     if fmt in ["yml"]:
         fmt = "YAML"; padding=""  # nopep8
-    if fmt in ["tml", "toml"]:
+    if fmt in ["toml"]:
         fmt = "TOML"  # nopep8
+    if fmt in ["tml"]:
+        fmt = "TOML"; padding=""  # nopep8
     if fmt in ["md"]:
         fmt = "GFM"  # nopep8
     if fmt in ["markdown"]:
@@ -2643,7 +2650,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
     if fmt == "YAML":
         return tabToYAML(data, sorts, formats, selects, padding=padding, datedelim=datedelim)
     if fmt == "TOML":
-        return tabToTOML(data, sorts, formats, selects, datedelim=datedelim)
+        return tabToTOML(data, sorts, formats, selects, padding=padding, datedelim=datedelim)
     if fmt == "CSV":
         return tabToCSV(data, sorts, formats, selects, datedelim=datedelim, tab=tab, noheaders=noheaders)
     if fmt == "XLS":

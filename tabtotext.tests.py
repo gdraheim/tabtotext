@@ -129,11 +129,20 @@ table44N: JSONList = [{"a": "x", "b": 3, "c": True, "d": 0.4},
                       {"a": None, "b": None, "c": True, "d": 0.2},
                       {"a": "y", "b": 1, "c": None, "d": 0.1}]
 
+def _no_none(data: JSONList, none: str = "") -> JSONList:
+    rows: JSONList = []
+    for datarow in data:
+        row: JSONDict = datarow.copy()
+        for name, value in datarow.items():
+            if value is None:
+                del row[name]
+        rows.append(row)
+    return rows
 def _none(data: JSONList, none: str = "") -> JSONList:
     rows: JSONList = []
     for datarow in data:
         row: JSONDict = datarow.copy()
-        for name, value in row.items():
+        for name, value in datarow.items():
             if value is None:
                 row[name] = none
         rows.append(row)
@@ -142,7 +151,7 @@ def _date(data: JSONList, none: str = "") -> JSONList:
     rows: JSONList = []
     for datarow in data:
         row: JSONDict = datarow.copy()
-        for name, value in row.items():
+        for name, value in datarow.items():
             if isinstance(value, Time):
                 row[name] = value.date()
         rows.append(row)
@@ -3276,7 +3285,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, table44, defaultformat="yaml")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text.splitlines())
+        logg.debug("%s => %s", table44, text.splitlines())
         want = table44
         cond = ['data:', 
                '- a: "x"', '  b: 3', '  c: true', '  d: 0.40', 
@@ -3291,7 +3300,7 @@ class TabToTextTest(unittest.TestCase):
         res = tabtotext.print_tabtotext(out, table44, defaultformat="yml")
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
-        logg.debug("%s => %s", test019, text.splitlines())
+        logg.debug("%s => %s", table44, text.splitlines())
         want = table44
         cond = ['data:', 
                '- a:"x"', '  b:3', '  c:true', '  d:0.40', 
@@ -3397,6 +3406,34 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test019, text)
         want = test018  # test019
         cond = ['[[data]]', 'b = 2021-12-31']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadTOML(text)
+        self.assertEqual(want, back)
+    def test_5374(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, table44, defaultformat="toml")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", table44, text.splitlines())
+        want = _no_none(table44)
+        cond = ['[[data]]', 'a = "x"', 'b = 3', 'c = true', 'd = 0.40', 
+                '[[data]]', 'a = "y"', 'b = 2', 'c = false', 'd = 0.30', 
+                '[[data]]', 'c = true', 'd = 0.20', 
+                '[[data]]', 'a = "y"', 'b = 1', 'd = 0.10']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadTOML(text)
+        self.assertEqual(want, back)
+    def test_5379(self) -> None:
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, table44, defaultformat="tml")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", table44, text.splitlines())
+        want = _no_none(table44)
+        cond = ['[[data]]', 'a="x"', 'b=3', 'c=true', 'd=0.40', 
+                '[[data]]', 'a="y"', 'b=2', 'c=false', 'd=0.30', 
+                '[[data]]', 'c=true', 'd=0.20', 
+                '[[data]]', 'a="y"', 'b=1', 'd=0.10']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadTOML(text)
         self.assertEqual(want, back)
