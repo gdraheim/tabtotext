@@ -690,15 +690,19 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if format.right(col):
             return formatter[:-1] + ":"
         return formatter
-    tab2 = tab + padding if tab else ""
+    tab2 = tab[0] + padding if tab else ""
+    rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
     if not noheaders:
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
-        lines += [(padding.join(line)).rstrip()]
+        if rtab:
+            lines += [(padding.join(line)) + rtab]
+        else:
+            lines += [(padding.join(line)).rstrip()]
         if tab and padding:
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
                           for name in sorted(cols.keys(), key=sortkey)]
-            lines.append(padding.join(seperators))
+            lines.append(padding.join(seperators) + rtab)
     old: Dict[str, str] = {}
     same: List[str] = []
     for item in sorted(rows, key=sortrow):
@@ -710,7 +714,10 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if unique:
             same = [sel for sel in selected if sel in values and sel in old and values[sel] == old[sel]]
         if not selected or same != selected:
-            lines.append((padding.join(line)).rstrip())
+            if rtab:
+                lines.append((padding.join(line)) + rtab)
+            else:
+                lines.append((padding.join(line)).rstrip())
         old = values
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts, reorder)
 
@@ -2479,8 +2486,10 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         fmt = "YAML"
     if fmt in ["tml", "toml"] or "@tml" in spec or "@toml" in spec:
         fmt = "TOML"
-    if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
+    if fmt in ["md"] or "@md" in spec:
         fmt = "GFM"  # nopep8
+    if fmt in ["markdown"] or "@markdown" in spec:
+        fmt = "GFM"; tab="||"  # nopep8
     if fmt in ["md2"] or "@md2" in spec:
         fmt = "GFM"; minwidth = 2  # nopep8
     if fmt in ["md3"] or "@md3" in spec:
@@ -2580,12 +2589,14 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "YAML"  # nopep8
     if fmt in ["tml", "toml"]:
         fmt = "TOML"  # nopep8
-    if fmt in ["md", "markdown"]:
+    if fmt in ["md"]:
         fmt = "GFM"  # nopep8
+    if fmt in ["markdown"]:
+        fmt = "GFM"; tab="||"  # nopep8
     if fmt in ["md2", "md3", "md4", "md5", "md6"]:
         fmt = "GFM"  # nopep8
     if fmt in ["txt"]:
-        fmt = "GFM"; pading = ""  # nopep8
+        fmt = "GFM"; padding = ""  # nopep8
     if fmt in ["text"]:
         fmt = "GFM"; padding = ""; noheaders = True  # nopep8
     if fmt in ["wide"]:

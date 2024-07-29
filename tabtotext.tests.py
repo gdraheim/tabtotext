@@ -5026,7 +5026,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6103(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test003)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test003)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test003, text)
@@ -5037,7 +5037,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6104(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test004)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test004)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -5048,7 +5048,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6105(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test005)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test005)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test005, text)
@@ -5059,7 +5059,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6106(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test006)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test006)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test006, text)
@@ -5070,7 +5070,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6107(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test007)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test007)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test007, text)
@@ -5081,7 +5081,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6108(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test008)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test008)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test008, text)
@@ -5092,7 +5092,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6109(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test009)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test009)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test009, text)
@@ -5103,7 +5103,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6111(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test011)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test011)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test011, text)
@@ -5114,7 +5114,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6112(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test012)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test012)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test012, text)
@@ -5125,7 +5125,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6113(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test013)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test013)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test013, text)
@@ -5136,7 +5136,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6114(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test014)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test014)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test014, text)
@@ -5147,7 +5147,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6115(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test015)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test015)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test015, text)
@@ -5158,7 +5158,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6116(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test016)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test016)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test016, text)
@@ -5169,7 +5169,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6117(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test017)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test017)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test017, text)
@@ -5180,7 +5180,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6118(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test018)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test018)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test018, text)
@@ -5191,7 +5191,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertEqual(want, back)
     def test_6119(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, test019)  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, test019)  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test019, text)
@@ -5332,8 +5332,28 @@ class TabToTextTest(unittest.TestCase):
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
-        cond = ['| b     | a     | c', '| ----- | ----- | -----',
-                '| 1     | y     | ~', '| 2     | x     | ~', '| ~     | ~     | h', ]
+        cond = ['| b     | a     | c', 
+                '| ----- | ----- | -----',
+                '| 1     | y     | ~', 
+                '| 2     | x     | ~', 
+                '| ~     | ~     | h', ]
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadGFM(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
+    def test_6149(self) -> None:
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@1', 'a@2'], defaultformat="markdown")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", itemlist, text.splitlines())
+        cond = ['| b     | a     | c     |', 
+                '| ----- | ----- | ----- |', 
+                '| 1     | y     | ~     |', 
+                '| 2     | x     | ~     |', 
+                '| ~     | ~     | h     |']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
@@ -5461,7 +5481,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
     def test_6220(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6220, ["b", "a"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6220, ["b", "a"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5474,7 +5494,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6221: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_6221(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6221, ["b@1", "a"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6221, ["b@1", "a"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5487,7 +5507,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6222: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_6222(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6222, ["b", "a@1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6222, ["b", "a@1"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5500,7 +5520,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6223: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_6223(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6223, ["b", "a@1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6223, ["b", "a@1"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5513,7 +5533,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6224: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_6224(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6224, ["b", "a@@1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6224, ["b", "a@@1"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5526,7 +5546,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6225: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_6225(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6225, ["b", "a@@:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6225, ["b", "a@@:1"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5539,7 +5559,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6226: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
     def test_6226(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6226, ["b@@:3", "a@@:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6226, ["b@@:3", "a@@:1"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5552,7 +5572,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6231: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6231(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6231, ["b@@:1", "a@@:3"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6231, ["b@@:1", "a@@:3"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5564,7 +5584,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6232: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6232(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6232, ["b@@:3", "a@@:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6232, ["b@@:3", "a@@:1"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5576,7 +5596,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6241: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6241(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6241, ["b:02i@@:1", "a:s@@:3"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6241, ["b:02i@@:1", "a:s@@:3"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5588,7 +5608,7 @@ class TabToTextTest(unittest.TestCase):
     date_for_6242: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6242(self) -> None:
         out = StringIO()
-        res = tabtotext.print_tabtotext(out, self.date_for_6242, ["b:02i@@:3", "a:s@@:1"])  # defaultformat="markdown"
+        res = tabtotext.print_tabtotext(out, self.date_for_6242, ["b:02i@@:3", "a:s@@:1"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5601,7 +5621,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6243(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, self.date_for_6243, ["b@@:1", "a@@:3"], [
-                                        "b:02i", "a:s"])  # defaultformat="markdown"
+                                        "b:02i", "a:s"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5615,7 +5635,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6244(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, self.date_for_6244, ["b@@:3", "a@@:1"], [
-                                        "b:02i", "a:s"])  # defaultformat="markdown"
+                                        "b:02i", "a:s"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5628,7 +5648,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6245(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, self.date_for_6245, ["b@@:1", "a@@:3"], [
-                                        "a:s", "b:02i", ])  # defaultformat="markdown"
+                                        "a:s", "b:02i", ])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5641,7 +5661,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6246(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, self.date_for_6246, ["b@@:3", "a@@:1"], [
-                                        "a:s", "b:02i"])  # defaultformat="markdown"
+                                        "a:s", "b:02i"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5655,7 +5675,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6247(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, self.date_for_6247, ["b@@:1", "a@@:3"], [
-                                        "a:s@@4:1", "b:02i", ])  # defaultformat="markdown"
+                                        "a:s@@4:1", "b:02i", ])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -5669,7 +5689,7 @@ class TabToTextTest(unittest.TestCase):
     def test_6248(self) -> None:
         out = StringIO()
         res = tabtotext.print_tabtotext(out, self.date_for_6248, ["b@@:3", "a@@:1"], [
-                                        "a:s@@1:4", "b:02i"])  # defaultformat="markdown"
+                                        "a:s@@1:4", "b:02i"])  # defaultformat="md"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
