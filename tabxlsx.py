@@ -1067,11 +1067,12 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
             del vals[0]
         if lookingfor == "headers":
             headers = [header.strip() for header in vals]
-            lookingfor = "seperator"
+            lookingfor = "divider"
             continue
-        elif lookingfor == "seperator":
+        elif lookingfor == "divider":
             lookingfor = "data"
-            continue
+            if re.match(r"^ *:*--*:* *$", vals[0]):
+                continue
         record: Dict[str, CellValue] = {}
         for col, val in enumerate(vals):
             if val.strip() == none_string:

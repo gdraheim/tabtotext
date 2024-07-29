@@ -767,13 +767,17 @@ class DictParserGFM(DictParser):
                     cols = [name.strip() for name in line.split(tab)]
                     at = "header"
                     self.headers = cols
+                    logg.fatal("found cols %s", cols)
                     continue
                 if at == "header":
                     newcols = [name.strip() for name in line.split(tab)]
+                    logg.fatal("found newcols %s", newcols)
                     if len(newcols) != len(cols):
                         logg.error("header divider has not the same length")
                         at = "data"  # promote anyway
                         continue
+                    at = "divider"
+                if at == "divider":
                     ok = True
                     for col in newcols:
                         if not col: continue
@@ -781,8 +785,8 @@ class DictParserGFM(DictParser):
                             logg.warning("no header divider: %s", col)
                             ok = False
                     if not ok:
-                        cols = [cols[i] + " " + newcols[i] for i in range(len(cols))]
-                        continue
+                        at = "data"
+                        # fallthrough
                     else:
                         at = "data"
                         continue
