@@ -1233,7 +1233,7 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     return tabToJSON(results, sorts, formats, selects, datedelim=datedelim, legend=legend)
 def tabToJSON(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-              *, datedelim: str = '-', legend: LegendList = [],  #
+              *, datedelim: str = '-', padding: str = " ", legend: LegendList = [],  #
               reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -1263,11 +1263,11 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
         sorting = sorts
         formatter = formats
     return tabtoJSON(result, headers, selects,  # ..
-                     legend=legend, datedelim=datedelim,  # ..
+                     legend=legend, datedelim=datedelim, padding=padding, # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], minwidth: int = 0, datedelim: str = '-',
+              *, legend: LegendList = [], padding: str = " ", minwidth: int = 0, datedelim: str = '-',
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoJSON:")
@@ -1442,13 +1442,15 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    pad = " " * len(padding)
+    comma = "," + pad
     lines = []
     for item in sorted(rows, key=sortrow):
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = ['"%s": %s' % (name, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
-        lines.append(" {" + ", ".join(line) + "}")
+        line = ['"%s":%s%s' % (name, pad, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        lines.append(" {" + comma.join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
 def loadJSON(text: str, datedelim: str = '-') -> JSONList:
@@ -2469,8 +2471,10 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         fmt = "HTML"
     if fmt in ["htm"] or "@htm" in spec:
         fmt = "HTML"; tab = ""; padding = ""
-    if fmt in ["jsn", "json"] or "@jsn" in spec or "@json" in spec:
+    if fmt in ["json"] or "@json" in spec:
         fmt = "JSON"
+    if fmt in ["jsn"] or "@jsn" in spec:
+        fmt = "JSON"; padding = ""
     if fmt in ["yml", "yaml"] or "@yml" in spec or "@yaml" in spec:
         fmt = "YAML"
     if fmt in ["tml", "toml"] or "@tml" in spec or "@toml" in spec:
@@ -2536,7 +2540,7 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     if fmt == "HTML":
         return tabtoHTML(data, headers, selects, legend=legend, tab=tab, padding=padding, minwidth=minwidth)
     if fmt == "JSON":
-        return tabtoJSON(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
+        return tabtoJSON(data, headers, selects, datedelim=datedelim, padding=padding, minwidth=minwidth)
     if fmt == "YAML":
         return tabtoYAML(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "TOML":
@@ -2568,8 +2572,10 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "HTML"  # nopep8
     if fmt in ["htm"]:
         fmt = "HTML"; tab=""; padding=""  # nopep8
-    if fmt in ["jsn", "json"]:
+    if fmt in ["json"]:
         fmt = "JSON"  # nopep8
+    if fmt in ["jsn"]:
+        fmt = "JSON"; padding=""  # nopep8
     if fmt in ["yml", "yaml"]:
         fmt = "YAML"  # nopep8
     if fmt in ["tml", "toml"]:
@@ -2602,7 +2608,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
     if fmt == "HTML":
         return tabToHTML(data, sorts, formats, selects, tab=tab, padding=padding, legend=legend)
     if fmt == "JSON":
-        return tabToJSON(data, sorts, formats, selects, datedelim=datedelim)
+        return tabToJSON(data, sorts, formats, selects, padding=padding, datedelim=datedelim)
     if fmt == "YAML":
         return tabToYAML(data, sorts, formats, selects, datedelim=datedelim)
     if fmt == "TOML":

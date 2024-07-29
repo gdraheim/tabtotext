@@ -2671,6 +2671,21 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
+    def test_5149(self) -> None:
+        """ jsn is more compact that json """
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['a@:2', 'b@:1'], defaultformat="jsn")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        #### = ['[', ' {"a": "y", "b": 1},', ' {"a": "x", "b": 2},', ' {"c": "h"}', ']']
+        cond = ['[', ' {"a":"y","b":1},', ' {"a":"x","b":2},', ' {"c":"h"}', ']']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadJSON(text)
+        want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
 
     def test_5200(self) -> None:
         try:
@@ -8029,6 +8044,22 @@ class TabToTextTest(unittest.TestCase):
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
         cond = ['<table border="1" cellpadding="8">', 
+                '<tr><th>b</th><th>a</th><th>c</th></tr>', '<tr><td>1</td><td>y</td><td></td></tr>',
+                '<tr><td>2</td><td>x</td><td></td></tr>', '<tr><td></td><td></td><td>h</td></tr>', '</table>']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadHTML(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': 'h'}, ]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
+    def test_7149(self) -> None:
+        """ htm is more compact that html """
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@1', 'a'], defaultformat="htm")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<table>', 
                 '<tr><th>b</th><th>a</th><th>c</th></tr>', '<tr><td>1</td><td>y</td><td></td></tr>',
                 '<tr><td>2</td><td>x</td><td></td></tr>', '<tr><td></td><td></td><td>h</td></tr>', '</table>']
         self.assertEqual(cond, text.splitlines())
