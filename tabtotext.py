@@ -457,7 +457,7 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     return tabToGFM(results, sorts, formats, selects, noheaders=noheaders, legend=legend, tab=tab)
 def tabToGFM(result: Iterable[JSONDict],  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-             *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
+             *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  padding: str = " ", #
              reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -487,11 +487,12 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
         sorting = sorts
         formatter = formats
     return tabtoGFM(result, headers, selects, legend=legend,  # ..
-                    noheaders=noheaders, tab=tab,  # ..
+                    noheaders=noheaders, tab=tab, padding=padding, # ..
                     reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-             *, legend: LegendList = [], minwidth: int = 0, noheaders: bool = False, unique: bool = False, tab: str = "|",  #
+             *, legend: LegendList = [], minwidth: int = 0, noheaders: bool = False, unique: bool = False, 
+             tab: str = "|",  padding: str = " ", #
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoGFM:")
     minwidth = minwidth or MINWIDTH
@@ -689,15 +690,15 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if format.right(col):
             return formatter[:-1] + ":"
         return formatter
-    tab2 = tab + " " if tab else ""
+    tab2 = tab + padding if tab else ""
     lines: List[str] = []
     if not noheaders:
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
-        lines += [(" ".join(line)).rstrip()]
-        if tab:
+        lines += [(padding.join(line)).rstrip()]
+        if tab and padding:
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
                           for name in sorted(cols.keys(), key=sortkey)]
-            lines.append(" ".join(seperators))
+            lines.append(padding.join(seperators))
     old: Dict[str, str] = {}
     same: List[str] = []
     for item in sorted(rows, key=sortrow):
@@ -709,7 +710,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         if unique:
             same = [sel for sel in selected if sel in values and sel in old and values[sel] == old[sel]]
         if not selected or same != selected:
-            lines.append((" ".join(line)).rstrip())
+            lines.append((padding.join(line)).rstrip())
         old = values
     return "\n".join(lines) + "\n" + legendToGFM(legend, sorts, reorder)
 
@@ -2448,7 +2449,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
 
 def tabtotext(data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-              *, fmt: str = "", datedelim: str = '-', tab: str = "|", minwidth: int = 0,
+              *, fmt: str = "", datedelim: str = '-', tab: str = "|", padding: str = " ", minwidth: int = 0,
               noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selects if x.startswith("@"))
@@ -2477,10 +2478,12 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         fmt = "GFM"; minwidth = 6  # nopep8
     if fmt in ["wide"] or "@wide" in spec:
         fmt = "GFM"; tab = ""  # nopep8
+    if fmt in ["txt"] or "@txt" in spec:
+        fmt = "GFM"; padding = ""  # nopep8
     if fmt in ["text"] or "@text" in spec:
-        fmt = "GFM"; tab = ""; noheaders = True  # nopep8
+        fmt = "GFM"; padding = ""; noheaders = True  # nopep8
     if fmt in ["tabs"] or "@tabs" in spec:
-        fmt = "GFM"; tab = "\t"  # nopep8
+        fmt = "GFM"; tab = "\t"; padding=""  # nopep8
     if fmt in ["tab"] or "@tab" in spec:
         fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"] or "@data" in spec:
@@ -2506,8 +2509,12 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         tab = ":"
     elif "@cut" in spec:
         tab = "\t"
+    elif "@notab" in spec:
+        tab = ""
     if "@datedelim" in spec:
         datedelim = spec["@datedelim"] or "-"
+    if "@nopadding" in spec:
+        padding = ""
     if "@noheaders" in spec:
         noheaders = True
     if "@unique" in spec:
@@ -2527,7 +2534,7 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         return tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
     if fmt == "XLS":
         return tabtoCSV(data, headers, selects, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
-    return tabtoGFM(data, headers, selects, legend=legend, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
+    return tabtoGFM(data, headers, selects, legend=legend, tab=tab, padding=padding, noheaders=noheaders, unique=unique, minwidth=minwidth)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
@@ -2543,7 +2550,7 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
     return tabToFMT(output, results, sorts, formats, selects, datedelim=datedelim, legend=legend, combine=combine)
 def tabToFMT(fmt: str, data: JSONList,  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|",  #
+             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|", padding: str = " ", #
              reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     # formats
     if fmt in ["htm", "html"]:
@@ -2558,8 +2565,10 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "GFM"  # nopep8
     if fmt in ["md2", "md3", "md4", "md5", "md6"]:
         fmt = "GFM"  # nopep8
+    if fmt in ["txt"]:
+        fmt = "GFM"; pading = ""  # nopep8
     if fmt in ["text"]:
-        fmt = "GFM"; tab = ""; noheaders = True  # nopep8
+        fmt = "GFM"; padding = ""; noheaders = True  # nopep8
     if fmt in ["wide"]:
         fmt = "GFM"; tab = ""  # nopep8
     if fmt in ["tabs"]:
@@ -2589,7 +2598,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         return tabToCSV(data, sorts, formats, selects, datedelim=datedelim, tab=tab, noheaders=noheaders)
     if fmt == "XLS":
         return tabToCSV(data, sorts, formats, selects, datedelim=datedelim, tab=tab, noheaders=noheaders)
-    return tabToGFM(data, sorts, formats, selects, legend=legend, tab=tab, noheaders=noheaders)
+    return tabToGFM(data, sorts, formats, selects, legend=legend, tab=tab, padding=padding, noheaders=noheaders)
 
 def saveToFMT(filename: str, fmt: str, result: JSONList,  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..

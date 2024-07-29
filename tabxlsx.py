@@ -394,6 +394,8 @@ def load_workbook(filename: str) -> Workbook:
                                 value = x
                             elif t in ["s"]:
                                 value = sharedStrings[int(v)]
+                            # elif v in [""]:
+                            #     value = ""
                             elif "." not in v:
                                 value = int(v)
                             else:
@@ -685,7 +687,7 @@ def make_workbook(rows: List[Dict[str, CellValue]],
 # ...........................................................
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selects: List[str] = [],
-                    *, minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+                    *, tab: str = "|", padding: str = " ", minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
@@ -720,7 +722,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         out = sys.stdout
         done = output
     #
-    tab = '|'
     if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
         fmt = "GFM"  # nopep8
     if fmt in ["md2"] or "@md2" in spec:
@@ -735,10 +736,12 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         fmt = "GFM"; minwidth = 6  # nopep8
     if fmt in ["wide"] or "@wide" in spec:
         fmt = "GFM"; tab = ""  # nopep8
+    if fmt in ["txt"] or "@txt" in spec:
+        fmt = "GFM"; padding = ""  # nopep8
     if fmt in ["text"] or "@text" in spec:
-        fmt = "GFM"; tab = ""; noheaders = True  # nopep8
+        fmt = "GFM"; padding = ""; noheaders = True  # nopep8
     if fmt in ["tabs"] or "@tabs" in spec:
-        fmt = "GFM"; tab = "\t"  # nopep8
+        fmt = "GFM"; tab = "\t"; padding = ""  # nopep8
     if fmt in ["tab"] or "@tab" in spec:
         fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"] or "@data" in spec:
@@ -754,6 +757,10 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     # override
     if "@tab" in spec:
         tab = spec["@tab"]
+    if "@notab" in spec:
+        tab = ""
+    if "@nopadding" in spec:
+        padding = ""
     if "@noheaders" in spec:
         noheaders = True
     if "@unique" in spec:
@@ -950,15 +957,15 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if rightalign(col):
             return formatter[:-1] + ":"
         return formatter
-    tab2 = (tab + " " if tab else "")
+    tab2 = (tab + padding if tab else "")
     lines: List[str] = []
     if not noheaders:
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
-        print(" ".join(line).rstrip(), file=out)
-        if tab:
+        print(padding.join(line).rstrip(), file=out)
+        if tab and padding:
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
                           for name in sorted(cols.keys(), key=sortkey)]
-            print(" ".join(seperators).rstrip(), file=out)
+            print(padding.join(seperators).rstrip(), file=out)
     oldvalues: Dict[str, str] = {}
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
@@ -969,7 +976,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         if unique:
             same = [sel for sel in selected if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]
         if not selected or same != selected:
-            print((" ".join(line)).rstrip(), file=out)
+            print((padding.join(line)).rstrip(), file=out)
         oldvalues = values
     return "GFM"
 
