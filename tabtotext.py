@@ -821,7 +821,7 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     return tabToHTML(results, sorts, formats, selects, legend=legend, combine=combine)
 def tabToHTML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-              *, legend: LegendList = [], combine: Dict[str, str] = {},  # [target]->[attach]
+              *, legend: LegendList = [], tab: str = "|", padding: str = " ", combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -861,11 +861,11 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         sorting = sorts
         formatter = formats
     return tabtoHTML(result, headers, selects,  # ..
-                     legend=legend,  # ..
+                     legend=legend, tab=tab, padding=padding, # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], minwidth: int = 0,
+              *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0,
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoHTML")
     minwidth = minwidth or MINWIDTH
@@ -1098,7 +1098,12 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
                         html = html.replace("</td>", "<br />{}</td>".format(escape(values[adds])))
             cells += [html]
         lines.append("<tr>" + "".join(cells) + "</tr>")
-    return "<table>\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts, reorder)
+    table = "<table>"
+    if tab:
+        table = table.replace(">", ' border="%x">' % len(tab))
+    if padding:
+        table = table.replace(">", ' cellpadding="%s">' % (8 * len(padding)))
+    return table + "\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts, reorder)
 
 def legendToHTML(legend: LegendList, sorts: RowSortList = [], reorder: ColSortList = []) -> str:
     sortkey = ColSortCallable(sorts, reorder)
@@ -2460,8 +2465,10 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     selects = [x for x in selects if not x.startswith("@")]
     fmt = fmt if fmt not in ["", "-"] else defaultformat
     # formats
-    if fmt in ["htm", "html"] or "@htm" in spec or "@html" in spec:
+    if fmt in ["html"] or "@html" in spec:
         fmt = "HTML"
+    if fmt in ["htm"] or "@htm" in spec:
+        fmt = "HTML"; tab = ""; padding = ""
     if fmt in ["jsn", "json"] or "@jsn" in spec or "@json" in spec:
         fmt = "JSON"
     if fmt in ["yml", "yaml"] or "@yml" in spec or "@yaml" in spec:
@@ -2527,7 +2534,7 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         legend = []
     # render
     if fmt == "HTML":
-        return tabtoHTML(data, headers, selects, legend=legend, minwidth=minwidth)
+        return tabtoHTML(data, headers, selects, legend=legend, tab=tab, padding=padding, minwidth=minwidth)
     if fmt == "JSON":
         return tabtoJSON(data, headers, selects, datedelim=datedelim, minwidth=minwidth)
     if fmt == "YAML":
@@ -2557,8 +2564,10 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
              *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|", padding: str = " ", #
              reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     # formats
-    if fmt in ["htm", "html"]:
+    if fmt in ["html"]:
         fmt = "HTML"  # nopep8
+    if fmt in ["htm"]:
+        fmt = "HTML"; tab=""; padding=""  # nopep8
     if fmt in ["jsn", "json"]:
         fmt = "JSON"  # nopep8
     if fmt in ["yml", "yaml"]:
@@ -2591,7 +2600,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "XLS"; tab = ","  # nopep8
     # render
     if fmt == "HTML":
-        return tabToHTML(data, sorts, formats, selects, legend=legend)
+        return tabToHTML(data, sorts, formats, selects, tab=tab, padding=padding, legend=legend)
     if fmt == "JSON":
         return tabToJSON(data, sorts, formats, selects, datedelim=datedelim)
     if fmt == "YAML":
@@ -2656,13 +2665,13 @@ def tabtextfileFMT(fmt: str, filename: str, defaultformat: str = NIX) -> TabText
             return TabText([], [])
     if fmt.lower() in ["md", "markdown"]:
         return tabtextfileGFM(filename)
-    if fmt.lower() in ["html", "htm"]:
+    if fmt.lower() in ["html", "htm", "xhtml"]:
         return tabtextfileHTML(filename)
     if fmt.lower() in ["json", "jsn"]:
         return tabtextfileJSON(filename)
     if fmt.lower() in ["yaml", "yml"]:
         return tabtextfileYAML(filename)
-    if fmt.lower() in ["toml"]:
+    if fmt.lower() in ["toml", "tml"]:
         return tabtextfileTOML(filename)
     if fmt.lower() in ["tab"]:
         return tabtextfileCSV(filename, tab='\t')
