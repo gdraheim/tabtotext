@@ -7068,7 +7068,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@tabs"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['\t a     \t b', '\t ----- \t -----', '\t x     \t ~', '\t ~     \t 1']
+        cond = ['\ta    \tb', '\tx    \t~', '\t~    \t1']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab="\t")
         self.assertEqual(want, back)
@@ -7076,7 +7076,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table02, [], ["@tabs"])
         logg.debug("%s => %s", table02, text)
         want = table02N
-        cond = ['\t a     \t b', '\t ----- \t -----', '\t x     \t 0', '\t ~     \t 2']
+        cond = ['\ta    \tb', '\tx    \t0', '\t~    \t2']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab="\t")
         self.assertEqual(want, back)
@@ -7084,29 +7084,28 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table22, [], ["@tabs"])
         logg.debug("%s => %s", table22, text)
         want = table22
-        cond = ['\t a     \t b', '\t ----- \t -----', '\t x     \t 3', '\t y     \t 2']
+        cond = ['\ta    \tb', '\tx    \t3', '\ty    \t2']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab="\t")
         self.assertEqual(want, back)
     def test_6953(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@tabs"])
-        logg.debug("%s => %s", table33, text)
+        logg.debug("%s => %s", table33, text.splitlines())
         want = table33Q
-        cond = ['\t a     \t b     \t c', '\t ----- \t ----- \t ----------',
-                '\t x     \t 3     \t 2021-12-31', '\t y     \t 2     \t 2021-12-30',
-                '\t ~     \t ~     \t 2021-12-31']
+        cond = ['\ta    \tb    \tc', '\tx    \t3    \t2021-12-31', 
+                '\ty    \t2    \t2021-12-30', '\t~    \t~    \t2021-12-31']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab="\t")
         self.assertEqual(want, back)
     def test_6954(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@tabs"])
-        logg.debug("%s => %s", table44, text)
+        logg.debug("%s => %s", table44, text.splitlines())
         want = table44N
-        cond = ['\t a     \t b     \t c     \t d', '\t ----- \t ----- \t ----- \t -----',
-                '\t x     \t 3     \t (yes) \t 0.40',
-                '\t y     \t 2     \t (no)  \t 0.30',
-                '\t ~     \t ~     \t (yes) \t 0.20',
-                '\t y     \t 1     \t ~     \t 0.10']
+        cond = ['\ta    \tb    \tc    \td', 
+                '\tx    \t3    \t(yes)\t0.40', 
+                '\ty    \t2    \t(no) \t0.30', 
+                '\t~    \t~    \t(yes)\t0.20', 
+                '\ty    \t1    \t~    \t0.10']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab="\t")
         self.assertEqual(want, back)
@@ -7114,7 +7113,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@tabs", "@delim=:"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = [': a     : b', ': ----- : -----', ': x     : ~', ': ~     : 1']
+        cond = [':a    :b', ':x    :~', ':~    :1']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab=":")
         self.assertEqual(want, back)
@@ -7122,7 +7121,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table02, [], ["@tabs", "@delim=:"])
         logg.debug("%s => %s", table02, text)
         want = table02N
-        cond = [': a     : b', ': ----- : -----', ': x     : 0', ': ~     : 2']
+        cond = [':a    :b', ':x    :0', ':~    :2']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab=":")
         self.assertEqual(want, back)
@@ -7130,29 +7129,7 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table22, [], ["@tabs", "@delim=:"])
         logg.debug("%s => %s", table22, text)
         want = table22
-        cond = [': a     : b', ': ----- : -----', ': x     : 3', ': y     : 2']
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab=":")
-        self.assertEqual(want, back)
-    def test_6963(self) -> None:
-        text = tabtotext.tabtotext(table33, [], ["@tabs", "@delim=:"])
-        logg.debug("%s => %s", table33, text)
-        want = table33Q
-        cond = [': a     : b     : c', ': ----- : ----- : ----------',
-                ': x     : 3     : 2021-12-31', ': y     : 2     : 2021-12-30',
-                ': ~     : ~     : 2021-12-31']
-        self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab=":")
-        self.assertEqual(want, back)
-    def test_6964(self) -> None:
-        text = tabtotext.tabtotext(table44, [], ["@tabs", "@delim=:"])
-        logg.debug("%s => %s", table44, text)
-        want = table44N
-        cond = [': a     : b     : c     : d', ': ----- : ----- : ----- : -----',
-                ': x     : 3     : (yes) : 0.40',
-                ': y     : 2     : (no)  : 0.30',
-                ': ~     : ~     : (yes) : 0.20',
-                ': y     : 1     : ~     : 0.10']
+        cond = [':a    :b', ':x    :3', ':y    :2']
         self.assertEqual(cond, text.splitlines())
         back = tabtotext.loadGFM(text, tab=":")
         self.assertEqual(want, back)
@@ -7196,38 +7173,81 @@ class TabToTextTest(unittest.TestCase):
         text = tabtotext.tabtotext(table01, [], ["@text"])
         logg.debug("%s => %s", table01, text)
         want = table01N
-        cond = ['x     ~', '~     1']
+        cond = ['|x    |~', '|~    |1']
         self.assertEqual(cond, text.splitlines())
     def test_6981(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@text"])
         logg.debug("%s => %s", table02, text)
         want = table02N
-        cond = ['x     0', '~     2']
+        cond = ['|x    |0', '|~    |2']
         self.assertEqual(cond, text.splitlines())
     def test_6982(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@text"])
         logg.debug("%s => %s", table22, text)
         want = table22
-        cond = ['x     3', 'y     2']
+        cond = ['|x    |3', '|y    |2']
         self.assertEqual(cond, text.splitlines())
     def test_6983(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@text"])
         logg.debug("%s => %s", table33, text)
         want = table33Q
-        cond = [
-            'x     3     2021-12-31', 'y     2     2021-12-30',
-            '~     ~     2021-12-31']
-        self.assertEqual(cond, text.splitlines())
+        cond = ['|x    |3    |2021-12-31',
+  '|y    |2    |2021-12-30',
+  '|~    |~    |2021-12-31']
     def test_6984(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@text"])
         logg.debug("%s => %s", table44, text)
         want = table44N
-        cond = [
-            'x     3     (yes) 0.40',
-            'y     2     (no)  0.30',
-            '~     ~     (yes) 0.20',
-            'y     1     ~     0.10']
+        cond = ['|x    |3    |(yes)|0.40',
+  '|y    |2    |(no) |0.30',
+  '|~    |~    |(yes)|0.20',
+  '|y    |1    |~    |0.10']
         self.assertEqual(cond, text.splitlines())
+    def test_6990(self) -> None:
+        text = tabtotext.tabtotext(table01, [], ["@txt"])
+        logg.debug("%s => %s", table01, text)
+        want = table01N
+        cond = ['|a    |b', '|x    |~', '|~    |1']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6991(self) -> None:
+        text = tabtotext.tabtotext(table02, [], ["@txt"])
+        logg.debug("%s => %s", table02, text)
+        want = table02N
+        cond = ['|a    |b', '|x    |0', '|~    |2']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6992(self) -> None:
+        text = tabtotext.tabtotext(table22, [], ["@txt"])
+        logg.debug("%s => %s", table22, text)
+        want = table22
+        cond = ['|a    |b', '|x    |3', '|y    |2']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6993(self) -> None:
+        text = tabtotext.tabtotext(table33, [], ["@txt"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        want = table33Q
+        cond = ['|x    |3    |2021-12-31',
+  '|y    |2    |2021-12-30',
+  '|~    |~    |2021-12-31']
+        back = tabtotext.loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6994(self) -> None:
+        text = tabtotext.tabtotext(table44, [], ["@txt"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        want = table44N
+        cond = ['|a    |b    |c    |d', 
+                '|x    |3    |(yes)|0.40', 
+                '|y    |2    |(no) |0.30', 
+                '|~    |~    |(yes)|0.20', 
+                '|y    |1    |~    |0.10']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadGFM(text)
+        self.assertEqual(want, back)
 
 
 #  HTML
