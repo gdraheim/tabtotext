@@ -828,7 +828,8 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
     return tabToHTML(results, sorts, formats, selects, legend=legend, combine=combine)
 def tabToHTML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-              *, legend: LegendList = [], tab: str = "|", padding: str = " ", combine: Dict[str, str] = {},  # [target]->[attach]
+              *, legend: LegendList = [], tab: str = "|", padding: str = " ", xmlns: str = "",
+              combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -868,11 +869,11 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         sorting = sorts
         formatter = formats
     return tabtoHTML(result, headers, selects,  # ..
-                     legend=legend, tab=tab, padding=padding, # ..
+                     legend=legend, tab=tab, padding=padding, xmlns=xmlns, # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
-              *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0,
+              *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0, xmlns: str = "",
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoHTML")
     minwidth = minwidth or MINWIDTH
@@ -1106,11 +1107,17 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             cells += [html]
         lines.append("<tr>" + "".join(cells) + "</tr>")
     table = "<table>"
+    end = ""
     if tab:
         table = table.replace(">", ' border="%x">' % len(tab))
     if padding:
         table = table.replace(">", ' cellpadding="%s">' % (8 * len(padding)))
-    return table + "\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts, reorder)
+    if xmlns:
+        if "http://" not in xmlns:
+            xmlns = "http://www.w3.org/" + xmlns
+        table = '<html xmlns="%s">\n' % xmlns + table
+        end = '</html>'
+    return table + "\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts, reorder) + end
 
 def legendToHTML(legend: LegendList, sorts: RowSortList = [], reorder: ColSortList = []) -> str:
     sortkey = ColSortCallable(sorts, reorder)
@@ -2467,7 +2474,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
 
 def tabtotext(data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-              *, fmt: str = "", datedelim: str = '-', tab: str = "|", padding: str = " ", minwidth: int = 0,
+              *, fmt: str = "", datedelim: str = '-', tab: str = "|", padding: str = " ", xmlns: str = "", minwidth: int = 0,
               noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selects if x.startswith("@"))
@@ -2478,6 +2485,10 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         fmt = "HTML"
     if fmt in ["htm"] or "@htm" in spec:
         fmt = "HTML"; tab = ""; padding = ""
+    if fmt in ["xhtm"] or "@xhtm" in spec:
+        fmt = "HTML"; tab = ""; padding = ""; xmlns = "1999/xhtml"
+    if fmt in ["xhtml"] or "@xhtml" in spec:
+        fmt = "HTML"; xmlns = "1999/xhtml"
     if fmt in ["json"] or "@json" in spec:
         fmt = "JSON"
     if fmt in ["jsn"] or "@jsn" in spec:
@@ -2547,7 +2558,7 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         legend = []
     # render
     if fmt == "HTML":
-        return tabtoHTML(data, headers, selects, legend=legend, tab=tab, padding=padding, minwidth=minwidth)
+        return tabtoHTML(data, headers, selects, legend=legend, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth)
     if fmt == "JSON":
         return tabtoJSON(data, headers, selects, datedelim=datedelim, padding=padding, minwidth=minwidth)
     if fmt == "YAML":
@@ -2574,13 +2585,17 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
     return tabToFMT(output, results, sorts, formats, selects, datedelim=datedelim, legend=legend, combine=combine)
 def tabToFMT(fmt: str, data: JSONList,  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|", padding: str = " ", #
+             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|", padding: str = " ", xmlns: str = " ", #
              reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     # formats
     if fmt in ["html"]:
         fmt = "HTML"  # nopep8
     if fmt in ["htm"]:
         fmt = "HTML"; tab=""; padding=""  # nopep8
+    if fmt in ["xhtm"]:
+        fmt = "HTML"; tab = ""; padding = ""; xmlns = "1999/xhtml"
+    if fmt in ["xhtml"]:
+        fmt = "HTML"; xmlns = "1999/xhtml"
     if fmt in ["json"]:
         fmt = "JSON"  # nopep8
     if fmt in ["jsn"]:
@@ -2617,7 +2632,7 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "XLS"; tab = ","  # nopep8
     # render
     if fmt == "HTML":
-        return tabToHTML(data, sorts, formats, selects, tab=tab, padding=padding, legend=legend)
+        return tabToHTML(data, sorts, formats, selects, tab=tab, xmlns=xmlns, padding=padding, legend=legend)
     if fmt == "JSON":
         return tabToJSON(data, sorts, formats, selects, padding=padding, datedelim=datedelim)
     if fmt == "YAML":

@@ -8087,6 +8087,42 @@ class TabToTextTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': 'h'}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
+    def test_7158(self) -> None:
+        """ htm is more compact that html """
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@1', 'a'], defaultformat="xhtml")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<html xmlns="http://www.w3.org/1999/xhtml">',
+                '<table border="1" cellpadding="8">', 
+                '<tr><th>b</th><th>a</th><th>c</th></tr>', '<tr><td>1</td><td>y</td><td></td></tr>',
+                '<tr><td>2</td><td>x</td><td></td></tr>', '<tr><td></td><td></td><td>h</td></tr>', 
+                '</table>', '</html>']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadHTML(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': 'h'}, ]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
+    def test_7159(self) -> None:
+        """ htm is more compact that html """
+        itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}, {'c': 'h'}]
+        out = StringIO()
+        res = tabtotext.print_tabtotext(out, itemlist, ['b@1', 'a'], defaultformat="xhtm")
+        logg.info("print_tabtotext %s", res)
+        text = out.getvalue()
+        logg.debug("%s => %s", test004, text)
+        cond = ['<html xmlns="http://www.w3.org/1999/xhtml">',
+                '<table>', 
+                '<tr><th>b</th><th>a</th><th>c</th></tr>', '<tr><td>1</td><td>y</td><td></td></tr>',
+                '<tr><td>2</td><td>x</td><td></td></tr>', '<tr><td></td><td></td><td>h</td></tr>', 
+                '</table>', '</html>']
+        self.assertEqual(cond, text.splitlines())
+        back = tabtotext.loadHTML(text)
+        want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': 'h'}, ]
+        logg.info("%s => %s", want, back)
+        self.assertEqual(want, back)
     def test_7171(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
