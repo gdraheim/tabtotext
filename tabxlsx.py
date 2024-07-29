@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 """ 
 TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
-The output can be piped as a markdown table or csv-like data as well."""
+The output can be piped as a markdown table or csv-like data as well. A number
+of output format options are available but less than the tabtotext.py module."""
 
 from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Any
 from datetime import date as Date
@@ -739,7 +740,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"] or "@data" in spec:
         fmt = "CSV"; tab = "\t"; noheaders = True  # nopep8
-    if fmt in ["dat", "ifs"] or "@dat" in spec or "@ifs" in spec:
+    if fmt in ["ifs"] or "@dat" in spec or "@ifs" in spec:
+        fmt = "CSV"; tab = os.environ.get("IFS", "\t")  # nopep8
+    if fmt in ["dat"] or "@dat" in spec or "@ifs" in spec:
         fmt = "CSV"; tab = os.environ.get("IFS", "\t"); noheaders = True  # nopep8
     if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
         fmt = "CSV"; tab = ";"  # nopep8
@@ -1089,23 +1092,25 @@ if __name__ == "__main__":
     from logging import basicConfig, ERROR
     from optparse import OptionParser
     import sys
-    cmdline = OptionParser("tab-xlsx [-options] input.xlsx [output.xlsx]", epilog=__doc__)
+    prog = os.path.basename(__file__)
+    cmdline = OptionParser(prog+" [-options] input(.xlsx|.csv) [column...]", epilog=__doc__)
+    cmdline.formatter.max_help_position = 29
     cmdline.add_option("-v", "--verbose", action="count", default=0)
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true",
+    cmdline.add_option("-N", "--noheaders", action="store_true",
                        help="do not print headers (csv,md,tab,wide)", default=False)
     cmdline.add_option("-U", "--unique", action="store_true",
                        help="remove same lines in sorted --labels", default=False)
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     cmdline.add_option("-o", "--format", metavar="FMT", help="data|text|list|wide|md|tab|csv or file", default="")
-    cmdline.add_option("--ifs", action="store_true", help="-o ifs: $IFS-seperated table")
-    cmdline.add_option("--dat", action="store_true", help="-o dat: tab-seperated table (with headers)")
+    cmdline.add_option("--ifs", action="store_true", help="-o ifs: $IFS-seperated table (with headers)")
+    cmdline.add_option("--dat", action="store_true", help="-o dat: $IFS-seperated table (without headers)")
     cmdline.add_option("--data", action="store_true", help="-o data: tab-seperated without headers")
     cmdline.add_option("--text", action="store_true", help="-o text: space-seperated without headers")
     cmdline.add_option("--list", action="store_true", help="-o text: semicolon-seperated without headers")
     cmdline.add_option("--wide", action="store_true", help="-o wide: aligned space-separated table")
     cmdline.add_option("--md", "--markdown", action="store_true", help="-o md: aligned markdown table (with |)")
-    cmdline.add_option("--tabs", action="store_true", help="-o tabs: aligned tab-seperated table (instead of |)")
+    cmdline.add_option("--tabs", action="store_true", help="-o tabs: aligned tab-seperated table (not |)")
     cmdline.add_option("--tab", action="store_true", help="-o tab: aligned tab-seperated table (like --dat)")
     cmdline.add_option("--csv", "--scsv", action="store_true", help="-o csv: semicolon-seperated table")
     cmdline.add_option("--xls", "--xlsx", action="store_true", help="-o xls: for filename.xlsx (else csv)")

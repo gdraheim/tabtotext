@@ -1,7 +1,14 @@
 #! /usr/bin/env python3
 """
 This script allows to format table-like data (list of dicts).
-The various output formats can be read back.
+The various output formats can be read back. The file extension will
+usally define the format. ==> ".md" is Github Flavourd Markdown.
+".txt" is compressed markdown table, ".wide" is space-only markdown,
+".html" is Html Table, ".htm" without table borders, ".xhtml" with xmlns block,
+".xlsx" as Excel if openpyxl is available (or tabxlsx fallback),
+".tab" is tab-seperated csv, ".tabs" with markdown alignment,
+".csv" is semicolon csv, ".list" without headers,
+and ".dat" files use $IFS as tabulator (like bash 'read').
 """
 
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
@@ -2445,7 +2452,8 @@ class DictParserCSV(DictParser):
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-                    *, datedelim: str = '-', noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+                    *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None, xmlns: Optional[str] = None, minwidth: int = 0,
+                    noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
@@ -2464,24 +2472,29 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = output
         out = sys.stdout
         done = output
-    lines = tabtotext(data, headers, [F"@{fmt}"] + selects, legend=legend, datedelim=datedelim,
+    lines = tabtotext(data, headers, selects, legend=legend, fmt=fmt,
+                      datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
                       noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
         results.append(line)
         out.write(line)
-    if noheaders:
+    if noheaders or "@noheaders" in selects or "@dat" in selects:
         return ""
     return ": %s results %s" % (len(results), done)
 
 def tabtotext(data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selects: List[str] = [], legend: List[str] = [],  # ..
-              *, fmt: str = "", datedelim: str = '-', tab: str = "|", padding: str = " ", xmlns: str = "", minwidth: int = 0,
+              *, fmt: str = "", datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None, xmlns: Optional[str] = None, minwidth: int = 0,
               noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selects if x.startswith("@"))
     selects = [x for x in selects if not x.startswith("@")]
     fmt = fmt if fmt not in ["", "-"] else defaultformat
+    xmlns = "" if xmlns is None else xmlns
+    datedelim = "-" if datedelim is None else datedelim
+    padding = " " if padding is None else padding
+    tab = "|" if tab is None else tab
     # formats
     if fmt in ["html"] or "@html" in spec:
         fmt = "HTML"
@@ -2528,15 +2541,15 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     if fmt in ["tab"] or "@tab" in spec:
         fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"] or "@data" in spec:
-        fmt = "CSV"; tab = "\t"
-        noheaders = True  # nopep8
-    if fmt in ["dat", "ifs"] or "@dat" in spec or "@ifs" in spec:
+        fmt = "CSV"; tab = "\t";  noheaders = True  # nopep8
+    if fmt in ["ifs"] or "@ifs" in spec:
+        fmt = "CSV"; tab = os.environ.get("IFS", "\t")  # nopep8
+    if fmt in ["dat"] or "@dat" in spec:
         fmt = "CSV"; tab = os.environ.get("IFS", "\t"); noheaders = True  # nopep8
     if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
         fmt = "CSV"; tab = ";"  # nopep8
     if fmt in ["list"] or "@list" in spec:
-        fmt = "CSV"; tab = ";"
-        noheaders = True  # nopep8
+        fmt = "CSV"; tab = ";";  noheaders = True  # nopep8
     if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
         fmt = "XLS"; tab = ","  # nopep8
     # override
@@ -2579,8 +2592,8 @@ def tabtotext(data: Iterable[JSONDict],  # ..
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-              *, datedelim: str = '-', legend: LegendList = [], noheaders: bool = False, tab: str = "|", padding: str = " ", xmlns: str = "", #
-              combine: Dict[str, str] = {}) -> str:
+              *, legend: LegendList = [], datedelim: str = '-',  tab: str = "|", padding: str = " ", xmlns: str = "", #
+              noheaders: bool = False, combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -2589,11 +2602,13 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToFMT(output, results, sorts, formats, selects, datedelim=datedelim, legend=legend, noheaders=noheaders, tab=tab, padding=padding, xmlns=xmlns, combine=combine)
+    return tabToFMT(output, results, sorts, formats, selects, legend=legend, 
+                    datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, 
+                    noheaders=noheaders, combine=combine)
 def tabToFMT(fmt: str, data: JSONList,  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selects: List[str] = [],  # ..
-             *, legend: LegendList = [], datedelim: str = '-', noheaders: bool = False, tab: str = "|", padding: str = " ", xmlns: str = "", #
-             reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
+             *, legend: LegendList = [], datedelim: str = '-', tab: str = "|", padding: str = " ", xmlns: str = "", #
+             noheaders: bool = False, reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     # formats
     if fmt in ["html"]:
         fmt = "HTML"  # nopep8
@@ -2634,6 +2649,8 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         fmt = "CSV"; tab = "\t"  # nopep8
     if fmt in ["data"]:
         fmt = "CSV"; tab = "\t"; noheaders = True  # nopep8
+    if fmt in ["ifs"]:
+        fmt = "CSV"; tab = os.environ.get("IFS", "\t") # nopep8
     if fmt in ["dat", "ifs"]:
         fmt = "CSV"; tab = os.environ.get("IFS", "\t"); noheaders = True  # nopep8
     if fmt in ["csv", "scsv"]:
@@ -2687,20 +2704,20 @@ def extension(filename: str) -> Optional[str]:
     return None
 
 def readFromFile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> JSONList:
-    tabtext = tabtextfile(filename, fmt, defaultfileformat)
+    tabtext = tabtextfile(filename, fmt, defaultfileformat=defaultfileformat)
     return tabtext.data
 def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
-    tabtext = tabtextfileFMT(fmt, filename, defaultformat)
+    tabtext = tabtextfileFMT(fmt, filename, defaultformat=defaultformat)
     return tabtext.data
-def tabtextfile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> TabText:
+def tabtextfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, defaultfileformat: str = NIX) -> TabText:
     if not fmt:
         fmt = extension(filename) or defaultfileformat
         if not fmt:
             logg.warning("could not detect format of '%s'", filename)
             return TabText([], [])
     # assert fmt
-    return tabtextfileFMT(fmt, filename, defaultfileformat)
-def tabtextfileFMT(fmt: str, filename: str, defaultformat: str = NIX) -> TabText:
+    return tabtextfileFMT(fmt, filename, tab=tab, defaultformat=defaultfileformat)
+def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, defaultformat: str = NIX) -> TabText:
     if not fmt:
         fmt = extension(filename) or NIX
         if not fmt:
@@ -2708,7 +2725,7 @@ def tabtextfileFMT(fmt: str, filename: str, defaultformat: str = NIX) -> TabText
         if not fmt:
             return TabText([], [])
     if fmt.lower() in ["md", "markdown"]:
-        return tabtextfileGFM(filename)
+        return tabtextfileGFM(filename, tab='|' if tab is None else tab)
     if fmt.lower() in ["html", "htm", "xhtml"]:
         return tabtextfileHTML(filename)
     if fmt.lower() in ["json", "jsn"]:
@@ -2718,9 +2735,9 @@ def tabtextfileFMT(fmt: str, filename: str, defaultformat: str = NIX) -> TabText
     if fmt.lower() in ["toml", "tml"]:
         return tabtextfileTOML(filename)
     if fmt.lower() in ["tab"]:
-        return tabtextfileCSV(filename, tab='\t')
+        return tabtextfileCSV(filename, tab='\t' if tab is None else tab)
     if fmt.lower() in ["csv", "scsv"]:
-        return tabtextfileCSV(filename, tab=';')
+        return tabtextfileCSV(filename, tab=';' if tab is None else tab)
     if fmt.lower() in ["xlsx", "xls"]:
         import tabtoxlsx
         return tabtoxlsx.tabtextfileXLSX(filename)
@@ -2865,16 +2882,30 @@ if __name__ == "__main__":
     DONE = (logging.WARNING + logging.ERROR) // 2
     logging.addLevelName(DONE, "DONE")
     from optparse import OptionParser
-    cmdline = OptionParser("%prog [help|filename.json|filename.html]...", epilog=__doc__, version=__version__)
+    hint = "Use @dat to print only"
+    prog = os.path.basename(__file__)
+    cmdline = OptionParser(prog+" file(.csv|.json|.xlsx) [column...] [@format...]", epilog=__doc__ + hint, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-N", "--noheaders", "--no-headers", action="store_true",
+    cmdline.add_option("-m", "--minwidth", metavar="N",
+                       help="override minwith of  cells for format", default=0)
+    cmdline.add_option("-d", "--datedelim", metavar="C",
+                       help="override date delimiter for format", default=None)
+    cmdline.add_option("-p", "--padding", metavar="C",
+                       help="override cell padding for format", default=None)
+    cmdline.add_option("-t", "--tab", metavar="C",
+                       help="override tabulator for format", default=None)
+    cmdline.add_option("-T", "--notab", action="store_true",
+                       help="do not use tabulator (csv,md,tab,wide)", default=False)
+    cmdline.add_option("-P", "--nopadding", action="store_true",
+                       help="do not use padding (csv,md,tab,wide,html)", default=False)
+    cmdline.add_option("-N", "--noheaders", action="store_true",
                        help="do not print headers (csv,md,tab,wide)", default=False)
     cmdline.add_option("-U", "--unique", action="store_true",
-                       help="remove same lines in sorted --labels (csv,md,tab,wide)", default=False)
-    cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
-                       help="select columns to show (a|b:.2f)", default=[])
+                       help="remove same lines in sorted list (csv,md,...)", default=False)
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append",  # ..
+                       help="add columns to show (a|b:.2f)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     cmdline.add_option("-o", "--output", "--format", metavar="FMT",
                        help="(file.)json|yaml|html|wide|md|htm|tab|csv", default="")
@@ -2889,7 +2920,11 @@ if __name__ == "__main__":
             selects = args[1:] + opt.labels
         else:
             selects = opt.labels
+        padding = opt.padding if not opt.nopadding else ""
+        tab = opt.tab if not opt.notab else ""
         tabtext = tabtextfile(filename, opt.inputformat)
-        done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selects, noheaders=opt.noheaders, unique=opt.unique)
+        done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selects,
+                               datedelim=opt.datedelim, tab=tab, padding=padding,
+                               noheaders=opt.noheaders, unique=opt.unique)
         if done:
             logg.log(DONE, " %s", done)

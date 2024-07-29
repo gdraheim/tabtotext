@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 
 """
-This script allows to format table-like data (list of dicts).
-It is sister program for tabtotext implenting excel input and output.
+This script converts table-like data (list of dicts) from and to Excel .xlsx files.
+It is a helper for the tabtotext.py module using openpyxl (see fallback tabxlsx.py).
+Defaults to read any given file.xy rewriting it as file.xy.xlsx!
 """
 
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
@@ -426,11 +427,11 @@ if __name__ == "__main__":
     logging.addLevelName(DONE, "DONE")
     from optparse import OptionParser
     cmdline = OptionParser("%prog [help|files...]", epilog=__doc__, version=__version__)
-    cmdline.formatter.max_help_position = 30
+    cmdline.formatter.max_help_position = 29
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-L", "--labels", "--label-columns", metavar="LIST", action="append",  # ..
-                       help="select columns to show (a,x=b)", default=[])
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append",  # ..
+                       help="select columns to show (a|x=b)", default=[])
     cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
