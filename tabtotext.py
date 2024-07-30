@@ -12,7 +12,7 @@ and ".dat" files use $IFS as tabulator (like bash 'read').
 """
 
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3312"
+__version__ = "1.6.3313"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Tuple, Iterable, Iterator, TextIO, NamedTuple
 from collections import OrderedDict

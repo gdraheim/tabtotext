@@ -7,7 +7,7 @@ arge numbers an be presented nicely and parsed back.
 """
 
 __copyright__ = "(C) 2022-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.5.3312"
+__version__ = "1.5.3313"
 
 from typing import Union, List
 import re
