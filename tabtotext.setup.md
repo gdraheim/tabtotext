@@ -59,3 +59,12 @@ number by Mibi down and then using strHours with "." full encoding. Using
 some "{:H}" however converts to clock values like "2:15" and using "{:$}"
 will convert to the default currency like "2.25€".
 
+## tabxlsx and tabtotext()
+
+In the newer implementions there is no "formats" argument anymore but an
+addition "selects" to help with print_tabtotext. And there is Excel support
+available in tabxlsx.py that does not require openpyxl. This file is
+installed as a seperate module "pip install tabxlsx" however (or 
+via 'make insxlsx' from development).
+
+At a later time, this will be the basis of a seperate tabtotext project.
