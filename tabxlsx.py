@@ -1044,28 +1044,29 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
         import csv
         reader = csv.DictReader(inp, delimiter=tab)
         for nextrecord in reader:
-            data.append(nextrecord)
+            record: Dict[str, CellValue] = nextrecord.copy()
+            data.append(record)
             for nam, val in nextrecord.items():
                 if val.strip() == none_string:
-                    nextrecord[nam] = None
+                    record[nam] = None
                 elif val.strip() == false_string:
-                    nextrecord[nam] = False
+                    record[nam] = False
                 elif val.strip() == true_string:
-                    nextrecord[nam] = True
+                    record[nam] = True
                 else:
                     try:
-                        nextrecord[nam] = int(val)
+                        record[nam] = int(val)
                     except:
                         try:
-                            nextrecord[nam] = float(val)
+                            record[nam] = float(val)
                         except:
                             try:
-                                nextrecord[nam] = Time.strptime("%Y-%m%d.%H%M", val)
+                                record[nam] = Time.strptime("%Y-%m%d.%H%M", val)
                             except:
                                 try:
-                                    nextrecord[nam] = Time.strptime("%Y-%m%d", val).date()
+                                    record[nam] = Time.strptime("%Y-%m%d", val).date()
                                 except:
-                                    nextrecord[nam] = val.strip()
+                                    record[nam] = val.strip()
         return TabText(data, list(reader.fieldnames if reader.fieldnames else []))
     # must have headers
     lookingfor = "headers"
