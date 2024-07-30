@@ -1044,7 +1044,7 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
         import csv
         reader = csv.DictReader(inp, delimiter=tab)
         for nextrecord in reader:
-            newrecord: Dict[str, CellValue] = nextrecord.copy()
+            newrecord: Dict[str, CellValue] = cast(Dict[str, CellValue], nextrecord.copy())
             for nam, val in nextrecord.items():
                 if val.strip() == none_string:
                     newrecord[nam] = None
