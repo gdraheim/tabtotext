@@ -54,6 +54,7 @@ MINWIDTH = 5
 NIX = ""
 STRLIST: List[str] = []
 COL_SEP = "|"
+TABXLSX = False
 
 JSONData = Union[str, int, float, bool, Date, Time, None]
 
@@ -2462,10 +2463,18 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         fmt = extension(output) or defaultformat
         if fmt in ["xls", "xlsx", "XLS", "XLSX"]:
             try:
-                import tabtoxlsx
-                return tabtoxlsx.save_tabtoXLSX(output, data, headers, selects, legend=legend)
+                if TABXLSX:
+                    import tabxlsx
+                    return tabxlsx.tabtoXLSX(output, data, headers, selects)  # type: ignore[arg-type]
+                else:
+                    import tabtoxlsx
+                    return tabtoxlsx.tabtoXLSX(output, data, headers, selects, legend=legend)
             except Exception as e:
-                logg.error("could not write %s: %s", output, e)
+                if not TABXLSX:
+                    import tabxlsx
+                    return tabxlsx.tabtoXLSX(output, data, headers, selects)  # type: ignore[arg-type]
+                else:
+                    logg.error("could not write %s: %s", output, e)
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
@@ -2739,8 +2748,19 @@ def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, defaul
     if fmt.lower() in ["csv", "scsv"]:
         return tabtextfileCSV(filename, tab=';' if tab is None else tab)
     if fmt.lower() in ["xlsx", "xls"]:
-        import tabtoxlsx
-        return tabtoxlsx.tabtextfileXLSX(filename)
+        try:
+            if TABXLSX:
+                import tabxlsx
+                return tabxlsx.tabtextfileXLSX(filename) # type: ignore[return-value]
+            else:
+                import tabtoxlsx
+                return tabtoxlsx.tabtextfileXLSX(filename)
+        except Exception as e:
+            if not TABXLSX:
+                import tabxlsx
+                return tabxlsx.tabtextfileXLSX(filename) # type: ignore[return-value]
+            else:
+                logg.error("could not load xslx: %s", e)
     logg.debug(" tabtextfileFMT  - unrecognized input format %s: %s", fmt, filename)
     return TabText([], [])
 
@@ -2824,11 +2844,15 @@ def tabToPrint(result: JSONList, OUTPUT: str = NIX, fmt: str = NIX,  # ...
         print(tabToFMT(FMT, data, formats=formats, sorts=sorts, reorder=reorder, datedelim=datedelim, legend=legend))
     elif OUTPUT:
         if FMT in ["xls", "xlsx"]:
-            import tabtoxlsx
-            if isinstance(formats, FormatJSONItem):
-                tabtoxlsx.saveToXLSX(OUTPUT, data, sorts=sorts, reorder=reorder, legend=legend)
+            if TABXLSX:
+                import tabxlsx
+                tabxlsx.tabtoXLSX(OUTPUT, data, sorts)  # type: ignore[arg-type]
             else:
-                tabtoxlsx.saveToXLSX(OUTPUT, data, formats=formats, sorts=sorts, reorder=reorder, legend=legend)
+                import tabtoxlsx
+                if isinstance(formats, FormatJSONItem):
+                    tabtoxlsx.saveToXLSX(OUTPUT, data, sorts=sorts, reorder=reorder, legend=legend)
+                else:
+                    tabtoxlsx.saveToXLSX(OUTPUT, data, formats=formats, sorts=sorts, reorder=reorder, legend=legend)
         else:
             with open(OUTPUT, "w") as f:
                 f.write(tabToFMT(FMT, data, formats=formats, sorts=sorts, reorder=reorder, datedelim=datedelim, legend=legend))
@@ -2888,29 +2912,33 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-m", "--minwidth", metavar="N",
-                       help="override minwith of  cells for format", default=0)
-    cmdline.add_option("-d", "--datedelim", metavar="C",
-                       help="override date delimiter for format", default=None)
-    cmdline.add_option("-p", "--padding", metavar="C",
-                       help="override cell padding for format", default=None)
-    cmdline.add_option("-t", "--tab", metavar="C",
-                       help="override tabulator for format", default=None)
-    cmdline.add_option("-T", "--notab", action="store_true",
-                       help="do not use tabulator (csv,md,tab,wide)", default=False)
-    cmdline.add_option("-P", "--nopadding", action="store_true",
-                       help="do not use padding (csv,md,tab,wide,html)", default=False)
-    cmdline.add_option("-N", "--noheaders", action="store_true",
-                       help="do not print headers (csv,md,tab,wide)", default=False)
-    cmdline.add_option("-U", "--unique", action="store_true",
-                       help="remove same lines in sorted list (csv,md,...)", default=False)
-    cmdline.add_option("-L", "--labels", metavar="LIST", action="append",  # ..
-                       help="add columns to show (a|b:.2f)", default=[])
-    cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
-    cmdline.add_option("-o", "--output", "--format", metavar="FMT",
-                       help="(file.)json|yaml|html|wide|md|htm|tab|csv", default="")
+    cmdline.add_option("-X", "--tabxlsx", action="store_true", default=False,
+                       help="quick xlsx with tabxlsx instead of openpyxl")
+    cmdline.add_option("-m", "--minwidth", metavar="N", default=0,
+                       help="override minwith of  cells for format")
+    cmdline.add_option("-d", "--datedelim", metavar="C", default=None,
+                       help="override date delimiter for format")
+    cmdline.add_option("-p", "--padding", metavar="C", default=None,
+                       help="override cell padding for format")
+    cmdline.add_option("-t", "--tab", metavar="C", default=None,
+                       help="override tabulator for format")
+    cmdline.add_option("-T", "--notab", action="store_true", default=False,
+                       help="do not use tabulator (csv,md,tab,wide)")
+    cmdline.add_option("-P", "--nopadding", action="store_true", default=False,
+                       help="do not use padding (csv,md,tab,wide,html)")
+    cmdline.add_option("-N", "--noheaders", action="store_true", default=False,
+                       help="do not print headers (csv,md,tab,wide)")
+    cmdline.add_option("-U", "--unique", action="store_true", default=False,
+                       help="remove same lines in sorted list (csv,md,...)")
+    cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[],
+                       help="add columns to show (a|b:.2f)")
+    cmdline.add_option("-i", "--inputformat", metavar="FMT", default="", 
+                       help="fix input format (instead of autodetection)")
+    cmdline.add_option("-o", "--output", "--format", metavar="FMT", default="",
+                       help="(file.)json|yaml|html|wide|md|htm|tab|csv")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
+    TABXLSX = opt.tabxlsx
     if not args:
         cmdline.print_help()
     else:

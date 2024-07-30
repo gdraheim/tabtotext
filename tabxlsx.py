@@ -466,9 +466,10 @@ def currency() -> str:
     currency_euro = 0x20AC
     return chr(currency_euro)
 
-def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], minwidth: int = 0) -> None:
+def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], minwidth: int = 0) -> str:
     workbook = make_tabtoXLSX(data, headers, selects, minwidth)
     save_workbook(filename, workbook)
+    return "TABXLSX"
 def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], minwidth: int = 0) -> Workbook:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
