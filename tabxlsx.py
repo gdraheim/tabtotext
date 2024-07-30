@@ -720,37 +720,58 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
         fmt = "GFM"  # nopep8
     if fmt in ["md2"] or "@md2" in spec:
-        fmt = "GFM"; minwidth = 2  # nopep8
+        fmt = "GFM"
+        minwidth = 2  # nopep8
     if fmt in ["md3"] or "@md3" in spec:
-        fmt = "GFM"; minwidth = 3  # nopep8
+        fmt = "GFM"
+        minwidth = 3  # nopep8
     if fmt in ["md4"] or "@md4" in spec:
-        fmt = "GFM"; minwidth = 4  # nopep8
+        fmt = "GFM"
+        minwidth = 4  # nopep8
     if fmt in ["md5"] or "@md5" in spec:
-        fmt = "GFM"; minwidth = 5  # nopep8
+        fmt = "GFM"
+        minwidth = 5  # nopep8
     if fmt in ["md6"] or "@md6" in spec:
-        fmt = "GFM"; minwidth = 6  # nopep8
+        fmt = "GFM"
+        minwidth = 6  # nopep8
     if fmt in ["wide"] or "@wide" in spec:
-        fmt = "GFM"; tab = ""  # nopep8
+        fmt = "GFM"
+        tab = ""  # nopep8
     if fmt in ["txt"] or "@txt" in spec:
-        fmt = "GFM"; padding = ""  # nopep8
+        fmt = "GFM"
+        padding = ""  # nopep8
     if fmt in ["text"] or "@text" in spec:
-        fmt = "GFM"; padding = ""; noheaders = True  # nopep8
+        fmt = "GFM"
+        padding = ""
+        noheaders = True  # nopep8
     if fmt in ["tabs"] or "@tabs" in spec:
-        fmt = "GFM"; tab = "\t"; padding = ""  # nopep8
+        fmt = "GFM"
+        tab = "\t"
+        padding = ""  # nopep8
     if fmt in ["tab"] or "@tab" in spec:
-        fmt = "CSV"; tab = "\t"  # nopep8
+        fmt = "CSV"
+        tab = "\t"  # nopep8
     if fmt in ["data"] or "@data" in spec:
-        fmt = "CSV"; tab = "\t"; noheaders = True  # nopep8
+        fmt = "CSV"
+        tab = "\t"
+        noheaders = True  # nopep8
     if fmt in ["ifs"] or "@dat" in spec or "@ifs" in spec:
-        fmt = "CSV"; tab = os.environ.get("IFS", "\t")  # nopep8
+        fmt = "CSV"
+        tab = os.environ.get("IFS", "\t")  # nopep8
     if fmt in ["dat"] or "@dat" in spec or "@ifs" in spec:
-        fmt = "CSV"; tab = os.environ.get("IFS", "\t"); noheaders = True  # nopep8
+        fmt = "CSV"
+        tab = os.environ.get("IFS", "\t")
+        noheaders = True  # nopep8
     if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
-        fmt = "CSV"; tab = ";"  # nopep8
+        fmt = "CSV"
+        tab = ";"  # nopep8
     if fmt in ["list"] or "@list" in spec:
-        fmt = "CSV"; tab = ";"; noheaders = True  # nopep8
+        fmt = "CSV"
+        tab = ";"
+        noheaders = True  # nopep8
     if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
-        fmt = "XLS"; tab = ","  # nopep8
+        fmt = "XLS"
+        tab = ","  # nopep8
     # override
     if "@tab" in spec:
         tab = spec["@tab"]
@@ -830,7 +851,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     if newsorts:
         for num, name in enumerate(sortcolumns):
             if name not in newsorts:
-                newsorts[name] =  ("@" * len(str(num)) + str(num))
+                newsorts[name] = ("@" * len(str(num)) + str(num))
         sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     # .......................................
@@ -1094,7 +1115,7 @@ if __name__ == "__main__":
     from optparse import OptionParser
     import sys
     prog = os.path.basename(__file__)
-    cmdline = OptionParser(prog+" [-options] input(.xlsx|.csv) [column...]", epilog=__doc__)
+    cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [column...]", epilog=__doc__)
     cmdline.formatter.max_help_position = 29
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="increase logging level")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="decrease logging level")

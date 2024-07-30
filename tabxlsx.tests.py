@@ -3,6 +3,9 @@
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3312"
 
+from tabxlsx import print_tabtotext, CellValue
+from tabxlsx import tabtoXLSX, tabtextfileXLSX
+from tabtotext import loadCSV, loadGFM
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable, cast
 import unittest
 import datetime
@@ -34,9 +37,6 @@ except ImportError as e:
         return line
 
 # ..............................
-from tabtotext import loadCSV, loadGFM
-from tabxlsx import tabtoXLSX, tabtextfileXLSX
-from tabxlsx import print_tabtotext, CellValue
 
 def readFromXLSX(filename: str) -> List[Dict[str, CellValue]]:
     return tabtextfileXLSX(filename).data
@@ -1048,7 +1048,7 @@ class TabXlsxTest(unittest.TestCase):
                 xmldata = zipdata.read()
                 logg.info("xmldata = %s", xmldata)
         #
-        want = rev(table22) 
+        want = rev(table22)
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()

@@ -140,7 +140,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
                     formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            showheaders += [name] # headers make a default column order
+            showheaders += [name]  # headers make a default column order
             if rename:
                 sortheaders += [name]  # headers does not sort anymore
             if not combines:
