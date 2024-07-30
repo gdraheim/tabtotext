@@ -23,7 +23,7 @@ import re
 # from openpyxl.utils import get_column_letter
 
 from logging import getLogger
-logg = getLogger("tabxlsx")
+logg = getLogger("TABXLSX")
 
 DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%Y-%m-%d.%H%M"
@@ -1096,25 +1096,28 @@ if __name__ == "__main__":
     prog = os.path.basename(__file__)
     cmdline = OptionParser(prog+" [-options] input(.xlsx|.csv) [column...]", epilog=__doc__)
     cmdline.formatter.max_help_position = 29
-    cmdline.add_option("-v", "--verbose", action="count", default=0)
-    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-N", "--noheaders", action="store_true",
-                       help="do not print headers (csv,md,tab,wide)", default=False)
-    cmdline.add_option("-U", "--unique", action="store_true",
-                       help="remove same lines in sorted --labels", default=False)
-    cmdline.add_option("-i", "--inputformat", metavar="FMT", help="fix input format (instead of autodetection)", default="")
-    cmdline.add_option("-o", "--format", metavar="FMT", help="data|text|list|wide|md|tab|csv or file", default="")
+    cmdline.add_option("-v", "--verbose", action="count", default=0, help="increase logging level")
+    cmdline.add_option("-^", "--quiet", action="count", default=0, help="decrease logging level")
+    cmdline.add_option("-N", "--noheaders", action="store_true", default=False,
+                       help="do not print headers (csv,md,tab,wide)")
+    cmdline.add_option("-U", "--unique", action="store_true", default=False,
+                       help="remove same lines in sorted --labels")
+    cmdline.add_option("-i", "--inputformat", metavar="FMT", default="",
+                       help="fix input format (instead of autodetection)")
+    cmdline.add_option("-o", "--format", metavar="FMT", default="",
+                       help="data|text|list|wide|md|tab|csv or file")
     cmdline.add_option("--ifs", action="store_true", help="-o ifs: $IFS-seperated table (with headers)")
     cmdline.add_option("--dat", action="store_true", help="-o dat: $IFS-seperated table (without headers)")
     cmdline.add_option("--data", action="store_true", help="-o data: tab-seperated without headers")
     cmdline.add_option("--text", action="store_true", help="-o text: space-seperated without headers")
     cmdline.add_option("--list", action="store_true", help="-o text: semicolon-seperated without headers")
     cmdline.add_option("--wide", action="store_true", help="-o wide: aligned space-separated table")
-    cmdline.add_option("--md", "--markdown", action="store_true", help="-o md: aligned markdown table (with |)")
-    cmdline.add_option("--tabs", action="store_true", help="-o tabs: aligned tab-seperated table (not |)")
+    cmdline.add_option("--md", action="store_true", help="-o md: aligned markdown table (with '|' delim)")
+    cmdline.add_option("--markdown", action="store_true", help="-o markdown: markdown with extra '|' at end")
+    cmdline.add_option("--tabs", action="store_true", help="-o tabs: aligned tab-seperated table (not '|')")
     cmdline.add_option("--tab", action="store_true", help="-o tab: aligned tab-seperated table (like --dat)")
-    cmdline.add_option("--csv", "--scsv", action="store_true", help="-o csv: semicolon-seperated table")
-    cmdline.add_option("--xls", "--xlsx", action="store_true", help="-o xls: for filename.xlsx (else csv)")
+    cmdline.add_option("--csv", "--scsv", action="store_true", help="-o csv: semicolon-seperated csv table")
+    cmdline.add_option("--xls", "--xlsx", action="store_true", help="-o xls: for filename.xlsx (else comma-csv)")
     opt, args = cmdline.parse_args()
     basicConfig(level=max(0, ERROR - 10 * opt.verbose + 10 * opt.quiet))
     if not args:
@@ -1150,6 +1153,8 @@ if __name__ == "__main__":
             defaultformat = "wide"
         if opt.md:
             defaultformat = "md"
+        if opt.markdown:
+            defaultformat = "markdown"
         if opt.tabs:
             defaultformat = "tabs"
         if opt.tab:
