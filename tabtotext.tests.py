@@ -10488,7 +10488,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test011
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), back)
@@ -10501,7 +10501,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test012
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10514,7 +10514,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test013
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10527,7 +10527,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test014
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10540,7 +10540,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test015
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10553,7 +10553,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test016
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10566,7 +10566,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test017
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10579,7 +10579,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test018Q
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10592,7 +10592,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = test019
         back = readFromXLSX(filename)
         self.assertEqual(want, back)
@@ -10605,7 +10605,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = table01N
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), back)
@@ -10618,7 +10618,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = table02N
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), back)
@@ -10631,7 +10631,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = table22
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), back)
@@ -10644,7 +10644,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = table33Q
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
@@ -10657,7 +10657,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         want = table44N
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(back))
@@ -11177,7 +11177,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         text = sh(F"./tabtotext.py -^ {filename} @csv")
         cond = ['a;b', 'x;~', '~;1']
         cond = ['a;b', 'x;', ';1']
@@ -11194,7 +11194,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         text = sh(F"./tabtotext.py -^ {filename} @csv")
         want = table02N
         cond = ['a;b', 'x;0', '~;2']
@@ -11211,7 +11211,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         text = sh(F"./tabtotext.py -^ {filename} @csv")
         want = table22
         cond = ['a;b', 'x;3', 'y;2']
@@ -11227,7 +11227,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         text = sh(F"./tabtotext.py -^ {filename} @csv")
         want = table33Q
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
@@ -11244,7 +11244,7 @@ class TabToTextTest(unittest.TestCase):
         sz = path.getsize(filename)
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
-        self.assertGreater(5000, sz)
+        self.assertGreater(6000, sz)
         text = sh(F"./tabtotext.py -^ {filename} @csv")
         logg.info("text = %s", text)
         want = table44N
