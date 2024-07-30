@@ -1045,7 +1045,6 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
         reader = csv.DictReader(inp, delimiter=tab)
         for nextrecord in reader:
             newrecord: Dict[str, CellValue] = nextrecord.copy()
-            data.append(newrecord)
             for nam, val in nextrecord.items():
                 if val.strip() == none_string:
                     newrecord[nam] = None
@@ -1067,6 +1066,7 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
                                     newrecord[nam] = Time.strptime("%Y-%m%d", val).date()
                                 except:
                                     newrecord[nam] = val.strip()
+            data.append(newrecord)
         return TabText(data, list(reader.fieldnames if reader.fieldnames else []))
     # must have headers
     lookingfor = "headers"
