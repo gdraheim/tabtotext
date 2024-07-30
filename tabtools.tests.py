@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2022-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.0.3313"
+__version__ = "1.1.3313"
 
 from tabtools import *
 import sys
