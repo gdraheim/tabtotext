@@ -2616,6 +2616,7 @@ def tabtotext(data: Iterable[JSONDict],  # ..
         unique = True
     if "@nolegend" in spec:
         legend = []
+    assert isinstance(tab, str)  # mypy 0.9
     # render
     if fmt == "HTML":
         return tabtoHTML(data, headers, selects, legend=legend, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth)
