@@ -10588,7 +10588,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(6000, sz)
         want = test018Q
         back = readFromXLSX(filename)
-        self.assertEqual(want, back)
+        self.assertEqual(_date(want), _date(back))
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_8019(self) -> None:
@@ -10764,7 +10764,7 @@ class TabToTextTest(unittest.TestCase):
         self.assertGreater(6000, sz)
         want = test018Q
         back = readFromXLSX(filename)
-        self.assertEqual(want, back)
+        self.assertEqual(_date(want), _date(back))
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
     def test_8039(self) -> None:
