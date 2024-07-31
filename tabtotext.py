@@ -639,6 +639,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                     newsorts[name] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
+        else:
+            logg.debug("sortcolumns = %s", sortcolumns)
     format: FormatJSONItem
     if formatter and isinstance(formatter, FormatJSONItem):
         format = formatter
