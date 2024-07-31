@@ -7,7 +7,7 @@ Defaults to read any given file.xy rewriting it as file.xy.xlsx!
 """
 
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3313"
+__version__ = "1.6.3314"
 
 import logging
 from typing import Union, Dict, List, Any, Sequence, Iterable

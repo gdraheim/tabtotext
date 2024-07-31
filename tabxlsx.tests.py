@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3313"
+__version__ = "1.6.3314"
 
 from tabxlsx import print_tabtotext, CellValue
 from tabxlsx import tabtoXLSX, tabtextfileXLSX, tabtextfile
