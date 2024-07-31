@@ -1046,28 +1046,32 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
         import csv
         reader = csv.DictReader(inp, delimiter=tab)
         for nextrecord in reader:
-            newrecord: Dict[str, CellValue] = cast(Dict[str, CellValue], nextrecord.copy())
+            # newrecord: Dict[str, CellValue] = cast(Dict[str, CellValue], nextrecord.copy())
+            newrecord: Dict[str, CellValue] = {}
             for nam, val in nextrecord.items():
-                if val.strip() == none_string:
+                v = val.strip()
+                if v == none_string:
                     newrecord[nam] = None
-                elif val.strip() == false_string:
+                elif v == false_string:
                     newrecord[nam] = False
-                elif val.strip() == true_string:
+                elif v == true_string:
                     newrecord[nam] = True
                 else:
                     try:
-                        newrecord[nam] = int(val)
+                        newrecord[nam] = int(v)
                     except:
                         try:
-                            newrecord[nam] = float(val)
+                            newrecord[nam] = float(v)
                         except:
                             try:
-                                newrecord[nam] = Time.strptime("%Y-%m%d.%H%M", val)
-                            except:
+                                newrecord[nam] = Time.strptime(v, "%Y-%m-%d.%H%M")
+                            except Exception as e:
+                                if ".23" in v:
+                                    logg.error("no date? = %s = %s", v, e)
                                 try:
-                                    newrecord[nam] = Time.strptime("%Y-%m%d", val).date()
-                                except:
-                                    newrecord[nam] = val.strip()
+                                    newrecord[nam] = Time.strptime(v, "%Y-%m-%d").date()
+                                except Exception as e:
+                                    newrecord[nam] = v
             data.append(newrecord)
         return TabText(data, list(reader.fieldnames if reader.fieldnames else []))
     # must have headers
@@ -1089,26 +1093,29 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
                 continue
         record: Dict[str, CellValue] = {}
         for col, val in enumerate(vals):
-            if val.strip() == none_string:
+            v = val.strip()
+            if v == none_string:
                 record[headers[col]] = None
-            elif val.strip() == false_string:
+            elif v == false_string:
                 record[headers[col]] = False
-            elif val.strip() == true_string:
+            elif v == true_string:
                 record[headers[col]] = True
             else:
                 try:
-                    record[headers[col]] = int(val)
+                    record[headers[col]] = int(v)
                 except:
                     try:
-                        record[headers[col]] = float(val)
+                        record[headers[col]] = float(v)
                     except:
                         try:
-                            record[headers[col]] = Time.strptime("%Y-%m%d.%H%M", val)
-                        except:
+                            record[headers[col]] = Time.strptime(v, "%Y-%m-%d.%H%M")
+                        except Exception as e:
+                            if ".23" in v:
+                                logg.error("no date? = %s = %s", v, e)
                             try:
-                                record[headers[col]] = Time.strptime("%Y-%m%d", val).date()
+                                record[headers[col]] = Time.strptime(v, "%Y-%m-%d").date()
                             except:
-                                record[headers[col]] = val.strip()
+                                record[headers[col]] = v
         data.append(record)
     return TabText(data, headers)
 
