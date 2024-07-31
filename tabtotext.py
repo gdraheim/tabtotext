@@ -533,8 +533,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]  # headers make a default column order
@@ -580,8 +580,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
                 freecols[name] = selcol
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
-                fmt = form if "{" in form else ("{:" + form + "}")
-                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                fmts = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             if "<" in name:
@@ -916,8 +916,8 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]  # headers make a default column order
@@ -965,8 +965,8 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             if "<" in name:
@@ -1323,8 +1323,8 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]  # headers make a default column order
@@ -1363,8 +1363,8 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             if "<" in name:
@@ -1599,8 +1599,8 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]  # headers make a default column order
@@ -1639,8 +1639,8 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             if "<" in name:
@@ -1907,8 +1907,8 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]  # headers make a default column order
@@ -1947,8 +1947,8 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             if "<" in name:
@@ -2234,8 +2234,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]
@@ -2283,8 +2283,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             elif ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             if "<" in name:
