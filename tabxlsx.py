@@ -15,7 +15,8 @@ import os.path as fs
 import os
 import re
 
-# Actually, we implement what we need for tabtoxlsx
+# The functions in this script mimic those of openpyxl - we only implement what we need for tabtoxlsx
+# (actually, we make an export with openpyxl and then we adapt the code here to generate the same bytes)
 # from openpyxl import Workbook, load_workbook
 # from openpyxl.worksheet.worksheet import Worksheet
 # from openpyxl.styles.cell_style import CellStyle as Style
