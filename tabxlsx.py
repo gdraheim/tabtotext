@@ -529,8 +529,8 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             selected.append(name)
