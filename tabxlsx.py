@@ -497,8 +497,8 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
-                    fmt = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    fmts = form if "{" in form else ("{:" + form + "}")
+                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]  # headers make a default column order
@@ -815,8 +815,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 selcol, rename = selheader, ""
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
-                fmt = form if "{" in form else ("{:" + form + "}")
-                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                fmts = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             showheaders += [name]
@@ -835,8 +835,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 selcol, rename = selec, ""
             if ":" in selcol:
                 name, form = selcol.split(":", 1)
-                fmt = form if "{" in form else ("{:" + form + "}")
-                formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                fmts = form if "{" in form else ("{:" + form + "}")
+                formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
             selected.append(name)
