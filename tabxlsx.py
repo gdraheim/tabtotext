@@ -22,6 +22,7 @@ import re
 # from openpyxl.styles.cell_style import CellStyle as Style
 # from openpyxl.styles.alignment import Alignment
 # from openpyxl.utils import get_column_letter
+# (have a look at 'make_workbook' for the generation part)
 
 from logging import getLogger
 logg = getLogger("TABXLSX")
