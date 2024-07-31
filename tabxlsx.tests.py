@@ -15,7 +15,7 @@ import os.path as path
 import shutil
 import json
 import inspect
-from subprocess import getoutput as sh
+from subprocess import getoutput
 from datetime import date as Date
 from datetime import datetime as Time
 from zipfile import ZipFile
@@ -27,6 +27,8 @@ logg = logging.getLogger("XLSX")
 NIX = ""
 LIST: List[str] = []
 JSONLIST: List[Dict[str, str]] = []
+KEEP = 0
+TABTO = "./tabxlsx.py"
 
 try:
     from tabtools import currency_default
@@ -47,6 +49,9 @@ def loadGFM(text: str) -> List[Dict[str, CellValue]]:
 def readFromXLSX(filename: str) -> List[Dict[str, CellValue]]:
     return tabtextfileXLSX(filename).data
 
+def sh(cmd: str, *args: Any) -> str:
+    logg.debug("sh %s", cmd)
+    return getoutput(cmd, *args)
 def get_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back  # type: ignore
     return frame.f_code.co_name  # type: ignore
@@ -180,7 +185,8 @@ class TabXlsxTest(unittest.TestCase):
         testname = testname or self.caller_testname()
         newdir = "tmp/tmp." + testname
         if path.isdir(newdir):
-            shutil.rmtree(newdir)
+            if not KEEP:
+                shutil.rmtree(newdir)
         return newdir
     #
     def test_4103(self) -> None:
@@ -1317,7 +1323,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         cond = ['a;b', 'x;~', '~;1']
         cond = ['a;b', 'x;', ';1']
         want = table01N
@@ -1334,7 +1340,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         want = table02N
         cond = ['a;b', 'x;0', '~;2']
         cond = ['a;b', 'x;0', ';2']
@@ -1351,7 +1357,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         want = table22
         cond = ['a;b', 'x;3', 'y;2']
         self.assertEqual(cond, text.splitlines())
@@ -1367,7 +1373,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         want = table33Q
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', ';;2021-12-31']
@@ -1384,7 +1390,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         logg.info("text = %s", text)
         want = table44N
         cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', ';;(yes);0.20', 'y;1;;0.10']
@@ -1399,12 +1405,14 @@ if __name__ == "__main__":
     cmdline = OptionParser("%s test...")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cmdline.add_option("-k", "--keep", action="count", default=0, help="keep testdir")
     cmdline.add_option("--failfast", action="store_true", default=False,
                        help="Stop the test run on the first error or failure. [%default]")
     cmdline.add_option("--xmlresults", metavar="FILE", default=None,
                        help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
+    KEEP = opt.keep
     if not args:
         args = ["test_*"]
     suite = unittest.TestSuite()
