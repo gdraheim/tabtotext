@@ -4,6 +4,9 @@ TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries
 The output can be piped as a markdown table or csv-like data as well. A number
 of output format options are available but less than the tabtotext.py module."""
 
+__copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.3314"
+
 from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Any
 from datetime import date as Date
 from datetime import datetime as Time
