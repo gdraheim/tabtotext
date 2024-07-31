@@ -797,6 +797,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     formats: Dict[str, str] = {}
     renameheaders: Dict[str, str] = {}
+    showheaders: List[str] = []
     sortheaders: List[str] = []
     for header in headers:
         combines = ""
@@ -811,7 +812,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 formats[name] = fmt.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            sortheaders += [name]  # default sort by named headers (rows)
+            showheaders += [name]
+            if rename:
+                sortheaders += [name]  # default sort by named headers (rows)
             if rename:
                 renameheaders[name] = rename
     renaming: Dict[str, str] = {}
@@ -833,7 +836,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             if rename:
                 renaming[name] = rename
     if not selects:
-        selected = sortheaders
         renaming = renameheaders
     logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
     newsorts: Dict[str, str] = {}
@@ -856,6 +858,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 newsorts[name] = ("@" * len(str(num)) + str(num))
         sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     # .......................................
     def rightalign(col: str) -> bool:
         if col in formats and not noright:
@@ -917,8 +920,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             cols[colname] = max(oldlen, len(format(colname, value)))
         rows.append(row)
     def sortkey(header: str) -> str:
-        if header in selcolumns:
-            num = selcolumns.index(header)
+        headers = selcolumns or selheaders
+        if header in headers:
+            num = headers.index(header)
             return ("@" * len(str(num)) + str(num))
         return header
     def sortrow(row: Dict[str, CellValue]) -> str:
