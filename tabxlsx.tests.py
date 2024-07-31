@@ -549,7 +549,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6144(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b', 'a'])
+        res = print_tabtotext(out, itemlist, ['b@1', 'a'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -562,7 +562,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6171(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b', 'a: {:}'])
+        res = print_tabtotext(out, itemlist, ['b@1', 'a: {:}'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -575,7 +575,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6172(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b', 'a: %s'])
+        res = print_tabtotext(out, itemlist, ['b@1', 'a: %s'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -588,7 +588,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6173(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b:<.2n', 'a:"%s"'])
+        res = print_tabtotext(out, itemlist, ['b:<.2n@1', 'a:"%s"'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -601,7 +601,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6174(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b:{:.2f}', 'a:"{:}"'])
+        res = print_tabtotext(out, itemlist, ['b:{:.2f}@1', 'a:"{:}"'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -614,7 +614,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6175(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b:{:<.2f}', 'a:"{:}"'])
+        res = print_tabtotext(out, itemlist, ['b:{:<.2f}@1', 'a:"{:}"'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         # text = tabtotext.tabToGFM(itemlist, ['b', 'a'], formats)
@@ -628,7 +628,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6176(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b:{:.2f}', 'a:"{:}"'])
+        res = print_tabtotext(out, itemlist, ['b:{:.2f}@1', 'a:"{:}"'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -642,7 +642,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6177(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b:{:$}', 'a:"{:}"'])
+        res = print_tabtotext(out, itemlist, ['b:{:$}@1', 'a:"{:}"'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -655,7 +655,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6178(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2.}, {'a': "y", 'b': 1.}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b:{:3f}', 'a:"{:5s}"'])
+        res = print_tabtotext(out, itemlist, ['b:{:3f}@1', 'a:"{:5s}"'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -668,7 +668,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_6179(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 22.}, {'a': "y", 'b': 1.}]
         out = StringIO()
-        res = print_tabtotext(out, itemlist, ['b:{:>3f}', 'a:"{:>5s}"'])
+        res = print_tabtotext(out, itemlist, ['b:{:>3f}@1', 'a:"{:>5s}"'])
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", test004, text)
@@ -695,7 +695,7 @@ class TabXlsxTest(unittest.TestCase):
     date_for_6221: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
     def test_6221(self) -> None:
         out = StringIO()
-        res = print_tabtotext(out, self.date_for_6221, ["b", "a"])  # defaultformat="markdown"
+        res = print_tabtotext(out, self.date_for_6221, ["b@1", "a"])  # defaultformat="markdown"
         logg.info("print_tabtotext %s", res)
         text = out.getvalue()
         logg.debug("%s => %s", res, text)
@@ -1390,7 +1390,7 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"{TABTO} -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv -vvv")
         logg.info("text = %s", text)
         want = table44N
         cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', ';;(yes);0.20', 'y;1;;0.10']
