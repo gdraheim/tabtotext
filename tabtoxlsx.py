@@ -28,7 +28,8 @@ except ImportError:
 
 from collections import OrderedDict
 import datetime
-DayOrTime = (datetime.date, datetime.datetime)
+from datetime import date as Date
+from datetime import datetime as Time
 
 MINWIDTH = 4
 MAXCOL = 1000
@@ -323,9 +324,12 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
     txt_style = Style()
     txt_style.number_format = 'General'
     txt_style.alignment = Alignment(horizontal='left')
-    dat_style = Style()
-    dat_style.number_format = 'd.mm.yy'
-    dat_style.alignment = Alignment(horizontal='right')
+    date_style = Style()
+    date_style.number_format = 'yyyy-mm-dd'
+    date_style.alignment = Alignment(horizontal='right')
+    time_style = Style()
+    time_style.number_format = 'yyyy-mm-dd hh:mm'
+    time_style.alignment = Alignment(horizontal='right')
     num_style = Style()
     num_style.number_format = '#,##0.00'
     num_style.alignment = Alignment(horizontal='right')
@@ -351,8 +355,10 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
             if value is None:
                 # <c r="A2" s="0" t="str"><f aca="false">&quot;&quot;</f><v></v></c>
                 set_cell(ws, row, col, _Empty_String, txt_style)
-            elif isinstance(value, DayOrTime):
-                set_cell(ws, row, col, value, dat_style)
+            elif isinstance(value, Time):
+                set_cell(ws, row, col, value, time_style)
+            elif isinstance(value, Date):
+                set_cell(ws, row, col, value, date_style)
             elif isinstance(value, int):
                 set_cell(ws, row, col, value, int_style)
             elif isinstance(value, float):
