@@ -1391,14 +1391,29 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"{TABTO} -^ {filename} @csv -vvv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         logg.info("text = %s", text)
         want = table44N
         cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', ';;(yes);0.20', 'y;1;;0.10']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(_none(want), _none(back))
-        # self.rm_testdir()
+        self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_9029(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table44.xlsx")
+        tabtoXLSX(filename, table44)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} @csv a b")
+        logg.info("text = %s", text)
+        cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', ';;(yes);0.20', 'y;1;;0.10']
+        cond = ['a;b', ';', 'x;3', 'y;1', 'y;2']
+        self.assertEqual(cond, text.splitlines())
+        self.rm_testdir()
 
 if __name__ == "__main__":
     # unittest.main()
