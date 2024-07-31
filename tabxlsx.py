@@ -857,6 +857,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             if name not in newsorts:
                 newsorts[name] = ("@" * len(str(num)) + str(num))
         sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
+        logg.debug("sortcolumns : %s", sortcolumns)
+    else:
+        logg.debug("sortcolumns = %s", sortcolumns)
     selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     # .......................................
@@ -950,7 +953,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 else:
                     sortvalue += "\n?"
             return sortvalue
-        return "XLSX"
+        return ""
     # print ..........................................
     same = []
     # CSV
