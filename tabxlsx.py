@@ -427,6 +427,8 @@ class TabText(NamedTuple):
     data: List[Dict[str, CellValue]]
     headers: List[str]
 
+def readFromXLSX(filename: str) -> List[Dict[str, CellValue]]:
+    return tabtextfileXLSX(filename).data
 def tabtextfileXLSX(filename: str) -> TabText:
     workbook = load_workbook(filename)
     return tabtext_workbook(workbook)
