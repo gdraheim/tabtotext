@@ -5,6 +5,7 @@ __version__ = "1.6.3313"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable
 from tabtotext import JSONList, JSONDict, JSONItem, DataList, DataItem
+from tabtotext import loadCSV, loadGFM
 import tabtotext
 import unittest
 import sys
@@ -16,7 +17,7 @@ import os.path as path
 import shutil
 import json
 import inspect
-from subprocess import getoutput as sh
+from subprocess import getoutput
 from zipfile import ZipFile
 from dataclasses import dataclass
 from io import StringIO
@@ -26,6 +27,8 @@ logg = logging.getLogger("TESTS")
 NIX = ""
 LIST: List[str] = []
 JSONLIST: List[Dict[str, str]] = []
+KEEP = 0
+TABTO = "./tabtotext.py"
 
 try:
     from tabtools import currency_default
@@ -46,7 +49,9 @@ except Exception as e:
         return "skipped"
     def readFromXLSX(filename: str) -> JSONList:
         return []
-
+def sh(cmd: str, *args: Any) -> str:
+    logg.debug("sh %s", cmd)
+    return getoutput(cmd, *args)
 def get_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back  # type: ignore
     return frame.f_code.co_name  # type: ignore
@@ -182,7 +187,8 @@ class TabToTextTest(unittest.TestCase):
         testname = testname or self.caller_testname()
         newdir = "tmp/tmp." + testname
         if path.isdir(newdir):
-            shutil.rmtree(newdir)
+            if not KEEP:
+                shutil.rmtree(newdir)
         return newdir
     #
     def test_1018(self) -> None:
@@ -249,7 +255,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4004(self) -> None:
         text = tabtotext.tabToCSV(test004)
@@ -257,7 +263,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4005(self) -> None:
         text = tabtotext.tabToCSV(test005)
@@ -265,7 +271,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['a', 'x', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4006(self) -> None:
         text = tabtotext.tabToCSV(test006)
@@ -273,7 +279,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['a;b', 'x;y', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4007(self) -> None:
         text = tabtotext.tabToCSV(test007)
@@ -281,7 +287,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007Q
         cond = ['a;b', 'x;y', '~;v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4008(self) -> None:
         text = tabtotext.tabToCSV(test008)
@@ -289,7 +295,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008Q
         cond = ['a;b', 'x;~', '~;v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4009(self) -> None:
         text = tabtotext.tabToCSV(test009)
@@ -297,7 +303,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009Q
         cond = ['b', '~', 'v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4011(self) -> None:
         text = tabtotext.tabToCSV(test011)
@@ -305,7 +311,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4012(self) -> None:
         text = tabtotext.tabToCSV(test012)
@@ -313,7 +319,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4013(self) -> None:
         text = tabtotext.tabToCSV(test013)
@@ -321,7 +327,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['b', '(yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4014(self) -> None:
         text = tabtotext.tabToCSV(test014)
@@ -329,7 +335,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['b', '""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4015(self) -> None:
         text = tabtotext.tabToCSV(test015)
@@ -337,7 +343,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['b', '5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4016(self) -> None:
         text = tabtotext.tabToCSV(test016)
@@ -345,7 +351,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['b', '123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123":
             back[0]['b'] = 123
         self.assertEqual(want, back)
@@ -355,7 +361,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['b', '123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123.40":
             back[0]['b'] = 123.4
         self.assertEqual(want, back)
@@ -365,7 +371,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4019(self) -> None:
         text = tabtotext.tabToCSV(test019)
@@ -373,7 +379,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4020(self) -> None:
         text = tabtotext.tabToCSV(table01)
@@ -381,7 +387,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['a;b', 'x;~', '~;1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4021(self) -> None:
         text = tabtotext.tabToCSV(table02)
@@ -389,7 +395,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['a;b', 'x;0', '~;2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4022(self) -> None:
         text = tabtotext.tabToCSV(table22)
@@ -397,7 +403,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['a;b', 'x;3', 'y;2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4023(self) -> None:
         text = tabtotext.tabToCSV(table33)
@@ -405,7 +411,7 @@ class TabToTextTest(unittest.TestCase):
         want = table33Q
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4024(self) -> None:
         text = tabtotext.tabToCSV(table44)
@@ -413,7 +419,7 @@ class TabToTextTest(unittest.TestCase):
         want = table44N
         cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', '~;~;(yes);0.20', 'y;1;~;0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4030(self) -> None:
         """ legend is ignored for CSV """
@@ -422,7 +428,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4031(self) -> None:
         """ legend is ignored for CSV """
@@ -431,7 +437,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4044(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -439,7 +445,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1;y', '2;x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -449,7 +455,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a;c', '1;y;~', '2;x;~', '~;~;h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -459,7 +465,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ]  # column a is now first
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -469,7 +475,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4052(self) -> None:
         text = tabtotext.tabToCSVx(data012)
@@ -477,7 +483,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4053(self) -> None:
         text = tabtotext.tabToCSVx(data013)
@@ -485,7 +491,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['b', '(yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4054(self) -> None:
         text = tabtotext.tabToCSVx(data014)
@@ -493,7 +499,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['b', '""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4055(self) -> None:
         text = tabtotext.tabToCSVx(data015)
@@ -501,7 +507,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['b', '5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4056(self) -> None:
         text = tabtotext.tabToCSVx(data016)
@@ -509,7 +515,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['b', '123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123":
             back[0]['b'] = 123
         self.assertEqual(want, back)
@@ -519,7 +525,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['b', '123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123.40":
             back[0]['b'] = 123.4
         self.assertEqual(want, back)
@@ -529,7 +535,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4059(self) -> None:
         text = tabtotext.tabToCSVx(data019)
@@ -537,7 +543,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4060(self) -> None:
         text = tabtotext.tabToCSV(table01, ["b", "a"])
@@ -545,7 +551,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table01N)
         cond = ['b;a', '1;~', '~;x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4061(self) -> None:
         text = tabtotext.tabToCSV(table02, ["b", "a"])
@@ -553,7 +559,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['b;a', '0;x', '2;~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4062(self) -> None:
         text = tabtotext.tabToCSV(table22, ["b", "a"])
@@ -561,7 +567,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table22)
         cond = ['b;a', '2;y', '3;x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4063(self) -> None:
         text = tabtotext.tabToCSV(table33, ["b", "a"])
@@ -569,7 +575,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table33Q[:2]) + table33Q[2:]
         cond = ['b;a;c', '2;y;2021-12-30', '3;x;2021-12-31', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4064(self) -> None:
         text = tabtotext.tabToCSV(table44, ["b", "a"])
@@ -577,7 +583,7 @@ class TabToTextTest(unittest.TestCase):
         want = table44N[3:] + table44N[1:2] + table44N[0:1] + table44N[2:3]
         cond = ['b;a;c;d', '1;y;~;0.10', '2;y;(no);0.30', '3;x;(yes);0.40', '~;~;(yes);0.20']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         logg.info("want %s", want)
         logg.info("back %s", back)
         self.assertEqual(want, back)
@@ -587,7 +593,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table33Q[:2]) + table33Q[2:]
         cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;x;3', '2021-12-31;~;~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
 
     def test_4071(self) -> None:
@@ -598,7 +604,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1; y', '2; x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -610,7 +616,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1; y', '2; x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -622,7 +628,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.00;(y)', '2.00;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -634,7 +640,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.00;(y)', '2.00;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -646,7 +652,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.00;(y)', '2.00;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -658,7 +664,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000;(y)', '2.000;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -670,7 +676,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000000;(y    )', '2.000000;(x    )']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y    )', 'b': 1.0}, {'a': '(x    )', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -682,7 +688,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000000;"""y    """', '2.000000;"""x    """']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -694,7 +700,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000000;"""    y"""', '22.000000;"""    x"""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -707,7 +713,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4104(self) -> None:
         out = StringIO()
@@ -718,7 +724,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4105(self) -> None:
         out = StringIO()
@@ -729,7 +735,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['a', 'x', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4106(self) -> None:
         out = StringIO()
@@ -740,7 +746,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['a;b', 'x;y', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4107(self) -> None:
         out = StringIO()
@@ -751,7 +757,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007Q
         cond = ['a;b', 'x;y', '~;v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4108(self) -> None:
         out = StringIO()
@@ -762,7 +768,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008Q
         cond = ['a;b', 'x;~', '~;v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4109(self) -> None:
         out = StringIO()
@@ -773,7 +779,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009Q
         cond = ['b', '~', 'v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4111(self) -> None:
         out = StringIO()
@@ -784,7 +790,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4112(self) -> None:
         out = StringIO()
@@ -795,7 +801,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4113(self) -> None:
         out = StringIO()
@@ -806,7 +812,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['b', '(yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4114(self) -> None:
         out = StringIO()
@@ -817,7 +823,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['b', '""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4115(self) -> None:
         out = StringIO()
@@ -828,7 +834,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['b', '5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4116(self) -> None:
         out = StringIO()
@@ -839,7 +845,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['b', '123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123":
             back[0]['b'] = 123
         self.assertEqual(want, back)
@@ -852,7 +858,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['b', '123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123.40":
             back[0]['b'] = 123.4
         self.assertEqual(want, back)
@@ -865,7 +871,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4119(self) -> None:
         out = StringIO()
@@ -876,7 +882,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4131(self) -> None:
         """ legend is ignored for CSV """
@@ -888,7 +894,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4143(self) -> None:
         out = StringIO()
@@ -899,7 +905,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '2;x', '1;y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 1}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -912,7 +918,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1;y', '2;x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -925,7 +931,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a;c', '1;y;~', '2;x;~', '~;~;h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -938,7 +944,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1; y', '2; x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -951,7 +957,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1; y', '2; x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': ' y', 'b': 1}, {'a': ' x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -964,7 +970,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.00;(y)', '2.00;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -977,7 +983,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.00;(y)', '2.00;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -990,7 +996,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.00;(y)', '2.00;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1005,7 +1011,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000;(y)', '2.000;(x)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y)', 'b': 1}, {'a': '(x)', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1020,7 +1026,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000000;(y    )', '2.000000;(x    )']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '(y    )', 'b': 1.0}, {'a': '(x    )', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1035,7 +1041,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000000;"""y    """', '2.000000;"""x    """']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1050,7 +1056,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1.000000;"""    y"""', '22.000000;"""    x"""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1060,7 +1066,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4404(self) -> None:
         text = tabtotext.tabtoCSV(test004)
@@ -1068,7 +1074,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4405(self) -> None:
         text = tabtotext.tabtoCSV(test005)
@@ -1076,7 +1082,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['a', 'x', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4406(self) -> None:
         text = tabtotext.tabtoCSV(test006)
@@ -1084,7 +1090,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['a;b', 'x;y', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4407(self) -> None:
         text = tabtotext.tabtoCSV(test007)
@@ -1092,7 +1098,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007Q
         cond = ['a;b', 'x;y', '~;v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4408(self) -> None:
         text = tabtotext.tabtoCSV(test008)
@@ -1100,7 +1106,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008Q
         cond = ['a;b', 'x;~', '~;v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4409(self) -> None:
         text = tabtotext.tabtoCSV(test009)
@@ -1108,7 +1114,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009Q
         cond = ['b', '~', 'v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4411(self) -> None:
         text = tabtotext.tabtoCSV(test011)
@@ -1116,7 +1122,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4412(self) -> None:
         text = tabtotext.tabtoCSV(test012)
@@ -1124,7 +1130,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['b', '(no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4413(self) -> None:
         text = tabtotext.tabtoCSV(test013)
@@ -1132,7 +1138,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['b', '(yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4414(self) -> None:
         text = tabtotext.tabtoCSV(test014)
@@ -1140,7 +1146,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['b', '""']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4415(self) -> None:
         text = tabtotext.tabtoCSV(test015)
@@ -1148,7 +1154,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['b', '5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4416(self) -> None:
         text = tabtotext.tabtoCSV(test016)
@@ -1156,7 +1162,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['b', '123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123":
             back[0]['b'] = 123
         self.assertEqual(want, back)
@@ -1166,7 +1172,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['b', '123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         if back[0]['b'] == "123.40":
             back[0]['b'] = 123.4
         self.assertEqual(want, back)
@@ -1176,7 +1182,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4419(self) -> None:
         text = tabtotext.tabtoCSV(test019)
@@ -1184,7 +1190,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018  # test019
         cond = ['b', '2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4420(self) -> None:
         text = tabtotext.tabtoCSV(table01)
@@ -1192,7 +1198,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['a;b', 'x;~', '~;1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4421(self) -> None:
         text = tabtotext.tabtoCSV(table02)
@@ -1200,7 +1206,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['a;b', 'x;0', '~;2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4422(self) -> None:
         text = tabtotext.tabtoCSV(table22)
@@ -1208,7 +1214,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['a;b', 'x;3', 'y;2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4423(self) -> None:
         text = tabtotext.tabtoCSV(table33)
@@ -1216,7 +1222,7 @@ class TabToTextTest(unittest.TestCase):
         want = table33Q
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4430(self) -> None:
         """ legend is ignored for CSV """
@@ -1225,7 +1231,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4431(self) -> None:
         """ legend is ignored for CSV """
@@ -1234,7 +1240,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['b', '~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4444(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -1242,7 +1248,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a', '1;y', '2;x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1252,7 +1258,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['b;a;c', '1;y;~', '2;x;~', '~;~;h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1262,7 +1268,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['a;b;c', 'y;1;~', 'x;2;~', '~;~;h', ]  # column a is now first
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -1272,7 +1278,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['b;a', '~;x', '1;~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4461(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b", "a"])
@@ -1280,7 +1286,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['b;a', '0;x', '2;~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4462(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b", "a"])
@@ -1288,7 +1294,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['b;a', '3;x', '2;y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4463(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b", "a"])
@@ -1296,7 +1302,7 @@ class TabToTextTest(unittest.TestCase):
         want = table33Q
         cond = ['b;a;c', '3;x;2021-12-31', '2;y;2021-12-30', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4465(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"])
@@ -1304,7 +1310,7 @@ class TabToTextTest(unittest.TestCase):
         want = table33Q
         cond = ['c;a;b', '2021-12-31;x;3', '2021-12-30;y;2', '2021-12-31;~;~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4466(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b", "a"], ["b", "a"])
@@ -1312,7 +1318,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['b;a', '0;x', '2;~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4467(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b", "a"], ["b", "a"])
@@ -1320,7 +1326,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table22)
         cond = ['b;a', '2;y', '3;x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4468(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b", "a"], ["b", "a", "c"])
@@ -1328,7 +1334,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table33Q[:2]) + table33Q[2:]
         cond = ['b;a;c', '2;y;2021-12-30', '3;x;2021-12-31', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4469(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["c", "a", "b"])
@@ -1336,7 +1342,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table33Q[:2]) + table33Q[2:]
         cond = ['c;a;b', '2021-12-30;y;2', '2021-12-31;x;3', '2021-12-31;~;~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4470(self) -> None:
         text = tabtotext.tabtoCSV(table01, ["b", "a"], ["a"])
@@ -1344,7 +1350,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a', '~', 'x']
         want = [{'a': None}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4471(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b", "a"], ["a"])
@@ -1352,7 +1358,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a', '~', 'x']
         want = [{'a': None}, {'a': 'x'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4472(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b", "a"], ["a"])
@@ -1360,7 +1366,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a', 'x', 'y']
         want = [{'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4473(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b", "a"], ["a"])
@@ -1368,7 +1374,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a', '~', 'x', 'y']
         want = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4474(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["a"])
@@ -1376,7 +1382,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a', '~', 'x', 'y']
         want = [{'a': None}, {'a': 'x'}, {'a': 'y'}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4475(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b", "a"], ["b"])
@@ -1384,7 +1390,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b', '0', '2']
         want = [{'b': 0}, {'b': 2}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4476(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b", "a"], ["b"])
@@ -1392,7 +1398,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b', '2', '3']
         want = [{'b': 2}, {'b': 3}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4477(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b", "a"], ["b"])
@@ -1400,7 +1406,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b', '2', '3', '~']
         want = [{'b': 2}, {'b': 3}, {'b': None}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4478(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["b"])
@@ -1408,7 +1414,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b', '2', '3', '~']
         want = [{'b': 2}, {'b': 3}, {'b': None}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4479(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["c", "a"], ["c"])
@@ -1416,7 +1422,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['c', '2021-12-30', '2021-12-31', '2021-12-31']
         want = [{'c': Date(2021, 12, 30)}, {'c': Date(2021, 12, 31)}, {'c': Date(2021, 12, 31)}]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4530(self) -> None:
         text = tabtotext.tabtoCSV(table01, ["a|b"])
@@ -1424,7 +1430,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a;b', 'x;~', '~;1']
         want = table01N
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4531(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["a|b"])
@@ -1432,7 +1438,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a;b', 'x;0', '~;2']
         want = table02N
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4532(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["a|b"])
@@ -1440,7 +1446,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a;b', 'x;3', 'y;2']
         self.assertEqual(cond, text.splitlines())
         want = table22
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4533(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["a|b"])
@@ -1448,7 +1454,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
         want = table33Q
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4534(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"])
@@ -1456,7 +1462,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', '~;~;(yes);0.20', 'y;1;~;0.10']
         self.assertEqual(cond, text.splitlines())
         want = table44N
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4535(self) -> None:
         text = tabtotext.tabtoCSV(table01, ["b|a"])
@@ -1464,7 +1470,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b;a', '~;x', '1;~']
         self.assertEqual(cond, text.splitlines())
         want = table01N
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4536(self) -> None:
         text = tabtotext.tabtoCSV(table02, ["b|a"])
@@ -1472,7 +1478,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b;a', '0;x', '2;~']
         self.assertEqual(cond, text.splitlines())
         want = table02N
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4537(self) -> None:
         text = tabtotext.tabtoCSV(table22, ["b|a"])
@@ -1480,7 +1486,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b;a', '3;x', '2;y']
         self.assertEqual(cond, text.splitlines())
         want = table22
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4538(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b|a"])
@@ -1488,7 +1494,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b;a;c', '3;x;2021-12-31', '2;y;2021-12-30', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
         want = table33Q
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4539(self) -> None:
         text = tabtotext.tabtoCSV(table33, ["b|c|a"])
@@ -1496,7 +1502,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['b;c;a', '3;2021-12-31;x', '2;2021-12-30;y', '~;2021-12-31;~']
         self.assertEqual(cond, text.splitlines())
         want = table33Q
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4594(self) -> None:
         text = tabtotext.tabtoCSV(table44, ["a|b"], ["a|b"])
@@ -2001,7 +2007,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['a;b', 'x;2', 'y;3']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -2011,7 +2017,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['a;b', 'x;~', '~;1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4921(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@csv"])
@@ -2019,7 +2025,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['a;b', 'x;0', '~;2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4922(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@csv"])
@@ -2027,7 +2033,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['a;b', 'x;3', 'y;2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4923(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@csv"])
@@ -2035,7 +2041,7 @@ class TabToTextTest(unittest.TestCase):
         want = table33Q
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4924(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@csv"])
@@ -2043,7 +2049,7 @@ class TabToTextTest(unittest.TestCase):
         want = table44N
         cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', '~;~;(yes);0.20', 'y;1;~;0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(want, back)
     def test_4930(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@list"])
@@ -2141,7 +2147,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['a,b', 'x,~', '~,1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text, tab=",")
+        back = loadCSV(text, tab=",")
         self.assertEqual(want, back)
     def test_4961(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@xls"])
@@ -2149,7 +2155,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['a,b', 'x,0', '~,2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text, tab=",")
+        back = loadCSV(text, tab=",")
         self.assertEqual(want, back)
     def test_4962(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@xls"])
@@ -2157,7 +2163,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['a,b', 'x,3', 'y,2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text, tab=",")
+        back = loadCSV(text, tab=",")
         self.assertEqual(want, back)
     def test_4963(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@xls"])
@@ -2165,7 +2171,7 @@ class TabToTextTest(unittest.TestCase):
         want = table33Q
         cond = ['a,b,c', 'x,3,2021-12-31', 'y,2,2021-12-30', '~,~,2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text, tab=",")
+        back = loadCSV(text, tab=",")
         self.assertEqual(want, back)
     def test_4964(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@xls"])
@@ -2173,7 +2179,7 @@ class TabToTextTest(unittest.TestCase):
         want = table44N
         cond = ['a,b,c,d', 'x,3,(yes),0.40', 'y,2,(no),0.30', '~,~,(yes),0.20', 'y,1,~,0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text, tab=",")
+        back = loadCSV(text, tab=",")
         self.assertEqual(want, back)
 
     def test_5000(self) -> None:
@@ -4567,7 +4573,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6004(self) -> None:
         text = tabtotext.tabToGFM(test004)
@@ -4575,7 +4581,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6005(self) -> None:
         text = tabtotext.tabToGFM(test005)
@@ -4583,7 +4589,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['| a', '| -----', '| x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6006(self) -> None:
         text = tabtotext.tabToGFM(test006)
@@ -4591,7 +4597,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['| a     | b', '| ----- | -----', '| x     | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6007(self) -> None:
         text = tabtotext.tabToGFM(test007)
@@ -4599,7 +4605,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007Q
         cond = ['| a     | b', '| ----- | -----', '| x     | y', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6008(self) -> None:
         text = tabtotext.tabToGFM(test008)
@@ -4607,7 +4613,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008Q
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6009(self) -> None:
         text = tabtotext.tabToGFM(test009)
@@ -4615,7 +4621,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009Q
         cond = ['| b', '| -----', '| ~', '| v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6011(self) -> None:
         text = tabtotext.tabToGFM(test011)
@@ -4623,7 +4629,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['| b', '| -----', '| ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6012(self) -> None:
         text = tabtotext.tabToGFM(test012)
@@ -4631,7 +4637,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['| b', '| -----', '| (no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6013(self) -> None:
         text = tabtotext.tabToGFM(test013)
@@ -4639,7 +4645,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['| b', '| -----', '| (yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6014(self) -> None:
         text = tabtotext.tabToGFM(test014)
@@ -4647,7 +4653,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['| b', '| -----', '|']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6015(self) -> None:
         text = tabtotext.tabToGFM(test015)
@@ -4655,7 +4661,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['| b', '| -----', '| 5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6016(self) -> None:
         text = tabtotext.tabToGFM(test016)
@@ -4663,7 +4669,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['| b', '| -----', '| 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6017(self) -> None:
         text = tabtotext.tabToGFM(test017)
@@ -4671,7 +4677,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['| b', '| ------', '| 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6018(self) -> None:
         text = tabtotext.tabToGFM(test018)
@@ -4679,7 +4685,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6019(self) -> None:
         text = tabtotext.tabToGFM(test019)
@@ -4687,7 +4693,7 @@ class TabToTextTest(unittest.TestCase):
         want = test019Q
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6020(self) -> None:
         text = tabtotext.tabToGFM(table01)
@@ -4695,7 +4701,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6021(self) -> None:
         text = tabtotext.tabToGFM(table02)
@@ -4703,7 +4709,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| a     | b', '| ----- | -----', '| x     | 0', '| ~     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6022(self) -> None:
         text = tabtotext.tabToGFM(table22)
@@ -4711,7 +4717,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| a     | b', '| ----- | -----', '| x     | 3', '| y     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6023(self) -> None:
         text = tabtotext.tabToGFM(table33)
@@ -4721,7 +4727,7 @@ class TabToTextTest(unittest.TestCase):
                 '| x     | 3     | 2021-12-31', '| y     | 2     | 2021-12-30',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6024(self) -> None:
         text = tabtotext.tabToGFM(table44)
@@ -4733,7 +4739,7 @@ class TabToTextTest(unittest.TestCase):
                 '| ~     | ~     | (yes) | 0.20',
                 '| y     | 1     | ~     | 0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6031(self) -> None:
         text = tabtotext.tabToGFM(test011, legend=["a result", "was found"])
@@ -4741,7 +4747,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['| b', '| -----', '| ~', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6032(self) -> None:
         text = tabtotext.tabToGFM(test012, legend=["a result", "was found"])
@@ -4749,7 +4755,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['| b', '| -----', '| (no)', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6033(self) -> None:
         text = tabtotext.tabToGFM(test013, legend=["a result", "was found"])
@@ -4757,7 +4763,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['| b', '| -----', '| (yes)', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6034(self) -> None:
         text = tabtotext.tabToGFM(test014, legend=["a result", "was found"])
@@ -4765,7 +4771,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['| b', '| -----', '|', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6035(self) -> None:
         text = tabtotext.tabToGFM(test015, legend=["a result", "was found"])
@@ -4773,7 +4779,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['| b', '| -----', '| 5678', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6036(self) -> None:
         text = tabtotext.tabToGFM(test016, legend=["a result", "was found"])
@@ -4781,7 +4787,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['| b', '| -----', '| 123', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6037(self) -> None:
         text = tabtotext.tabToGFM(test017, legend=["a result", "was found"])
@@ -4789,7 +4795,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['| b', '| ------', '| 123.40', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6038(self) -> None:
         text = tabtotext.tabToGFM(test018, legend=["a result", "was found"])
@@ -4797,7 +4803,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6039(self) -> None:
         text = tabtotext.tabToGFM(test019, legend=["a result", "was found"])
@@ -4805,7 +4811,7 @@ class TabToTextTest(unittest.TestCase):
         want = test019Q
         cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
 
     def test_6044(self) -> None:
@@ -4814,7 +4820,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1     | y', '| 2     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -4825,7 +4831,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| b     | a     | c', '| ----- | ----- | -----',
                 '| 1     | y     | ~', '| 2     | x     | ~', '| ~     | ~     | h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -4836,7 +4842,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| a     | b     | c', '| ----- | ----- | -----',
                 '| y     | 1     | ~', '| x     | 2     | ~', '| ~     | ~     | h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -4860,7 +4866,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['| b', '| -----', '| ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6052(self) -> None:
         text = tabtotext.tabToGFMx(data012)
@@ -4868,7 +4874,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['| b', '| -----', '| (no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6053(self) -> None:
         text = tabtotext.tabToGFMx(data013)
@@ -4876,7 +4882,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['| b', '| -----', '| (yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6054(self) -> None:
         text = tabtotext.tabToGFMx(data014)
@@ -4884,7 +4890,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['| b', '| -----', '|']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6055(self) -> None:
         text = tabtotext.tabToGFMx(data015)
@@ -4892,7 +4898,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['| b', '| -----', '| 5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6056(self) -> None:
         text = tabtotext.tabToGFMx(data016)
@@ -4900,7 +4906,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['| b', '| -----', '| 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6057(self) -> None:
         text = tabtotext.tabToGFMx(data017)
@@ -4908,7 +4914,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['| b', '| ------', '| 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6058(self) -> None:
         text = tabtotext.tabToGFMx(data018)
@@ -4916,7 +4922,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6059(self) -> None:
         text = tabtotext.tabToGFMx(data019)
@@ -4924,7 +4930,7 @@ class TabToTextTest(unittest.TestCase):
         want = test019Q
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6060(self) -> None:
         text = tabtotext.tabToGFM(table01, ["b", "a"])
@@ -4932,7 +4938,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table01N)
         cond = ['| b     | a', '| ----- | -----', '| 1     | ~', '| ~     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6061(self) -> None:
         text = tabtotext.tabToGFM(table02, ["b", "a"])
@@ -4940,7 +4946,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6062(self) -> None:
         text = tabtotext.tabToGFM(table22, ["b", "a"])
@@ -4948,7 +4954,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table22)
         cond = ['| b     | a', '| ----- | -----', '| 2     | y', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6063(self) -> None:
         text = tabtotext.tabToGFM(table33, ["b", "a"])
@@ -4958,7 +4964,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2     | y     | 2021-12-30', '| 3     | x     | 2021-12-31',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6064(self) -> None:
         text = tabtotext.tabToGFM(table44, ["b", "a"])
@@ -4968,7 +4974,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 1     | y     | ~     | 0.10', '| 2     | y     | (no)  | 0.30',
                 '| 3     | x     | (yes) | 0.40', '| ~     | ~     | (yes) | 0.20']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6065(self) -> None:
         text = tabtotext.tabToGFM(table33, ["c", "a"])
@@ -4980,7 +4986,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2021-12-31 | x     | 3',
                 '| 2021-12-31 | ~     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
 
     def test_6071(self) -> None:
@@ -4991,7 +4997,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5003,7 +5009,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5015,7 +5021,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5027,7 +5033,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5039,7 +5045,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5051,7 +5057,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5063,7 +5069,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', X('| 1.00$ | "y"'), X('| 2.00$ | "x"')]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5075,7 +5081,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|        b | a', '| -------: | -------', '| 1.000000 | "y    "', '| 2.000000 | "x    "']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5087,7 +5093,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|         b |       a', '| --------: | ------:', '|  1.000000 | "    y"', '| 22.000000 | "    x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5100,7 +5106,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6104(self) -> None:
         out = StringIO()
@@ -5111,7 +5117,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6105(self) -> None:
         out = StringIO()
@@ -5122,7 +5128,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['| a', '| -----', '| x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6106(self) -> None:
         out = StringIO()
@@ -5133,7 +5139,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['| a     | b', '| ----- | -----', '| x     | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6107(self) -> None:
         out = StringIO()
@@ -5144,7 +5150,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007Q
         cond = ['| a     | b', '| ----- | -----', '| x     | y', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6108(self) -> None:
         out = StringIO()
@@ -5155,7 +5161,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008Q
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6109(self) -> None:
         out = StringIO()
@@ -5166,7 +5172,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009Q
         cond = ['| b', '| -----', '| ~', '| v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6111(self) -> None:
         out = StringIO()
@@ -5177,7 +5183,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['| b', '| -----', '| ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6112(self) -> None:
         out = StringIO()
@@ -5188,7 +5194,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['| b', '| -----', '| (no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6113(self) -> None:
         out = StringIO()
@@ -5199,7 +5205,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['| b', '| -----', '| (yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6114(self) -> None:
         out = StringIO()
@@ -5210,7 +5216,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['| b', '| -----', '|']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6115(self) -> None:
         out = StringIO()
@@ -5221,7 +5227,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['| b', '| -----', '| 5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6116(self) -> None:
         out = StringIO()
@@ -5232,7 +5238,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['| b', '| -----', '| 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6117(self) -> None:
         out = StringIO()
@@ -5243,7 +5249,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['| b', '| ------', '| 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6118(self) -> None:
         out = StringIO()
@@ -5254,7 +5260,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6119(self) -> None:
         out = StringIO()
@@ -5265,7 +5271,7 @@ class TabToTextTest(unittest.TestCase):
         want = test019Q
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6131(self) -> None:
         out = StringIO()
@@ -5276,7 +5282,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['| b', '| -----', '| ~', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6132(self) -> None:
         out = StringIO()
@@ -5287,7 +5293,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['| b', '| -----', '| (no)', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6133(self) -> None:
         out = StringIO()
@@ -5298,7 +5304,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['| b', '| -----', '| (yes)', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6134(self) -> None:
         out = StringIO()
@@ -5309,7 +5315,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['| b', '| -----', '|', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6135(self) -> None:
         out = StringIO()
@@ -5320,7 +5326,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['| b', '| -----', '| 5678', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6136(self) -> None:
         out = StringIO()
@@ -5331,7 +5337,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['| b', '| -----', '| 123', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6137(self) -> None:
         out = StringIO()
@@ -5342,7 +5348,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['| b', '| ------', '| 123.40', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6138(self) -> None:
         out = StringIO()
@@ -5353,7 +5359,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6139(self) -> None:
         out = StringIO()
@@ -5364,7 +5370,7 @@ class TabToTextTest(unittest.TestCase):
         want = test019Q
         cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6143(self) -> None:
         itemlist: JSONList = [{'a': "x", 'b': 2}, {'a': "y", 'b': 1}]
@@ -5375,7 +5381,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 2     | x', '| 1     | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 1}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5388,7 +5394,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1     | y', '| 2     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5405,7 +5411,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2     | x     | ~',
                 '| ~     | ~     | h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5422,7 +5428,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2     | x     | ~     |',
                 '| ~     | ~     | h     |']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5435,7 +5441,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5448,7 +5454,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     |     a', '| ----- | ----:', '| 1     |     y', '| 2     |     x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5461,7 +5467,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1     | "y"', '| 2     | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5474,7 +5480,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5488,7 +5494,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1.00  | "y"', '| 2.00  | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5501,7 +5507,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', '|  1.00 | "y"', '|  2.00 | "x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5514,7 +5520,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|     b | a', '| ----: | -----', X('| 1.00$ | "y"'), X('| 2.00$ | "x"')]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y"', 'b': 1}, {'a': '"x"', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5527,7 +5533,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|        b | a', '| -------: | -------', '| 1.000000 | "y    "', '| 2.000000 | "x    "']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"y    "', 'b': 1.0}, {'a': '"x    "', 'b': 2.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5540,7 +5546,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['|         b |       a', '| --------: | ------:', '|  1.000000 | "    y"', '| 22.000000 | "    x"']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': '"    y"', 'b': 1.0}, {'a': '"    x"', 'b': 22.0}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -5555,7 +5561,7 @@ class TabToTextTest(unittest.TestCase):
         want = self.date_for_6220
         cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         del back[1]["a"]
         self.assertEqual(want, back)
     date_for_6221: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
@@ -5568,7 +5574,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6221)
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         del back[0]["a"]
         self.assertEqual(want, back)
     date_for_6222: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
@@ -5581,7 +5587,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6222)
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         del back[0]["a"]
         self.assertEqual(want, back)
     date_for_6223: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
@@ -5594,7 +5600,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6223)
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 1     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         del back[0]["a"]
         self.assertEqual(want, back)
     date_for_6224: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
@@ -5607,7 +5613,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6224)
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 1     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         del back[0]["a"]
         self.assertEqual(want, back)
     date_for_6225: JSONList = [{"a": "x", "b": 3}, {"b": 2}]
@@ -5620,7 +5626,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6225)
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         del back[0]["a"]
         self.assertEqual(want, back)
     date_for_6226: JSONList = [{"a": "x", "b": 1}, {"b": 2}]
@@ -5633,7 +5639,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6226)
         cond = ['| b     | a', '| ----- | -----', '| 2     | ~', '| 1     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         del back[0]["a"]
         self.assertEqual(want, back)
     date_for_6231: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
@@ -5646,7 +5652,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6231)
         cond = ['| b     | a', '| ----- | -----', '| 2     | y', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6232: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6232(self) -> None:
@@ -5658,7 +5664,7 @@ class TabToTextTest(unittest.TestCase):
         want = self.date_for_6232
         cond = ['| b     | a', '| ----- | -----', '| 3     | x', '| 2     | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6241: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6241(self) -> None:
@@ -5670,7 +5676,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6241)
         cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6242: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6242(self) -> None:
@@ -5682,7 +5688,7 @@ class TabToTextTest(unittest.TestCase):
         want = self.date_for_6242
         cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6243: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6243(self) -> None:
@@ -5696,7 +5702,7 @@ class TabToTextTest(unittest.TestCase):
         # cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6244: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6244(self) -> None:
@@ -5709,7 +5715,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         want = rev(self.date_for_6244)
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6245: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6245(self) -> None:
@@ -5722,7 +5728,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| a     | b', '| ----- | -----', '| x     | 03', '| y     | 02']
         want = self.date_for_6245
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6246: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6246(self) -> None:
@@ -5736,7 +5742,7 @@ class TabToTextTest(unittest.TestCase):
         # cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
         cond = ['| a     | b', '| ----- | -----', '| x     | 03', '| y     | 02']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6247: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6247(self) -> None:
@@ -5750,7 +5756,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| a     | b', '| ----- | -----', '| x     | 03', '| y     | 02']
         want = self.date_for_6247
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6248: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6248(self) -> None:
@@ -5763,7 +5769,7 @@ class TabToTextTest(unittest.TestCase):
         want = self.date_for_6248
         cond = ['| a     | b', '| ----- | -----', '| x     | 03', '| y     | 02']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6251: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6251(self) -> None:
@@ -5778,7 +5784,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(self.date_for_6251)
         cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6252: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6252(self) -> None:
@@ -5793,7 +5799,7 @@ class TabToTextTest(unittest.TestCase):
         want = self.date_for_6252
         cond = ['| b     | a', '| ----- | -----', '| 03    | x', '| 02    | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6253: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6253(self) -> None:
@@ -5809,7 +5815,7 @@ class TabToTextTest(unittest.TestCase):
         # cond = ['| a     | b', '| ----- | -----', '| y     | 02', '| x     | 03']
         cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     date_for_6254: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
     def test_6254(self) -> None:
@@ -5824,7 +5830,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| b     | a', '| ----- | -----', '| 02    | y', '| 03    | x']
         want = rev(self.date_for_6254)
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6403(self) -> None:
         text = tabtotext.tabtoGFM(test003)
@@ -5832,7 +5838,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6404(self) -> None:
         text = tabtotext.tabtoGFM(test004)
@@ -5840,7 +5846,7 @@ class TabToTextTest(unittest.TestCase):
         want = LIST
         cond = ['', '', '']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6405(self) -> None:
         text = tabtotext.tabtoGFM(test005)
@@ -5848,7 +5854,7 @@ class TabToTextTest(unittest.TestCase):
         want = test005
         cond = ['| a', '| -----', '| x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6406(self) -> None:
         text = tabtotext.tabtoGFM(test006)
@@ -5856,7 +5862,7 @@ class TabToTextTest(unittest.TestCase):
         want = test006
         cond = ['| a     | b', '| ----- | -----', '| x     | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6407(self) -> None:
         text = tabtotext.tabtoGFM(test007)
@@ -5864,7 +5870,7 @@ class TabToTextTest(unittest.TestCase):
         want = test007Q
         cond = ['| a     | b', '| ----- | -----', '| x     | y', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6408(self) -> None:
         text = tabtotext.tabtoGFM(test008)
@@ -5872,7 +5878,7 @@ class TabToTextTest(unittest.TestCase):
         want = test008Q
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6409(self) -> None:
         text = tabtotext.tabtoGFM(test009)
@@ -5880,7 +5886,7 @@ class TabToTextTest(unittest.TestCase):
         want = test009Q
         cond = ['| b', '| -----', '| ~', '| v']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6411(self) -> None:
         text = tabtotext.tabtoGFM(test011)
@@ -5888,7 +5894,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['| b', '| -----', '| ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6412(self) -> None:
         text = tabtotext.tabtoGFM(test012)
@@ -5896,7 +5902,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['| b', '| -----', '| (no)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6413(self) -> None:
         text = tabtotext.tabtoGFM(test013)
@@ -5904,7 +5910,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['| b', '| -----', '| (yes)']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6414(self) -> None:
         text = tabtotext.tabtoGFM(test014)
@@ -5912,7 +5918,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['| b', '| -----', '|']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6415(self) -> None:
         text = tabtotext.tabtoGFM(test015)
@@ -5920,7 +5926,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['| b', '| -----', '| 5678']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6416(self) -> None:
         text = tabtotext.tabtoGFM(test016)
@@ -5928,7 +5934,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['| b', '| -----', '| 123']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6417(self) -> None:
         text = tabtotext.tabtoGFM(test017)
@@ -5936,7 +5942,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['| b', '| ------', '| 123.40']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6418(self) -> None:
         text = tabtotext.tabtoGFM(test018)
@@ -5944,7 +5950,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6419(self) -> None:
         text = tabtotext.tabtoGFM(test019)
@@ -5952,7 +5958,7 @@ class TabToTextTest(unittest.TestCase):
         want = test019Q
         cond = ['| b', '| ----------', '| 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6420(self) -> None:
         text = tabtotext.tabtoGFM(table01)
@@ -5960,7 +5966,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6421(self) -> None:
         text = tabtotext.tabtoGFM(table02)
@@ -5968,7 +5974,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| a     | b', '| ----- | -----', '| x     | 0', '| ~     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6422(self) -> None:
         text = tabtotext.tabtoGFM(table22)
@@ -5976,7 +5982,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| a     | b', '| ----- | -----', '| x     | 3', '| y     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6423(self) -> None:
         text = tabtotext.tabtoGFM(table33)
@@ -5986,7 +5992,7 @@ class TabToTextTest(unittest.TestCase):
                 '| x     | 3     | 2021-12-31', '| y     | 2     | 2021-12-30',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6431(self) -> None:
         text = tabtotext.tabtoGFM(test011, legend=["a result", "was found"])
@@ -5994,7 +6000,7 @@ class TabToTextTest(unittest.TestCase):
         want = test011
         cond = ['| b', '| -----', '| ~', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6432(self) -> None:
         text = tabtotext.tabtoGFM(test012, legend=["a result", "was found"])
@@ -6002,7 +6008,7 @@ class TabToTextTest(unittest.TestCase):
         want = test012
         cond = ['| b', '| -----', '| (no)', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6433(self) -> None:
         text = tabtotext.tabtoGFM(test013, legend=["a result", "was found"])
@@ -6010,7 +6016,7 @@ class TabToTextTest(unittest.TestCase):
         want = test013
         cond = ['| b', '| -----', '| (yes)', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6434(self) -> None:
         text = tabtotext.tabtoGFM(test014, legend=["a result", "was found"])
@@ -6018,7 +6024,7 @@ class TabToTextTest(unittest.TestCase):
         want = test014
         cond = ['| b', '| -----', '|', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6435(self) -> None:
         text = tabtotext.tabtoGFM(test015, legend=["a result", "was found"])
@@ -6026,7 +6032,7 @@ class TabToTextTest(unittest.TestCase):
         want = test015Q
         cond = ['| b', '| -----', '| 5678', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6436(self) -> None:
         text = tabtotext.tabtoGFM(test016, legend=["a result", "was found"])
@@ -6034,7 +6040,7 @@ class TabToTextTest(unittest.TestCase):
         want = test016
         cond = ['| b', '| -----', '| 123', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6437(self) -> None:
         text = tabtotext.tabtoGFM(test017, legend=["a result", "was found"])
@@ -6042,7 +6048,7 @@ class TabToTextTest(unittest.TestCase):
         want = test017
         cond = ['| b', '| ------', '| 123.40', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6438(self) -> None:
         text = tabtotext.tabtoGFM(test018, legend=["a result", "was found"])
@@ -6050,7 +6056,7 @@ class TabToTextTest(unittest.TestCase):
         want = test018
         cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6439(self) -> None:
         text = tabtotext.tabtoGFM(test019, legend=["a result", "was found"])
@@ -6058,7 +6064,7 @@ class TabToTextTest(unittest.TestCase):
         want = test019Q
         cond = ['| b', '| ----------', '| 2021-12-31', '', '- a result', '- was found']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
 
     def test_6444(self) -> None:
@@ -6067,7 +6073,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['| b     | a', '| ----- | -----', '| 1     | y', '| 2     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, ]  # order of rows swapped
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -6078,7 +6084,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| b     | a     | c', '| ----- | ----- | -----',
                 '| 1     | y     | ~', '| 2     | x     | ~', '| ~     | ~     | h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -6089,7 +6095,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['| a     | b     | c', '| ----- | ----- | -----',
                 '| y     | 1     | ~', '| x     | 2     | ~', '| ~     | ~     | h', ]
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         want = [{'a': 'y', 'b': 1, 'c': None}, {'a': 'x', 'b': 2, 'c': None}, {'a': None, 'b': None, 'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -6099,7 +6105,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| b     | a', '| ----- | -----', '| ~     | x', '| 1     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6461(self) -> None:
         text = tabtotext.tabtoGFM(table02, ["b", "a"])
@@ -6107,7 +6113,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6462(self) -> None:
         text = tabtotext.tabtoGFM(table22, ["b", "a"])
@@ -6115,7 +6121,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| b     | a', '| ----- | -----', '| 3     | x', '| 2     | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6463(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["b", "a"])
@@ -6127,7 +6133,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2     | y     | 2021-12-30',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6465(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["c", "a"])
@@ -6139,7 +6145,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2021-12-30 | y     | 2',
                 '| 2021-12-31 | ~     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6466(self) -> None:
         text = tabtotext.tabtoGFM(table02, ["b", "a"], ["b", "a"])
@@ -6147,7 +6153,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6467(self) -> None:
         text = tabtotext.tabtoGFM(table22, ["b", "a"], ["b", "a"])
@@ -6155,7 +6161,7 @@ class TabToTextTest(unittest.TestCase):
         want = rev(table22)
         cond = ['| b     | a', '| ----- | -----', '| 2     | y', '| 3     | x']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6468(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["b", "a"], ["b", "a", "c"])
@@ -6165,7 +6171,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2     | y     | 2021-12-30', '| 3     | x     | 2021-12-31',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6469(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["c", "a"], ["c", "a", "b"])
@@ -6175,7 +6181,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 2021-12-30 | y     | 2', '| 2021-12-31 | x     | 3',
                 '| 2021-12-31 | ~     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6530(self) -> None:
         text = tabtotext.tabtoGFM(table01, ["a|b"])
@@ -6183,7 +6189,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6531(self) -> None:
         text = tabtotext.tabtoGFM(table02, ["a|b"])
@@ -6191,7 +6197,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| a     | b', '| ----- | -----', '| x     | 0', '| ~     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6532(self) -> None:
         text = tabtotext.tabtoGFM(table22, ["a|b"])
@@ -6199,7 +6205,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| a     | b', '| ----- | -----', '| x     | 3', '| y     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6533(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["a|b"])
@@ -6209,7 +6215,7 @@ class TabToTextTest(unittest.TestCase):
                 '| x     | 3     | 2021-12-31', '| y     | 2     | 2021-12-30',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(_date(want), back)
     def test_6534(self) -> None:
         text = tabtotext.tabtoGFM(table44, ["a|b"])
@@ -6219,7 +6225,7 @@ class TabToTextTest(unittest.TestCase):
                 '| x     | 3     | (yes) | 0.40', '| y     | 2     | (no)  | 0.30',
                 '| ~     | ~     | (yes) | 0.20', '| y     | 1     | ~     | 0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6535(self) -> None:
         text = tabtotext.tabtoGFM(table01, ["b|a"])
@@ -6227,7 +6233,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| b     | a', '| ----- | -----', '| ~     | x', '| 1     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6536(self) -> None:
         text = tabtotext.tabtoGFM(table02, ["b|a"])
@@ -6235,7 +6241,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| b     | a', '| ----- | -----', '| 0     | x', '| 2     | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6537(self) -> None:
         text = tabtotext.tabtoGFM(table22, ["b|a"])
@@ -6243,7 +6249,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| b     | a', '| ----- | -----', '| 3     | x', '| 2     | y']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6538(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["b|a"])
@@ -6253,7 +6259,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 3     | x     | 2021-12-31', '| 2     | y     | 2021-12-30',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6539(self) -> None:
         text = tabtotext.tabtoGFM(table33, ["b|c|a"])
@@ -6263,7 +6269,7 @@ class TabToTextTest(unittest.TestCase):
                 '| 3     | 2021-12-31 | x', '| 2     | 2021-12-30 | y',
                 '| ~     | 2021-12-31 | ~']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6594(self) -> None:
         text = tabtotext.tabtoGFM(table44, ["a|b"], ["a|b"])
@@ -7012,7 +7018,7 @@ class TabToTextTest(unittest.TestCase):
         logg.debug("%s => %s", test004, text)
         cond = ['\t a     \t b', '\t ----- \t -----', '\t x     \t 2', '\t y     \t 3']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab='\t')
+        back = loadGFM(text, tab='\t')
         want = [{'a': 'x', 'b': 2}, {'a': 'y', 'b': 3}]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
@@ -7030,7 +7036,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| a     | b', '| ----- | -----', '| x     | ~', '| ~     | 1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6921(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@md"])
@@ -7038,7 +7044,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| a     | b', '| ----- | -----', '| x     | 0', '| ~     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6922(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@md"])
@@ -7046,7 +7052,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| a     | b', '| ----- | -----', '| x     | 3', '| y     | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6923(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@md"])
@@ -7056,7 +7062,7 @@ class TabToTextTest(unittest.TestCase):
                 '| x     | 3     | 2021-12-31', '| y     | 2     | 2021-12-30',
                 '| ~     | ~     | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6924(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@md"])
@@ -7068,7 +7074,7 @@ class TabToTextTest(unittest.TestCase):
                 '| ~     | ~     | (yes) | 0.20',
                 '| y     | 1     | ~     | 0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6930(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@md3"])
@@ -7076,7 +7082,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| a   | b', '| --- | ---', '| x   | ~', '| ~   | 1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6931(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@md3"])
@@ -7084,7 +7090,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| a   | b', '| --- | ---', '| x   | 0', '| ~   | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6932(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@md3"])
@@ -7092,7 +7098,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| a   | b', '| --- | ---', '| x   | 3', '| y   | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6933(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@md3"])
@@ -7102,7 +7108,7 @@ class TabToTextTest(unittest.TestCase):
                 '| x   | 3   | 2021-12-31', '| y   | 2   | 2021-12-30',
                 '| ~   | ~   | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6934(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@md3"])
@@ -7115,7 +7121,7 @@ class TabToTextTest(unittest.TestCase):
                 '| ~   | ~   | (yes) | 0.20',
                 '| y   | 1   | ~     | 0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6940(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@md6"])
@@ -7123,7 +7129,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['| a      | b', '| ------ | ------', '| x      | ~', '| ~      | 1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6941(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@md6"])
@@ -7131,7 +7137,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['| a      | b', '| ------ | ------', '| x      | 0', '| ~      | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6942(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@md6"])
@@ -7139,7 +7145,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['| a      | b', '| ------ | ------', '| x      | 3', '| y      | 2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6943(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@md6"])
@@ -7151,7 +7157,7 @@ class TabToTextTest(unittest.TestCase):
                 '| y      | 2      | 2021-12-30',
                 '| ~      | ~      | 2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6944(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@md6"])
@@ -7164,7 +7170,7 @@ class TabToTextTest(unittest.TestCase):
                 '| ~      | ~      | (yes)  | 0.20',
                 '| y      | 1      | ~      | 0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6950(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@tabs"])
@@ -7172,7 +7178,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['\ta    \tb', '\tx    \t~', '\t~    \t1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab="\t")
+        back = loadGFM(text, tab="\t")
         self.assertEqual(want, back)
     def test_6951(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@tabs"])
@@ -7180,7 +7186,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['\ta    \tb', '\tx    \t0', '\t~    \t2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab="\t")
+        back = loadGFM(text, tab="\t")
         self.assertEqual(want, back)
     def test_6952(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@tabs"])
@@ -7188,7 +7194,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['\ta    \tb', '\tx    \t3', '\ty    \t2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab="\t")
+        back = loadGFM(text, tab="\t")
         self.assertEqual(want, back)
     def test_6953(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@tabs"])
@@ -7197,7 +7203,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['\ta    \tb    \tc', '\tx    \t3    \t2021-12-31',
                 '\ty    \t2    \t2021-12-30', '\t~    \t~    \t2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab="\t")
+        back = loadGFM(text, tab="\t")
         self.assertEqual(want, back)
     def test_6954(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@tabs"])
@@ -7209,7 +7215,7 @@ class TabToTextTest(unittest.TestCase):
                 '\t~    \t~    \t(yes)\t0.20',
                 '\ty    \t1    \t~    \t0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab="\t")
+        back = loadGFM(text, tab="\t")
         self.assertEqual(want, back)
     def test_6960(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@tabs", "@delim=:"])
@@ -7217,7 +7223,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = [':a    :b', ':x    :~', ':~    :1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab=":")
+        back = loadGFM(text, tab=":")
         self.assertEqual(want, back)
     def test_6961(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@tabs", "@delim=:"])
@@ -7225,7 +7231,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = [':a    :b', ':x    :0', ':~    :2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab=":")
+        back = loadGFM(text, tab=":")
         self.assertEqual(want, back)
     def test_6962(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@tabs", "@delim=:"])
@@ -7233,7 +7239,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = [':a    :b', ':x    :3', ':y    :2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text, tab=":")
+        back = loadGFM(text, tab=":")
         self.assertEqual(want, back)
     def test_6970(self) -> None:
         text = tabtotext.tabtotext(table01, [], ["@wide"])
@@ -7311,7 +7317,7 @@ class TabToTextTest(unittest.TestCase):
         want = table01N
         cond = ['|a    |b', '|x    |~', '|~    |1']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6991(self) -> None:
         text = tabtotext.tabtotext(table02, [], ["@txt"])
@@ -7319,7 +7325,7 @@ class TabToTextTest(unittest.TestCase):
         want = table02N
         cond = ['|a    |b', '|x    |0', '|~    |2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6992(self) -> None:
         text = tabtotext.tabtotext(table22, [], ["@txt"])
@@ -7327,7 +7333,7 @@ class TabToTextTest(unittest.TestCase):
         want = table22
         cond = ['|a    |b', '|x    |3', '|y    |2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6993(self) -> None:
         text = tabtotext.tabtotext(table33, [], ["@txt"])
@@ -7336,7 +7342,7 @@ class TabToTextTest(unittest.TestCase):
         cond = ['|x    |3    |2021-12-31',
                 '|y    |2    |2021-12-30',
                 '|~    |~    |2021-12-31']
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
     def test_6994(self) -> None:
         text = tabtotext.tabtotext(table44, [], ["@txt"])
@@ -7348,7 +7354,7 @@ class TabToTextTest(unittest.TestCase):
                 '|~    |~    |(yes)|0.20',
                 '|y    |1    |~    |0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadGFM(text)
+        back = loadGFM(text)
         self.assertEqual(want, back)
 
 
@@ -11178,12 +11184,12 @@ class TabToTextTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         cond = ['a;b', 'x;~', '~;1']
         cond = ['a;b', 'x;', ';1']
         want = table01N
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(_none(want), back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
@@ -11195,12 +11201,12 @@ class TabToTextTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         want = table02N
         cond = ['a;b', 'x;0', '~;2']
         cond = ['a;b', 'x;0', ';2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(_none(want), back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
@@ -11212,11 +11218,11 @@ class TabToTextTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         want = table22
         cond = ['a;b', 'x;3', 'y;2']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(_none(want), back)
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
@@ -11228,12 +11234,12 @@ class TabToTextTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         want = table33Q
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', ';;2021-12-31']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
     @unittest.skipIf(skipXLSX, "no openpyxl")
@@ -11245,12 +11251,12 @@ class TabToTextTest(unittest.TestCase):
         logg.info("generated [%s] %s", sz, filename)
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
-        text = sh(F"./tabtotext.py -^ {filename} @csv")
+        text = sh(F"{TABTO} -^ {filename} @csv")
         logg.info("text = %s", text)
         want = table44N
         cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', ';;(yes);0.20', 'y;1;;0.10']
         self.assertEqual(cond, text.splitlines())
-        back = tabtotext.loadCSV(text)
+        back = loadCSV(text)
         self.assertEqual(_none(want), _none(back))
         # self.rm_testdir()
 
@@ -11260,12 +11266,14 @@ if __name__ == "__main__":
     cmdline = OptionParser("%s test...")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cmdline.add_option("-k", "--keep", action="count", default=0, help="keep testdir")
     cmdline.add_option("--failfast", action="store_true", default=False,
                        help="Stop the test run on the first error or failure. [%default]")
     cmdline.add_option("--xmlresults", metavar="FILE", default=None,
                        help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
+    KEEP = opt.keep
     if not args:
         args = ["test_*"]
     suite = unittest.TestSuite()
