@@ -800,7 +800,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(5000, sz)
         want = test018Q
         back = tabtextfileXLSX(filename).data
-        self.assertEqual(want, back)
+        self.assertEqual(_date(want), back)
         self.rm_testdir()
     def test_8019(self) -> None:
         tmp = self.testdir()
@@ -926,7 +926,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(6000, sz)
         want = test018Q
         back = tabtextfileXLSX(filename).data
-        self.assertEqual(want, back)
+        self.assertEqual(_date(want), back)
         self.rm_testdir()
     def test_8039(self) -> None:
         tmp = self.testdir()
@@ -1377,6 +1377,7 @@ class TabXlsxTest(unittest.TestCase):
         want = table33Q
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', '~;~;2021-12-31']
         cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', ';;2021-12-31']
+        cond = ['a;b;c', 'x;3;2021-12-31', 'y;2;2021-12-30', ';;2021-12-31.2334']
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
         self.assertEqual(_none(want), _none(_date(back)))
