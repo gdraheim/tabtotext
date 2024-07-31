@@ -334,7 +334,8 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
         with zipfile.open(contentfile, "w") as xmlfile:
             xmlfile.write(content_xml.encode('utf-8'))
 
-_timeformats = ['d.mm.yy', 'yyyy-mm-dd', 'yyyy-mm-dd hh:mm', 'yyyy-mm-dd h:mm:ss']
+_dateformats = ['d.mm.yy', 'yyyy-mm-dd']
+_timeformats = ['yyyy-mm-dd hh:mm', 'yyyy-mm-dd h:mm:ss']
 def load_workbook(filename: str) -> Workbook:
     workbook = Workbook()
     ws = workbook.active
@@ -412,6 +413,10 @@ def load_workbook(filename: str) -> Workbook:
                                         value2 = Time.fromordinal(value0 + 693594)
                                         value3 = int(((value1 - value0) * 86400) + 0.4)
                                         value = value2 + Plus(seconds=value3)
+                                    elif numfmt in _dateformats:
+                                        value0 = int(value1)
+                                        value2 = Time.fromordinal(value0 + 693594)
+                                        value = value2.date()
 
                             if r:
                                 ws[r].value = value
