@@ -230,6 +230,8 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
             newname, newsort = "", rename
         if newname:
             colnames[name] = newname
+            if name in formats:
+                formats[newname] = formats[name]
         if newsort:
             newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)

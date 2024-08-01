@@ -625,6 +625,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
             newname, newsort = "", rename
         if newname:
             colnames[name] = newname
+            if name in formats:
+                formats[newname] = formats[name]
         if newsort:
             newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
@@ -1008,6 +1010,8 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             newname, newsort = "", rename
         if newname:
             colnames[col] = newname
+            if col in formats:
+                formats[newname] = formats[col]
         if newsort:
             newsorts[col] = newsort
     logg.debug("newsorts = %s", newsorts)
@@ -1393,6 +1397,8 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             newname, newsort = "", rename
         if newname:
             colnames[name] = newname
+            if name in formats:
+                formats[newname] = formats[name]
         if newsort:
             newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
@@ -1670,6 +1676,8 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             newname, newsort = "", rename
         if newname:
             colnames[name] = newname
+            if name in formats:
+                formats[newname] = formats[name]
         if newsort:
             newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
@@ -1980,6 +1988,8 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             newname, newsort = "", rename
         if newname:
             colnames[name] = newname
+            if name in formats:
+                formats[newname] = formats[name]
         if newsort:
             newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
@@ -2325,6 +2335,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
             newname, newsort = "", rename
         if newname:
             colnames[name] = newname
+            if name in formats:
+                formats[newname] = formats[name]
         if newsort:
             newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)

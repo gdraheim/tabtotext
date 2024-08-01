@@ -861,6 +861,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             newname, newsort = "", rename
         if newname:
             colnames[name] = newname
+            if name in formats:
+                formats[newname] = formats[name]
         if newsort:
             newsorts[name] = newsort
     sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
