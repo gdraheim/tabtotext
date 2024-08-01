@@ -2981,7 +2981,7 @@ if __name__ == "__main__":
                        help="override date delimiter for format")
     cmdline.add_option("-p", "--padding", metavar="C", default=None,
                        help="override cell padding for format")
-    cmdline.add_option("-t", "--tab", metavar="C", default=None,
+    cmdline.add_option("-t", "--tabulator", metavar="C", default=None,
                        help="override tabulator for format")
     cmdline.add_option("-T", "--notab", action="store_true", default=False,
                        help="do not use tabulator (csv,md,tab,wide)")
@@ -3009,11 +3009,12 @@ if __name__ == "__main__":
             selected = args[1:] + opt.labels
         else:
             selected = opt.labels
+        minwidth = int(opt.minwidth)
         padding = opt.padding if not opt.nopadding else ""
-        tab = opt.tab if not opt.notab else ""
+        tab = opt.tabulator if not opt.notab else ""
         tabtext = tabtextfile(filename, opt.inputformat)
         done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selected,
                                datedelim=opt.datedelim, tab=tab, padding=padding,
-                               noheaders=opt.noheaders, unique=opt.unique)
+                               noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
         if done:
             logg.log(DONE, " %s", done)
