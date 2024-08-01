@@ -814,7 +814,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     showheaders: List[str] = []
     sortheaders: List[str] = []
     for header in headers:
-        combines = ""
         for selheader in header.split("|"):
             if "@" in selheader:
                 selcol, rename = selheader.split("@", 1)
@@ -834,7 +833,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     renaming: Dict[str, str] = {}
     selcols: List[str] = []
     for selecheader in selected:
-        combines = ""
         for selec in selecheader.split("|"):
             if "@" in selec:
                 selcol, rename = selec.split("@", 1)
