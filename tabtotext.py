@@ -2983,11 +2983,13 @@ if __name__ == "__main__":
                        help="override cell padding for format")
     cmdline.add_option("-t", "--tabulator", metavar="C", default=None,
                        help="override tabulator for format")
-    cmdline.add_option("-T", "--notab", action="store_true", default=False,
+    cmdline.add_option("-T", "--asciitab", action="store_true", default=False,
+                       help="use ascii HT tabulator (csv,md,tab,wide)")
+    cmdline.add_option("-N", "--notab", action="store_true", default=False,
                        help="do not use tabulator (csv,md,tab,wide)")
     cmdline.add_option("-P", "--nopadding", action="store_true", default=False,
                        help="do not use padding (csv,md,tab,wide,html)")
-    cmdline.add_option("-N", "--noheaders", action="store_true", default=False,
+    cmdline.add_option("-D", "--noheaders", action="store_true", default=False,
                        help="do not print headers (csv,md,tab,wide)")
     cmdline.add_option("-U", "--unique", action="store_true", default=False,
                        help="remove same lines in sorted list (csv,md,...)")
@@ -3011,7 +3013,7 @@ if __name__ == "__main__":
             selected = opt.labels
         minwidth = int(opt.minwidth)
         padding = opt.padding if not opt.nopadding else ""
-        tab = opt.tabulator if not opt.notab else ""
+        tab = "\t" if opt.asciitab else opt.tabulator if not opt.notab else ""
         tabtext = tabtextfile(filename, opt.inputformat)
         done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selected,
                                datedelim=opt.datedelim, tab=tab, padding=padding,
