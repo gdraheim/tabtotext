@@ -11320,6 +11320,23 @@ class TabToTextTest(unittest.TestCase):
         cond = ['a;b', ';', 'x;3.00', 'y;1.00', 'y;2.00']
         self.assertEqual(cond, text.splitlines())
         self.rm_testdir()
+    @unittest.skipIf(skipXLSX, "no openpyxl")
+    def test_9039(self) -> None:
+        tmp = self.testdir()
+        filename = path.join(tmp, "table44.xlsx")
+        tabtoXLSX(filename, table44)
+        sz = path.getsize(filename)
+        logg.info("generated [%s] %s", sz, filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} @csv a 'b:{{:.1f}}in@wide'")
+        logg.info("text = %s", text)
+        cond = ['a;b;c;d', 'x;3;(yes);0.40', 'y;2;(no);0.30', ';;(yes);0.20', 'y;1;;0.10']
+        cond = ['a;b', ';', 'x;3', 'y;1', 'y;2']
+        cond = ['a;b', ';', 'x;3.00', 'y;1.00', 'y;2.00']
+        cond = ['a;wide', ';', 'x;3.0in', 'y;1.0in', 'y;2.0in']
+        self.assertEqual(cond, text.splitlines())
+        self.rm_testdir()
 
 if __name__ == "__main__":
     # unittest.main()
