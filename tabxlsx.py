@@ -808,6 +808,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     formatleft = re.compile("[{]:[^{}]*<[^{}]*[}]")
     formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
+    # parsing the microsyntax of headers and selected columns ["colname:{:.2f}$"]
     formats: Dict[str, str] = {}
     renameheaders: Dict[str, str] = {}
     showheaders: List[str] = []
