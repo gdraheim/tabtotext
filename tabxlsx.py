@@ -990,30 +990,26 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             old = rowvalues
         return "CSV"
     # GFM
-    def rightF(col: str, formatter: str) -> str:
-        if rightalign(col):
-            return formatter.replace("%-", "%")
-        return formatter
-    def rightS(col: str, formatter: str) -> str:
-        if rightalign(col):
-            return formatter[:-1] + ":"
-        return formatter
+    colw = [cols[col] for col in colo] # widths of cols ordered
+    colr = [rightalign(col) for col in colo] # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
     lines: List[str] = []
     if not noheaders:
-        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in colo]
+        hpad = [" " * (colw[m] - len(col)) for m, col in enumerate(colo)]
+        line = [tab2+(hpad[m]+col if colr[m] else col+hpad[m]) for m, col in enumerate(colo)]
         print(padding.join(line).rstrip(), file=out)
         if tab and padding:
-            seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
-                          for name in colo]
+            seps = ["-" * colw[m] for m, col in enumerate(colo)]
+            seperators = [tab2+(seps[m][:-1]+":" if colr[m] else seps[m]) for m, col in enumerate(colo) ]
             print(padding.join(seperators).rstrip(), file=out)
     oldvalues: Dict[str, str] = {}
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in asdict(item).items():
             values[name] = format(name, value)
-        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, none_string)
-                for name in colo]
+        vals = [values.get(col, none_string) for col in colo]
+        vpad = [" " * (colw[m] - len(vals[m])) for m, col in enumerate(colo)]
+        line = [tab2+(vpad[m]+vals[m] if colr[m] else vals[m]+vpad[m]) for m, col in enumerate(colo)]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]
         if not selcols or same != selcols:

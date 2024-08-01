@@ -692,27 +692,22 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
-    def rightF(col: str, formatter: str) -> str:
-        if format.right(col):
-            return formatter.replace("%-", "%")
-        return formatter
-    def rightS(col: str, formatter: str) -> str:
-        if format.right(col):
-            return formatter[:-1] + ":"
-        return formatter
     colo = sorted(cols.keys(), key=sortkey)  # ordered column names
+    colw = [cols[col] for col in colo] # widths of cols ordered
+    colr = [format.right(col) for col in colo] # rightalign of cols ordered
     tab2 = tab[0] + padding if tab else ""
     rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
     if not noheaders:
-        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in colo]
+        hpad = [" " * (colw[m] - len(col)) for m, col in enumerate(colo)]
+        line = [tab2+(hpad[m]+col if colr[m] else col+hpad[m]) for m, col in enumerate(colo)]
         if rtab:
             lines += [(padding.join(line)) + rtab]
         else:
             lines += [(padding.join(line)).rstrip()]
         if tab and padding:
-            seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
-                          for name in colo]
+            seps = ["-" * colw[m] for m, col in enumerate(colo)]
+            seperators = [tab2+(seps[m][:-1]+":" if colr[m] else seps[m]) for m, col in enumerate(colo) ]
             lines.append(padding.join(seperators) + rtab)
     old: Dict[str, str] = {}
     same: List[str] = []
@@ -720,8 +715,9 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         values: Dict[str, str] = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, _None_String)
-                for name in colo]
+        vals = [values.get(col, _None_String) for col in colo]
+        vpad = [" " * (colw[m] - len(vals[m])) for m, col in enumerate(colo)]
+        line = [tab2+(vpad[m]+vals[m] if colr[m] else vals[m]+vpad[m]) for m, col in enumerate(colo)]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in old and values[sel] == old[sel]]
         if not selcols or same != selcols:
@@ -912,26 +908,26 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                     end3 = brace3 if colon3 == -1 else min(colon3, brace3)
                     name3 = freepart[:end3]
                     names3.append(name3)
-                name = " ".join(names3)
-                freehdrs[name] = selcol
+                col = " ".join(names3)
+                freehdrs[col] = selcol
             elif ":" in selcol:
-                name, form = selcol.split(":", 1)
+                col, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmts = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    formats[col] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
-                name = selcol
-            showheaders += [name]  # headers make a default column order
+                col = selcol
+            showheaders += [col]  # headers make a default column order
             if rename:
-                sortheaders += [name]  # headers does not sort anymore
+                sortheaders += [col]  # headers does not sort anymore
             if not combines:
-                combines = name
+                combines = col
             elif combines not in combine:
-                combine[combines] = [name]
-            elif name not in combine[combines]:
-                combine[combines] += [name]
+                combine[combines] = [col]
+            elif col not in combine[combines]:
+                combine[combines] += [col]
             if rename:
-                renameheaders[name] = rename
+                renameheaders[col] = rename
     logg.debug("renameheaders = %s", renameheaders)
     logg.debug("sortheaders = %s", sortheaders)
     logg.debug("formats = %s", formats)
@@ -961,33 +957,33 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                     end4 = brace4 if colon4 == -1 else min(colon4, brace4)
                     name4 = freepart[:end4]
                     names4.append(name4)
-                name = " ".join(names4)
-                freecols[name] = selcol
+                col = " ".join(names4)
+                freecols[col] = selcol
             elif ":" in selcol:
-                name, form = selcol.split(":", 1)
+                col, form = selcol.split(":", 1)
                 if isinstance(formats, dict):
                     fmts = form if "{" in form else ("{:" + form + "}")
-                    formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
+                    formats[col] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
-                name = selcol
-            if "<" in name:
-                name, cond = name.split("<", 1)
-                filtered[name] = "<" + cond
-            elif ">" in name:
-                name, cond = name.split(">", 1)
-                filtered[name] = ">" + cond
-            elif "=" in name:
-                name, cond = name.split("=", 1)
-                filtered[name] = "=" + cond
-            selcols.append(name)
+                col = selcol
+            if "<" in col:
+                col, cond = col.split("<", 1)
+                filtered[col] = "<" + cond
+            elif ">" in col:
+                col, cond = col.split(">", 1)
+                filtered[col] = ">" + cond
+            elif "=" in col:
+                col, cond = col.split("=", 1)
+                filtered[col] = "=" + cond
+            selcols.append(col)
             if rename:
-                renaming[name] = rename
+                renaming[col] = rename
             if not combines:
-                combines = name
+                combines = col
             elif combines not in combined:
-                combined[combines] = [name]
+                combined[combines] = [col]
             elif combines not in combined[combines]:
-                combined[combines] += [name]
+                combined[combines] += [col]
     logg.debug("combined = %s", combined)
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
@@ -1002,7 +998,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         logg.debug("renaming : %s", renaming)
     newsorts: Dict[str, str] = {}
     colnames: Dict[str, str] = {}
-    for name, rename in renaming.items():
+    for col, rename in renaming.items():
         if "@" in rename:
             newname, newsort = rename.split("@", 1)
         elif rename and rename[0].isalpha():
@@ -1010,9 +1006,9 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         else:
             newname, newsort = "", rename
         if newname:
-            colnames[name] = newname
+            colnames[col] = newname
         if newsort:
-            newsorts[name] = newsort
+            newsorts[col] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
     if sorts:
@@ -1020,9 +1016,9 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
     else:
         sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
         if newsorts:
-            for num, name in enumerate(sortcolumns):
-                if name not in newsorts:
-                    newsorts[name] = ("@" * len(str(num)) + str(num))
+            for num, col in enumerate(sortcolumns):
+                if col not in newsorts:
+                    newsorts[col] = ("@" * len(str(num)) + str(num))
             sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
             logg.debug("sortcolumns : %s", sortcolumns)
     format: FormatJSONItem
@@ -1043,15 +1039,15 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         skip = False
-        for name, value in item.items():
-            selname = name
-            if name in renameheaders and renameheaders[name] in selcols:
-                selname = renameheaders[name]
+        for col, value in item.items():
+            selname = col
+            if col in renameheaders and renameheaders[col] in selcols:
+                selname = renameheaders[col]
             if selcols and selname not in selcols and "*" not in selcols:
                 continue
             try:
-                if name in filtered:
-                    skip = skip or unmatched(value, filtered[name])
+                if col in filtered:
+                    skip = skip or unmatched(value, filtered[col])
             except: pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
@@ -1061,12 +1057,12 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             try:
                 freenames = freecol.split(" ")
                 freeitem: JSONDict = dict([(freename, _None_String) for freename in freenames])
-                for name, value in item.items():
-                    itemname = name
-                    if name in renameheaders and renameheaders[name] in freenames:
-                        itemname = renameheaders[name]
+                for col, value in item.items():
+                    itemname = col
+                    if col in renameheaders and renameheaders[col] in freenames:
+                        itemname = renameheaders[col]
                     if itemname in freenames:
-                        freeitem[itemname] = format(name, value)
+                        freeitem[itemname] = format(col, value)
                 value = freeformat.format(**freeitem)
                 colname = freecol if freecol not in colnames else colnames[freecol]
                 row[colname] = value
@@ -1076,46 +1072,39 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
-    def rightTH(col: str, value: str) -> str:
-        if format.right(col):
-            return value.replace("<th>", '<th style="text-align: right">')
-        return value
-    def rightTD(col: str, value: str) -> str:
-        if format.right(col):
-            return value.replace("<td>", '<td style="text-align: right">')
-        return value
     combining = []
     for combines in combined:
         combining += combined[combines]
-    for name in combined:
-        if name not in cols:  # if target does not exist in dataset
-            for added in combined[name]:
+    for col in combined:
+        if col not in cols:  # if target does not exist in dataset
+            for added in combined[col]:
                 combining.remove(added)  # the shown combined column seperately
     colo = sorted(cols.keys(), key=sortkey)  # ordered column names
+    colr = [(' style="text-align: right"' if format.right(col) else "") for col in colo] 
     headers = []
-    for name in colo:
-        if name in combining:
+    for m, col in enumerate(colo):
+        if col in combining:
             continue
-        html = rightTH(name, "<th>{}</th>".format(escape(name)))
-        if name in combined:
-            for adds in combined[name]:
+        html = "<th%s>%s</th>" % (colr[m], escape(col))
+        if col in combined:
+            for adds in combined[col]:
                 if adds in cols:
-                    html = html.replace("</th>", "<br />{}</th>".format(escape(adds)))
+                    html = html.replace("</th>", "<br />%s</th>" % escape(adds))
         headers += [html]
     lines = ["<tr>" + "".join(headers) + "</tr>"]
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = dict([(name, "") for name in cols.keys()])  # initialized with all columns to empty string
-        for name, value in item.items():
-            values[name] = format(name, value)
+        for col, value in item.items():
+            values[col] = format(col, value)
         cells = []
-        for name in colo:
-            if name in combining:
+        for m, col in enumerate(colo):
+            if col in combining:
                 continue
-            html = rightTD(name, "<td>{}</td>".format(escape(values[name])))
-            if name in combined:
-                for adds in combined[name]:
+            html = "<td%s>%s</td>" % (colr[m], escape(values[col]))
+            if col in combined:
+                for adds in combined[col]:
                     if adds in cols:
-                        html = html.replace("</td>", "<br />{}</td>".format(escape(values[adds])))
+                        html = html.replace("</td>", "<br />%s</td>" % escape(values[adds]))
             cells += [html]
         lines.append("<tr>" + "".join(cells) + "</tr>")
     table = "<table>"
