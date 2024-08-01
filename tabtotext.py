@@ -880,7 +880,8 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
-              *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0, xmlns: str = "",
+              *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0, 
+              noheaders: bool = False, xmlns: str = "",
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoHTML")
     minwidth = minwidth or MINWIDTH
@@ -1081,17 +1082,19 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 combining.remove(added)  # the shown combined column seperately
     colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     colr = [(' style="text-align: right"' if format.right(col) else "") for col in colo] 
-    headers = []
-    for m, col in enumerate(colo):
-        if col in combining:
-            continue
-        html = "<th%s>%s</th>" % (colr[m], escape(col))
-        if col in combined:
-            for adds in combined[col]:
-                if adds in cols:
-                    html = html.replace("</th>", "<br />%s</th>" % escape(adds))
-        headers += [html]
-    lines = ["<tr>" + "".join(headers) + "</tr>"]
+    lines = []
+    if not noheaders:
+        headers = []
+        for m, col in enumerate(colo):
+            if col in combining:
+                continue
+            html = "<th%s>%s</th>" % (colr[m], escape(col))
+            if col in combined:
+                for adds in combined[col]:
+                    if adds in cols:
+                        html = html.replace("</th>", "<br />%s</th>" % escape(adds))
+            headers += [html]
+        lines.append("<tr>" + "".join(headers) + "</tr>")
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = dict([(name, "") for name in cols.keys()])  # initialized with all columns to empty string
         for col, value in item.items():
