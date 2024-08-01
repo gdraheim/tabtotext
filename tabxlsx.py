@@ -993,7 +993,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     colw = [cols[col] for col in colo] # widths of cols ordered
     colr = [rightalign(col) for col in colo] # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
-    lines: List[str] = []
     if not noheaders:
         hpad = [" " * (colw[m] - len(col)) for m, col in enumerate(colo)]
         line = [tab2+(hpad[m]+col if colr[m] else col+hpad[m]) for m, col in enumerate(colo)]
