@@ -969,7 +969,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             return sortvalue
         return ""
     # print ..........................................
-    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
+    colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
     same = []
     # CSV
     if fmt in ["CSV"]:
@@ -992,8 +992,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         return "CSV"
     # GFM
     ws = (""," ","  ","   ","    ","     ","      ","       ","        ") # " "*(0...8)
-    colw = [cols[col] for col in colo] # widths of cols ordered
-    colr = [rightalign(col) for col in colo] # rightalign of cols ordered
+    colw = tuple((cols[col] for col in colo)) # widths of cols ordered
+    colr = tuple((rightalign(col) for col in colo)) # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
     if not noheaders:
         hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m]-len(col)) for m, col in enumerate(colo))]

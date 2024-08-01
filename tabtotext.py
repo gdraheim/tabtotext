@@ -695,9 +695,9 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         if not skip:
             rows.append(row)
     ws = (""," ","  ","   ","    ","     ","      ","       ","        ") # " "*(0...8)
-    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
-    colw = [cols[col] for col in colo] # widths of cols ordered
-    colr = [format.right(col) for col in colo] # rightalign of cols ordered
+    colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
+    colw = tuple((cols[col] for col in colo)) # widths of cols ordered
+    colr = tuple((format.right(col) for col in colo)) # rightalign of cols ordered
     tab2 = tab[0] + padding if tab else ""
     rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
@@ -1085,8 +1085,8 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         if col not in cols:  # if target does not exist in dataset
             for added in combined[col]:
                 combining.remove(added)  # the shown combined column seperately
-    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
-    colr = [(' style="text-align: right"' if format.right(col) else "") for col in colo] 
+    colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
+    colr = tuple(((' style="text-align: right"' if format.right(col) else "") for col in colo))
     lines = []
     if not noheaders:
         headers = []
@@ -1467,7 +1467,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
-    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
+    colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
     pad = " " * len(padding)
     comma = "," + pad
     lines = []
@@ -1746,7 +1746,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
-    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
+    colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
     pad = " " * len(padding)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
@@ -2058,7 +2058,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
-    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
+    colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
     pad = " " * len(padding)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
@@ -2417,7 +2417,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         if not selcols or same != selcols:
             lines.append(values)
         old = values
-    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
+    colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
     import csv
     # csvfile = open(csv_filename, "w")
     csvfile = StringIO()
