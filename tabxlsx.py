@@ -521,7 +521,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     logg.debug("combine = %s", combine)
     combined: Dict[str, List[str]] = {}
     renaming: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     for selecheader in selects:
         combines = ""
         for selec in selecheader.split("|"):
@@ -536,7 +536,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
                     formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
             if not combines:
@@ -547,7 +547,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
                 combined[combines] += [name]
     logg.debug("combined = %s", combined)
     logg.debug("renaming = %s", renaming)
-    logg.debug("selected = %s", selected)
+    logg.debug("selcols = %s", selcols)
     if not selects:
         combined = combine  # argument
         renaming = renameheaders
@@ -568,15 +568,15 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
             newsorts[name] = newsort
     logg.debug("newsorts = %s", newsorts)
     logg.debug("colnames = %s", colnames)
-    sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+    sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
     if newsorts:
         for num, name in enumerate(sortcolumns):
             if name not in newsorts:
                 newsorts[name] = ("@" * len(str(num)) + str(num))
         sortcolumns = sorted(newsorts, key=lambda x: newsorts[x])
         logg.debug("sortcolumns : %s", sortcolumns)
-    if selected:
-        selheaders = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    if selcols:
+        selheaders = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     else:
         selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     def strNone(value: CellValue) -> str:
@@ -634,9 +634,9 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
             cols["#"] = len(str(num + 1))
         for name, value in item.items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value  # do not format the value here!
@@ -828,7 +828,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             if rename:
                 renameheaders[name] = rename
     renaming: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     for selecheader in selects:
         combines = ""
         for selec in selecheader.split("|"):
@@ -842,7 +842,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 formats[name] = fmts.replace("i}", "n}").replace("u}", "n}").replace("r}", "s}").replace("a}", "s}")
             else:
                 name = selcol
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
     if not selects:
@@ -861,7 +861,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             colnames[name] = newname
         if newsort:
             newsorts[name] = newsort
-    sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+    sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
     if newsorts:
         for num, name in enumerate(sortcolumns):
             if name not in newsorts:
@@ -870,7 +870,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         logg.debug("sortcolumns : %s", sortcolumns)
     else:
         logg.debug("sortcolumns = %s", sortcolumns)
-    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     # .......................................
     def rightalign(col: str) -> bool:
@@ -918,14 +918,14 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         row: Dict[str, CellValue] = {}
-        if "#" in selected:
+        if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         for name, value in asdict(item).items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
@@ -980,8 +980,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             for name, value in asdict(row).items():
                 rowvalues[name] = format(name, value)
             if unique:
-                same = [sel for sel in selected if sel in rowvalues and sel in old and rowvalues[sel] == old[sel]]
-            if not selected or same != selected:
+                same = [sel for sel in selcols if sel in rowvalues and sel in old and rowvalues[sel] == old[sel]]
+            if not selcols or same != selcols:
                 writer.writerow(rowvalues)
             old = rowvalues
         return "CSV"
@@ -1011,8 +1011,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, none_string)
                 for name in sorted(cols.keys(), key=sortkey)]
         if unique:
-            same = [sel for sel in selected if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]
-        if not selected or same != selected:
+            same = [sel for sel in selcols if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]
+        if not selcols or same != selcols:
             print((padding.join(line)).rstrip(), file=out)
         oldvalues = values
     return "GFM"

@@ -556,7 +556,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     combined: Dict[str, List[str]] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     freecols: Dict[str, str] = {}
     for selecheader in selects:
         combines = ""
@@ -593,7 +593,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
             if not combines:
@@ -605,7 +605,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     logg.debug("combined = %s", combined)
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
-    logg.debug("selected = %s", selected)
+    logg.debug("selcols = %s", selcols)
     logg.debug("freecols = %s", freecols)
     if not selects:
         combined = combine  # argument
@@ -632,7 +632,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     if sorts:
         sortcolumns = sorts
     else:
-        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
@@ -647,7 +647,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     else:
         logg.debug("formats = %s | tab=%s", formats, tab)
         format = FormatGFM(formats, tab=tab)
-    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
@@ -655,15 +655,15 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         row: JSONDict = {}
-        if "#" in selected:
+        if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             try:
                 if name in filtered:
@@ -722,8 +722,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, _None_String)
                 for name in sorted(cols.keys(), key=sortkey)]
         if unique:
-            same = [sel for sel in selected if sel in values and sel in old and values[sel] == old[sel]]
-        if not selected or same != selected:
+            same = [sel for sel in selcols if sel in values and sel in old and values[sel] == old[sel]]
+        if not selcols or same != selcols:
             if rtab:
                 lines.append((padding.join(line)) + rtab)
             else:
@@ -940,7 +940,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     combined: Dict[str, List[str]] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     freecols: Dict[str, str] = {}
     for selecheader in selects:
         combines = ""
@@ -978,7 +978,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
             if not combines:
@@ -990,7 +990,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     logg.debug("combined = %s", combined)
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
-    logg.debug("selected = %s", selected)
+    logg.debug("selcols = %s", selcols)
     logg.debug("freecols = %s", freecols)
     if not selects:
         combined = combine  # argument
@@ -1017,7 +1017,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     if sorts:
         sortcolumns = sorts
     else:
-        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
@@ -1030,7 +1030,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     else:
         logg.debug("formats = %s |")
         format = FormatHTML(formats)
-    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
@@ -1038,15 +1038,15 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         row: JSONDict = {}
-        if "#" in selected:
+        if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             try:
                 if name in filtered:
@@ -1338,7 +1338,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     logg.debug("freehdrs = %s", freehdrs)
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     freecols: Dict[str, str] = {}
     for selecheader in selects:
         combines = ""
@@ -1376,12 +1376,12 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
-    logg.debug("selected = %s", selected)
+    logg.debug("selcols = %s", selcols)
     logg.debug("freecols = %s", freecols)
     if not selects:
         freecols = freehdrs
@@ -1406,7 +1406,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     if sorts:
         sortcolumns = sorts
     else:
-        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
@@ -1421,7 +1421,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = FormatJSON(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for JSON output")
-    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
@@ -1429,15 +1429,15 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         row: JSONDict = {}
-        if "#" in selected:
+        if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             try:
                 if name in filtered:
@@ -1614,7 +1614,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     logg.debug("freehdrs = %s", freehdrs)
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     freecols: Dict[str, str] = {}
     for selecheader in selects:
         combines = ""
@@ -1652,12 +1652,12 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
-    logg.debug("selected = %s", selected)
+    logg.debug("selcols = %s", selcols)
     logg.debug("freecols = %s", freecols)
     if not selects:
         freecols = freehdrs
@@ -1682,7 +1682,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     if sorts:
         sortcolumns = sorts
     else:
-        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
@@ -1697,7 +1697,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = FormatYAML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for YAML output")
-    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
@@ -1705,15 +1705,15 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         row: JSONDict = {}
-        if "#" in selected:
+        if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             try:
                 if name in filtered:
@@ -1922,7 +1922,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     logg.debug("freehdrs = %s", freehdrs)
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     freecols: Dict[str, str] = {}
     for selecheader in selects:
         combines = ""
@@ -1960,12 +1960,12 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
             elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
-    logg.debug("selected = %s", selected)
+    logg.debug("selcols = %s", selcols)
     logg.debug("freecols = %s", freecols)
     if not selects:
         freecols = freehdrs
@@ -1991,7 +1991,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     if sorts:
         sortcolumns = sorts
     else:
-        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
@@ -2006,7 +2006,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
         format = FormatTOML(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for TOML output")
-    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
@@ -2014,15 +2014,15 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selects: List[s
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         row: JSONDict = {}
-        if "#" in selected:
+        if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             try:
                 if name in filtered:
@@ -2258,7 +2258,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     combined: Dict[str, List[str]] = {}
     renaming: Dict[str, str] = {}
     filtered: Dict[str, str] = {}
-    selected: List[str] = []
+    selcols: List[str] = []
     freecols: Dict[str, str] = {}
     for selecheader in selects:
         combines = ""
@@ -2296,7 +2296,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
             elif "=" in name:
                 name, cond = name.split("=", 1)
                 filtered[name] = "=" + cond
-            selected.append(name)
+            selcols.append(name)
             if rename:
                 renaming[name] = rename
             if not combines:
@@ -2308,7 +2308,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     logg.debug("combined = %s", combined)
     logg.debug("renaming = %s", renaming)
     logg.debug("filtered = %s", filtered)
-    logg.debug("selected = %s", selected)
+    logg.debug("selcols = %s", selcols)
     logg.debug("freecols = %s", freecols)
     if not selects:
         combined = combine  # argument
@@ -2335,7 +2335,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     if sorts:
         sortcolumns = sorts
     else:
-        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selected or sortheaders)]
+        sortcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols or sortheaders)]
         if newsorts:
             for num, name in enumerate(sortcolumns):
                 if name not in newsorts:
@@ -2350,7 +2350,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         format = FormatCSV(formats, datedelim=datedelim)
     if legend:
         logg.debug("legend is ignored for CSV output")
-    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selected)]
+    selcolumns = [(name if name not in colnames else colnames[name]) for name in (selcols)]
     selheaders = [(name if name not in colnames else colnames[name]) for name in (showheaders)]
     sortkey = ColSortCallable(selcolumns or sorts or selheaders, reorder)
     sortrow = RowSortCallable(sortcolumns)
@@ -2358,15 +2358,15 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
     cols: Dict[str, int] = {}
     for num, item in enumerate(data):
         row: JSONDict = {}
-        if "#" in selected:
+        if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
         skip = False
         for name, value in item.items():
             selname = name
-            if name in renameheaders and renameheaders[name] in selected:
+            if name in renameheaders and renameheaders[name] in selcols:
                 selname = renameheaders[name]
-            if selected and selname not in selected and "*" not in selected:
+            if selcols and selname not in selcols and "*" not in selcols:
                 continue
             try:
                 if name in filtered:
@@ -2403,8 +2403,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selects: List[st
         for name, value in item.items():
             values[name] = format(name, value)
         if unique:
-            same = [sel for sel in selected if sel in values and sel in old and values[sel] == old[sel]]
-        if not selected or same != selected:
+            same = [sel for sel in selcols if sel in values and sel in old and values[sel] == old[sel]]
+        if not selcols or same != selcols:
             lines.append(values)
         old = values
     import csv
