@@ -991,11 +991,12 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             old = rowvalues
         return "CSV"
     # GFM
+    ws = (""," ","  ","   ","    ","     ","      ","       ","        ") # " "*(0...8)
     colw = [cols[col] for col in colo] # widths of cols ordered
     colr = [rightalign(col) for col in colo] # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
     if not noheaders:
-        hpad = [" " * (colw[m] - len(col)) for m, col in enumerate(colo)]
+        hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m]-len(col)) for m, col in enumerate(colo))]
         line = [tab2+(hpad[m]+col if colr[m] else col+hpad[m]) for m, col in enumerate(colo)]
         print(padding.join(line).rstrip(), file=out)
         if tab and padding:
@@ -1008,7 +1009,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         for name, value in asdict(item).items():
             values[name] = format(name, value)
         vals = [values.get(col, none_string) for col in colo]
-        vpad = [" " * (colw[m] - len(vals[m])) for m, col in enumerate(colo)]
+        vpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(vals[m])) for m, col in enumerate(colo))]
         line = [tab2+(vpad[m]+vals[m] if colr[m] else vals[m]+vpad[m]) for m, col in enumerate(colo)]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]

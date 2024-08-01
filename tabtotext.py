@@ -694,6 +694,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    ws = (""," ","  ","   ","    ","     ","      ","       ","        ") # " "*(0...8)
     colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     colw = [cols[col] for col in colo] # widths of cols ordered
     colr = [format.right(col) for col in colo] # rightalign of cols ordered
@@ -701,7 +702,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
     rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
     if not noheaders:
-        hpad = [" " * (colw[m] - len(col)) for m, col in enumerate(colo)]
+        hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m]-len(col)) for m, col in enumerate(colo))]
         line = [tab2+(hpad[m]+col if colr[m] else col+hpad[m]) for m, col in enumerate(colo)]
         if rtab:
             lines += [(padding.join(line)) + rtab]
@@ -718,7 +719,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         for name, value in item.items():
             values[name] = format(name, value)
         vals = [values.get(col, _None_String) for col in colo]
-        vpad = [" " * (colw[m] - len(vals[m])) for m, col in enumerate(colo)]
+        vpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(vals[m])) for m, col in enumerate(colo))]
         line = [tab2+(vpad[m]+vals[m] if colr[m] else vals[m]+vpad[m]) for m, col in enumerate(colo)]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in old and values[sel] == old[sel]]
