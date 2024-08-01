@@ -700,18 +700,19 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         if format.right(col):
             return formatter[:-1] + ":"
         return formatter
+    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     tab2 = tab[0] + padding if tab else ""
     rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
     if not noheaders:
-        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
+        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in colo]
         if rtab:
             lines += [(padding.join(line)) + rtab]
         else:
             lines += [(padding.join(line)).rstrip()]
         if tab and padding:
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
-                          for name in sorted(cols.keys(), key=sortkey)]
+                          for name in colo]
             lines.append(padding.join(seperators) + rtab)
     old: Dict[str, str] = {}
     same: List[str] = []
@@ -720,7 +721,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         for name, value in item.items():
             values[name] = format(name, value)
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, _None_String)
-                for name in sorted(cols.keys(), key=sortkey)]
+                for name in colo]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in old and values[sel] == old[sel]]
         if not selcols or same != selcols:
@@ -1090,8 +1091,9 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         if name not in cols:  # if target does not exist in dataset
             for added in combined[name]:
                 combining.remove(added)  # the shown combined column seperately
+    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     headers = []
-    for name in sorted(cols.keys(), key=sortkey):
+    for name in colo:
         if name in combining:
             continue
         html = rightTH(name, "<th>{}</th>".format(escape(name)))
@@ -1106,7 +1108,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         for name, value in item.items():
             values[name] = format(name, value)
         cells = []
-        for name in sorted(cols.keys(), key=sortkey):
+        for name in colo:
             if name in combining:
                 continue
             html = rightTD(name, "<td>{}</td>".format(escape(values[name])))
@@ -1466,6 +1468,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     pad = " " * len(padding)
     comma = "," + pad
     lines = []
@@ -1473,7 +1476,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = ['"%s":%s%s' % (name, pad, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        line = ['"%s":%s%s' % (name, pad, values[name]) for name in colo if name in values]
         lines.append(" {" + comma.join(line) + "}")
     return "[\n" + ",\n".join(lines) + "\n]"
 
@@ -1742,6 +1745,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     pad = " " * len(padding)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
@@ -1751,7 +1755,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         values: JSONDict = {}
         for name, value in item.items():
             values[name] = format(name, value)
-        line = ['%s:%s%s' % (as_name(name), pad, values[name]) for name in sorted(cols.keys(), key=sortkey) if name in values]
+        line = ['%s:%s%s' % (as_name(name), pad, values[name]) for name in colo if name in values]
         lines.append("- " + "\n  ".join(line))
     return "data:\n" + "\n".join(lines) + "\n"
 
@@ -2051,6 +2055,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
+    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     pad = " " * len(padding)
     is_simple = re.compile("^\\w[\\w_-]*$")
     def as_name(name: str) -> str:
@@ -2062,7 +2067,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             if value is not None:
                 values[name] = format(name, value)
         line = ['%s%s=%s%s' % (as_name(name), pad, pad, values[name])
-                for name in sorted(cols.keys(), key=sortkey) if name in values]
+                for name in colo if name in values]
         lines.append("[[data]]\n" + "\n".join(line))
     return "\n".join(lines) + "\n"
 
@@ -2407,10 +2412,11 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         if not selcols or same != selcols:
             lines.append(values)
         old = values
+    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     import csv
     # csvfile = open(csv_filename, "w")
     csvfile = StringIO()
-    writer = csv.DictWriter(csvfile, fieldnames=sorted(cols.keys(), key=sortkey), restval='ignore',
+    writer = csv.DictWriter(csvfile, fieldnames=colo, restval='ignore',
                             quoting=csv.QUOTE_MINIMAL, delimiter=tab)
     if not noheaders:
         writer.writeheader()

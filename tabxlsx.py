@@ -968,13 +968,14 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             return sortvalue
         return ""
     # print ..........................................
+    colo = sorted(cols.keys(), key=sortkey)  # ordered column names
     same = []
     # CSV
     if fmt in ["CSV"]:
         tab1 = tab if tab else ";"
         import csv
-        writer = csv.DictWriter(out, fieldnames=sorted(cols.keys(), key=sortkey),
-                                restval='~', quoting=csv.QUOTE_MINIMAL, delimiter=tab1)
+        writer = csv.DictWriter(out, fieldnames=colo, restval='~', 
+                                quoting=csv.QUOTE_MINIMAL, delimiter=tab1)
         if not noheaders:
             writer.writeheader()
         old: Dict[str, str] = {}
@@ -1000,11 +1001,11 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     tab2 = (tab + padding if tab else "")
     lines: List[str] = []
     if not noheaders:
-        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in sorted(cols.keys(), key=sortkey)]
+        line = [rightF(name, tab2 + "%%-%is" % cols[name]) % name for name in colo]
         print(padding.join(line).rstrip(), file=out)
         if tab and padding:
             seperators = [(tab2 + "%%-%is" % cols[name]) % rightS(name, "-" * cols[name])
-                          for name in sorted(cols.keys(), key=sortkey)]
+                          for name in colo]
             print(padding.join(seperators).rstrip(), file=out)
     oldvalues: Dict[str, str] = {}
     for item in sorted(rows, key=sortrow):
@@ -1012,7 +1013,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         for name, value in asdict(item).items():
             values[name] = format(name, value)
         line = [rightF(name, tab2 + "%%-%is" % cols[name]) % values.get(name, none_string)
-                for name in sorted(cols.keys(), key=sortkey)]
+                for name in colo]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]
         if not selcols or same != selcols:
