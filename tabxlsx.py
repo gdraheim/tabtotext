@@ -701,13 +701,16 @@ def make_workbook(rows: List[Dict[str, CellValue]],
 # ...........................................................
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selected: List[str] = [],
-                    *, tab: str = "|", padding: str = " ", minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+                    *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, 
+                    noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selected if x.startswith("@"))
     selected = [x for x in selected if not x.startswith("@")]
     minwidth = minwidth or MINWIDTH
+    padding = " " if padding is None else padding
+    tab = "|" if tab is None else tab
     def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
         if ext: return ext[1:]
@@ -1146,14 +1149,24 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 29
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="increase logging level")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="decrease logging level")
+    cmdline.add_option("-m", "--minwidth", metavar="N", default=0,
+                       help="override minwith of  cells for format")
+    cmdline.add_option("-p", "--padding", metavar="C", default=None,
+                       help="override cell padding for format")
+    cmdline.add_option("-t", "--tabulator", metavar="C", default=None,
+                       help="override tabulator for format")
+    cmdline.add_option("-T", "--notab", action="store_true", default=False,
+                       help="do not use tabulator (csv,md,tab,wide)")
+    cmdline.add_option("-P", "--nopadding", action="store_true", default=False,
+                       help="do not use padding (csv,md,tab,wide)")
     cmdline.add_option("-N", "--noheaders", action="store_true", default=False,
                        help="do not print headers (csv,md,tab,wide)")
     cmdline.add_option("-U", "--unique", action="store_true", default=False,
                        help="remove same lines in sorted --labels")
-    cmdline.add_option("-i", "--inputformat", metavar="FMT", default="",
+    cmdline.add_option("-i", "--input", metavar="CSV", default="",
                        help="fix input format (instead of autodetection)")
-    cmdline.add_option("-o", "--format", metavar="FMT", default="",
-                       help="data|text|list|wide|md|tab|csv or file")
+    cmdline.add_option("-o", "--output", metavar="CSV", default="",
+                       help="data|text|md|tab|csv or file.csv (see below)")
     cmdline.add_option("--ifs", action="store_true", help="-o ifs: $IFS-seperated table (with headers)")
     cmdline.add_option("--dat", action="store_true", help="-o dat: $IFS-seperated table (without headers)")
     cmdline.add_option("--data", action="store_true", help="-o data: tab-seperated without headers")
@@ -1172,20 +1185,23 @@ if __name__ == "__main__":
         cmdline.print_help()
         logg.error("no input filename given")
         sys.exit(1)
+    minwidth = int(opt.minwidth)
+    padding = opt.padding if not opt.nopadding else ""
+    tab = opt.tabulator if not opt.notab else ""
     filename = args[0]
-    tabtext = tabtextfile(args[0], defaultformat="xlsx")
+    tabtext = tabtextfile(filename, defaultformat="xlsx")
     logg.debug("headers = %s", tabtext.headers)
     logg.debug("data = %s", tabtext.data)
     if len(args) > 1:
         selected = args[1:]
     else:
         selected = []
-    if "."in opt.format:
-        output = opt.format
+    if "." in opt.output:
+        output = opt.output
         defaultformat = ""
     else:
         output = ""
-        defaultformat = opt.format
+        defaultformat = opt.output
     if not defaultformat:
         if opt.ifs:
             defaultformat = "ifs"
@@ -1211,5 +1227,6 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, tabtext.data, tabtext.headers, selected,
-                    noheaders=opt.noheaders, unique=opt.unique, defaultformat=defaultformat)
+    print_tabtotext(output, tabtext.data, tabtext.headers, selected, padding=padding, tab=tab,
+                    noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth,
+                    defaultformat=defaultformat)
