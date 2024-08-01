@@ -44,7 +44,7 @@ try:
 except Exception as e:
     logg.warning("skipping tabtoxlsx: %s", e)
     skipXLSX = True
-    def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+    def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
                   *, legend: List[str] = [], minwidth: int = 0) -> str:
         return "skipped"
     def readFromXLSX(filename: str) -> JSONList:

@@ -67,7 +67,7 @@ def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: RowSort
     saveToXLSX(filename, result, sorts, formats, legend=legend, reorder=reorder)
 
 def saveToXLSX(filename: str, result: JSONList,
-               sorts: RowSortList = [], formats: Dict[str, str] = {}, selects: List[str] = [],
+               sorts: RowSortList = [], formats: Dict[str, str] = {}, selected: List[str] = [],
                legend: LegendList = [], reorder: ColSortList = []) -> None:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -96,14 +96,14 @@ def saveToXLSX(filename: str, result: JSONList,
     else:
         sorting = sorts
         formatter = formats
-    save_tabtoXLSX(filename, result, headers, selects, legend=legend,  # ....
+    save_tabtoXLSX(filename, result, headers, selected, legend=legend,  # ....
                    reorder=reorder, sorts=sorting, formatter=formatter)
 
-def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
               *, legend: List[str] = [], minwidth: int = 0) -> str:
-    return save_tabtoXLSX(filename, data, headers, selects, legend=legend)
+    return save_tabtoXLSX(filename, data, headers, selected, legend=legend)
 
-def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selects: List[str] = [],  # ..
+def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
                    *, legend: LegendList = [], minwidth: int = 0,
                    reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
@@ -162,7 +162,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
     filtered: Dict[str, str] = {}
     selcols: List[str] = []
     freecols: Dict[str, str] = {}
-    for selecheader in selects:
+    for selecheader in selected:
         combines = ""
         for selec in selecheader.split("|"):
             if "@" in selec:
@@ -212,7 +212,7 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
     logg.debug("filtered = %s", filtered)
     logg.debug("selcols = %s", selcols)
     logg.debug("freecols = %s", freecols)
-    if not selects:
+    if not selected:
         combined = combine  # argument
         freecols = freehdrs
         renaming = renameheaders

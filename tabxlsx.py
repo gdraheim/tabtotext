@@ -478,11 +478,11 @@ def currency() -> str:
     currency_euro = 0x20AC
     return chr(currency_euro)
 
-def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], minwidth: int = 0) -> str:
-    workbook = make_tabtoXLSX(data, headers, selects, minwidth)
+def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0) -> str:
+    workbook = make_tabtoXLSX(data, headers, selected, minwidth)
     save_workbook(filename, workbook)
     return "TABXLSX"
-def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selects: List[str] = [], minwidth: int = 0) -> Workbook:
+def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0) -> Workbook:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
@@ -522,7 +522,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     combined: Dict[str, List[str]] = {}
     renaming: Dict[str, str] = {}
     selcols: List[str] = []
-    for selecheader in selects:
+    for selecheader in selected:
         combines = ""
         for selec in selecheader.split("|"):
             if "@" in selec:
@@ -548,7 +548,7 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
     logg.debug("combined = %s", combined)
     logg.debug("renaming = %s", renaming)
     logg.debug("selcols = %s", selcols)
-    if not selects:
+    if not selected:
         combined = combine  # argument
         renaming = renameheaders
         logg.debug("combined : %s", combined)
@@ -700,13 +700,13 @@ def make_workbook(rows: List[Dict[str, CellValue]],
 
 # ...........................................................
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
-                    headers: List[str] = [], selects: List[str] = [],
+                    headers: List[str] = [], selected: List[str] = [],
                     *, tab: str = "|", padding: str = " ", minwidth: int = 0, noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
-                                for x in selects if x.startswith("@"))
-    selects = [x for x in selects if not x.startswith("@")]
+                                for x in selected if x.startswith("@"))
+    selected = [x for x in selected if not x.startswith("@")]
     minwidth = minwidth or MINWIDTH
     def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
@@ -720,7 +720,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     elif "." in output:
         fmt = extension(output) or defaultformat
         if fmt in ["xls", "xlsx"]:
-            tabtoXLSX(output, data, headers, selects)
+            tabtoXLSX(output, data, headers, selected)
             return "XLSX"
         out = open(output, "wt", encoding="utf-8")
         done = output
@@ -829,7 +829,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 renameheaders[name] = rename
     renaming: Dict[str, str] = {}
     selcols: List[str] = []
-    for selecheader in selects:
+    for selecheader in selected:
         combines = ""
         for selec in selecheader.split("|"):
             if "@" in selec:
@@ -845,7 +845,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             selcols.append(name)
             if rename:
                 renaming[name] = rename
-    if not selects:
+    if not selected:
         renaming = renameheaders
     logg.debug("sortheaders = %s | formats = %s", sortheaders, formats)
     newsorts: Dict[str, str] = {}
@@ -1177,9 +1177,9 @@ if __name__ == "__main__":
     logg.debug("headers = %s", tabtext.headers)
     logg.debug("data = %s", tabtext.data)
     if len(args) > 1:
-        selects = args[1:]
+        selected = args[1:]
     else:
-        selects = []
+        selected = []
     if "."in opt.format:
         output = opt.format
         defaultformat = ""
@@ -1211,5 +1211,5 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, tabtext.data, tabtext.headers, selects,
+    print_tabtotext(output, tabtext.data, tabtext.headers, selected,
                     noheaders=opt.noheaders, unique=opt.unique, defaultformat=defaultformat)
