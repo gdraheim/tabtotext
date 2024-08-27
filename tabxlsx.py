@@ -5,7 +5,7 @@ The output can be piped as a markdown table or csv-like data as well. A number
 of output format options are available but less than the tabtotext.py module."""
 
 __copyright__ = "(C) 2023-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3321"
+__version__ = "1.6.3352"
 
 from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping
 from datetime import date as Date
@@ -60,6 +60,7 @@ CellValue = Union[None, bool, int, float, str, Time, Date]
 
 class Cell:
     value: CellValue
+    data_type: str
     alignment: Optional[Alignment]
     number_format: Optional[str]
     protection: Optional[str]
@@ -67,6 +68,7 @@ class Cell:
     _numFmt: int
     def __init__(self) -> None:
         self.value = None
+        self.data_type = NIX
         self.alignment = None
         self.number_format = None
         self.protection = None
@@ -390,15 +392,19 @@ def load_workbook(filename: str) -> Workbook:
                             v = ""
                             x = ""
                             for data in cell:
-                                if ("}" + data.tag).endswith("v"):
+                                if ("}" + data.tag).endswith("}v"):
                                     v = data.text or ""
-                                elif ("}" + data.tag).endswith("is"):
+                                elif ("}" + data.tag).endswith("}is"):
                                     for block in data:
                                         x += block.text or ""
+                                elif ("}" + data.tag).endswith("}f"):
+                                    x = "=" + (data.text or "")
+                                    t = "f"
+                            ws[r].data_type = t
                             logg.debug("r = %s | s = %s | t =%s | v = %s| x = %s", r, s, t, v, x)
                             if t in ["b"]:
                                 value = True if v == "1" else False
-                            elif t in ["inlineStr"]:
+                            elif t in ["f", "inlineStr",]:
                                 value = x
                             elif t in ["s"]:
                                 value = sharedStrings[int(v)]
@@ -457,6 +463,8 @@ def tabtext_workbook(workbook: Workbook) -> TabText:
         found = 0
         for atcol in range(len(cols)):
             cell = ws.cell(row=atrow + 2, column=atcol + 1)
+            if cell.data_type in ["f"]:
+                continue
             value = cell.value
             # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
             if value is not None:
