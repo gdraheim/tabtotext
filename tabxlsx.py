@@ -400,7 +400,6 @@ def load_workbook(filename: str) -> Workbook:
                                 elif ("}" + data.tag).endswith("}f"):
                                     x = "=" + (data.text or "")
                                     t = "f"
-                            ws[r].data_type = t
                             logg.debug("r = %s | s = %s | t =%s | v = %s| x = %s", r, s, t, v, x)
                             if t in ["b"]:
                                 value = True if v == "1" else False
@@ -423,13 +422,16 @@ def load_workbook(filename: str) -> Workbook:
                                         value2 = Time.fromordinal(value0 + 693594)
                                         value3 = int(((value1 - value0) * 86400) + 0.4)
                                         value = value2 + Plus(seconds=value3)
+                                        t = "d"
                                     elif numfmt in _dateformats:
                                         value0 = int(value1)
                                         value2 = Time.fromordinal(value0 + 693594)
                                         value = value2.date()
+                                        t = "d"
 
                             if r:
                                 ws[r].value = value
+                                ws[r].data_type = t
     return workbook
 
 # .....................................................................
