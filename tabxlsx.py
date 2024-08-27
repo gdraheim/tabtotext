@@ -7,7 +7,7 @@ of output format options are available but less than the tabtotext.py module."""
 __copyright__ = "(C) 2023-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3321"
 
-from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Any
+from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -837,6 +837,11 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         fmt = "CSV"
         tab = ";"
         noheaders = True  # nopep8
+    if fmt in ["json"] or "@json" in spec:
+        fmt = "JSON"
+    if fmt in ["jsn"] or "@jsn" in spec:
+        fmt = "JSON"
+        padding = ""
     if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
         fmt = "XLS"
         tab = ","  # nopep8
@@ -1024,6 +1029,24 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     # print ..........................................
     colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
     same = []
+    # JSON
+    if fmt in ["JSON"]:
+        import json
+        pad = " " * len(padding)
+        comma = "," + pad
+        lines: List[str] = []
+        for row in sorted(rows, key=sortrow):
+            line: List[str] = []
+            for name in colo:
+                if name in row:
+                    value = row[name]
+                    if isinstance(value, Date) or isinstance(value, Time):
+                        line += [ '"%s":%s"%s"' % (name, pad, str(value)) ]
+                    else:
+                        line += [ '"%s":%s%s' % (name, pad, json.dumps(value)) ]
+            lines.append(" {" + comma.join(line) + "}")
+        out.write("[\n" + ",\n".join(lines) + "\n]")
+        return "JSON"
     # CSV
     if fmt in ["CSV"]:
         tab1 = tab if tab else ";"
@@ -1113,6 +1136,25 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
     formatright = re.compile("[{]:[^{}]*>[^{}]*[}]")
     formatnumber = re.compile("[{]:[^{}]*[defghDEFGHMQR$%][}]")
     data: List[Dict[str, CellValue]] = []
+    if fmt in ["jsn", "json"]:
+        import json
+        time = StrToTime()
+        jsondata = json.load(inp)
+        if isinstance(jsondata, Mapping) and "data" in jsondata:
+            jsonlist = cast(List[Dict[str, CellValue]], jsondata["data"]) 
+        else:
+            jsonlist = cast(List[Dict[str, CellValue]], jsondata)
+        if isinstance(jsonlist, Iterable):
+            for nextgroup in jsonlist:
+                if isinstance(nextgroup, Mapping):
+                    newgroup: Dict[str, CellValue] = {}
+                    for nam, jsonval in nextgroup.items():
+                        if isinstance(jsonval, str):
+                            newgroup[nam] = time(jsonval)
+                        else:
+                            newgroup[nam] = jsonval
+                    data.append(newgroup)
+        return TabText(data, [])
     if fmt in ["csv", "scsv", "tab"]:
         import csv
         time = StrToTime()
