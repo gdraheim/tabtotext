@@ -707,13 +707,13 @@ def sec_usec(sec: Optional[str]) -> Tuple[int, int]:
     if "." in sec:
         x = float(sec)
         s = int(x)
-        u = int((x-s) * 1000000)
+        u = int((x - s) * 1000000)
         return s, u
     return int(sec), 0
 
 class StrToDate:
     """ parsing iso8601 day formats"""
-    def __init__(self, datedelim:str = "-") -> None:
+    def __init__(self, datedelim: str = "-") -> None:
         self.delim = datedelim
         self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[.]?$".replace('-', datedelim))
     def date(self, value: str) -> Optional[Date]:
@@ -738,7 +738,7 @@ class StrToTime(StrToDate):
         got = self.is_zonetime.match(value)
         if got:
             hh, mm = got.group(7), got.group(8)
-            if hh in ["Z","UTC"]:
+            if hh in ["Z", "UTC"]:
                 plus = TimeZone.utc
             else:
                 plus = TimeZone(Plus(hours=int(hh), minutes=int(mm or 0)))
@@ -754,7 +754,7 @@ class StrToTime(StrToDate):
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selected: List[str] = [],
-                    *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, 
+                    *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0,
                     noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
@@ -1041,9 +1041,9 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                 if name in row:
                     value = row[name]
                     if isinstance(value, Date) or isinstance(value, Time):
-                        line += [ '"%s":%s"%s"' % (name, pad, str(value)) ]
+                        line += ['"%s":%s"%s"' % (name, pad, str(value))]
                     else:
-                        line += [ '"%s":%s%s' % (name, pad, json.dumps(value)) ]
+                        line += ['"%s":%s%s' % (name, pad, json.dumps(value))]
             lines.append(" {" + comma.join(line) + "}")
         out.write("[\n" + ",\n".join(lines) + "\n]")
         return "JSON"
@@ -1051,7 +1051,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     if fmt in ["CSV"]:
         tab1 = tab if tab else ";"
         import csv
-        writer = csv.DictWriter(out, fieldnames=colo, restval='~', 
+        writer = csv.DictWriter(out, fieldnames=colo, restval='~',
                                 quoting=csv.QUOTE_MINIMAL, delimiter=tab1)
         if not noheaders:
             writer.writeheader()
@@ -1067,17 +1067,17 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             old = rowvalues
         return "CSV"
     # GFM
-    ws = (""," ","  ","   ","    ","     ","      ","       ","        ") # " "*(0...8)
-    colw = tuple((cols[col] for col in colo)) # widths of cols ordered
-    colr = tuple((rightalign(col) for col in colo)) # rightalign of cols ordered
+    ws = ("", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ")  # " "*(0...8)
+    colw = tuple((cols[col] for col in colo))  # widths of cols ordered
+    colr = tuple((rightalign(col) for col in colo))  # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
     if not noheaders:
-        hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m]-len(col)) for m, col in enumerate(colo))]
-        line = [tab2+(hpad[m]+col if colr[m] else col+hpad[m]) for m, col in enumerate(colo)]
+        hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(col)) for m, col in enumerate(colo))]
+        line = [tab2 + (hpad[m] + col if colr[m] else col + hpad[m]) for m, col in enumerate(colo)]
         print(padding.join(line).rstrip(), file=out)
         if tab and padding:
             seps = ["-" * colw[m] for m, col in enumerate(colo)]
-            seperators = [tab2+(seps[m][:-1]+":" if colr[m] else seps[m]) for m, col in enumerate(colo) ]
+            seperators = [tab2 + (seps[m][:-1] + ":" if colr[m] else seps[m]) for m, col in enumerate(colo)]
             print(padding.join(seperators).rstrip(), file=out)
     oldvalues: Dict[str, str] = {}
     for item in sorted(rows, key=sortrow):
@@ -1086,7 +1086,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             values[name] = format(name, value)
         vals = [values.get(col, none_string) for col in colo]
         vpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(vals[m])) for m, col in enumerate(colo))]
-        line = [tab2+(vpad[m]+vals[m] if colr[m] else vals[m]+vpad[m]) for m, col in enumerate(colo)]
+        line = [tab2 + (vpad[m] + vals[m] if colr[m] else vals[m] + vpad[m]) for m, col in enumerate(colo)]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in oldvalues and values[sel] == oldvalues[sel]]
         if not selcols or same != selcols:
@@ -1141,7 +1141,7 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
         time = StrToTime()
         jsondata = json.load(inp)
         if isinstance(jsondata, Mapping) and "data" in jsondata:
-            jsonlist = cast(List[Dict[str, CellValue]], jsondata["data"]) 
+            jsonlist = cast(List[Dict[str, CellValue]], jsondata["data"])
         else:
             jsonlist = cast(List[Dict[str, CellValue]], jsondata)
         if isinstance(jsonlist, Iterable):

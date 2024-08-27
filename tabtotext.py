@@ -213,13 +213,13 @@ def sec_usec(sec: Optional[str]) -> Tuple[int, int]:
     if "." in sec:
         x = float(sec)
         s = int(x)
-        u = int((x-s) * 1000000)
+        u = int((x - s) * 1000000)
         return s, u
     return int(sec), 0
 
 class StrToDate:
     """ parsing iso8601 day formats"""
-    def __init__(self, datedelim:str = "-") -> None:
+    def __init__(self, datedelim: str = "-") -> None:
         self.delim = datedelim
         self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[.]?$".replace('-', datedelim))
     def date(self, value: str) -> Optional[Date]:
@@ -244,7 +244,7 @@ class StrToTime(StrToDate):
         got = self.is_zonetime.match(value)
         if got:
             hh, mm = got.group(7), got.group(8)
-            if hh in ["Z","UTC"]:
+            if hh in ["Z", "UTC"]:
                 plus = TimeZone.utc
             else:
                 plus = TimeZone(Plus(hours=int(hh), minutes=int(mm or 0)))
@@ -723,23 +723,23 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
-    ws = (""," ","  ","   ","    ","     ","      ","       ","        ") # " "*(0...8)
+    ws = ("", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ")  # " "*(0...8)
     colo = tuple(sorted(cols.keys(), key=sortkey))  # ordered column names
-    colw = tuple((cols[col] for col in colo)) # widths of cols ordered
-    colr = tuple((format.right(col) for col in colo)) # rightalign of cols ordered
+    colw = tuple((cols[col] for col in colo))  # widths of cols ordered
+    colr = tuple((format.right(col) for col in colo))  # rightalign of cols ordered
     tab2 = tab[0] + padding if tab else ""
     rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
     if not noheaders:
-        hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m]-len(col)) for m, col in enumerate(colo))]
-        line = [tab2+(hpad[m]+col if colr[m] else col+hpad[m]) for m, col in enumerate(colo)]
+        hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(col)) for m, col in enumerate(colo))]
+        line = [tab2 + (hpad[m] + col if colr[m] else col + hpad[m]) for m, col in enumerate(colo)]
         if rtab:
             lines += [(padding.join(line)) + rtab]
         else:
             lines += [(padding.join(line)).rstrip()]
         if tab and padding:
             seps = ["-" * colw[m] for m, col in enumerate(colo)]
-            seperators = [tab2+(seps[m][:-1]+":" if colr[m] else seps[m]) for m, col in enumerate(colo) ]
+            seperators = [tab2 + (seps[m][:-1] + ":" if colr[m] else seps[m]) for m, col in enumerate(colo)]
             lines.append(padding.join(seperators) + rtab)
     old: Dict[str, str] = {}
     same: List[str] = []
@@ -749,7 +749,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
             values[name] = format(name, value)
         vals = [values.get(col, _None_String) for col in colo]
         vpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(vals[m])) for m, col in enumerate(colo))]
-        line = [tab2+(vpad[m]+vals[m] if colr[m] else vals[m]+vpad[m]) for m, col in enumerate(colo)]
+        line = [tab2 + (vpad[m] + vals[m] if colr[m] else vals[m] + vpad[m]) for m, col in enumerate(colo)]
         if unique:
             same = [sel for sel in selcols if sel in values and sel in old and values[sel] == old[sel]]
         if not selcols or same != selcols:
@@ -912,7 +912,7 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
-              *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0, 
+              *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0,
               noheaders: bool = False, xmlns: str = "",
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoHTML")

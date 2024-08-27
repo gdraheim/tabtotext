@@ -195,7 +195,7 @@ class TabXlsxTest(unittest.TestCase):
     #
     def test_1100(self) -> None:
         time = StrToTime()
-        want = Date(2022,12, 23)
+        want = Date(2022, 12, 23)
         have = time("2022-12-23")
         self.assertEqual(have, want)
         have = time("2022-12-23.")
@@ -210,7 +210,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(have, want)
     def test_1102(self) -> None:
         time = StrToTime()
-        want = Time(2022,12, 23, 14, 45)
+        want = Time(2022, 12, 23, 14, 45)
         have = time("2022-12-23T14:45")
         self.assertEqual(have, want)
         have = time("2022-12-23.14:45:00")
@@ -228,7 +228,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(have, want)
     def test_1104(self) -> None:
         time = StrToTime()
-        want = Time(2022,12, 23, 14, 45, tzinfo=TimeZone.utc)
+        want = Time(2022, 12, 23, 14, 45, tzinfo=TimeZone.utc)
         have = time("2022-12-23T14:45Z")
         self.assertEqual(have, want)
         have = time("2022-12-23.14:45:00 Z")
@@ -248,7 +248,7 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(have, want)
     def test_1106(self) -> None:
         time = StrToTime()
-        want = Time(2022,12, 23, 14, 45, tzinfo=TimeZone(Plus(hours=1)))
+        want = Time(2022, 12, 23, 14, 45, tzinfo=TimeZone(Plus(hours=1)))
         have = time("2022-12-23T14:45+01")
         self.assertEqual(have, want)
         have = time("2022-12-23.14:45:00 +0100")
@@ -269,7 +269,7 @@ class TabXlsxTest(unittest.TestCase):
     def test_1109(self) -> None:
         BB = 880 * 1000
         time = StrToTime()
-        want = Time(2022,12, 23, 14, 45, 55, BB, tzinfo=TimeZone(Plus(hours=-1)))
+        want = Time(2022, 12, 23, 14, 45, 55, BB, tzinfo=TimeZone(Plus(hours=-1)))
         have = time("2022-12-23T14:45:55.88-01")
         self.assertEqual(have, want)
         have = time("2022-12-23.14:45:55.880 -0100")
