@@ -239,7 +239,7 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
                 if cell.value is None:
                     continue
                 elif isinstance(cell.value, str):
-                    if not cell.data_type and cell.value.startswith("="):
+                    if cell.data_type in ["", "f"] and cell.value.startswith("="):
                         s = cell._xf
                         f = cell.value[1:]
                         wxml += F'<c r="{r}" s="{s}">'
