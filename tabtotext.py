@@ -19,7 +19,8 @@ from collections import OrderedDict
 from html import escape
 from datetime import date as Date
 from datetime import datetime as Time
-from datetime import timezone
+from datetime import timezone as TimeZone
+from datetime import timedelta as Plus
 from abc import abstractmethod
 import os
 import sys
@@ -142,7 +143,7 @@ def strJSONItem(value: JSONItem, datedelim: str = '-', datefmt: Optional[str] = 
         datefmt1 = datefmt if datefmt else DATEFMT
         datefmt2 = datefmt1.replace('-', datedelim)
         if "Z" in DATEFMT:
-            return value.astimezone(timezone.utc).strftime(datefmt2)
+            return value.astimezone(TimeZone.utc).strftime(datefmt2)
         else:
             return value.strftime(datefmt2)
     if isinstance(value, Date):
@@ -204,6 +205,60 @@ def unmatched(value: JSONItem, cond: str) -> bool:
         logg.warning("unmatched value %s does not work for cond (*%s)", type(value), cond)
     return False
 
+############################################################
+def sec_usec(sec: Optional[str]) -> Tuple[int, int]:
+    """ split float value to seconds and microsecond integers"""
+    if not sec:
+        return 0, 0
+    if "." in sec:
+        x = float(sec)
+        s = int(x)
+        u = int((x-s) * 1000000)
+        return s, u
+    return int(sec), 0
+
+class StrToDate:
+    """ parsing iso8601 day formats"""
+    def __init__(self, datedelim:str = "-") -> None:
+        self.delim = datedelim
+        self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[.]?$".replace('-', datedelim))
+    def date(self, value: str) -> Optional[Date]:
+        got = self.is_date.match(value)
+        if got:
+            y, m, d = got.group(1), got.group(2), got.group(3)
+            return Date(int(y), int(m), int(d))
+        return None
+class StrToTime(StrToDate):
+    """ parsing iso8601 day or day-and-time formats with zone offsets"""
+    def __init__(self, datedelim: str = "-") -> None:
+        StrToDate.__init__(self, datedelim)
+        self.is_localtime = re.compile(
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[.T ](\d\d)[:]?(\d\d)(?:[:](\d\d(?:[.]\d*)?))?$".replace('-', datedelim))
+        self.is_zonetime = re.compile(
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[.T ](\d\d)[:]?(\d\d)(?:[:](\d\d(?:[.]\d*)?))?[ ]*(Z|UTC|[+-][0-9][0-9])(?:[:]?([0-9][0-9]))?$".replace('-', datedelim))
+    def time(self, value: str) -> Optional[Time]:
+        got = self.is_localtime.match(value)
+        if got:
+            y, m, d, H, M, S = got.group(1), got.group(2), got.group(3), got.group(4), got.group(5), got.group(6)
+            return Time(int(y), int(m), int(d), int(H), int(M), *sec_usec(S))
+        got = self.is_zonetime.match(value)
+        if got:
+            hh, mm = got.group(7), got.group(8)
+            if hh in ["Z","UTC"]:
+                plus = TimeZone.utc
+            else:
+                plus = TimeZone(Plus(hours=int(hh), minutes=int(mm or 0)))
+            y, m, d, H, M, S = got.group(1), got.group(2), got.group(3), got.group(4), got.group(5), got.group(6)
+            return Time(int(y), int(m), int(d), int(H), int(M), *sec_usec(S), tzinfo=plus)
+        return None
+    def __call__(self, value: str) -> Union[str, Date, Time]:
+        d = self.date(value)
+        if d: return d
+        t = self.time(value)
+        if t: return t
+        return value
+
+
 class DictParser:
     @abstractmethod
     def load(self, filename: str) -> Iterator[JSONDict]:
@@ -252,11 +307,6 @@ class BaseFormatJSONItem(FormatJSONItem):
 
 class ParseJSONItem:
     def __init__(self, datedelim: str = '-') -> None:
-        self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)$".replace('-', datedelim))
-        self.is_time = re.compile(
-            r"(\d\d\d\d)-(\d\d)-(\d\d)[T](\d\d):(\d\d):(\d:\d)(?:[.]\d*)(?:[A-Z][A-Z][A-Z][A-Z]?)$".replace('-', datedelim))
-        self.is_hour = re.compile(
-            r"(\d\d\d\d)-(\d\d)-(\d\d)[Z .](\d\d):?(\d\d)?$".replace('-', datedelim))
         self.is_int = re.compile(r"([+-]?\d+)$")
         self.is_float = re.compile(r"([+-]?\d+)(?:[.]\d*)?(?:e[+-]?\d+)?$")
         self.is_float_with_frac = re.compile(float_with_frac)
@@ -265,6 +315,7 @@ class ParseJSONItem:
         self.None_String = _None_String
         self.False_String = _False_String
         self.True_String = _True_String
+        self.toDate = StrToTime(datedelim)
     def toJSONItem(self, val: str) -> JSONItem:
         """ generic conversion of string to data types - it may do too much """
         if val == self.None_String:
@@ -282,28 +333,6 @@ class ParseJSONItem:
         if self.is_float_with_hours.match(val):
             return fracfloat(val)
         return self.toDate(val)
-    def toDate(self, val: str) -> JSONItem:
-        """ the json.loads parser detects most data types except Date/Time """
-        as_time = self.is_time.match(val)
-        if as_time:
-            if "Z" in val:
-                return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                            int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)), tzinfo=timezone.utc)
-            else:
-                return Time(int(as_time.group(1)), int(as_time.group(2)), int(as_time.group(3)),
-                            int(as_time.group(4)), int(as_time.group(5)), int(as_time.group(6)))
-        as_hour = self.is_hour.match(val)
-        if as_hour:
-            if "Z" in val:
-                return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
-                            int(as_hour.group(4)), int(as_hour.group(5)), tzinfo=timezone.utc)
-            else:
-                return Time(int(as_hour.group(1)), int(as_hour.group(2)), int(as_hour.group(3)),
-                            int(as_hour.group(4)), int(as_hour.group(5)))
-        as_date = self.is_date.match(val)
-        if as_date:
-            return Date(int(as_date.group(1)), int(as_date.group(2)), int(as_date.group(3)))
-        return val  # str
 
 def tabWithDateTime() -> None:
     global DATEFMT

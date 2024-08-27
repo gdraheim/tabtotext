@@ -3,7 +3,7 @@
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3321"
 
-from tabxlsx import print_tabtotext, CellValue
+from tabxlsx import print_tabtotext, CellValue, StrToTime
 from tabxlsx import tabtoXLSX, tabtextfileXLSX, tabtextfile
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable, cast
 import unittest
@@ -18,6 +18,8 @@ import inspect
 from subprocess import getoutput
 from datetime import date as Date
 from datetime import datetime as Time
+from datetime import timezone as TimeZone
+from datetime import timedelta as Plus
 from zipfile import ZipFile
 from dataclasses import dataclass
 from io import StringIO
@@ -188,6 +190,90 @@ class TabXlsxTest(unittest.TestCase):
             if not KEEP:
                 shutil.rmtree(newdir)
         return newdir
+    #
+    def test_1100(self) -> None:
+        time = StrToTime()
+        want = Date(2022,12, 23)
+        have = time("2022-12-23")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.")
+        self.assertEqual(have, want)
+    def test_1101(self) -> None:
+        time = StrToTime()
+        want = "2022-12-23T"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-2"
+        have = time(want)
+        self.assertEqual(have, want)
+    def test_1102(self) -> None:
+        time = StrToTime()
+        want = Time(2022,12, 23, 14, 45)
+        have = time("2022-12-23T14:45")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.14:45:00")
+        self.assertEqual(have, want)
+    def test_1103(self) -> None:
+        time = StrToTime()
+        want = "2022-12-23T14"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-23.14:"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-23.14:45:"
+        have = time(want)
+        self.assertEqual(have, want)
+    def test_1104(self) -> None:
+        time = StrToTime()
+        want = Time(2022,12, 23, 14, 45, tzinfo=TimeZone.utc)
+        have = time("2022-12-23T14:45Z")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.14:45:00 Z")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.14:45:00 +00")
+        self.assertEqual(have, want)
+    def test_1105(self) -> None:
+        time = StrToTime()
+        want = "2022-12-23T14Z"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-23.14:45:Z"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-23.14:45:.Z"
+        have = time(want)
+        self.assertEqual(have, want)
+    def test_1106(self) -> None:
+        time = StrToTime()
+        want = Time(2022,12, 23, 14, 45, tzinfo=TimeZone(Plus(hours=1)))
+        have = time("2022-12-23T14:45+01")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.14:45:00 +0100")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.14:45:00 +01:00")
+        self.assertEqual(have, want)
+    def test_1107(self) -> None:
+        time = StrToTime()
+        want = "2022-12-23T14+01"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-23.14:45:+01"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-23.14:45:+01.00"
+        have = time(want)
+        self.assertEqual(have, want)
+    def test_1109(self) -> None:
+        BB = 880 * 1000
+        time = StrToTime()
+        want = Time(2022,12, 23, 14, 45, 55, BB, tzinfo=TimeZone(Plus(hours=-1)))
+        have = time("2022-12-23T14:45:55.88-01")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.14:45:55.880 -0100")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.14:45:55.880000 -01:00")
+        self.assertEqual(have, want)
     #
     def test_4103(self) -> None:
         out = StringIO()

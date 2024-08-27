@@ -11,6 +11,7 @@ from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, N
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
+from datetime import timezone as TimeZone
 from io import StringIO, TextIOWrapper
 from zipfile import ZipFile, ZIP_DEFLATED
 from xml.etree import ElementTree as ET
@@ -699,6 +700,58 @@ def make_workbook(rows: List[Dict[str, CellValue]],
     return workbook
 
 # ...........................................................
+def sec_usec(sec: Optional[str]) -> Tuple[int, int]:
+    """ split float value to seconds and microsecond integers"""
+    if not sec:
+        return 0, 0
+    if "." in sec:
+        x = float(sec)
+        s = int(x)
+        u = int((x-s) * 1000000)
+        return s, u
+    return int(sec), 0
+
+class StrToDate:
+    """ parsing iso8601 day formats"""
+    def __init__(self, datedelim:str = "-") -> None:
+        self.delim = datedelim
+        self.is_date = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)[.]?$".replace('-', datedelim))
+    def date(self, value: str) -> Optional[Date]:
+        got = self.is_date.match(value)
+        if got:
+            y, m, d = got.group(1), got.group(2), got.group(3)
+            return Date(int(y), int(m), int(d))
+        return None
+class StrToTime(StrToDate):
+    """ parsing iso8601 day or day-and-time formats with zone offsets"""
+    def __init__(self, datedelim: str = "-") -> None:
+        StrToDate.__init__(self, datedelim)
+        self.is_localtime = re.compile(
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[.T ](\d\d)[:]?(\d\d)(?:[:](\d\d(?:[.]\d*)?))?$".replace('-', datedelim))
+        self.is_zonetime = re.compile(
+            r"(\d\d\d\d)-(\d\d)-(\d\d)[.T ](\d\d)[:]?(\d\d)(?:[:](\d\d(?:[.]\d*)?))?[ ]*(Z|UTC|[+-][0-9][0-9])(?:[:]?([0-9][0-9]))?$".replace('-', datedelim))
+    def time(self, value: str) -> Optional[Time]:
+        got = self.is_localtime.match(value)
+        if got:
+            y, m, d, H, M, S = got.group(1), got.group(2), got.group(3), got.group(4), got.group(5), got.group(6)
+            return Time(int(y), int(m), int(d), int(H), int(M), *sec_usec(S))
+        got = self.is_zonetime.match(value)
+        if got:
+            hh, mm = got.group(7), got.group(8)
+            if hh in ["Z","UTC"]:
+                plus = TimeZone.utc
+            else:
+                plus = TimeZone(Plus(hours=int(hh), minutes=int(mm or 0)))
+            y, m, d, H, M, S = got.group(1), got.group(2), got.group(3), got.group(4), got.group(5), got.group(6)
+            return Time(int(y), int(m), int(d), int(H), int(M), *sec_usec(S), tzinfo=plus)
+        return None
+    def __call__(self, value: str) -> Union[str, Date, Time]:
+        d = self.date(value)
+        if d: return d
+        t = self.time(value)
+        if t: return t
+        return value
+
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selected: List[str] = [],
                     *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, 
@@ -1062,6 +1115,7 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
     data: List[Dict[str, CellValue]] = []
     if fmt in ["csv", "scsv", "tab"]:
         import csv
+        time = StrToTime()
         reader = csv.DictReader(inp, delimiter=tab)
         for nextrecord in reader:
             # newrecord: Dict[str, CellValue] = cast(Dict[str, CellValue], nextrecord.copy())
@@ -1081,15 +1135,7 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
                         try:
                             newrecord[nam] = float(v)
                         except:
-                            try:
-                                newrecord[nam] = Time.strptime(v, "%Y-%m-%d.%H%M")
-                            except Exception as e:
-                                if ".23" in v:
-                                    logg.error("no date? = %s = %s", v, e)
-                                try:
-                                    newrecord[nam] = Time.strptime(v, "%Y-%m-%d").date()
-                                except Exception as e:
-                                    newrecord[nam] = v
+                            newrecord[nam] = time(v)
             data.append(newrecord)
         return TabText(data, list(reader.fieldnames if reader.fieldnames else []))
     # must have headers
