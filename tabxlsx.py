@@ -239,11 +239,18 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
                 if cell.value is None:
                     continue
                 elif isinstance(cell.value, str):
-                    s = cell._xf
-                    t = "inlineStr"
-                    wxml += F'<c r="{r}" s="{s}" t="{t}">'
-                    wxml += F'<is><t>{cell.value}</t></is>'
-                    wxml += F'</c>'
+                    if not cell.data_type and cell.value.startswith("="):
+                        s = cell._xf
+                        f = cell.value[1:]
+                        wxml += F'<c r="{r}" s="{s}">'
+                        wxml += F'<f>{f}</f>'
+                        wxml += F'</c>'
+                    else:
+                        s = cell._xf
+                        t = "inlineStr"
+                        wxml += F'<c r="{r}" s="{s}" t="{t}">'
+                        wxml += F'<is><t>{cell.value}</t></is>'
+                        wxml += F'</c>'
                 else:
                     value: Union[int, float]
                     t = "n"
