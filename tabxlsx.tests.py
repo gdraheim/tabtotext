@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3321"
+__version__ = "1.6.3352"
 
-from tabxlsx import print_tabtotext, CellValue, StrToTime
+from tabxlsx import print_tabtotext, CellValue, StrToTime, StrToDate
 from tabxlsx import tabtoXLSX, tabtextfileXLSX, tabtextfile
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable, cast
 import unittest
@@ -275,6 +275,25 @@ class TabXlsxTest(unittest.TestCase):
         have = time("2022-12-23.14:45:55.880 -0100")
         self.assertEqual(have, want)
         have = time("2022-12-23.14:45:55.880000 -01:00")
+        self.assertEqual(have, want)
+    def test_1110(self) -> None:
+        time = StrToDate()
+        want = Date(2022, 12, 23)
+        have = time("2022-12-23")
+        self.assertEqual(have, want)
+        have = time("2022-12-23.")
+        self.assertEqual(have, want)
+        have = time("2022-12-23T23:45")
+        self.assertEqual(have, want)
+        have = time("2022-12-23++++")
+        self.assertEqual(have, want)
+    def test_1111(self) -> None:
+        time = StrToDate()
+        want = "2022-12-234"
+        have = time(want)
+        self.assertEqual(have, want)
+        want = "2022-12-2"
+        have = time(want)
         self.assertEqual(have, want)
     #
     def test_4103(self) -> None:
