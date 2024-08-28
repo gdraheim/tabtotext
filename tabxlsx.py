@@ -386,60 +386,81 @@ def load_workbook(filename: str) -> Workbook:
                         if numFmtId in formatcodes:
                             numberformat[str(style)] = formatcodes[numFmtId]
                         style += 1
-        with zipfile.open("xl/worksheets/sheet1.xml") as xmlfile:
+        sheetnames: Dict[str, str] = {}
+        with zipfile.open("xl/workbook.xml") as xmlfile:
             xml = ET.parse(xmlfile)
             for item in xml.getroot():
-                if ("}" + item.tag).endswith("}sheetData"):
-                    for rowdata in item:
-                        row = int(rowdata.get("row", "0"))
-                        for cell in rowdata:
-                            value: CellValue = None
-                            t = cell.get("t", "n")
-                            s = cell.get("s", "0")
-                            r = cell.get("r")
-                            v = ""
-                            x = ""
-                            for data in cell:
-                                if ("}" + data.tag).endswith("}v"):
-                                    v = data.text or ""
-                                elif ("}" + data.tag).endswith("}is"):
-                                    for block in data:
-                                        x += block.text or ""
-                                elif ("}" + data.tag).endswith("}f"):
-                                    x = "=" + (data.text or "")
-                                    t = "f"
-                            logg.debug("r = %s | s = %s | t =%s | v = %s| x = %s", r, s, t, v, x)
-                            if t in ["b"]:
-                                value = True if v == "1" else False
-                            elif t in ["f", "inlineStr", ]:
-                                value = x
-                            elif t in ["s"]:
-                                value = sharedStrings[int(v)]
-                            # elif v in [""]:
-                            #     value = ""
-                            elif "." not in v:
-                                value = int(v)
-                            else:
-                                value1 = float(v)
-                                value = value1
-                                if s in numberformat:
-                                    numfmt = numberformat[s]
-                                    logg.debug("value %s numberformat %s", value, numfmt)
-                                    if numfmt in _timeformats:
-                                        value0 = int(value1)
-                                        value2 = Time.fromordinal(value0 + 693594)
-                                        value3 = int(((value1 - value0) * 86400) + 0.4)
-                                        value = value2 + Plus(seconds=value3)
-                                        t = "d"
-                                    elif numfmt in _dateformats:
-                                        value0 = int(value1)
-                                        value2 = Time.fromordinal(value0 + 693594)
-                                        value = value2.date()
-                                        t = "d"
+                if ("}" + item.tag).endswith("}sheets"):
+                    for sheet in item:
+                        sheetname = sheet.get("name", "")
+                        sheetId = sheet.get("sheetId", "")
+                        if sheetId and sheetname:
+                            sheetnames[sheetId] = sheetname
+        namelist = zipfile.namelist()
+        for sheetnumber in range(1, 99):
+            sheetId = str(sheetnumber)
+            sheetfilename = F"xl/worksheets/sheet{sheetId}.xml"
+            if sheetnumber > 1:
+                if sheetfilename not in namelist:
+                    break
+                ws = Worksheet()
+                workbook.sheets.append(ws)
+            if sheetId in sheetnames:
+                ws.title = sheetnames[sheetId]
+            with zipfile.open(sheetfilename) as xmlfile:
+                xml = ET.parse(xmlfile)
+                for item in xml.getroot():
+                    if ("}" + item.tag).endswith("}sheetData"):
+                        for rowdata in item:
+                            row = int(rowdata.get("row", "0"))
+                            for cell in rowdata:
+                                value: CellValue = None
+                                t = cell.get("t", "n")
+                                s = cell.get("s", "0")
+                                r = cell.get("r")
+                                v = ""
+                                x = ""
+                                for data in cell:
+                                    if ("}" + data.tag).endswith("}v"):
+                                        v = data.text or ""
+                                    elif ("}" + data.tag).endswith("}is"):
+                                        for block in data:
+                                            x += block.text or ""
+                                    elif ("}" + data.tag).endswith("}f"):
+                                        x = "=" + (data.text or "")
+                                        t = "f"
+                                logg.debug("r = %s | s = %s | t =%s | v = %s| x = %s", r, s, t, v, x)
+                                if t in ["b"]:
+                                    value = True if v == "1" else False
+                                elif t in ["f", "inlineStr", ]:
+                                    value = x
+                                elif t in ["s"]:
+                                    value = sharedStrings[int(v)]
+                                # elif v in [""]:
+                                #     value = ""
+                                elif "." not in v:
+                                    value = int(v)
+                                else:
+                                    value1 = float(v)
+                                    value = value1
+                                    if s in numberformat:
+                                        numfmt = numberformat[s]
+                                        logg.debug("value %s numberformat %s", value, numfmt)
+                                        if numfmt in _timeformats:
+                                            value0 = int(value1)
+                                            value2 = Time.fromordinal(value0 + 693594)
+                                            value3 = int(((value1 - value0) * 86400) + 0.4)
+                                            value = value2 + Plus(seconds=value3)
+                                            t = "d"
+                                        elif numfmt in _dateformats:
+                                            value0 = int(value1)
+                                            value2 = Time.fromordinal(value0 + 693594)
+                                            value = value2.date()
+                                            t = "d"
 
-                            if r:
-                                ws[r].value = value
-                                ws[r].data_type = t
+                                if r:
+                                    ws[r].value = value
+                                    ws[r].data_type = t
     return workbook
 
 # .....................................................................
