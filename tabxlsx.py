@@ -31,6 +31,7 @@ import re
 from logging import getLogger
 logg = getLogger("TABXLSX")
 
+SECTION = "data"
 DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%Y-%m-%d.%H%M"
 FLOATFMT = "%4.2f"
@@ -410,7 +411,7 @@ def load_workbook(filename: str) -> Workbook:
                             logg.debug("r = %s | s = %s | t =%s | v = %s| x = %s", r, s, t, v, x)
                             if t in ["b"]:
                                 value = True if v == "1" else False
-                            elif t in ["f", "inlineStr",]:
+                            elif t in ["f", "inlineStr", ]:
                                 value = x
                             elif t in ["s"]:
                                 value = sharedStrings[int(v)]
@@ -446,15 +447,15 @@ class TabText(NamedTuple):
     data: List[Dict[str, CellValue]]
     headers: List[str]
 
-def readFromXLSX(filename: str) -> List[Dict[str, CellValue]]:
-    return tabtextfileXLSX(filename).data
-def tabtextfileXLSX(filename: str) -> TabText:
+def readFromXLSX(filename: str, section: str = NIX) -> List[Dict[str, CellValue]]:
+    return tabtextfileXLSX(filename, section=section).data
+def tabtextfileXLSX(filename: str, section: str = NIX) -> TabText:
     workbook = load_workbook(filename)
-    return tabtext_workbook(workbook)
-def data_workbook(workbook: Workbook) -> List[Dict[str, CellValue]]:
-    data, _ = tabtext_workbook(workbook)
+    return tabtext_workbook(workbook, section=section)
+def data_workbook(workbook: Workbook, section: str = NIX) -> List[Dict[str, CellValue]]:
+    data, _ = tabtext_workbook(workbook, section=section)
     return data
-def tabtext_workbook(workbook: Workbook) -> TabText:
+def tabtext_workbook(workbook: Workbook, section: str = NIX) -> TabText:
     ws = workbook.active
     cols: List[str] = []
     for col in range(MAXCOL):
@@ -496,11 +497,11 @@ def currency() -> str:
     currency_euro = 0x20AC
     return chr(currency_euro)
 
-def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0) -> str:
-    workbook = make_tabtoXLSX(data, headers, selected, minwidth)
+def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> str:
+    workbook = make_tabtoXLSX(data, headers, selected, minwidth, section)
     save_workbook(filename, workbook)
     return "TABXLSX"
-def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0) -> Workbook:
+def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> Workbook:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
@@ -663,16 +664,16 @@ def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
         rows.append(row)
     sortedrows = list(sorted(rows, key=sortrow))
     sortedcols = list(sorted(cols.keys(), key=sortkey))
-    return make_workbook(sortedrows, sortedcols, cols, formats)
+    return make_workbook(sortedrows, sortedcols, cols, formats, section=section)
 
 
 def make_workbook(rows: List[Dict[str, CellValue]],
                   cols: List[str], colwidth: Dict[str, int],
-                  formats: Dict[str, str]) -> Workbook:
+                  formats: Dict[str, str], section: str = NIX) -> Workbook:
     row = 0
     workbook = Workbook()
     ws = workbook.active
-    ws.title = "data"
+    ws.title = section or SECTION
     col = 0
     for name in cols:
         ws.cell(row=1, column=col + 1).value = name
@@ -784,7 +785,7 @@ class StrToTime(StrToDate):
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selected: List[str] = [],
-                    *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0,
+                    *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, section: str = NIX,
                     noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     """ This code is supposed to be copy-n-paste into other files. You can safely try-import from 
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
@@ -806,7 +807,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     elif "." in output:
         fmt = extension(output) or defaultformat
         if fmt in ["xls", "xlsx"]:
-            tabtoXLSX(output, data, headers, selected)
+            tabtoXLSX(output, data, headers, selected, section=section)
             return "XLSX"
         out = open(output, "wt", encoding="utf-8")
         done = output
@@ -1075,7 +1076,12 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
                     else:
                         line += ['"%s":%s%s' % (name, pad, json.dumps(value))]
             lines.append(" {" + comma.join(line) + "}")
-        out.write("[\n" + ",\n".join(lines) + "\n]")
+        newlist = "[\n"
+        endlist = "\n]"
+        if section:
+            newlist = '{"%s":%s[\n' % (section.replace('"', "'"), pad)
+            endlist = "\n]}"
+        out.write(newlist + ",\n".join(lines) + endlist)
         return "JSON"
     # CSV
     if fmt in ["CSV"]:
@@ -1101,6 +1107,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     colw = tuple((cols[col] for col in colo))  # widths of cols ordered
     colr = tuple((rightalign(col) for col in colo))  # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
+    if section:
+        print(F"## {section}\n", file=out)
     if not noheaders:
         hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(col)) for m, col in enumerate(colo))]
         line = [tab2 + (hpad[m] + col if colr[m] else col + hpad[m]) for m, col in enumerate(colo)]
@@ -1124,7 +1132,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         oldvalues = values
     return "GFM"
 
-def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
+def tabtextfile(input: Union[TextIO, str], section: str = NIX, defaultformat: str = "") -> TabText:
     def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
         if ext: return ext[1:]
@@ -1164,8 +1172,9 @@ def tabtextfile(input: Union[TextIO, str], defaultformat: str = "") -> TabText:
         import json
         time = StrToTime()
         jsondata = json.load(inp)
-        if isinstance(jsondata, Mapping) and "data" in jsondata:
-            jsonlist = cast(List[Dict[str, CellValue]], jsondata["data"])
+        oursection = section or SECTION
+        if isinstance(jsondata, Mapping) and oursection in jsondata:
+            jsonlist = cast(List[Dict[str, CellValue]], jsondata[oursection])
         else:
             jsonlist = cast(List[Dict[str, CellValue]], jsondata)
         if isinstance(jsonlist, Iterable):

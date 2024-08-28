@@ -31,6 +31,7 @@ import datetime
 from datetime import date as Date
 from datetime import datetime as Time
 
+SECTION = "data"
 MINWIDTH = 4
 MAXCOL = 1000
 MAXROWS = 100000
@@ -60,15 +61,15 @@ def set_width(ws: Worksheet, col: int, width: int) -> None:  # type: ignore
 
 
 def saveToXLSXx(filename: str, result: Union[JSONList, JSONDict], sorts: RowSortList = [],  #
-                formats: Dict[str, str] = {}, legend: LegendList = [],  #
+                formats: Dict[str, str] = {}, legend: LegendList = [], section: str = NIX,  #
                 reorder: ColSortList = []) -> None:
     if isinstance(result, Dict):
         result = [result]
-    saveToXLSX(filename, result, sorts, formats, legend=legend, reorder=reorder)
+    saveToXLSX(filename, result, sorts, formats, legend=legend, section=section, reorder=reorder)
 
 def saveToXLSX(filename: str, result: JSONList,
                sorts: RowSortList = [], formats: Dict[str, str] = {}, selected: List[str] = [],
-               legend: LegendList = [], reorder: ColSortList = []) -> None:
+               legend: LegendList = [], section: str = NIX, reorder: ColSortList = []) -> None:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
     sorting: RowSortList = []
@@ -96,15 +97,15 @@ def saveToXLSX(filename: str, result: JSONList,
     else:
         sorting = sorts
         formatter = formats
-    save_tabtoXLSX(filename, result, headers, selected, legend=legend,  # ....
+    save_tabtoXLSX(filename, result, headers, selected, legend=legend, section=section,  # ....
                    reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
-              *, legend: List[str] = [], minwidth: int = 0) -> str:
-    return save_tabtoXLSX(filename, data, headers, selected, legend=legend)
+              *, legend: List[str] = [], minwidth: int = 0, section: str = NIX) -> str:
+    return save_tabtoXLSX(filename, data, headers, selected, legend=legend, section=section)
 
 def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
-                   *, legend: LegendList = [], minwidth: int = 0,
+                   *, legend: LegendList = [], minwidth: int = 0, section: str = NIX,
                    reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
@@ -309,16 +310,16 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
     sortedrows = list(sorted(rows, key=sortrow))
     sortedcols = list(sorted(cols.keys(), key=sortkey))
     workbook: Workbook  # type: ignore[no-any-unimported]
-    workbook = make_workbook(sortedrows, sortedcols, cols, formats, legend)
+    workbook = make_workbook(sortedrows, sortedcols, cols, formats, legend=legend, section=section)
     workbook.save(filename)
     return "XLSX"
 
 def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
-                  formats: Dict[str, str], legend: LegendList) -> Any:  # Workbook
+                  formats: Dict[str, str], legend: LegendList, section: str = NIX) -> Any:  # Workbook
     row = 0
     workbook = Workbook()
     ws = workbook.active
-    ws.title = "data"
+    ws.title = section or SECTION
     style = Style()
     hdr_style = Style()
     hdr_style.number_format = 'General'
@@ -392,23 +393,23 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
                 set_cell(ws, row, 1, line, txt_style)
     if legend and True:
         if isinstance(legend, str):
-            text = '="%s"' % legend.replace('"',"'")
-            set_cell(ws, row+0, 1, text, txt_style)
+            text = '="%s"' % legend.replace('"', "'")
+            set_cell(ws, row + 0, 1, text, txt_style)
         elif isinstance(legend, dict):
             for num, name in enumerate(legend):
-                text = '="%s"' % legend[name].replace('"',"'")
-                set_cell(ws, row+num, 0, name, txt_style)
-                set_cell(ws, row+num, 1, text, txt_style)
+                text = '="%s"' % legend[name].replace('"', "'")
+                set_cell(ws, row + num, 0, name, txt_style)
+                set_cell(ws, row + num, 1, text, txt_style)
         else:
             for num, line in enumerate(legend):
-                text = '="%s"' % line.replace('"',"'")
-                set_cell(ws, row+num, 0, text, txt_style)
+                text = '="%s"' % line.replace('"', "'")
+                set_cell(ws, row + num, 0, text, txt_style)
     return workbook
 
-def readFromXLSX(filename: str) -> JSONList:
-    tabtext = tabtextfileXLSX(filename)
+def readFromXLSX(filename: str, section: str = NIX) -> JSONList:
+    tabtext = tabtextfileXLSX(filename, section=section)
     return tabtext.data
-def tabtextfileXLSX(filename: str) -> TabText:
+def tabtextfileXLSX(filename: str, section: str = NIX) -> TabText:
     workbook = load_workbook(filename)
     ws = workbook.active
     cols = []

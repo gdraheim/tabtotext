@@ -46,7 +46,7 @@ except ImportError as e:  # pragma: no cover
     def fracfloat(value: str) -> float:
         return float(value)
 
-
+SECTION = "data"
 DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%Y-%m-%d.%H%M"
 FLOATFMT = "%4.2f"
@@ -494,8 +494,8 @@ class FormatGFM(NumFormatJSONItem):
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: Sequence[str] = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|",  #
-              ) -> str:
+              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|", padding: str = " ",
+              section: str = NIX) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -504,11 +504,11 @@ def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)
-    return tabToGFM(results, sorts, formats, selected, noheaders=noheaders, legend=legend, tab=tab)
+    return tabToGFM(results, sorts, formats, selected, noheaders=noheaders, legend=legend, tab=tab, padding=padding, section=section)
 def tabToGFM(result: Iterable[JSONDict],  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
              *, noheaders: bool = False, legend: LegendList = [], tab: str = "|", padding: str = " ",
-             reorder: ColSortList = []) -> str:
+             section: str = NIX, reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
     sorting: RowSortList = []
@@ -538,11 +538,11 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
         formatter = formats
     return tabtoGFM(result, headers, selected, legend=legend,  # ..
                     noheaders=noheaders, tab=tab, padding=padding,  # ..
-                    reorder=reorder, sorts=sorting, formatter=formatter)
+                    section=section, reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
              *, legend: LegendList = [], minwidth: int = 0, noheaders: bool = False, unique: bool = False,
-             tab: str = "|", padding: str = " ",
+             tab: str = "|", padding: str = " ", section: str = NIX,
              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoGFM:")
     minwidth = minwidth or MINWIDTH
@@ -743,6 +743,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
     tab2 = tab[0] + padding if tab else ""
     rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
+    if section:
+        lines += [F"## {section}\n"]
     if not noheaders:
         hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(col)) for m, col in enumerate(colo))]
         line = [tab2 + (hpad[m] + col if colr[m] else col + hpad[m]) for m, col in enumerate(colo)]
@@ -753,7 +755,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
         if tab and padding:
             seps = ["-" * colw[m] for m, col in enumerate(colo)]
             seperators = [tab2 + (seps[m][:-1] + ":" if colr[m] else seps[m]) for m, col in enumerate(colo)]
-            lines.append(padding.join(seperators) + rtab)
+            lines += [padding.join(seperators) + rtab]
     old: Dict[str, str] = {}
     same: List[str] = []
     for item in sorted(rows, key=sortrow):
@@ -790,21 +792,22 @@ def listToGFM(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n" + "".join(["- %s\n" % line.strip() for line in lines if line and line.strip()])
 
-def loadGFM(text: str, datedelim: str = '-', tab: str = '|') -> JSONList:
-    parser = DictParserGFM(datedelim=datedelim, tab=tab)
+def loadGFM(text: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> JSONList:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     return list(parser.loads(text))
-def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|') -> JSONList:
-    parser = DictParserGFM(datedelim=datedelim, tab=tab)
+def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> JSONList:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     return list(parser.load(filename))
-def tabtextfileGFM(filename: str, datedelim: str = '-', tab: str = '|') -> TabText:
-    parser = DictParserGFM(datedelim=datedelim, tab=tab)
+def tabtextfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> TabText:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     data = list(parser.load(filename))
     return TabText(data, parser.headers)
 
 class DictParserGFM(DictParser):
-    def __init__(self, *, datedelim: str = '-', tab: str = '|') -> None:
+    def __init__(self, section: str = NIX, *, datedelim: str = '-', tab: str = '|') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.tab = tab
+        self.section = section
         self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(open(filename))
@@ -868,7 +871,7 @@ class FormatHTML(NumFormatJSONItem):
 
 def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
                sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-               *, legend: LegendList = [], combine: Dict[str, str] = {}) -> str:
+               *, legend: LegendList = [], section: str = NIX, combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -877,11 +880,11 @@ def tabToHTMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToHTML(results, sorts, formats, selected, legend=legend, combine=combine)
+    return tabToHTML(results, sorts, formats, selected, legend=legend, section=section, combine=combine)
 def tabToHTML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
               *, legend: LegendList = [], tab: str = "|", padding: str = " ", xmlns: str = "",
-              combine: Dict[str, str] = {},  # [target]->[attach]
+              section: str = NIX, combine: Dict[str, str] = {},  # [target]->[attach]
               reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -921,12 +924,12 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
         sorting = sorts
         formatter = formats
     return tabtoHTML(result, headers, selected,  # ..
-                     legend=legend, tab=tab, padding=padding, xmlns=xmlns,  # ..
+                     legend=legend, tab=tab, padding=padding, xmlns=xmlns, section=section,  # ..
                      reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
               *, legend: LegendList = [], tab: str = "|", padding: str = " ", minwidth: int = 0,
-              noheaders: bool = False, xmlns: str = "",
+              noheaders: bool = False, xmlns: str = "", section: str = NIX,
               reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     logg.debug("tabtoHTML")
     minwidth = minwidth or MINWIDTH
@@ -1168,6 +1171,8 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             xmlns = "http://www.w3.org/" + xmlns
         table = '<html xmlns="%s">\n' % xmlns + table
         end = '</html>'
+    if section:
+        table += "<caption>%s</caption>" % escape(section)
     return table + "\n" + "\n".join(lines) + "\n</table>\n" + legendToHTML(legend, sorts, reorder) + end
 
 def legendToHTML(legend: LegendList, sorts: RowSortList = [], reorder: ColSortList = []) -> str:
@@ -1187,21 +1192,22 @@ def listToHTML(lines: Sequence[str]) -> str:
     if not lines: return ""
     return "\n<ul>\n" + "".join(["<li>%s</li>\n" % escape(line.strip()) for line in lines if line and line.strip()]) + "</ul>"
 
-def loadHTML(text: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserHTML(datedelim)
+def loadHTML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserHTML(datedelim, section=section)
     return list(parser.loads(text))
-def readFromHTML(filename: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserHTML(datedelim)
+def readFromHTML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserHTML(datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileHTML(filename: str, datedelim: str = '-') -> TabText:
-    parser = DictParserHTML(datedelim)
+def tabtextfileHTML(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
+    parser = DictParserHTML(datedelim, section=section)
     data = list(parser.load(filename))
     return TabText(data, parser.headers)
 
 class DictParserHTML(DictParser):
-    def __init__(self, datedelim: str = '-', convert_charrefs: bool = True) -> None:
+    def __init__(self, datedelim: str = '-', section: str = NIX, convert_charrefs: bool = True) -> None:
         self.convert = ParseJSONItem(datedelim)
         self.convert_charrefs = convert_charrefs
+        self.section = section  # actually ignored
         self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(open(filename))
@@ -1286,7 +1292,7 @@ class FormatJSON(BaseFormatJSONItem):
 
 def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
                sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-               *, datedelim: str = '-', legend: LegendList = []) -> str:
+               *, datedelim: str = '-', legend: LegendList = [], section: str = NIX) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1295,11 +1301,11 @@ def tabToJSONx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToJSON(results, sorts, formats, selected, datedelim=datedelim, legend=legend)
+    return tabToJSON(results, sorts, formats, selected, datedelim=datedelim, legend=legend, section=section)
 def tabToJSON(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
               *, datedelim: str = '-', padding: str = " ", legend: LegendList = [],  #
-              reorder: ColSortList = []) -> str:
+              section: str = NIX, reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
     sorting: RowSortList = []
@@ -1329,11 +1335,11 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
         formatter = formats
     return tabtoJSON(result, headers, selected,  # ..
                      legend=legend, datedelim=datedelim, padding=padding,  # ..
-                     reorder=reorder, sorts=sorting, formatter=formatter)
+                     section=section, reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
               *, legend: LegendList = [], padding: str = " ", minwidth: int = 0, datedelim: str = '-',
-              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+              section: str = NIX, reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoJSON:")
     renameheaders: Dict[str, str] = {}
@@ -1519,20 +1525,26 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             values[name] = format(name, value)
         line = ['"%s":%s%s' % (name, pad, values[name]) for name in colo if name in values]
         lines.append(" {" + comma.join(line) + "}")
-    return "[\n" + ",\n".join(lines) + "\n]"
+    newlist = "[\n"
+    endlist = "\n]"
+    if section:
+        newlist = '{"%s":%s[\n' % (section.replace('"', "'"), pad)
+        endlist = "\n]}"
+    return newlist + ",\n".join(lines) + endlist
 
-def loadJSON(text: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserJSON(datedelim)
+def loadJSON(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserJSON(datedelim=datedelim, section=section)
     return list(parser.loads(text))
-def readFromJSON(filename: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserJSON(datedelim)
+def readFromJSON(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserJSON(datedelim=datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileJSON(filename: str, datedelim: str = '-') -> TabText:
-    return TabText(readFromJSON(filename, datedelim), [])
+def tabtextfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
+    return TabText(readFromJSON(filename, datedelim=datedelim, section=section), [])
 
 class DictParserJSON(DictParser):
-    def __init__(self, datedelim: str = '-') -> None:
+    def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
         self.convert = ParseJSONItem(datedelim)
+        self.section = section
     def read(self, rows: Iterable[str], newline: str = '\n') -> Iterator[JSONDict]:
         return self.loads(newline.join(rows))
     def loads(self, text: str) -> Iterator[JSONDict]:
@@ -1565,7 +1577,7 @@ class FormatYAML(FormatJSON):
 
 def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
                sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-               *, datedelim: str = '-', padding: str = " ", legend: LegendList = []) -> str:
+               *, datedelim: str = '-', padding: str = " ", legend: LegendList = [], section: str = NIX) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1574,10 +1586,10 @@ def tabToYAMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToYAML(results, sorts, formats, datedelim=datedelim, padding=padding, legend=legend)
+    return tabToYAML(results, sorts, formats, datedelim=datedelim, padding=padding, legend=legend, section=section)
 def tabToYAML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-              *, datedelim: str = '-', padding: str = " ", legend: LegendList = [],  #
+              *, datedelim: str = '-', padding: str = " ", legend: LegendList = [], section: str = NIX,
               reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
@@ -1608,11 +1620,11 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
         formatter = formats
     return tabtoYAML(result, headers, selected,  # ..
                      legend=legend, datedelim=datedelim, padding=padding,  # ..
-                     reorder=reorder, sorts=sorting, formatter=formatter)
+                     section=section, reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
               *, legend: LegendList = [], padding: str = " ", minwidth: int = 0, datedelim: str = '-',  #
-              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+              section: str = NIX, reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoYAML:")
     renameheaders: Dict[str, str] = {}
@@ -1800,39 +1812,42 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             values[name] = format(name, value)
         line = ['%s:%s%s' % (as_name(name), pad, values[name]) for name in colo if name in values]
         lines.append("- " + "\n  ".join(line))
-    return "data:\n" + "\n".join(lines) + "\n"
+    section = section or SECTION
+    return F"{section}:\n" + "\n".join(lines) + "\n"
 
-def loadYAML(text: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserYAML(datedelim=datedelim)
+def loadYAML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserYAML(datedelim=datedelim, section=section)
     return list(parser.loads(text))
-def readFromYAML(filename: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserYAML(datedelim=datedelim)
+def readFromYAML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserYAML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileYAML(filename: str, datedelim: str = '-') -> TabText:
+def tabtextfileYAML(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
     return TabText(readFromYAML(filename, datedelim), [])
 
-def DictReaderYAML(rows: Iterable[str], *, datedelim: str = '-') -> Iterator[JSONDict]:
-    parser = DictParserYAML(datedelim=datedelim)
+def DictReaderYAML(rows: Iterable[str], *, datedelim: str = '-', section: str = NIX) -> Iterator[JSONDict]:
+    parser = DictParserYAML(datedelim=datedelim, section=section)
     return parser.read(rows)
 
 class DictParserYAML(DictParser):
-    def __init__(self, *, datedelim: str = '-') -> None:
+    def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.convert.None_String = "null"
         self.convert.True_String = "true"
         self.convert.False_String = "false"
+        self.section = section
     def load(self, filename: str) -> Iterator[JSONDict]:
         return self.read(open(filename))
     def loads(self, text: str) -> Iterator[JSONDict]:
         return self.read(text.splitlines())
-    def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
+    def read(self, rows: Iterable[str], section: str = NIX) -> Iterator[JSONDict]:
+        section = self.section or SECTION
         at = "start"
         record: JSONDict = {}
         for row in rows:
             line = row.strip()
             if not line or line.startswith("#"):
                 continue
-            if line.startswith("data:"):
+            if line.startswith(F"{section}:"):
                 if at == "start":
                     at = "data"
                 continue
@@ -1877,7 +1892,7 @@ class FormatTOML(FormatJSON):
 
 def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
                sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-               *, datedelim: str = '-', legend: LegendList = []) -> str:
+               *, datedelim: str = '-', legend: LegendList = [], section: str = NIX) -> str:
     if isinstance(result, Dict):
         results = [result]
     elif _is_dataitem(result):
@@ -1886,11 +1901,11 @@ def tabToTOMLx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
         results = list(_dataitem_asdict(cast(DataItem, item)) for item in cast(List[Any], result))
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
-    return tabToTOML(results, sorts, formats, selected, datedelim=datedelim, legend=legend)
+    return tabToTOML(results, sorts, formats, selected, datedelim=datedelim, legend=legend, section=section)
 def tabToTOML(result: Iterable[JSONDict],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
               *, datedelim: str = '-', padding: str = " ", legend: LegendList = [],  #
-              reorder: ColSortList = []) -> str:
+              section: str = NIX, reorder: ColSortList = []) -> str:
     """ old-style RowSortList and FormatsDict assembled into headers with microsyntax """
     headers: List[str] = []
     sorting: RowSortList = []
@@ -1919,11 +1934,11 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
         formatter = formats
     return tabtoTOML(result, headers, selected,  # ..
                      legend=legend, padding=padding, datedelim=datedelim,  # ..
-                     reorder=reorder, sorts=sorting, formatter=formatter)
+                     section=section, reorder=reorder, sorts=sorting, formatter=formatter)
 
 def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
               *, legend: LegendList = [], padding: str = " ", minwidth: int = 0, datedelim: str = '-',
-              reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+              section: str = NIX, reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoGFM:")
     renameheaders: Dict[str, str] = {}
@@ -2116,33 +2131,35 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
         lines.append("[[data]]\n" + "\n".join(line))
     return "\n".join(lines) + "\n"
 
-def loadTOML(text: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserTOML(datedelim=datedelim)
+def loadTOML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserTOML(datedelim=datedelim, section=section)
     return list(parser.loads(text))
-def readFromTOML(filename: str, datedelim: str = '-') -> JSONList:
-    parser = DictParserTOML(datedelim=datedelim)
+def readFromTOML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
+    parser = DictParserTOML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileTOML(filename: str, datedelim: str = '-') -> TabText:
-    return TabText(readFromTOML(filename, datedelim), [])
+def tabtextfileTOML(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
+    return TabText(readFromTOML(filename, datedelim, section=section), [])
 
 class DictParserTOML(DictParser):
-    def __init__(self, *, datedelim: str = '-') -> None:
+    def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.convert.None_String = "null"
         self.convert.True_String = "true"
         self.convert.False_String = "false"
+        self.section = section
     def load(self, filename: str) -> Iterator[JSONDict]:
         return self.read(open(filename))
     def loads(self, text: str) -> Iterator[JSONDict]:
         return self.read(text.splitlines())
     def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
+        section = self.section or SECTION
         at = "start"
         record: JSONDict = {}
         for row in rows:
             line = row.strip()
             if not line or line.startswith("#"):
                 continue
-            if line.startswith("[[data]]"):
+            if line.startswith(F"[[{section}]]"):
                 if at == "start":
                     at = "data"
                 if record:
@@ -2509,7 +2526,8 @@ class DictParserCSV(DictParser):
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     headers: List[str] = [], selected: List[str] = [], legend: List[str] = [],  # ..
-                    *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None, xmlns: Optional[str] = None, minwidth: int = 0,
+                    *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
+                    xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX,
                     noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
@@ -2538,7 +2556,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         out = sys.stdout
         done = output
     lines = tabtotext(data, headers, selected, legend=legend, fmt=fmt,
-                      datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
+                      datedelim=datedelim, tab=tab, padding=padding,
+                      xmlns=xmlns, minwidth=minwidth, section=section,
                       noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     results: List[str] = []
     for line in lines:
@@ -2550,7 +2569,8 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
 
 def tabtotext(data: Iterable[JSONDict],  # ..
               headers: List[str] = [], selected: List[str] = [], legend: List[str] = [],  # ..
-              *, fmt: str = "", datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None, xmlns: Optional[str] = None, minwidth: int = 0,
+              *, fmt: str = "", datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
+              xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX,
               noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selected if x.startswith("@"))
@@ -2674,22 +2694,23 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     assert isinstance(tab, str)  # mypy 0.9
     # render
     if fmt == "HTML":
-        return tabtoHTML(data, headers, selected, legend=legend, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth)
+        return tabtoHTML(data, headers, selected, legend=legend, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth, section=section)
     if fmt == "JSON":
-        return tabtoJSON(data, headers, selected, datedelim=datedelim, padding=padding, minwidth=minwidth)
+        return tabtoJSON(data, headers, selected, datedelim=datedelim, padding=padding, minwidth=minwidth, section=section)
     if fmt == "YAML":
-        return tabtoYAML(data, headers, selected, datedelim=datedelim, padding=padding, minwidth=minwidth)
+        return tabtoYAML(data, headers, selected, datedelim=datedelim, padding=padding, minwidth=minwidth, section=section)
     if fmt == "TOML":
-        return tabtoTOML(data, headers, selected, datedelim=datedelim, padding=padding, minwidth=minwidth)
+        return tabtoTOML(data, headers, selected, datedelim=datedelim, padding=padding, minwidth=minwidth, section=section)
     if fmt == "CSV":
         return tabtoCSV(data, headers, selected, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
     if fmt == "XLS":
         return tabtoCSV(data, headers, selected, datedelim=datedelim, tab=tab, noheaders=noheaders, unique=unique, minwidth=minwidth)
-    return tabtoGFM(data, headers, selected, legend=legend, tab=tab, padding=padding, noheaders=noheaders, unique=unique, minwidth=minwidth)
+    return tabtoGFM(data, headers, selected, legend=legend, tab=tab, padding=padding, noheaders=noheaders, unique=unique, minwidth=minwidth, section=section)
 
 def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-              *, legend: LegendList = [], datedelim: str = '-', tab: str = "|", padding: str = " ", xmlns: str = "",
+              *, legend: LegendList = [], datedelim: str = '-', tab: str = "|", padding: str = " ",
+              xmlns: str = "", section: str = NIX,
               noheaders: bool = False, combine: Dict[str, str] = {}) -> str:
     if isinstance(result, Dict):
         results = [result]
@@ -2700,11 +2721,13 @@ def tabToFMTx(output: str, result: Union[JSONList, JSONDict, DataList, DataItem]
     else:
         results = cast(JSONList, result)  # type: ignore[redundant-cast]
     return tabToFMT(output, results, sorts, formats, selected, legend=legend,
-                    datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns,
+                    datedelim=datedelim, tab=tab, padding=padding,
+                    xmlns=xmlns, section=section,
                     noheaders=noheaders, combine=combine)
 def tabToFMT(fmt: str, data: JSONList,  # ..
              sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
-             *, legend: LegendList = [], datedelim: str = '-', tab: str = "|", padding: str = " ", xmlns: str = "",
+             *, legend: LegendList = [], datedelim: str = '-', tab: str = "|", padding: str = " ",
+             xmlns: str = "", section: str = NIX,
              noheaders: bool = False, reorder: ColSortList = [], combine: Dict[str, str] = {}) -> str:
     # formats
     if fmt in ["html"]:
@@ -2783,18 +2806,18 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
         tab = ","  # nopep8
     # render
     if fmt == "HTML":
-        return tabToHTML(data, sorts, formats, selected, tab=tab, xmlns=xmlns, padding=padding, legend=legend)
+        return tabToHTML(data, sorts, formats, selected, tab=tab, xmlns=xmlns, padding=padding, legend=legend, section=section)
     if fmt == "JSON":
-        return tabToJSON(data, sorts, formats, selected, padding=padding, datedelim=datedelim)
+        return tabToJSON(data, sorts, formats, selected, padding=padding, datedelim=datedelim, section=section)
     if fmt == "YAML":
-        return tabToYAML(data, sorts, formats, selected, padding=padding, datedelim=datedelim)
+        return tabToYAML(data, sorts, formats, selected, padding=padding, datedelim=datedelim, section=section)
     if fmt == "TOML":
-        return tabToTOML(data, sorts, formats, selected, padding=padding, datedelim=datedelim)
+        return tabToTOML(data, sorts, formats, selected, padding=padding, datedelim=datedelim, section=section)
     if fmt == "CSV":
         return tabToCSV(data, sorts, formats, selected, datedelim=datedelim, tab=tab, noheaders=noheaders)
     if fmt == "XLS":
         return tabToCSV(data, sorts, formats, selected, datedelim=datedelim, tab=tab, noheaders=noheaders)
-    return tabToGFM(data, sorts, formats, selected, legend=legend, tab=tab, padding=padding, noheaders=noheaders)
+    return tabToGFM(data, sorts, formats, selected, legend=legend, tab=tab, padding=padding, noheaders=noheaders, section=section)
 
 def saveToFMT(filename: str, fmt: str, result: JSONList,  # ..
               sorts: RowSortList = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
@@ -2831,7 +2854,7 @@ def readFromFile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) ->
 def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
     tabtext = tabtextfileFMT(fmt, filename, defaultformat=defaultformat)
     return tabtext.data
-def tabtextfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, defaultfileformat: str = NIX) -> TabText:
+def tabtextfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, section: str = NIX, defaultfileformat: str = NIX) -> TabText:
     if not fmt:
         fmt = extension(filename) or defaultfileformat
         if not fmt:
@@ -2839,7 +2862,7 @@ def tabtextfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, def
             return TabText([], [])
     # assert fmt
     return tabtextfileFMT(fmt, filename, tab=tab, defaultformat=defaultfileformat)
-def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, defaultformat: str = NIX) -> TabText:
+def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, section: str = NIX, defaultformat: str = NIX) -> TabText:
     if not fmt:
         fmt = extension(filename) or NIX
         if not fmt:
@@ -2847,15 +2870,15 @@ def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, defaul
         if not fmt:
             return TabText([], [])
     if fmt.lower() in ["md", "markdown"]:
-        return tabtextfileGFM(filename, tab='|' if tab is None else tab)
+        return tabtextfileGFM(filename, tab='|' if tab is None else tab, section=section)
     if fmt.lower() in ["html", "htm", "xhtml"]:
-        return tabtextfileHTML(filename)
+        return tabtextfileHTML(filename, section=section)
     if fmt.lower() in ["json", "jsn"]:
-        return tabtextfileJSON(filename)
+        return tabtextfileJSON(filename, section=section)
     if fmt.lower() in ["yaml", "yml"]:
-        return tabtextfileYAML(filename)
+        return tabtextfileYAML(filename, section=section)
     if fmt.lower() in ["toml", "tml"]:
-        return tabtextfileTOML(filename)
+        return tabtextfileTOML(filename, section=section)
     if fmt.lower() in ["tab"]:
         return tabtextfileCSV(filename, tab='\t' if tab is None else tab)
     if fmt.lower() in ["csv", "scsv"]:
@@ -2864,14 +2887,14 @@ def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, defaul
         try:
             if TABXLSX:
                 import tabxlsx
-                return tabxlsx.tabtextfileXLSX(filename)  # type: ignore[return-value]
+                return tabxlsx.tabtextfileXLSX(filename, section=section)  # type: ignore[return-value]
             else:
                 import tabtoxlsx
-                return tabtoxlsx.tabtextfileXLSX(filename)
+                return tabtoxlsx.tabtextfileXLSX(filename, section=section)
         except Exception as e:
             if not TABXLSX:
                 import tabxlsx
-                return tabxlsx.tabtextfileXLSX(filename)  # type: ignore[return-value]
+                return tabxlsx.tabtextfileXLSX(filename, section=section)  # type: ignore[return-value]
             else:
                 logg.error("could not load xslx: %s", e)
     logg.debug(" tabtextfileFMT  - unrecognized input format %s: %s", fmt, filename)
