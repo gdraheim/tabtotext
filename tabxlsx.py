@@ -699,6 +699,8 @@ def make_workbook(rows: List[Dict[str, CellValue]],
     for name in cols:
         ws.cell(row=1, column=col + 1).value = name
         ws.cell(row=1, column=col + 1).alignment = Alignment(horizontal="right")
+        if name in colwidth:
+            ws.column_dimensions[get_column_letter(col + 1)].width = colwidth[name]
         col += 1
     for item in rows:
         row += 1
