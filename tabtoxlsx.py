@@ -412,6 +412,10 @@ def readFromXLSX(filename: str, section: str = NIX) -> JSONList:
 def tabtextfileXLSX(filename: str, section: str = NIX) -> TabText:
     workbook = load_workbook(filename)
     ws = workbook.active
+    if section:
+        for sheet in workbook.sheets:
+            if sheet.title == section:
+                ws = sheet
     cols = []
     for col in range(MAXCOL):
         header = ws.cell(row=1, column=col + 1)

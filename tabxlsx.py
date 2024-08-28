@@ -478,6 +478,10 @@ def data_workbook(workbook: Workbook, section: str = NIX) -> List[Dict[str, Cell
     return data
 def tabtext_workbook(workbook: Workbook, section: str = NIX) -> TabText:
     ws = workbook.active
+    if section:
+        for sheet in workbook.sheets:
+            if sheet.title == section:
+                ws = sheet
     cols: List[str] = []
     for col in range(MAXCOL):
         header = ws.cell(row=1, column=col + 1)
