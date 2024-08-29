@@ -466,29 +466,6 @@ def load_workbook(filename: str) -> Workbook:
     return workbook
 
 # .....................................................................
-class TabText(NamedTuple):
-    data: List[Dict[str, CellValue]]
-    headers: List[str]
-
-def readFromXLSX(filename: str, section: str = NIX) -> List[Dict[str, CellValue]]:
-    return tabtextfileXLSX(filename, section=section).data
-def tabtextfileXLSX(filename: str, section: str = NIX) -> TabText:
-    workbook = load_workbook(filename)
-    return tabtext_workbook(workbook, section=section)
-def data_workbook(workbook: Workbook, section: str = NIX) -> List[Dict[str, CellValue]]:
-    data, _ = tabtext_workbook(workbook, section=section)
-    return data
-def tabtext_workbook(workbook: Workbook, section: str = NIX) -> TabText:
-    tablist = tablist_workbook(workbook)
-    tabtext = TabText([], [])
-    if tablist:  # always true
-        tabtext = TabText(tablist[0].data, tablist[0].headers)
-        if section:
-            for tab in tablist:
-                if tab.title == section:
-                    tabtext = TabText(tab.data, tab.headers)
-    return tabtext
-
 class TabSheet(NamedTuple):
     data: List[Dict[str, CellValue]]
     headers: List[str]
@@ -1192,16 +1169,6 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         oldvalues = values
     return "GFM"
 
-def tabtextfile(input: Union[TextIO, str], section: str = NIX, defaultformat: str = "") -> TabText:
-    tablist = tablistfile(input, defaultformat=defaultformat)
-    tabtext = TabText([], [])
-    if tablist:
-        tabtext = TabText(tablist[0].data, tablist[0].headers)
-        if section:
-            for tab in tablist:
-                if tab.title == section:
-                    tabtext = TabText(tab.data, tab.headers)
-    return tabtext
 def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabSheet]:
     def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
