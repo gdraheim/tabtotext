@@ -105,6 +105,11 @@ class TabText(NamedTuple):
     data: JSONList
     headers: List[str]
 
+class TabSheet(NamedTuple):
+    data: List[JSONDict]
+    headers: List[str]
+    title: str
+
 # helper functions
 
 _None_String = "~"
@@ -2887,16 +2892,35 @@ def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, sectio
         try:
             if TABXLSX:
                 import tabxlsx
-                return tabxlsx.tabtextfileXLSX(filename, section=section)  # type: ignore[return-value]
+                found1 = tabxlsx.tablistfileXLSX(filename)  # type: ignore[return-value]
+                if section:
+                    for tabsheet1 in found1:
+                        if tabsheet1.title == section:
+                            return TabText(cast(JSONList, tabsheet1.data), tabsheet1.headers)
+                elif found1:
+                    return TabText(cast(JSONList, found1[0].data), found1[0].headers)
             else:
                 import tabtoxlsx
-                return tabtoxlsx.tabtextfileXLSX(filename, section=section)
+                found2 = tabtoxlsx.tablistfileXLSX(filename)
+                if section:
+                    for tabsheet2 in found1:
+                        if tabsheet2.title == section:
+                            return TabText(cast(JSONList, tabsheet2.data), tabsheet2.headers)
+                elif found2:
+                    return TabText(cast(JSONList, found2[0].data), found2[0].headers)
         except Exception as e:
             if not TABXLSX:
                 import tabxlsx
-                return tabxlsx.tabtextfileXLSX(filename, section=section)  # type: ignore[return-value]
+                found3 = tabxlsx.tablistfileXLSX(filename)  # type: ignore[return-value]
+                if section:
+                    for tabsheet3 in found1:
+                        if tabsheet3.title == section:
+                            return TabText(cast(JSONList, tabsheet3.data), tabsheet3.headers)
+                elif found2:
+                    return TabText(cast(JSONList, found3[0].data), found3[0].headers)
             else:
                 logg.error("could not load xslx: %s", e)
+        return TabText([], [])
     logg.debug(" tabtextfileFMT  - unrecognized input format %s: %s", fmt, filename)
     return TabText([], [])
 

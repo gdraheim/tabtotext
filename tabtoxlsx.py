@@ -11,7 +11,7 @@ __version__ = "1.6.3352"
 
 import logging
 from typing import Union, Dict, List, Any, Sequence, Iterable
-from tabtotext import JSONList, JSONDict, TabText, strNone
+from tabtotext import JSONList, JSONDict, TabSheet
 from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable, unmatched
 from tabtotext import FormatCSV, FormatJSONItem, FormatsDict
 from tabtools import currency_default
@@ -407,45 +407,51 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
     return workbook
 
 def readFromXLSX(filename: str, section: str = NIX) -> JSONList:
-    tabtext = tabtextfileXLSX(filename, section=section)
-    return tabtext.data
-def tabtextfileXLSX(filename: str, section: str = NIX) -> TabText:
-    workbook = load_workbook(filename)
-    ws = workbook.active
+    tablist = tablistfileXLSX(filename)
     if section:
-        for sheet in workbook.sheets:
-            if sheet.title == section:
-                ws = sheet
-    cols = []
-    for col in range(MAXCOL):
-        header = ws.cell(row=1, column=col + 1)
-        if header.value is None:
-            break
-        name = header.value
-        if name is None:
-            break
-        cols.append(name)
-    logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
-    data: JSONList = []
-    for atrow in range(MAXROWS):
-        record = []
-        found = 0
-        for atcol in range(len(cols)):
-            cell = ws.cell(row=atrow + 2, column=atcol + 1)
-            if cell.data_type in ["f"]:
-                continue
-            value = cell.value
-            # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
-            if value is not None:
-                found += 1
-            if isinstance(value, str) and value == _Empty_String:
-                value = ""
-            record.append(value)
-        if not found:
-            break
-        newrow = dict(zip(cols, record))
-        data.append(newrow)
-    return TabText(data, cols)
+        for tabsheet in tablist:
+            if tabsheet.title == section:
+                return tabsheet.data
+        return []
+    return tablist[0].data if tablist else []
+def tablistfileXLSX(filename: str) -> List[TabSheet]:
+    workbook = load_workbook(filename)
+    return tablist_workbook(workbook)
+def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]:  # type: ignore[no-any-unimported]
+    tab: List[TabSheet] = []
+    for ws in workbook.sheets:
+        title = ws.title
+        cols: List[str] = []
+        for col in range(MAXCOL):
+            header = ws.cell(row=1, column=col + 1)
+            if header.value is None:
+                break
+            name = header.value
+            if name is None:
+                break
+            cols.append(str(name))
+        logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
+        data: List[JSONDict] = []
+        for atrow in range(MAXROWS):
+            record = []
+            found = 0
+            for atcol in range(len(cols)):
+                cell = ws.cell(row=atrow + 2, column=atcol + 1)
+                if cell.data_type in ["f"]:
+                    continue
+                value = cell.value
+                # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
+                if value is not None:
+                    found += 1
+                if isinstance(value, str) and value == " ":
+                    value = ""
+                record.append(value)
+            if not found:
+                break
+            newrow = dict(zip(cols, record))
+            data.append(newrow)  # type: ignore[arg-type]
+        tab.append(TabSheet(data, cols, title))
+    return tab
 
 
 if __name__ == "__main__":
