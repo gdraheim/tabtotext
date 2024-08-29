@@ -10,7 +10,7 @@ __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 
 __version__ = "1.6.3352"
 
 import logging
-from typing import Union, Dict, List, Any, Sequence, Iterable
+from typing import TYPE_CHECKING, cast, Union, Dict, List, Any, Sequence, Iterable, Optional
 from tabtotext import JSONList, JSONDict, TabSheet
 from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable, unmatched
 from tabtotext import FormatCSV, FormatJSONItem, FormatsDict
@@ -25,6 +25,11 @@ try:
 except ImportError:
     from tabxlsx import Workbook, Worksheet, CellStyle as Style, Alignment, get_column_letter
     from tabxlsx import load_workbook  # type: ignore
+
+if TYPE_CHECKING:
+    from tabxlsx import Workbook as WorkbookType
+else:
+    WorkbookType = Workbook
 
 from collections import OrderedDict
 import datetime
@@ -107,6 +112,15 @@ def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], 
 def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
                    *, legend: LegendList = [], minwidth: int = 0, section: str = NIX,
                    reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
+    workbook = tabto_workbook(data, headers, selected, 
+                              legend=legend, minwidth=minwidth, section=section, 
+                              reorder=reorder, sorts=sorts, formatter=formatter)
+    workbook.save(filename)
+    return "XLSX"
+
+def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
+                   *, legend: LegendList = [], minwidth: int = 0, section: str = NIX,
+                   reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> WorkbookType:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
@@ -309,13 +323,10 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
     #
     sortedrows = list(sorted(rows, key=sortrow))
     sortedcols = list(sorted(cols.keys(), key=sortkey))
-    workbook: Workbook  # type: ignore[no-any-unimported]
-    workbook = make_workbook(sortedrows, sortedcols, cols, formats, legend=legend, section=section)
-    workbook.save(filename)
-    return "XLSX"
+    return make_workbook(sortedrows, sortedcols, cols, formats, legend=legend, section=section)
 
 def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
-                  formats: Dict[str, str], legend: LegendList, section: str = NIX) -> Any:  # Workbook
+                  formats: Dict[str, str], legend: LegendList, section: str = NIX) -> WorkbookType:
     row = 0
     workbook = Workbook()
     ws = workbook.active
@@ -404,7 +415,7 @@ def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
             for num, line in enumerate(legend):
                 text = '="%s"' % line.replace('"', "'")
                 set_cell(ws, row + num, 0, text, txt_style)
-    return workbook
+    return cast(WorkbookType, workbook)
 
 def readFromXLSX(filename: str, section: str = NIX) -> JSONList:
     tablist = tablistfileXLSX(filename)
@@ -453,9 +464,26 @@ def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]: 
         tab.append(TabSheet(data, cols, title))
     return tab
 
+def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[WorkbookType]:
+    workbook: Optional[WorkbookType] = None
+    for tabsheet in tablist:
+        work = tabto_workbook(tabsheet.data, tabsheet.headers, selected, 
+                              minwidth=minwidth, section=tabsheet.title)
+        if workbook is None:
+            workbook = work
+        else:
+            if hasattr(work, '_sheets') and hasattr(workbook, '_sheets'):  # openpyxl
+                new_sheets = work._sheets
+                work._sheets = []
+                workbook._sheets += new_sheets
+            else:
+                new_sheets = work.worksheets
+                work.worksheets = []
+                workbook.worksheets += new_sheets
+    return workbook
 
 if __name__ == "__main__":
-    from tabtotext import tabtextfile, print_tabtotext
+    from tabtotext import tablistfile
     from os.path import splitext
     DONE = (logging.WARNING + logging.ERROR) // 2
     logging.addLevelName(DONE, "DONE")
@@ -473,8 +501,10 @@ if __name__ == "__main__":
         cmdline.print_help()
     else:
         for arg in args:
-            tabtext = tabtextfile(arg, opt.inputformat)
+            tablist = tablistfile(arg, opt.inputformat)
             xlsx = arg + ".xlsx"
-            saveToXLSX(xlsx, tabtext.data, tabtext.headers, opt.labels)
-            if tabtext.data:
-                logg.log(DONE, " @ %s: %3d rows", xlsx, len(tabtext.data))
+            workbook = tablistto_workbook(tablist, opt.labels)
+            if workbook:
+                workbook.save(xlsx)
+                rows = sum([len(tabtext.data) for tabtext in tablist])
+                logg.log(DONE, " @ %s: %3d rows (%i tables)", xlsx, rows, len(tablist))
