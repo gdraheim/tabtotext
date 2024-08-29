@@ -478,41 +478,15 @@ def data_workbook(workbook: Workbook, section: str = NIX) -> List[Dict[str, Cell
     data, _ = tabtext_workbook(workbook, section=section)
     return data
 def tabtext_workbook(workbook: Workbook, section: str = NIX) -> TabText:
-    ws = workbook.active
-    if section:
-        for sheet in workbook.sheets:
-            if sheet.title == section:
-                ws = sheet
-    cols: List[str] = []
-    for col in range(MAXCOL):
-        header = ws.cell(row=1, column=col + 1)
-        if header.value is None:
-            break
-        name = header.value
-        if name is None:
-            break
-        cols.append(str(name))
-    logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
-    data: List[Dict[str, CellValue]] = []
-    for atrow in range(MAXROWS):
-        record = []
-        found = 0
-        for atcol in range(len(cols)):
-            cell = ws.cell(row=atrow + 2, column=atcol + 1)
-            if cell.data_type in ["f"]:
-                continue
-            value = cell.value
-            # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
-            if value is not None:
-                found += 1
-            if isinstance(value, str) and value == " ":
-                value = ""
-            record.append(value)
-        if not found:
-            break
-        newrow = dict(zip(cols, record))
-        data.append(newrow)  # type: ignore[arg-type]
-    return TabText(data, cols)
+    tablist = tablist_workbook(workbook)
+    tabtext = TabText([], [])
+    if tablist:  # always true
+        tabtext = TabText(tablist[0].data, tablist[0].headers)
+        if section:
+            for tab in tablist:
+                if tab.title == section:
+                    tabtext = TabText(tab.data, tab.headers)
+    return tabtext
 
 class TabSheet(NamedTuple):
     data: List[Dict[str, CellValue]]
@@ -1206,131 +1180,15 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     return "GFM"
 
 def tabtextfile(input: Union[TextIO, str], section: str = NIX, defaultformat: str = "") -> TabText:
-    def extension(filename: str) -> Optional[str]:
-        _, ext = fs.splitext(filename.lower())
-        if ext: return ext[1:]
-        return None
-    #
-    if isinstance(input, TextIO) or isinstance(input, StringIO):
-        inp = input
-        fmt = defaultformat
-        done = "stream"
-    elif "." in input:
-        fmt = extension(input) or defaultformat
-        if fmt in ["xls", "xlsx"]:
-            return tabtextfileXLSX(input)
-        inp = open(input, "rt", encoding="utf-8")
-        done = input
-    else:
-        fmt = input or defaultformat
-        inp = sys.stdin
-        done = input
-    #
-    tab = '|'
-    if fmt in ["wide", "text"]:
-        tab = ''
-    if fmt in ["tabs", "tab", "dat", "ifs", "data"]:
-        tab = '\t'
-    if fmt in ["csv", "scsv", "list"]:
-        tab = ';'
-    if fmt in ["xls", "sxlx"]:
-        tab = ','
-    lead = tab if fmt in ["md", "markdown"] else ""
-    #
-    none_string = "~"
-    true_string = "(yes)"
-    false_string = "(no)"
-    data: List[Dict[str, CellValue]] = []
-    if fmt in ["jsn", "json"]:
-        import json
-        time = StrToTime()
-        jsondata = json.load(inp)
-        oursection = section or SECTION
-        if isinstance(jsondata, Mapping) and oursection in jsondata:
-            jsonlist = cast(List[Dict[str, CellValue]], jsondata[oursection])
-        else:
-            jsonlist = cast(List[Dict[str, CellValue]], jsondata)
-        if isinstance(jsonlist, Iterable):
-            for nextgroup in jsonlist:
-                if isinstance(nextgroup, Mapping):
-                    newgroup: Dict[str, CellValue] = {}
-                    for nam, jsonval in nextgroup.items():
-                        if isinstance(jsonval, str):
-                            newgroup[nam] = time(jsonval)
-                        else:
-                            newgroup[nam] = jsonval
-                    data.append(newgroup)
-        return TabText(data, [])
-    if fmt in ["csv", "scsv", "tab"]:
-        import csv
-        time = StrToTime()
-        reader = csv.DictReader(inp, delimiter=tab)
-        for nextrecord in reader:
-            # newrecord: Dict[str, CellValue] = cast(Dict[str, CellValue], nextrecord.copy())
-            newrecord: Dict[str, CellValue] = {}
-            for nam, val in nextrecord.items():
-                v = val.strip()
-                if v == none_string:
-                    newrecord[nam] = None
-                elif v == false_string:
-                    newrecord[nam] = False
-                elif v == true_string:
-                    newrecord[nam] = True
-                else:
-                    try:
-                        newrecord[nam] = int(v)
-                    except:
-                        try:
-                            newrecord[nam] = float(v)
-                        except:
-                            newrecord[nam] = time(v)
-            data.append(newrecord)
-        return TabText(data, list(reader.fieldnames if reader.fieldnames else []))
-    # must have headers
-    lookingfor = "headers"
-    headers: List[str] = []
-    for line in inp:
-        if lead and not line.startswith(lead):
-            break
-        vals = line.split(tab)
-        if lead:
-            del vals[0]
-        if lookingfor == "headers":
-            headers = [header.strip() for header in vals]
-            lookingfor = "divider"
-            continue
-        elif lookingfor == "divider":
-            lookingfor = "data"
-            if re.match(r"^ *:*--*:* *$", vals[0]):
-                continue
-        record: Dict[str, CellValue] = {}
-        for col, val in enumerate(vals):
-            v = val.strip()
-            if v == none_string:
-                record[headers[col]] = None
-            elif v == false_string:
-                record[headers[col]] = False
-            elif v == true_string:
-                record[headers[col]] = True
-            else:
-                try:
-                    record[headers[col]] = int(v)
-                except:
-                    try:
-                        record[headers[col]] = float(v)
-                    except:
-                        try:
-                            record[headers[col]] = Time.strptime(v, "%Y-%m-%d.%H%M")
-                        except Exception as e:
-                            if ".23" in v:
-                                logg.error("no date? = %s = %s", v, e)
-                            try:
-                                record[headers[col]] = Time.strptime(v, "%Y-%m-%d").date()
-                            except:
-                                record[headers[col]] = v
-        data.append(record)
-    return TabText(data, headers)
-
+    tablist = tablistfile(input, defaultformat=defaultformat)
+    tabtext = TabText([],[])
+    if tablist:
+        tabtext = TabText(tablist[0].data, tablist[0].headers)
+        if section:
+            for tab in tablist:
+                if tab.title == section:
+                    tabtext = TabText(tab.data, tab.headers)
+    return tabtext
 def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabSheet]:
     def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
@@ -1370,15 +1228,15 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
         import json
         time = StrToTime()
         jsondata = json.load(inp)
-        if not isinstance(jsondata, Mapping):
+        if isinstance(jsondata, dict):
             jsondict = jsondata
         else:
             jsondict = {"data": jsondata}
-        for listname, jsonlist in jsondict:
+        for listname, jsonlist in jsondict.items():
             listdata: List[Dict[str, CellValue]] = []
             if isinstance(jsonlist, Iterable):
                 for nextgroup in jsonlist:
-                    if isinstance(nextgroup, Mapping):
+                    if isinstance(nextgroup, dict):
                         newgroup: Dict[str, CellValue] = {}
                         for nam, jsonval in nextgroup.items():
                             if isinstance(jsonval, str):
@@ -1387,10 +1245,36 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
                                 newgroup[nam] = jsonval
                         listdata.append(newgroup)
             tabs.append(TabSheet(listdata, [], listname))
+        return tabs
+    data: List[Dict[str, CellValue]] = []
+    if fmt in ["csv", "scsv", "tab"]:
+        import csv
+        time = StrToTime()
+        reader = csv.DictReader(inp, delimiter=tab)
+        for nextrecord in reader:
+            # newrecord: Dict[str, CellValue] = cast(Dict[str, CellValue], nextrecord.copy())
+            newrecord: Dict[str, CellValue] = {}
+            for nam, val in nextrecord.items():
+                v = val.strip()
+                if v == none_string:
+                    newrecord[nam] = None
+                elif v == false_string:
+                    newrecord[nam] = False
+                elif v == true_string:
+                    newrecord[nam] = True
+                else:
+                    try:
+                        newrecord[nam] = int(v)
+                    except:
+                        try:
+                            newrecord[nam] = float(v)
+                        except:
+                            newrecord[nam] = time(v)
+            data.append(newrecord)
+        return [TabSheet(data, list(reader.fieldnames if reader.fieldnames else []), SECTION)]
     # must have headers
     lookingfor = "headers"
     headers: List[str] = []
-    data: List[Dict[str, CellValue]] = []
     title = ""
     for line in inp:
         if tab and not line.startswith(tab):
