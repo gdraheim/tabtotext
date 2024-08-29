@@ -1125,7 +1125,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             lines.append(" {" + comma.join(line) + "}")
         newlist = "[\n"
         endlist = "\n]"
-        if section:
+        if section and not noheaders:
             newlist = '{"%s":%s[\n' % (section.replace('"', "'"), pad)
             endlist = "\n]}"
         out.write(newlist + ",\n".join(lines) + endlist)
@@ -1154,7 +1154,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     colw = tuple((cols[col] for col in colo))  # widths of cols ordered
     colr = tuple((rightalign(col) for col in colo))  # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
-    if section:
+    if section and not noheaders:
         print(F"## {section}\n", file=out)
     if not noheaders:
         hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(col)) for m, col in enumerate(colo))]
@@ -1335,12 +1335,16 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
 
 if __name__ == "__main__":
     from logging import basicConfig, ERROR
-    from optparse import OptionParser
+    from optparse import OptionParser, Option
     import sys
+    def numbered_option(option: Option, arg: str, value: str, parser: OptionParser) -> None:
+        setattr(parser.values, option.dest, int(arg[1:]))
     prog = os.path.basename(__file__)
-    cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [column...]", epilog=__doc__)
+    cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [..page] [column...]", epilog=__doc__)
     cmdline.formatter.max_help_position = 29
-    cmdline.add_option("-1", "-2", "-3", "-x", dest="page", action="store_true")
+    cmdline.add_option("--sheet", "--section", "--listname", "--page", metavar="NAME", dest="page")
+    cmdline.add_option("-1", "-2", "-3", "-4", "-5", "-6", dest="page", action="callback", callback=numbered_option,
+                       help="numbered page instead of '..name' or '## name'")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="increase logging level")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="decrease logging level")
     cmdline.add_option("-m", "--minwidth", metavar="N", default=0,
@@ -1389,6 +1393,10 @@ if __name__ == "__main__":
         selected = args[1:]
     else:
         selected = []
+    page: Union[int, str] = opt.page
+    if selected and (selected[0].startswith("##") or selected[0].startswith("..")):
+        page = selected[0][2:].strip()
+        selected = selected[1:]
     if "." in opt.output:
         output = opt.output
         defaultformat = ""
@@ -1424,14 +1432,33 @@ if __name__ == "__main__":
     if len(tablist) == 0:
         logg.error("no data in file %s", filename)
     elif len(tablist) == 1:
-        tabsheet = tablist[0]
-        print_tabtotext(output, tabsheet.data, tabsheet.headers, selected, padding=padding, tab=tab,
+        tabsheet1 = tablist[0]
+        print_tabtotext(output, tabsheet1.data, tabsheet1.headers, selected, padding=padding, tab=tab,
                     noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth,
                     defaultformat=defaultformat)
+    elif page:
+        tabsheet2: Optional[TabSheet] = None
+        if isinstance(page, int):
+            if page > len(tablist):
+                logg.error("selected -%i page, but input has only %s pages", page, len(tablist))
+            else:
+                tabsheet2 = tablist[page-1]
+        else:
+            tabsheetnames = []
+            for tabsheet in tablist:
+                tabsheetnames += [tabsheet.title]
+                if tabsheet.title == page:
+                    tabsheet2 = tabsheet
+            if not tabsheet2:
+                logg.error("selected ..%s page, but input has only %s", page, " ".join(".."+tabsheetname for tabsheetname in tabsheetnames))
+        if tabsheet2:
+            print_tabtotext(output, tabsheet2.data, tabsheet2.headers, selected, padding=padding, tab=tab,
+                        noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet2.title,
+                        defaultformat=defaultformat)
     else:
-        for tabtext in tablist:
-            logg.debug("headers = %s", tabtext.headers)
-            logg.debug("data = %s", tabtext.data)
-            print_tabtotext(output, tabtext.data, tabtext.headers, selected, padding=padding, tab=tab,
-                        noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabtext.title,
+        for tabsheet3 in tablist:
+            logg.debug("headers = %s", tabsheet3.headers)
+            logg.debug("data = %s", tabsheet3.data)
+            print_tabtotext(output, tabsheet3.data, tabsheet3.headers, selected, padding=padding, tab=tab,
+                        noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet3.title,
                         defaultformat=defaultformat)
