@@ -126,16 +126,16 @@ class Worksheet:
 
 class Workbook:
     worksheets: List[Worksheet]
-    current: int
+    _active_sheet_index: int
     def __init__(self) -> None:
         self.worksheets = [Worksheet()]
-        self.current = 0
+        self._active_sheet_index = 0
     @property
     def active(self) -> Worksheet:
-        return self.worksheets[self.current]
+        return self.worksheets[self._active_sheet_index]
     def create_sheet(self) -> Worksheet:
         ws = Worksheet()
-        self.current = len(self.worksheets)
+        self._active_sheet_index = len(self.worksheets)
         self.worksheets.append(ws)
         return ws
     def save(self, filename: str) -> None:
