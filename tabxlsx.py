@@ -2,7 +2,8 @@
 """ 
 TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
 The output can be piped as a markdown table or csv-like data as well. A number
-of output format options are available but less than the tabtotext.py module."""
+of output format options are available but less than the tabtotext.py module.
+If the input contains only one table then it is used, otherwise specify which should be printed."""
 
 __copyright__ = "(C) 2023-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3352"
@@ -1342,7 +1343,7 @@ if __name__ == "__main__":
     prog = os.path.basename(__file__)
     cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [:page] [column...] [@list]", epilog=__doc__)
     cmdline.formatter.max_help_position = 29
-    cmdline.add_option("--all", "--sheetnames", "--sectionnames", "--listnames", "--onlypages", dest="onlypages", action="store_true")
+    cmdline.add_option("--tables", "--sheetnames", "--sectionnames", "--listnames", "--onlypages", dest="onlypages", action="store_true")
     cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="page")
     cmdline.add_option("-1", "-2", "-3", "-4", "-5", "-6", dest="page", action="callback", callback=numbered_option,
                        help="numbered page instead of ':name' or '-: name'")
