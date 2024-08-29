@@ -543,11 +543,23 @@ def currency() -> str:
     currency_euro = 0x20AC
     return chr(currency_euro)
 
+def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[Workbook]:
+    workbook: Optional[Workbook] = None
+    for tabsheet in tablist:
+        work = tabto_workbook(tabsheet.data, tabsheet.headers, selected, minwidth, section=tabsheet.title)
+        if workbook is None:
+            workbook = work
+        else:
+            new_sheets = work.sheets
+            work.sheets = []
+            workbook.sheets += new_sheets
+    return workbook
+
 def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> str:
-    workbook = make_tabtoXLSX(data, headers, selected, minwidth, section)
+    workbook = tabto_workbook(data, headers, selected, minwidth, section)
     save_workbook(filename, workbook)
     return "TABXLSX"
-def make_tabtoXLSX(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> Workbook:
+def tabto_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> Workbook:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
@@ -1460,6 +1472,10 @@ if __name__ == "__main__":
             print_tabtotext(output, tabsheet2.data, tabsheet2.headers, selected, padding=padding, tab=tab,
                         noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet2.title,
                         defaultformat=defaultformat)
+    elif opt.xls and output or output.endswith(".xlsx"):
+        workbook3 = tablistto_workbook(tablist, selected, minwidth)
+        if workbook3:
+            workbook3.save(output)
     else:
         for tabsheet3 in tablist:
             logg.debug("headers = %s", tabsheet3.headers)
