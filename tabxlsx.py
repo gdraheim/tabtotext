@@ -133,13 +133,28 @@ class Workbook:
     @property
     def active(self) -> Worksheet:
         return self.worksheets[self._active_sheet_index]
-    def create_sheet(self) -> Worksheet:
+    def save(self, filename: str) -> None:
+        save_workbook(filename, self)
+    def create_sheet(self) -> Worksheet:  # pragma: no cover
         ws = Worksheet()
         self._active_sheet_index = len(self.worksheets)
         self.worksheets.append(ws)
         return ws
-    def save(self, filename: str) -> None:
-        save_workbook(filename, self)
+    def get_sheet_names(self) -> List[str]:  # pragma: no cover
+        names: List[str] = []
+        for ws in self.worksheets:
+            names += [ws.title]
+        return names
+    def get_sheet_by_name(self, name: str) -> Worksheet:  # pragma: no cover
+        for ws in self.worksheets:
+            if name == ws.title:
+                 return ws
+        raise KeyError("Worksheet does not exist")
+    def __getitem__(self, key: str) -> Worksheet:  # pragma: no cover
+        return self.get_sheet_by_name(key)
+    @property
+    def sheetnames(self) -> List[str]:  # pragma: no cover
+        return self.get_sheet_names()
 
 def save_workbook(filename: str, workbook: Workbook) -> None:
     xmlns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
