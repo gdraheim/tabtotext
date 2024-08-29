@@ -7,7 +7,7 @@ of output format options are available but less than the tabtotext.py module."""
 __copyright__ = "(C) 2023-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3352"
 
-from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping
+from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping, TypeVar, Generic
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -92,6 +92,7 @@ class DimensionsHolder:
         if column not in self.columns:
             self.columns[column] = Dimension()
         return self.columns[column]
+
 class Worksheet:
     rows: List[Dict[str, Cell]]
     title: str
@@ -512,6 +513,51 @@ def tabtext_workbook(workbook: Workbook, section: str = NIX) -> TabText:
         newrow = dict(zip(cols, record))
         data.append(newrow)  # type: ignore[arg-type]
     return TabText(data, cols)
+
+class TabSheet(NamedTuple):
+    data: List[Dict[str, CellValue]]
+    headers: List[str]
+    title: str
+
+def tablistfileXLSX(filename: str) -> List[TabSheet]:
+    workbook = load_workbook(filename)
+    return tablist_workbook(workbook)
+def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]:
+    tab = []
+    for ws in workbook.sheets:
+        title = ws.title
+        cols: List[str] = []
+        for col in range(MAXCOL):
+            header = ws.cell(row=1, column=col + 1)
+            if header.value is None:
+                break
+            name = header.value
+            if name is None:
+                break
+            cols.append(str(name))
+        logg.debug("xlsx found %s cols\n\t%s", len(cols), cols)
+        data: List[Dict[str, CellValue]] = []
+        for atrow in range(MAXROWS):
+            record = []
+            found = 0
+            for atcol in range(len(cols)):
+                cell = ws.cell(row=atrow + 2, column=atcol + 1)
+                if cell.data_type in ["f"]:
+                    continue
+                value = cell.value
+                # logg.debug("[%i,%si] cell.value = %s", atcol, atrow, value)
+                if value is not None:
+                    found += 1
+                if isinstance(value, str) and value == " ":
+                    value = ""
+                record.append(value)
+            if not found:
+                break
+            newrow = dict(zip(cols, record))
+            data.append(newrow)  # type: ignore[arg-type]
+        tab.append(TabSheet(data, cols, title))
+    return tab
+
 
 def currency() -> str:
     """ make dependent on locale ? """
@@ -1285,6 +1331,123 @@ def tabtextfile(input: Union[TextIO, str], section: str = NIX, defaultformat: st
         data.append(record)
     return TabText(data, headers)
 
+def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabSheet]:
+    def extension(filename: str) -> Optional[str]:
+        _, ext = fs.splitext(filename.lower())
+        if ext: return ext[1:]
+        return None
+    #
+    if isinstance(input, TextIO) or isinstance(input, StringIO):
+        inp = input
+        fmt = defaultformat
+        done = "stream"
+    elif "." in input:
+        fmt = extension(input) or defaultformat
+        if fmt in ["xls", "xlsx"]:
+            return tablistfileXLSX(input)
+        inp = open(input, "rt", encoding="utf-8")
+        done = input
+    else:
+        fmt = input or defaultformat
+        inp = sys.stdin
+        done = input
+    #
+    tab = '|'
+    if fmt in ["wide", "text"]:
+        tab = ''
+    if fmt in ["tabs", "tab", "dat", "ifs", "data"]:
+        tab = '\t'
+    if fmt in ["csv", "scsv", "list"]:
+        tab = ';'
+    if fmt in ["xls", "sxlx"]:
+        tab = ','
+    #
+    none_string = "~"
+    true_string = "(yes)"
+    false_string = "(no)"
+    tabs: List[TabSheet] = []
+    if fmt in ["jsn", "json"]:
+        import json
+        time = StrToTime()
+        jsondata = json.load(inp)
+        if not isinstance(jsondata, Mapping):
+            jsondict = jsondata
+        else:
+            jsondict = {"data": jsondata}
+        for listname, jsonlist in jsondict:
+            listdata: List[Dict[str, CellValue]] = []
+            if isinstance(jsonlist, Iterable):
+                for nextgroup in jsonlist:
+                    if isinstance(nextgroup, Mapping):
+                        newgroup: Dict[str, CellValue] = {}
+                        for nam, jsonval in nextgroup.items():
+                            if isinstance(jsonval, str):
+                                newgroup[nam] = time(jsonval)
+                            else:
+                                newgroup[nam] = jsonval
+                        listdata.append(newgroup)
+            tabs.append(TabSheet(listdata, [], listname))
+    # must have headers
+    lookingfor = "headers"
+    headers: List[str] = []
+    data: List[Dict[str, CellValue]] = []
+    title = ""
+    for line in inp:
+        if tab and not line.startswith(tab):
+            if headers:
+                if not title:
+                    title = "-%s" % (len(tabs)+1)
+                tabs.append(TabSheet(data, headers, title))
+                title = ""
+                headers = []
+            data = []
+            lookingfor = "headers"
+            if line.startswith("## "):
+                title = line[3:].strip()
+            continue
+        vals = line.split(tab)
+        if tab:
+            del vals[0]
+        if lookingfor == "headers":
+            headers = [header.strip() for header in vals]
+            lookingfor = "divider"
+            continue
+        elif lookingfor == "divider":
+            lookingfor = "data"
+            if re.match(r"^ *:*--*:* *$", vals[0]):
+                continue
+        record: Dict[str, CellValue] = {}
+        for col, val in enumerate(vals):
+            v = val.strip()
+            if v == none_string:
+                record[headers[col]] = None
+            elif v == false_string:
+                record[headers[col]] = False
+            elif v == true_string:
+                record[headers[col]] = True
+            else:
+                try:
+                    record[headers[col]] = int(v)
+                except:
+                    try:
+                        record[headers[col]] = float(v)
+                    except:
+                        try:
+                            record[headers[col]] = Time.strptime(v, "%Y-%m-%d.%H%M")
+                        except Exception as e:
+                            if ".23" in v:
+                                logg.error("no date? = %s = %s", v, e)
+                            try:
+                                record[headers[col]] = Time.strptime(v, "%Y-%m-%d").date()
+                            except:
+                                record[headers[col]] = v
+        data.append(record)
+    if headers:
+        if not title:
+            title = "-%s" % (len(tabs)+1)
+        tabs.append(TabSheet(data, headers, title))
+    return tabs
+
 
 if __name__ == "__main__":
     from logging import basicConfig, ERROR
@@ -1293,6 +1456,7 @@ if __name__ == "__main__":
     prog = os.path.basename(__file__)
     cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [column...]", epilog=__doc__)
     cmdline.formatter.max_help_position = 29
+    cmdline.add_option("-1", "-2", "-3", "-x", dest="page", action="store_true")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="increase logging level")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="decrease logging level")
     cmdline.add_option("-m", "--minwidth", metavar="N", default=0,
@@ -1337,9 +1501,6 @@ if __name__ == "__main__":
     padding = opt.padding if not opt.nopadding else ""
     tab = "\t" if opt.asciitab else opt.tabulator if not opt.notab else ""
     filename = args[0]
-    tabtext = tabtextfile(filename, defaultformat="xlsx")
-    logg.debug("headers = %s", tabtext.headers)
-    logg.debug("data = %s", tabtext.data)
     if len(args) > 1:
         selected = args[1:]
     else:
@@ -1375,6 +1536,18 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    print_tabtotext(output, tabtext.data, tabtext.headers, selected, padding=padding, tab=tab,
+    tablist = tablistfile(filename, defaultformat="xlsx")
+    if len(tablist) == 0:
+        logg.error("no data in file %s", filename)
+    elif len(tablist) == 1:
+        tabsheet = tablist[0]
+        print_tabtotext(output, tabsheet.data, tabsheet.headers, selected, padding=padding, tab=tab,
                     noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth,
                     defaultformat=defaultformat)
+    else:
+        for tabtext in tablist:
+            logg.debug("headers = %s", tabtext.headers)
+            logg.debug("data = %s", tabtext.data)
+            print_tabtotext(output, tabtext.data, tabtext.headers, selected, padding=padding, tab=tab,
+                        noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabtext.title,
+                        defaultformat=defaultformat)
