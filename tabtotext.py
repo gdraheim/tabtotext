@@ -1545,6 +1545,9 @@ def readFromJSON(filename: str, datedelim: str = '-', section: str = NIX) -> JSO
     return list(parser.load(filename))
 def tabtextfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
     return TabText(readFromJSON(filename, datedelim=datedelim, section=section), [])
+def tablistfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
+    parser = DictParserJSON(datedelim=datedelim, section=section)
+    return parser.loadtablist(filename)
 
 class DictParserJSON(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
@@ -1568,6 +1571,27 @@ class DictParserJSON(DictParser):
                 if isinstance(val, str):
                     record[key] = self.convert.toDate(val)
             yield record
+    def loadtablist(self, filename: str) -> List[TabSheet]:
+        tabs: List[TabSheet] = []
+        jsondata = json.load(open(filename))
+        if isinstance(jsondata, dict):
+            jsondict = jsondata
+        else:
+            jsondict = {(self.section or SECTION): jsondata}
+        for listname, jsonlist in jsondict.items():
+            listdata: List[JSONDict] = []
+            if isinstance(jsonlist, Iterable):
+                for nextgroup in jsonlist:
+                    if isinstance(nextgroup, dict):
+                        newgroup: JSONDict = {}
+                        for nam, jsonval in nextgroup.items():
+                            if isinstance(jsonval, str):
+                                newgroup[nam] = self.convert.toDate(jsonval)
+                            else:
+                                newgroup[nam] = jsonval
+                        listdata.append(newgroup)
+            tabs.append(TabSheet(listdata, [], listname))
+        return tabs                    
 
 # ================================= #### YAML
 class FormatYAML(FormatJSON):
@@ -2923,6 +2947,62 @@ def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, sectio
         return TabText([], [])
     logg.debug(" tabtextfileFMT  - unrecognized input format %s: %s", fmt, filename)
     return TabText([], [])
+
+def tablistfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, defaultfileformat: str = NIX) -> List[TabSheet]:
+    if not fmt:
+        fmt = extension(filename) or defaultfileformat
+        if not fmt:
+            logg.warning("could not detect format of '%s'", filename)
+            return []
+    # assert fmt
+    return tablistfileFMT(fmt, filename, tab=tab, defaultformat=defaultfileformat)
+def tablistfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, section: str = NIX, defaultformat: str = NIX) -> List[TabSheet]:
+    if not fmt:
+        fmt = extension(filename) or NIX
+        if not fmt:
+            fmt = defaultformat
+        if not fmt:
+            return []
+    if fmt.lower() in ["md", "markdown"]:
+        tabtext = tabtextfileGFM(filename, tab='|' if tab is None else tab, section=section)
+        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+    if fmt.lower() in ["html", "htm", "xhtml"]:
+        tabtext = tabtextfileHTML(filename, section=section)
+        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+    if fmt.lower() in ["json", "jsn"]:
+        return tablistfileJSON(filename, section=section)
+    if fmt.lower() in ["yaml", "yml"]:
+        tabtext = tabtextfileYAML(filename, section=section)
+        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+    if fmt.lower() in ["toml", "tml"]:
+        tabtext = tabtextfileTOML(filename, section=section)
+        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+    if fmt.lower() in ["tab"]:
+        tabtext = tabtextfileCSV(filename, tab='\t' if tab is None else tab)
+        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+    if fmt.lower() in ["csv", "scsv"]:
+        tabtext = tabtextfileCSV(filename, tab=';' if tab is None else tab)
+        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+    if fmt.lower() in ["xlsx", "xls"]:
+        try:
+            if TABXLSX:
+                import tabxlsx
+                found1 = tabxlsx.tablistfileXLSX(filename)  # type: ignore[return-value]
+                return cast(List[TabSheet], found1)
+            else:
+                import tabtoxlsx
+                found2 = tabtoxlsx.tablistfileXLSX(filename)
+                return found2
+        except Exception as e:
+            if not TABXLSX:
+                import tabxlsx
+                found3 = tabxlsx.tablistfileXLSX(filename)  # type: ignore[return-value]
+                return cast(List[TabSheet], found3)
+            else:
+                logg.error("could not load xslx: %s", e)
+        return []
+    logg.debug(" tablistfileFMT  - unrecognized input format %s: %s", fmt, filename)
+    return []
 
 # ----------------------------------------------------------------------
 def tab_formats_from(columns: str) -> Dict[str, str]:
