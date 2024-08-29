@@ -1194,7 +1194,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
 
 def tabtextfile(input: Union[TextIO, str], section: str = NIX, defaultformat: str = "") -> TabText:
     tablist = tablistfile(input, defaultformat=defaultformat)
-    tabtext = TabText([],[])
+    tabtext = TabText([], [])
     if tablist:
         tabtext = TabText(tablist[0].data, tablist[0].headers)
         if section:
@@ -1293,7 +1293,7 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
         if tab and not line.startswith(tab):
             if headers:
                 if not title:
-                    title = "-%s" % (len(tabs)+1)
+                    title = "-%s" % (len(tabs) + 1)
                 tabs.append(TabSheet(data, headers, title))
                 title = ""
                 headers = []
@@ -1341,7 +1341,7 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
         data.append(record)
     if headers:
         if not title:
-            title = "-%s" % (len(tabs)+1)
+            title = "-%s" % (len(tabs) + 1)
         tabs.append(TabSheet(data, headers, title))
     return tabs
 
@@ -1355,7 +1355,8 @@ if __name__ == "__main__":
     prog = os.path.basename(__file__)
     cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [:page] [column...] [@list]", epilog=__doc__)
     cmdline.formatter.max_help_position = 29
-    cmdline.add_option("--tables", "--sheetnames", "--sectionnames", "--listnames", "--onlypages", dest="onlypages", action="store_true")
+    cmdline.add_option("--tables", "--sheetnames", "--sectionnames", "--listnames",
+                       "--onlypages", dest="onlypages", action="store_true")
     cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="page")
     cmdline.add_option("-1", "-2", "-3", "-4", "-5", "-6", dest="page", action="callback", callback=numbered_option,
                        help="numbered page instead of ':name' or '-: name'")
@@ -1451,15 +1452,15 @@ if __name__ == "__main__":
     elif len(tablist) == 1:
         tabsheet1 = tablist[0]
         print_tabtotext(output, tabsheet1.data, tabsheet1.headers, selected, padding=padding, tab=tab,
-                    noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth,
-                    defaultformat=defaultformat)
+                        noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth,
+                        defaultformat=defaultformat)
     elif page:
         tabsheet2: Optional[TabSheet] = None
         if isinstance(page, int):
             if page > len(tablist):
                 logg.error("selected -%i page, but input has only %s pages", page, len(tablist))
             else:
-                tabsheet2 = tablist[page-1]
+                tabsheet2 = tablist[page - 1]
         else:
             tabsheetnames = []
             for tabsheet in tablist:
@@ -1470,8 +1471,8 @@ if __name__ == "__main__":
                 logg.error("selected '-: %s' page, but input has only -: %s", page, " ".join(tabsheetnames))
         if tabsheet2:
             print_tabtotext(output, tabsheet2.data, tabsheet2.headers, selected, padding=padding, tab=tab,
-                        noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet2.title,
-                        defaultformat=defaultformat)
+                            noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet2.title,
+                            defaultformat=defaultformat)
     elif opt.xls and output or output.endswith(".xlsx"):
         workbook3 = tablistto_workbook(tablist, selected, minwidth)
         if workbook3:
@@ -1481,5 +1482,5 @@ if __name__ == "__main__":
             logg.debug("headers = %s", tabsheet3.headers)
             logg.debug("data = %s", tabsheet3.data)
             print_tabtotext(output, tabsheet3.data, tabsheet3.headers, selected, padding=padding, tab=tab,
-                        noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet3.title,
-                        defaultformat=defaultformat)
+                            noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet3.title,
+                            defaultformat=defaultformat)
