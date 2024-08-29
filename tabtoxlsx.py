@@ -419,7 +419,7 @@ def tablistfileXLSX(filename: str) -> List[TabSheet]:
     return tablist_workbook(workbook)
 def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]:  # type: ignore[no-any-unimported]
     tab: List[TabSheet] = []
-    for ws in workbook.sheets:
+    for ws in workbook.worksheets:
         title = ws.title
         cols: List[str] = []
         for col in range(MAXCOL):

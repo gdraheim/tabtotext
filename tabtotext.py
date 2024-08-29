@@ -807,6 +807,12 @@ def tabtextfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section:
     parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     data = list(parser.load(filename))
     return TabText(data, parser.headers)
+def tablistfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
+    return parser.loadtablist(filename)
+def tablistGFM(text: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
+    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
+    return parser.readtablist(text.splitlines())
 
 class DictParserGFM(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-', tab: str = '|') -> None:
@@ -868,6 +874,59 @@ class DictParserGFM(DictParser):
                     yield newrow
             else:
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
+    def loadtablist(self, filename: str, *, tab: Optional[str] = None) -> List[TabSheet]:
+        return self.readtablist(open(filename), tab=tab)
+    def readtablist(self, lines: Iterable[str], *, tab: Optional[str] = None) -> List[TabSheet]:
+        tabs: List[TabSheet] = []
+        data: List[JSONDict] = []
+        # must have headers
+        lookingfor = "headers"
+        headers: List[str] = []
+        title = ""
+        for line in lines:
+            if tab and not line.startswith(tab):
+                if headers:
+                    if not title:
+                        title = "-%s" % (len(tabs) + 1)
+                    tabs.append(TabSheet(data, headers, title))
+                    title = ""
+                    headers = []
+                data = []
+                lookingfor = "headers"
+                if line.startswith("## "):
+                    title = line[3:].strip()
+                continue
+            vals = line.split(tab)
+            if tab:
+                del vals[0]
+            if lookingfor == "headers":
+                headers = [header.strip() for header in vals]
+                lookingfor = "divider"
+                continue
+            elif lookingfor == "divider":
+                lookingfor = "data"
+                if re.match(r"^ *:*--*:* *$", vals[0]):
+                    continue
+            record: JSONDict = {}
+            for col, val in enumerate(vals):
+                v = val.strip()
+                if v == _None_String:
+                    record[headers[col]] = None
+                elif v == _False_String:
+                    record[headers[col]] = False
+                elif v == _True_String:
+                    record[headers[col]] = True
+                else:
+                    try:
+                        record[headers[col]] = int(v)
+                    except:
+                        record[headers[col]] = self.convert.toDate(v)
+            data.append(record)
+        if headers:
+            if not title:
+                title = "-%s" % (len(tabs) + 1)
+            tabs.append(TabSheet(data, headers, title))
+        return tabs
 
 # ================================= #### HTML
 class FormatHTML(NumFormatJSONItem):
@@ -2964,8 +3023,7 @@ def tablistfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, sectio
         if not fmt:
             return []
     if fmt.lower() in ["md", "markdown"]:
-        tabtext = tabtextfileGFM(filename, tab='|' if tab is None else tab, section=section)
-        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+        return tablistfileGFM(filename, tab='|' if tab is None else tab, section=section)
     if fmt.lower() in ["html", "htm", "xhtml"]:
         tabtext = tabtextfileHTML(filename, section=section)
         return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]

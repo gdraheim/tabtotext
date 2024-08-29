@@ -125,18 +125,18 @@ class Worksheet:
         return self.rows[atrow][name]
 
 class Workbook:
-    sheets: List[Worksheet]
+    worksheets: List[Worksheet]
     current: int
     def __init__(self) -> None:
-        self.sheets = [Worksheet()]
+        self.worksheets = [Worksheet()]
         self.current = 0
     @property
     def active(self) -> Worksheet:
-        return self.sheets[self.current]
+        return self.worksheets[self.current]
     def create_sheet(self) -> Worksheet:
         ws = Worksheet()
-        self.current = len(self.sheets)
-        self.sheets.append(ws)
+        self.current = len(self.worksheets)
+        self.worksheets.append(ws)
         return ws
     def save(self, filename: str) -> None:
         save_workbook(filename, self)
@@ -151,7 +151,7 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
     xmlns_c = "http://schemas.openxmlformats.org/package/2006/content-types"
     NUMFMT = 164
     numFmts: List[str] = ["yyyy-mm-dd h:mm:ss"]
-    for sheet in workbook.sheets:
+    for sheet in workbook.worksheets:
         sheet._mindim = ""
         sheet._maxdim = ""
         for row in sheet.rows:
@@ -170,7 +170,7 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
                         numFmts.append(cell.number_format)
                     cell._numFmt = NUMFMT + numFmts.index(cell.number_format)
     cellXfs: List[str] = []
-    for sheet in workbook.sheets:
+    for sheet in workbook.worksheets:
         for row in sheet.rows:
             for cell in row.values():
                 numFmtId = cell._numFmt
@@ -223,7 +223,7 @@ def save_workbook(filename: str, workbook: Workbook) -> None:
     workbook_xml += F'<bookViews><workbookView visibility="visible" minimized="0" showHorizontalScroll="1" showVerticalScroll="1" showSheetTabs="1" tabRatio="600" firstSheet="0" activeTab="0" autoFilterDateGrouping="1"/></bookViews>'
     workbook_xml += F'<sheets>'
     worksheets: List[str] = []
-    for sheet in workbook.sheets:
+    for sheet in workbook.worksheets:
         wxml = F'<worksheet xmlns="{xmlns}">'
         wxml += '<sheetPr><outlinePr summaryBelow="1" summaryRight="1"/><pageSetUpPr/></sheetPr>'
         wxml += F'<dimension ref="{sheet._mindim}:{sheet._maxdim}"/>'
@@ -406,7 +406,7 @@ def load_workbook(filename: str) -> Workbook:
                 if sheetfilename not in namelist:
                     break
                 ws = Worksheet()
-                workbook.sheets.append(ws)
+                workbook.worksheets.append(ws)
             if sheetId in sheetnames:
                 ws.title = sheetnames[sheetId]
             with zipfile.open(sheetfilename) as xmlfile:
@@ -476,7 +476,7 @@ def tablistfileXLSX(filename: str) -> List[TabSheet]:
     return tablist_workbook(workbook)
 def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]:
     tab = []
-    for ws in workbook.sheets:
+    for ws in workbook.worksheets:
         title = ws.title
         cols: List[str] = []
         for col in range(MAXCOL):
@@ -527,9 +527,9 @@ def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwid
         if workbook is None:
             workbook = work
         else:
-            new_sheets = work.sheets
-            work.sheets = []
-            workbook.sheets += new_sheets
+            new_sheets = work.worksheets
+            work.worksheets = []
+            workbook.worksheets += new_sheets
     return workbook
 
 def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> str:
