@@ -1,5 +1,9 @@
 #! /usr/bin/env python3
 
+from datetime import datetime as Time
+from datetime import date as Date
+import datetime
+from collections import OrderedDict
 """
 This script converts table-like data (list of dicts) from and to Excel .xlsx files.
 It is a helper for the tabtotext.py module using openpyxl (see fallback tabxlsx.py).
@@ -31,10 +35,6 @@ if TYPE_CHECKING:
 else:
     WorkbookType = Workbook
 
-from collections import OrderedDict
-import datetime
-from datetime import date as Date
-from datetime import datetime as Time
 
 SECTION = "data"
 MINWIDTH = 4
@@ -112,8 +112,8 @@ def tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], 
 def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
                    *, legend: LegendList = [], minwidth: int = 0, section: str = NIX,
                    reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> str:
-    workbook = tabto_workbook(data, headers, selected, 
-                              legend=legend, minwidth=minwidth, section=section, 
+    workbook = tabto_workbook(data, headers, selected,
+                              legend=legend, minwidth=minwidth, section=section,
                               reorder=reorder, sorts=sorts, formatter=formatter)
     workbook.save(filename)
     return "XLSX"
@@ -467,7 +467,7 @@ def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]: 
 def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[WorkbookType]:
     workbook: Optional[WorkbookType] = None
     for tabsheet in tablist:
-        work = tabto_workbook(tabsheet.data, tabsheet.headers, selected, 
+        work = tabto_workbook(tabsheet.data, tabsheet.headers, selected,
                               minwidth=minwidth, section=tabsheet.title)
         if workbook is None:
             workbook = work

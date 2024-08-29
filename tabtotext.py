@@ -1652,7 +1652,7 @@ class DictParserJSON(DictParser):
                                 newgroup[nam] = jsonval
                         listdata.append(newgroup)
             tabs.append(TabSheet(listdata, [], listname))
-        return tabs                    
+        return tabs
 
 # ================================= #### YAML
 class FormatYAML(FormatJSON):

@@ -148,7 +148,7 @@ class Workbook:
     def get_sheet_by_name(self, name: str) -> Worksheet:  # pragma: no cover
         for ws in self.worksheets:
             if name == ws.title:
-                 return ws
+                return ws
         raise KeyError("Worksheet does not exist")
     def __getitem__(self, key: str) -> Worksheet:  # pragma: no cover
         return self.get_sheet_by_name(key)
