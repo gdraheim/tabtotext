@@ -1293,18 +1293,7 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
                 try:
                     record[headers[col]] = int(v)
                 except:
-                    try:
-                        record[headers[col]] = float(v)
-                    except:
-                        try:
-                            record[headers[col]] = Time.strptime(v, "%Y-%m-%d.%H%M")
-                        except Exception as e:
-                            if ".23" in v:
-                                logg.error("no date? = %s = %s", v, e)
-                            try:
-                                record[headers[col]] = Time.strptime(v, "%Y-%m-%d").date()
-                            except:
-                                record[headers[col]] = v
+                    record[headers[col]] = time(v)
         data.append(record)
     if headers:
         if not title:
