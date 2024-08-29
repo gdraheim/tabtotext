@@ -1241,10 +1241,10 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
                         listdata.append(newgroup)
             tabs.append(TabSheet(listdata, [], listname))
         return tabs
+    time = StrToTime()
     data: List[Dict[str, CellValue]] = []
     if fmt in ["csv", "scsv", "tab"]:
         import csv
-        time = StrToTime()
         reader = csv.DictReader(inp, delimiter=tab)
         for nextrecord in reader:
             # newrecord: Dict[str, CellValue] = cast(Dict[str, CellValue], nextrecord.copy())
@@ -1298,17 +1298,23 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
         record: Dict[str, CellValue] = {}
         for col, val in enumerate(vals):
             v = val.strip()
+            if col >= len(headers):
+                continue
+            colname = headers[col]
             if v == none_string:
-                record[headers[col]] = None
+                record[colname] = None
             elif v == false_string:
-                record[headers[col]] = False
+                record[colname] = False
             elif v == true_string:
-                record[headers[col]] = True
+                record[colname] = True
             else:
                 try:
-                    record[headers[col]] = int(v)
+                    record[colname] = int(v)
                 except:
-                    record[headers[col]] = time(v)
+                    try:
+                        record[colname] = float(v)
+                    except Exception as e:
+                        record[colname] = time(v)
         data.append(record)
     if headers:
         if not title:
