@@ -840,11 +840,9 @@ class DictParserGFM(DictParser):
                     cols = [name.strip() for name in line.split(tab)]
                     at = "header"
                     self.headers = cols
-                    logg.fatal("found cols %s", cols)
                     continue
                 if at == "header":
                     newcols = [name.strip() for name in line.split(tab)]
-                    logg.fatal("found newcols %s", newcols)
                     if len(newcols) != len(cols):
                         logg.error("header divider has not the same length")
                         at = "data"  # promote anyway
@@ -898,7 +896,6 @@ class DictParserGFM(DictParser):
                     title = line[3:].strip()
                 continue
             vals = line.split(tab)
-            logg.fatal("%s -> %s", line, vals)
             if tab:
                 del vals[0]
             if lookingfor == "headers":
@@ -2834,7 +2831,6 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
     if fmt in ["xhtml"]:
         fmt = "HTML"
         xmlns = "1999/xhtml"
-    logg.fatal("xmlns =%s", xmlns)
     if fmt in ["json"]:
         fmt = "JSON"  # nopep8
     if fmt in ["jsn"]:
