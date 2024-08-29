@@ -1340,7 +1340,7 @@ if __name__ == "__main__":
     def numbered_option(option: Option, arg: str, value: str, parser: OptionParser) -> None:
         setattr(parser.values, (option.dest or "numbered"), int(arg[1:]))
     prog = os.path.basename(__file__)
-    cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [:page] [column...]", epilog=__doc__)
+    cmdline = OptionParser(prog + " [-options] input(.xlsx|.csv) [:page] [column...] [@list]", epilog=__doc__)
     cmdline.formatter.max_help_position = 29
     cmdline.add_option("--all", "--sheetnames", "--sectionnames", "--listnames", "--onlypages", dest="onlypages", action="store_true")
     cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="page")
