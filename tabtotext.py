@@ -874,9 +874,10 @@ class DictParserGFM(DictParser):
                     yield newrow
             else:
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
-    def loadtablist(self, filename: str, *, tab: Optional[str] = "|") -> List[TabSheet]:
+    def loadtablist(self, filename: str, *, tab: Optional[str] = None) -> List[TabSheet]:
         return self.readtablist(open(filename), tab=tab)
-    def readtablist(self, lines: Iterable[str], *, tab: Optional[str] = "|") -> List[TabSheet]:
+    def readtablist(self, lines: Iterable[str], *, tab: Optional[str] = None) -> List[TabSheet]:
+        tab = "|" if tab is None else tab
         tabs: List[TabSheet] = []
         data: List[JSONDict] = []
         # must have headers
@@ -884,7 +885,7 @@ class DictParserGFM(DictParser):
         headers: List[str] = []
         title = ""
         for line in lines:
-            if tab and not line.startswith(tab):
+            if not line.strip() or (tab and not line.startswith(tab)):
                 if headers:
                     if not title:
                         title = "-%s" % (len(tabs) + 1)

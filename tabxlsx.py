@@ -1184,7 +1184,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         oldvalues = values
     return "GFM"
 
-def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabSheet]:
+def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, defaultformat: str = "") -> List[TabSheet]:
     def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
         if ext: return ext[1:]
@@ -1205,7 +1205,7 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
         inp = sys.stdin
         done = input
     #
-    tab = '|'
+    tab = '|' if tab is None else tab
     if fmt in ["wide", "text"]:
         tab = ''
     if fmt in ["tabs", "tab", "dat", "ifs", "data"]:
@@ -1272,7 +1272,7 @@ def tablistfile(input: Union[TextIO, str], defaultformat: str = "") -> List[TabS
     headers: List[str] = []
     title = ""
     for line in inp:
-        if tab and not line.startswith(tab):
+        if not line.strip() or (tab and not line.startswith(tab)):
             if headers:
                 if not title:
                     title = "-%s" % (len(tabs) + 1)
