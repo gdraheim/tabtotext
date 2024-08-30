@@ -1374,28 +1374,27 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
 
 def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [], # ..
                   *, tab: Optional[str] = None, padding: Optional[str] = None,
-                  minwidth: int = 0, section: Union[str, int] = NIX,
+                  minwidth: int = 0, section: str = NIX, page: int = 0,
                   noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     def extension(filename: str) -> Optional[str]:
         _, ext = fs.splitext(filename.lower())
         if ext: return ext[1:]
         return None
-    if section:
-        if isinstance(section, int):
-            if section > len(tablist):
-                logg.error("selected -%i page, but input has only %s pages", section, len(tablist))
-                tabsheets = []
-            else:
-                tabsheets = [tablist[section - 1]]
-        else:
+    if page:
+        if page > len(tablist):
+            logg.error("selected -%i page, but input has only %s pages", page, len(tablist))
             tabsheets = []
-            tabsheetnames = []
-            for tabsheet in tablist:
-                tabsheetnames += [tabsheet.title]
-                if tabsheet.title == section:
-                    tabsheets += [tabsheet]
-            if not tabsheets:
-                logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
+        else:
+            tabsheets = [tablist[page - 1]]
+    elif section:
+        tabsheets = []
+        tabsheetnames = []
+        for tabsheet in tablist:
+            tabsheetnames += [tabsheet.title]
+            if tabsheet.title == section:
+                tabsheets += [tabsheet]
+        if not tabsheets:
+            logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
     else:
         tabsheets = tablist
     if len(tabsheets) == 1:
@@ -1458,7 +1457,7 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 29
     cmdline.add_option("--tables", "--sheetnames", "--sectionnames", "--listnames",
                        "--onlypages", dest="onlypages", action="store_true")
-    cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="page")
+    cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="section")
     cmdline.add_option("-1", "-2", "-3", "-4", "-5", "-6", dest="page", action="callback", callback=numbered_option,
                        help="numbered page instead of ':name' or '-: name'")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="increase logging level")
@@ -1509,9 +1508,10 @@ if __name__ == "__main__":
         selected = args[1:]
     else:
         selected = []
-    page: Union[int, str] = opt.page
-    if selected and selected[0].startswith(":") and page is None:
-        page = selected[0][1:].strip()
+    page: int = int(opt.page or 0)
+    section: str = opt.section or ""
+    if selected and selected[0].startswith(":") and not section:
+        section = selected[0][1:].strip()
         selected = selected[1:]
     if "." in opt.output:
         output = opt.output
@@ -1551,4 +1551,4 @@ if __name__ == "__main__":
     else:
         print_tablist(output, tablist, selected, padding=padding, tab=tab,
                       noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth,
-                      section=page, defaultformat=defaultformat)
+                      section=section, page=page, defaultformat=defaultformat)

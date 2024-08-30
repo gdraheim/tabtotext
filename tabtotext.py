@@ -2636,35 +2636,34 @@ class DictParserCSV(DictParser):
 # .......................................................................................
 def tablistmakeFMT(fmt: str, tablist: List[TabSheet] = [], selected: List[str] = [], legend: List[str] = [],  # ..
                   *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
-                  xmlns: Optional[str] = None, minwidth: int = 0, section: Union[str, int] = NIX,
+                  xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX, page: int = 0,
                   noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     stream = StringIO()
     print_tablist(stream, tablist, selected, legend,  # ..
                   datedelim=datedelim, tab=tab, padding=padding,
-                  xmlns=xmlns, minwidth=minwidth, section=section,
+                  xmlns=xmlns, minwidth=minwidth, section=section, page=page,
                   noheaders=noheaders, unique=unique, defaultformat=fmt)
     return stream.getvalue()
 
 def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [], legend: List[str] = [],  # ..
                   *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
-                  xmlns: Optional[str] = None, minwidth: int = 0, section: Union[str, int] = NIX,
+                  xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX, page: int = 0,
                   noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
-    if section:
-        if isinstance(section, int):
-            if section > len(tablist):
-                logg.error("selected -%i page, but input has only %s pages", section, len(tablist))
-                tabsheets = []
-            else:
-                tabsheets = [tablist[section - 1]]
-        else:
+    if page:
+        if page > len(tablist):
+            logg.error("selected -%i page, but input has only %s pages", page, len(tablist))
             tabsheets = []
-            tabsheetnames = []
-            for tabsheet in tablist:
-                tabsheetnames += [tabsheet.title]
-                if tabsheet.title == section:
-                    tabsheets += [tabsheet]
-            if not tabsheets:
-                logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
+        else:
+            tabsheets = [tablist[page - 1]]
+    elif section:
+        tabsheets = []
+        tabsheetnames = []
+        for tabsheet in tablist:
+            tabsheetnames += [tabsheet.title]
+            if tabsheet.title == section:
+                tabsheets += [tabsheet]
+        if not tabsheets:
+            logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
     else:
         tabsheets = tablist
     if len(tabsheets) == 1:
@@ -3287,7 +3286,7 @@ if __name__ == "__main__":
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("--tables", "--sheetnames", "--sectionnames", "--listnames",
                        "--onlypages", dest="onlypages", action="store_true")
-    cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="page")
+    cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="section")
     cmdline.add_option("-1", "-2", "-3", "-4", "-5", "-6", dest="page", action="callback", callback=numbered_option,
                        help="numbered page instead of ':name' or '-: name'")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
@@ -3330,9 +3329,10 @@ if __name__ == "__main__":
             selected = args[1:] + opt.labels
         else:
             selected = opt.labels
-        page: Union[int, str] = opt.page
-        if selected and selected[0].startswith(":") and page is None:
-            page = selected[0][1:].strip()
+        page: int = int(opt.page or 0)
+        section: str = opt.section or ""
+        if selected and selected[0].startswith(":") and not section:
+            section = selected[0][1:].strip()
             selected = selected[1:]
         minwidth = int(opt.minwidth)
         padding = opt.padding if not opt.nopadding else ""
@@ -3349,7 +3349,7 @@ if __name__ == "__main__":
                     print(tabsheet0.title)
                 done = "(%s tables)" % (len(tablist))
             else:
-                done = print_tablist(opt.output, tablist, selected, section=page,
+                done = print_tablist(opt.output, tablist, selected, section=section, page=page,
                                      datedelim=opt.datedelim, tab=tab, padding=padding,
                                      noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
         if done:
