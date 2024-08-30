@@ -464,7 +464,7 @@ def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]: 
         tab.append(TabSheet(data, cols, title))
     return tab
 
-def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[WorkbookType]:
+def tablistmake_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[WorkbookType]:
     workbook: Optional[WorkbookType] = None
     for tabsheet in tablist:
         work = tabto_workbook(tabsheet.data, tabsheet.headers, selected,
@@ -498,7 +498,7 @@ if __name__ == "__main__":
         for arg in args:
             tablist = tablistfile(arg, opt.inputformat)
             xlsx = arg + ".xlsx"
-            workbook = tablistto_workbook(tablist, opt.labels)
+            workbook = tablistmake_workbook(tablist, opt.labels)
             if workbook:
                 workbook.save(xlsx)
                 rows = sum([len(tabtext.data) for tabtext in tablist])

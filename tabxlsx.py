@@ -538,7 +538,7 @@ def currency() -> str:
     currency_euro = 0x20AC
     return chr(currency_euro)
 
-def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[Workbook]:
+def tablistmake_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[Workbook]:
     workbook: Optional[Workbook] = None
     for tabsheet in tablist:
         work = tabto_workbook(tabsheet.data, tabsheet.headers, selected, minwidth, section=tabsheet.title)
@@ -1454,7 +1454,7 @@ if __name__ == "__main__":
                             noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth, section=tabsheet2.title,
                             defaultformat=defaultformat)
     elif opt.xls and output or output.endswith(".xlsx"):
-        workbook3 = tablistto_workbook(tablist, selected, minwidth)
+        workbook3 = tablistmake_workbook(tablist, selected, minwidth)
         if workbook3:
             workbook3.save(output)
     else:
