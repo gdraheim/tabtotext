@@ -101,10 +101,6 @@ def _dataitem_replace(obj: DataItem, values: JSONDict, dict_factory: Type[Dict[s
             result[name] = cast(JSONItem, getattr(obj, name))
     return result
 
-class TabText(NamedTuple):
-    data: JSONList
-    headers: List[str]
-
 ## Files can contain multiple tables which get represented as a list of sheets where
 ## each sheet remembers the title and the order columns in the original table. This allows
 ## to convert file formats with the order of tables, columns (and rows) being preserved.
@@ -820,10 +816,6 @@ def loadGFM(text: str, datedelim: str = '-', tab: str = '|', section: str = NIX)
 def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> JSONList:
     parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     return list(parser.load(filename))
-def tabtextfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> TabText:
-    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
-    data = list(parser.load(filename))
-    return TabText(data, parser.headers)
 def tablistfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
     parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     return parser.loadtablist(filename)
@@ -1280,10 +1272,10 @@ def loadHTML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
 def readFromHTML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserHTML(datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileHTML(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
+def tablistfileHTML(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
     parser = DictParserHTML(datedelim, section=section)
     data = list(parser.load(filename))
-    return TabText(data, parser.headers)
+    return [TabSheet(data, parser.headers, parser.caption)]
 
 class DictParserHTML(DictParser):
     def __init__(self, datedelim: str = '-', section: str = NIX, convert_charrefs: bool = True) -> None:
@@ -1291,6 +1283,7 @@ class DictParserHTML(DictParser):
         self.convert_charrefs = convert_charrefs
         self.section = section  # actually ignored
         self.headers = STRLIST
+        self.caption = NIX
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(open(filename))
     def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
@@ -1320,6 +1313,8 @@ class DictParserHTML(DictParser):
                     self.val = data
                 if tagged.startswith("<br"):
                     self.val2 = data
+                if tagged.startswith("<caption"):
+                    self.caption = data
             def handle_endtag(self, tag: str) -> None:
                 if tag == "th":
                     self.th += [self.val or str(len(self.th) + 1)]
@@ -1620,8 +1615,6 @@ def loadJSON(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
 def readFromJSON(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserJSON(datedelim=datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
-    return TabText(readFromJSON(filename, datedelim=datedelim, section=section), [])
 def tablistfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
     parser = DictParserJSON(datedelim=datedelim, section=section)
     return parser.loadtablist(filename)
@@ -1939,8 +1932,8 @@ def loadYAML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
 def readFromYAML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserYAML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileYAML(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
-    return TabText(readFromYAML(filename, datedelim), [])
+def tablistfileYAML(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
+    return [TabSheet(readFromYAML(filename, datedelim), [], NIX)]
 
 def DictReaderYAML(rows: Iterable[str], *, datedelim: str = '-', section: str = NIX) -> Iterator[JSONDict]:
     parser = DictParserYAML(datedelim=datedelim, section=section)
@@ -2255,8 +2248,8 @@ def loadTOML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
 def readFromTOML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserTOML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
-def tabtextfileTOML(filename: str, datedelim: str = '-', section: str = NIX) -> TabText:
-    return TabText(readFromTOML(filename, datedelim, section=section), [])
+def tablistfileTOML(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
+    return [TabSheet(readFromTOML(filename, datedelim, section=section), [], section)]
 
 class DictParserTOML(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
@@ -2612,10 +2605,10 @@ def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
 def readFromCSV(filename: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     parser = DictParserCSV(datedelim=datedelim, tab=tab)
     return list(parser.load(filename))
-def tabtextfileCSV(filename: str, datedelim: str = '-', tab: str = ";") -> TabText:
+def tablistfileCSV(filename: str, datedelim: str = '-', tab: str = ";") -> List[TabSheet]:
     parser = DictParserCSV(datedelim=datedelim, tab=tab)
     data = list(parser.load(filename))
-    return TabText(data, parser.headers)
+    return [TabSheet(data, parser.headers, NIX)]
 
 class DictParserCSV(DictParser):
     def __init__(self, *, datedelim: str = '-', tab: str = ";") -> None:
@@ -2966,75 +2959,20 @@ def extension(filename: str) -> Optional[str]:
     return None
 
 def readFromFile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> JSONList:
-    tabtext = tabtextfile(filename, fmt, defaultfileformat=defaultfileformat)
-    return tabtext.data
+    tablist = tablistfile(filename, fmt, defaultfileformat=defaultfileformat)
+    if tablist:
+        return tablist[0].data
+    return []
 def readFromFMT(fmt: str, filename: str, defaultformat: str = NIX) -> JSONList:
-    tabtext = tabtextfileFMT(fmt, filename, defaultformat=defaultformat)
-    return tabtext.data
-def tabtextfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, section: str = NIX, defaultfileformat: str = NIX) -> TabText:
-    if not fmt:
-        fmt = extension(filename) or defaultfileformat
-        if not fmt:
-            logg.warning("could not detect format of '%s'", filename)
-            return TabText([], [])
-    # assert fmt
-    return tabtextfileFMT(fmt, filename, tab=tab, defaultformat=defaultfileformat)
-def tabtextfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, section: str = NIX, defaultformat: str = NIX) -> TabText:
-    if not fmt:
-        fmt = extension(filename) or NIX
-        if not fmt:
-            fmt = defaultformat
-        if not fmt:
-            return TabText([], [])
-    if fmt.lower() in ["md", "markdown"]:
-        return tabtextfileGFM(filename, tab='|' if tab is None else tab, section=section)
-    if fmt.lower() in ["html", "htm", "xhtml"]:
-        return tabtextfileHTML(filename, section=section)
-    if fmt.lower() in ["json", "jsn"]:
-        return tabtextfileJSON(filename, section=section)
-    if fmt.lower() in ["yaml", "yml"]:
-        return tabtextfileYAML(filename, section=section)
-    if fmt.lower() in ["toml", "tml"]:
-        return tabtextfileTOML(filename, section=section)
-    if fmt.lower() in ["tab"]:
-        return tabtextfileCSV(filename, tab='\t' if tab is None else tab)
-    if fmt.lower() in ["csv", "scsv"]:
-        return tabtextfileCSV(filename, tab=';' if tab is None else tab)
-    if fmt.lower() in ["xlsx", "xls"]:
-        try:
-            if TABXLSX:
-                import tabxlsx
-                found1 = tabxlsx.tablistfileXLSX(filename)  # type: ignore[return-value]
-                if section:
-                    for tabsheet1 in found1:
-                        if tabsheet1.title == section:
-                            return TabText(cast(JSONList, tabsheet1.data), tabsheet1.headers)
-                elif found1:
-                    return TabText(cast(JSONList, found1[0].data), found1[0].headers)
-            else:
-                import tabtoxlsx
-                found2 = tabtoxlsx.tablistfileXLSX(filename)
-                if section:
-                    for tabsheet2 in found1:
-                        if tabsheet2.title == section:
-                            return TabText(cast(JSONList, tabsheet2.data), tabsheet2.headers)
-                elif found2:
-                    return TabText(cast(JSONList, found2[0].data), found2[0].headers)
-        except Exception as e:
-            if not TABXLSX:
-                import tabxlsx
-                found3 = tabxlsx.tablistfileXLSX(filename)  # type: ignore[return-value]
-                if section:
-                    for tabsheet3 in found1:
-                        if tabsheet3.title == section:
-                            return TabText(cast(JSONList, tabsheet3.data), tabsheet3.headers)
-                elif found2:
-                    return TabText(cast(JSONList, found3[0].data), found3[0].headers)
-            else:
-                logg.error("could not load xslx: %s", e)
-        return TabText([], [])
-    logg.debug(" tabtextfileFMT  - unrecognized input format %s: %s", fmt, filename)
-    return TabText([], [])
+    tablist = tablistfileFMT(fmt, filename, defaultformat=defaultformat)
+    if tablist:
+        return tablist[0].data
+    return []
+def tabtextfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, section: str = NIX, defaultfileformat: str = NIX) -> TabSheet:
+    tablist = tablistfile(filename, fmt, defaultfileformat=defaultfileformat)
+    if tablist:
+        return tablist[0]
+    return TabSheet([],[],NIX)
 
 def tablistfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, defaultfileformat: str = NIX) -> List[TabSheet]:
     if not fmt:
@@ -3054,22 +2992,17 @@ def tablistfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, sectio
     if fmt.lower() in ["md", "markdown"]:
         return tablistfileGFM(filename, tab='|' if tab is None else tab, section=section)
     if fmt.lower() in ["html", "htm", "xhtml"]:
-        tabtext = tabtextfileHTML(filename, section=section)
-        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+        return tablistfileHTML(filename, section=section)
     if fmt.lower() in ["json", "jsn"]:
         return tablistfileJSON(filename, section=section)
     if fmt.lower() in ["yaml", "yml"]:
-        tabtext = tabtextfileYAML(filename, section=section)
-        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+        return tablistfileYAML(filename, section=section)
     if fmt.lower() in ["toml", "tml"]:
-        tabtext = tabtextfileTOML(filename, section=section)
-        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+        return tablistfileTOML(filename, section=section)
     if fmt.lower() in ["tab"]:
-        tabtext = tabtextfileCSV(filename, tab='\t' if tab is None else tab)
-        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+        return tablistfileCSV(filename, tab='\t' if tab is None else tab)
     if fmt.lower() in ["csv", "scsv"]:
-        tabtext = tabtextfileCSV(filename, tab=';' if tab is None else tab)
-        return [TabSheet(tabtext.data, tabtext.headers, section or SECTION)]
+        return tablistfileCSV(filename, tab=';' if tab is None else tab)
     if fmt.lower() in ["xlsx", "xls"]:
         try:
             if TABXLSX:
