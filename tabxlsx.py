@@ -429,6 +429,7 @@ def load_workbook(filename: str) -> Workbook:
             if sheetId in sheetnames:
                 ws.title = sheetnames[sheetId]
             with zipfile.open(sheetfilename) as xmlfile:
+                logg.debug("load %s:%s", filename, sheetfilename)
                 xml = ET.parse(xmlfile)
                 for item in xml.getroot():
                     if ("}" + item.tag).endswith("}sheetData"):
@@ -459,11 +460,13 @@ def load_workbook(filename: str) -> Workbook:
                                     value = sharedStrings[int(v)]
                                 # elif v in [""]:
                                 #     value = ""
-                                elif "." not in v:
-                                    value = int(v)
                                 else:
-                                    value1 = float(v)
-                                    value = value1
+                                    if "." not in v:
+                                        value = int(v)
+                                        value1 = float(value)
+                                    else:
+                                        value1 = float(v)
+                                        value = value1
                                     if s in numberformat:
                                         numfmt = numberformat[s]
                                         logg.debug("value %s numberformat %s", value, numfmt)
@@ -478,6 +481,10 @@ def load_workbook(filename: str) -> Workbook:
                                             value2 = Time.fromordinal(value0 + 693594)
                                             value = value2.date()
                                             t = "d"
+                                        else:
+                                            logg.debug("%s no datetime format", s)
+                                    else:
+                                        logg.debug("%s has no numbeformt", s)
 
                                 if r:
                                     ws[r].value = value

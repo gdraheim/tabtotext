@@ -3280,7 +3280,7 @@ if __name__ == "__main__":
                        help="numbered page instead of ':name' or '-: name'")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("-X", "--tabxlsx", action="store_true", default=False,
+    cmdline.add_option("-X", "--tabxlsx", action="store_true", default=TABXLSX,
                        help="quick xlsx with tabxlsx instead of openpyxl")
     cmdline.add_option("-m", "--minwidth", metavar="N", default=0,
                        help="override minwith of  cells for format")
