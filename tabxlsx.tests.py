@@ -33,6 +33,7 @@ LIST: List[str] = []
 JSONLIST: List[Dict[str, str]] = []
 KEEP = 0
 TABTO = "./tabxlsx.py"
+FIXME = True
 
 try:
     from tabtools import currency_default
@@ -1737,7 +1738,8 @@ class TabXlsxTest(unittest.TestCase):
         want = { "table22": table22, "table33": _date(_none(table33Q))}
         scan = tablistfile(filename)
         back = dict(tablistmap(scan))
-        back["table33"] = _date(back["table33"])  # FIXME: openpyxl returns .999999 sec
+        if FIXME and "table33" in back:
+            back["table33"] = _date(back["table33"])  # FIXME: openpyxl returns .999999 sec
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
 # sh
@@ -1905,6 +1907,86 @@ class TabXlsxTest(unittest.TestCase):
         cond = ['a;wide', ';', 'x;3.0in', 'y;1.0in', 'y;2.0in']
         self.assertEqual(cond, text.splitlines())
         self.rm_testdir()
+    def test_9811(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output}")
+        with ZipFile(output) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+               xmldata = zipdata.read()
+        logg.info("xmldata=>\n%s", xmldata)
+        self.assertIn(b"</worksheet>", xmldata)
+        want = { "table22": table22, "table33": _none(table33N)}
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_9812(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -: table22")
+        with ZipFile(output) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+               xmldata = zipdata.read()
+        logg.info("xmldata=>\n%s", xmldata)
+        self.assertIn(b"</worksheet>", xmldata)
+        want = { "table22": table22, }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_9813(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -: table33")
+        with ZipFile(output) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+               xmldata = zipdata.read()
+        logg.info("xmldata=>\n%s", xmldata)
+        self.assertIn(b"</worksheet>", xmldata)
+        want = { "table33": _none(table33N), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_9814(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output} -2")
+        with ZipFile(output) as zipped:
+            with zipped.open("xl/worksheets/sheet1.xml") as zipdata:
+               xmldata = zipdata.read()
+        logg.info("xmldata=>\n%s", xmldata)
+        self.assertIn(b"</worksheet>", xmldata)
+        want = { "data": _none(table33N), }
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
     def test_9821(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}

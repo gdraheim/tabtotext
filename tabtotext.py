@@ -2753,14 +2753,14 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
             try:
                 if TABXLSX:
                     import tabxlsx
-                    return tabxlsx.tabtoXLSX(output, data, headers, selected)  # type: ignore[arg-type]
+                    return tabxlsx.tabtoXLSX(output, data, headers, selected, section=section)  # type: ignore[arg-type]
                 else:
                     import tabtoxlsx
-                    return tabtoxlsx.tabtoXLSX(output, data, headers, selected, legend=legend)
+                    return tabtoxlsx.tabtoXLSX(output, data, headers, selected, section=section, legend=legend)
             except Exception as e:
                 if not TABXLSX:
                     import tabxlsx
-                    return tabxlsx.tabtoXLSX(output, data, headers, selected)  # type: ignore[arg-type]
+                    return tabxlsx.tabtoXLSX(output, data, headers, selected, section=section)  # type: ignore[arg-type]
                 else:
                     logg.error("could not write %s: %s", output, e)
         out = open(output, "wt", encoding="utf-8")
