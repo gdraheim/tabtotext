@@ -118,7 +118,7 @@ def tablistitems(tablist: List[TabSheet]) -> Iterator[Tuple[str, List[JSONDict]]
     for tabsheet in tablist:
         yield tabsheet.title, tabsheet.data
 def tablistmap(tablist: List[TabSheet]) -> Dict[str, List[JSONDict]]:
-    tabdata: Dict[str, List[JSONDict]]
+    tabdata: Dict[str, List[JSONDict]] = OrderedDict()
     for name, data in tablistitems(tablist):
         tabdata[name] = data
     return tabdata
@@ -2634,10 +2634,20 @@ class DictParserCSV(DictParser):
             self.headers = list(reader.fieldnames)
 
 # .......................................................................................
+def tablistmakeFMT(fmt: str, tablist: List[TabSheet] = [], selected: List[str] = [], legend: List[str] = [],  # ..
+                  *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
+                  xmlns: Optional[str] = None, minwidth: int = 0, section: Union[str, int] = NIX,
+                  noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+    stream = StringIO()
+    print_tablist(stream, tablist, selected, legend,  # ..
+                  datedelim=datedelim, tab=tab, padding=padding,
+                  xmlns=xmlns, minwidth=minwidth, section=section,
+                  noheaders=noheaders, unique=unique, defaultformat=fmt)
+    return stream.getvalue()
 
 def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [], legend: List[str] = [],  # ..
                   *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
-                  xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX,
+                  xmlns: Optional[str] = None, minwidth: int = 0, section: Union[str, int] = NIX,
                   noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     if section:
         if isinstance(section, int):
@@ -2702,21 +2712,30 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         fmt = output
         out = sys.stdout
         done = output
-    results: List[str] = []
+    result: List[str] = []
     for tabsheet in tabsheets:
         if tabsheet.title:
             logg.info(" ## %s", tabsheet.title)
-        lines = tabtotext(tabsheet.data, tabsheet.headers, selected, legend=legend, fmt=fmt,
+        text = tabtotext(tabsheet.data, tabsheet.headers, selected, legend=legend, fmt=fmt,
                           datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
                           section=tabsheet.title, noheaders=noheaders, unique=unique,
                           defaultformat=defaultformat)
+        result.append(text)
         legend = []  # only on first page
+    if fmt in ["jsn", "json", "JSN", "JSON"]:
+        for part in range(len(result)-1):
+            if result[part].endswith("]}"):
+                result[part] = result[part][:-1] + ","
+        for part in range(1, len(result)):
+            logg.fatal("part %i", part)
+            if result[part].startswith('{"'):
+                result[part] = result[part][1:]
+    for lines in result:
         for line in lines:
-            results.append(line)
             out.write(line)
     if noheaders or "@noheaders" in selected or "@dat" in selected:
         return ""
-    return ": %s results %s (%s tables)" % (len(results), done, len(tabsheets))
+    return ": %s results %s (%s tables)" % (len(result), done, len(tabsheets))
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     headers: List[str] = [], selected: List[str] = [], legend: List[str] = [],  # ..
