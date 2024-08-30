@@ -125,28 +125,31 @@ class Worksheet:
         return self.rows[atrow][name]
 
 class Workbook:
-    worksheets: List[Worksheet]
+    _sheets: List[Worksheet]
     _active_sheet_index: int
     def __init__(self) -> None:
-        self.worksheets = [Worksheet()]
+        self._sheets = [Worksheet()]
         self._active_sheet_index = 0
     @property
+    def worksheets(self) -> List[Worksheet]:
+        return self._sheets
+    @property
     def active(self) -> Worksheet:
-        return self.worksheets[self._active_sheet_index]
+        return self._sheets[self._active_sheet_index]
     def save(self, filename: str) -> None:
         save_workbook(filename, self)
     def create_sheet(self) -> Worksheet:  # pragma: no cover
         ws = Worksheet()
-        self._active_sheet_index = len(self.worksheets)
-        self.worksheets.append(ws)
+        self._active_sheet_index = len(self._sheets)
+        self._sheets.append(ws)
         return ws
     def get_sheet_names(self) -> List[str]:  # pragma: no cover
         names: List[str] = []
-        for ws in self.worksheets:
+        for ws in self._sheets:
             names += [ws.title]
         return names
     def get_sheet_by_name(self, name: str) -> Worksheet:  # pragma: no cover
-        for ws in self.worksheets:
+        for ws in self._sheets:
             if name == ws.title:
                 return ws
         raise KeyError("Worksheet does not exist")
@@ -421,7 +424,7 @@ def load_workbook(filename: str) -> Workbook:
                 if sheetfilename not in namelist:
                     break
                 ws = Worksheet()
-                workbook.worksheets.append(ws)
+                workbook._sheets.append(ws)
             if sheetId in sheetnames:
                 ws.title = sheetnames[sheetId]
             with zipfile.open(sheetfilename) as xmlfile:
@@ -542,9 +545,9 @@ def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwid
         if workbook is None:
             workbook = work
         else:
-            new_sheets = work.worksheets
-            work.worksheets = []
-            workbook.worksheets += new_sheets
+            new_sheets = work._sheets
+            work._sheets = []
+            workbook._sheets += new_sheets
     return workbook
 
 def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> str:

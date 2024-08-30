@@ -472,14 +472,9 @@ def tablistto_workbook(tablist: List[TabSheet], selected: List[str] = [], minwid
         if workbook is None:
             workbook = work
         else:
-            if hasattr(work, '_sheets') and hasattr(workbook, '_sheets'):  # openpyxl
-                new_sheets = work._sheets
-                work._sheets = []
-                workbook._sheets += new_sheets
-            else:
-                new_sheets = work.worksheets
-                work.worksheets = []
-                workbook.worksheets += new_sheets
+            new_sheets = work._sheets
+            work._sheets = []
+            workbook._sheets += new_sheets
     return workbook
 
 if __name__ == "__main__":
