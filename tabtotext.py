@@ -2727,7 +2727,6 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
             if result[part].endswith("]}"):
                 result[part] = result[part][:-1] + ","
         for part in range(1, len(result)):
-            logg.fatal("part %i", part)
             if result[part].startswith('{"'):
                 result[part] = result[part][1:]
     for lines in result:

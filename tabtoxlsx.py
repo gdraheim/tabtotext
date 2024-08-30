@@ -120,7 +120,8 @@ def save_tabtoXLSX(filename: str, data: Iterable[JSONDict], headers: List[str] =
 
 def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: List[str] = [],  # ..
                    *, legend: LegendList = [], minwidth: int = 0, section: str = NIX,
-                   reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {}) -> WorkbookType:
+                   reorder: ColSortList = [], sorts: RowSortList = [], formatter: FormatsDict = {},
+                   workbook: Optional[WorkbookType] = None) -> WorkbookType:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
@@ -313,7 +314,7 @@ def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: 
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
-            rows.append(row)
+            rows.append(row)f
     if isinstance(legend, dict):
         newlegend = OrderedDict()
         for name in sorted(legend.keys(), key=sortkey):
@@ -322,13 +323,14 @@ def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: 
     #
     sortedrows = list(sorted(rows, key=sortrow))
     sortedcols = list(sorted(cols.keys(), key=sortkey))
-    return make_workbook(sortedrows, sortedcols, cols, formats, legend=legend, section=section)
+    return make_workbook(sortedrows, sortedcols, cols, formats, legend=legend, section=section, workbook=workbook)
 
 def make_workbook(rows: JSONList, cols: List[str], colwidth: Dict[str, int],
-                  formats: Dict[str, str], legend: LegendList, section: str = NIX) -> WorkbookType:
-    row = 0
-    workbook = Workbook()
+                  formats: Dict[str, str], legend: LegendList, section: str = NIX,
+                  workbook: Optional[WorkbookType] = None) -> WorkbookType:
+    workbook = workbook or Workbook()
     ws = workbook.active
+    row = 0
     ws.title = section or SECTION
     style = Style()
     hdr_style = Style()
@@ -466,14 +468,13 @@ def tablist_workbook(workbook: Workbook, section: str = NIX) -> List[TabSheet]: 
 def tablistmake_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[WorkbookType]:
     workbook: Optional[WorkbookType] = None
     for tabsheet in tablist:
+        if workbook is not None:
+            workbook.create_sheet()
         work = tabto_workbook(tabsheet.data, tabsheet.headers, selected,
-                              minwidth=minwidth, section=tabsheet.title)
+                              minwidth=minwidth, section=tabsheet.title,
+                              workbook=workbook)
         if workbook is None:
             workbook = work
-        else:
-            new_sheets = work._sheets
-            work._sheets = []
-            workbook._sheets += new_sheets
     return workbook
 
 if __name__ == "__main__":
