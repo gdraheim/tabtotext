@@ -2674,9 +2674,10 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         return print_tabtotext(output, tabsheets[0].data, tabsheets[0].headers, selected, legend,
                                datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
                                section=title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
+    selected_fmt = fmt_selected(selected)
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat or fmt_selected(selected)
+        fmt = defaultformat or selected_fmt
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat
@@ -2709,7 +2710,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output or defaultformat or fmt_selected(selected)
+        fmt = output or defaultformat or selected_fmt
         out = sys.stdout
         done = output
     result: List[str] = []
@@ -2741,9 +2742,10 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
                     xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX,
                     noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+    selected_fmt = fmt_selected(selected)
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat or fmt_selected(selected)
+        fmt = defaultformat or selected_fmt
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat
@@ -2764,7 +2766,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output or defaultformat or fmt_selected(selected)
+        fmt = output or defaultformat or selected_fmt
         out = sys.stdout
         done = output
     lines = tabtotext(data, headers, selected, legend=legend, fmt=fmt,
@@ -2786,8 +2788,9 @@ def tabtotext(data: Iterable[JSONDict],  # ..
               noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selected if x.startswith("@"))
+    selected_fmt = fmt_selected(selected)
     selected = [x for x in selected if not x.startswith("@")]
-    fmt = fmt if fmt not in ["", "-"] else defaultformat or fmt_selected(selected)
+    fmt = fmt if fmt not in ["", "-"] else defaultformat or selected_fmt
     xmlns = "" if xmlns is None else xmlns
     datedelim = "-" if datedelim is None else datedelim
     padding = " " if padding is None else padding
@@ -3055,7 +3058,7 @@ def viewFMT(fmt: str) -> str:
     return editprog()
 
 _atformats = ["@html", "@htm", "@xhtm", "@xhtml", "@json", "@jsn", "@yaml", "@yaml", "@toml", "@tml", 
-              "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@txt", 
+              "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@txt", "@text",
               "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
 
 def extension(filename: str) -> Optional[str]:

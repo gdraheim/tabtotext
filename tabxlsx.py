@@ -863,7 +863,8 @@ class StrToTime(StrToDate):
         if t: return t
         return value
 
-_atformats = ["@json", "@jsn", "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@txt", 
+_atformats = ["@json", "@jsn", "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", 
+              "@wide", "@txt", "@text",
               "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
 
 def fmt_selected(selected: List[str]) -> str:
@@ -891,6 +892,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         tabtotext or tabtoxlsx to override this function. Only a subset of features is supported. """
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selected if x.startswith("@"))
+    selected_fmt = fmt_selected(selected)
     selected = [x for x in selected if not x.startswith("@")]
     minwidth = minwidth or MINWIDTH
     padding = " " if padding is None else padding
@@ -902,7 +904,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     #
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat or fmt_selected(selected)
+        fmt = defaultformat or selected_fmt
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat
@@ -912,7 +914,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output or defaultformat or fmt_selected(selected)
+        fmt = output or defaultformat or selected_fmt
         out = sys.stdout
         done = output
     #
@@ -1403,12 +1405,13 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         return print_tabtotext(output, tabsheets[0].data, tabsheets[0].headers, selected,
                                tab=tab, padding=padding, minwidth=minwidth,
                                section=title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
+    selected_fmt = fmt_selected(selected)
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat or fmt_selected(selected)
+        fmt = defaultformat or 
         done = "stream"
     elif "." in output:
-        fmt = extension(output) or defaultformat
+        fmt = extension(output) or defaultformat or selected_fmt
         if fmt in ["xls", "xlsx", "XLS", "XLSX"]:
             wb1 = tablistmake_workbook(tabsheets, selected)  # type: ignore[arg-type]
             if wb1:
@@ -1418,7 +1421,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output or defaultformat or fmt_selected(selected)
+        fmt = output or defaultformat or selected_fmt
         out = sys.stdout
         done = output
     result: List[str] = []
