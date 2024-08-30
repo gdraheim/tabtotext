@@ -314,7 +314,7 @@ def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: 
             except Exception as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
-            rows.append(row)f
+            rows.append(row)
     if isinstance(legend, dict):
         newlegend = OrderedDict()
         for name in sorted(legend.keys(), key=sortkey):
