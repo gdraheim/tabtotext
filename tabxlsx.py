@@ -8,7 +8,8 @@ If the input contains only one table then it is used, otherwise specify which sh
 __copyright__ = "(C) 2023-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3352"
 
-from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping, TypeVar, Generic
+from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping, TypeVar, Generic, Iterator
+from collections import OrderedDict
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
@@ -484,10 +485,26 @@ def load_workbook(filename: str) -> Workbook:
     return workbook
 
 # .....................................................................
+# Files can contain multiple tables which get represented as a list of sheets where
+# each sheet remembers the title and the order columns in the original table. This allows
+# to convert file formats with the order of tables, columns (and rows) being preserved.
 class TabSheet(NamedTuple):
     data: List[Dict[str, CellValue]]
     headers: List[str]
     title: str
+def tablistfor(tabdata: Dict[str, List[Dict[str, CellValue]]]) -> List[TabSheet]:
+    tablist: List[TabSheet] = []
+    for name, data in tabdata.items():
+        tablist += [TabSheet(data, [], name)]
+    return tablist
+def tablistitems(tablist: List[TabSheet]) -> Iterator[Tuple[str, List[Dict[str, CellValue]]]]:
+    for tabsheet in tablist:
+        yield tabsheet.title, tabsheet.data
+def tablistmap(tablist: List[TabSheet]) -> Dict[str, List[Dict[str, CellValue]]]:
+    tabdata: Dict[str, List[Dict[str, CellValue]]] = OrderedDict()
+    for name, data in tablistitems(tablist):
+        tabdata[name] = data
+    return tabdata
 
 def tablistfileXLSX(filename: str) -> List[TabSheet]:
     workbook = load_workbook(filename)
@@ -541,20 +558,21 @@ def currency() -> str:
 def tablistmake_workbook(tablist: List[TabSheet], selected: List[str] = [], minwidth: int = 0) -> Optional[Workbook]:
     workbook: Optional[Workbook] = None
     for tabsheet in tablist:
-        work = tabto_workbook(tabsheet.data, tabsheet.headers, selected, minwidth, section=tabsheet.title)
+        if workbook is not None:
+            workbook.create_sheet()
+        work = tabto_workbook(tabsheet.data, tabsheet.headers, selected,
+                              minwidth=minwidth, section=tabsheet.title,
+                              workbook=workbook)
         if workbook is None:
             workbook = work
-        else:
-            new_sheets = work._sheets
-            work._sheets = []
-            workbook._sheets += new_sheets
     return workbook
 
 def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> str:
     workbook = tabto_workbook(data, headers, selected, minwidth, section)
     save_workbook(filename, workbook)
     return "TABXLSX"
-def tabto_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, section: str = NIX) -> Workbook:
+def tabto_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, 
+                   section: str = NIX, workbook: Optional[Workbook] = None) -> Workbook:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
     renameheaders: Dict[str, str] = {}
@@ -717,14 +735,14 @@ def tabto_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
         rows.append(row)
     sortedrows = list(sorted(rows, key=sortrow))
     sortedcols = list(sorted(cols.keys(), key=sortkey))
-    return make_workbook(sortedrows, sortedcols, cols, formats, section=section)
+    return make_workbook(sortedrows, sortedcols, cols, formats, section=section, workbook=workbook)
 
 
 def make_workbook(rows: List[Dict[str, CellValue]],
-                  cols: List[str], colwidth: Dict[str, int],
-                  formats: Dict[str, str], section: str = NIX) -> Workbook:
+                  cols: List[str], colwidth: Dict[str, int], formats: Dict[str, str], 
+                  section: str = NIX, workbook: Optional[Workbook] = None) -> Workbook:
     row = 0
-    workbook = Workbook()
+    workbook = workbook or Workbook()
     ws = workbook.active
     ws.title = section or SECTION
     col = 0

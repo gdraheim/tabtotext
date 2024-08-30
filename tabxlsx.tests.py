@@ -3,8 +3,8 @@
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3352"
 
-from tabxlsx import print_tabtotext, CellValue, StrToTime, StrToDate
-from tabxlsx import tabtoXLSX, tablistfileXLSX, tablistfile
+from tabxlsx import print_tabtotext, print_tablist, CellValue, StrToTime, StrToDate
+from tabxlsx import tabtoXLSX, tablistfileXLSX, tablistfile, tablistmap, tablistfor
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable, cast
 import unittest
 import datetime
@@ -1666,6 +1666,20 @@ class TabXlsxTest(unittest.TestCase):
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
+    def test_8821(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        want = { "table22": table22, "table33": _date(_none(table33Q))}
+        scan = tablistfile(filename)
+        back = dict(tablistmap(scan))
+        back["table33"] = _date(back["table33"])  # FIXME: openpyxl returns .999999 sec
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
 # sh
 
     @unittest.skipIf(skipXLSX, "no openpyxl")
