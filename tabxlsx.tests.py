@@ -723,6 +723,32 @@ class TabXlsxTest(unittest.TestCase):
         want = [{'a': 'y', 'b': 1}, {'a': 'x', 'b': 2}, {'c': "h"}, ]
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
+    def test_5821(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table01": table01, "table02": table02}
+        filename = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 10)
+        self.assertGreater(100, sz)
+        want = { "table01": table01, "table02": table02}
+        scan = tablistfile(filename)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_5822(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 100)
+        self.assertGreater(600, sz)
+        want = { "table22": table22, "table33": table33}
+        scan = tablistfile(filename)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
 
     def test_6103(self) -> None:
         out = StringIO()
@@ -1058,6 +1084,34 @@ class TabXlsxTest(unittest.TestCase):
         self.assertEqual(cond, text.splitlines())
         back = loadGFM(text)
         del back[0]["a"]
+        self.assertEqual(want, back)
+    def test_6821(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table01": table01, "table02": table02}
+        filename = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 50)
+        self.assertGreater(200, sz)
+        have = open(filename).read()
+        logg.debug("have\n%s", have)
+        want = { "table01": table01N, "table02": _date(table02N)}
+        scan = tablistfile(filename)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_6822(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 40)
+        self.assertGreater(600, sz)
+        want = { "table22": table22, "table33": _date(table33)}
+        scan = tablistfile(filename)
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
 
     def test_8011(self) -> None:

@@ -856,6 +856,17 @@ class StrToTime(StrToDate):
         if t: return t
         return value
 
+def tabtotext(data: Iterable[Dict[str, CellValue]],  # ..
+                    headers: List[str] = [], selected: List[str] = [],
+                    *, fmt: str = "", tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, section: str = NIX,
+                    noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+    stream = StringIO()
+    print_tabtotext(stream, data, headers, selected, # ..
+                  tab=tab, padding=padding,
+                  minwidth=minwidth, section=section,
+                  noheaders=noheaders, unique=unique, defaultformat=(fmt or defaultformat))
+    return stream.getvalue()
+
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selected: List[str] = [],
                     *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, section: str = NIX,
@@ -1343,49 +1354,79 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
         tabs.append(TabSheet(data, headers, title))
     return tabs
 
-def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet], selected: List[str] = [],
-                  *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0,
-                  noheaders: bool = False, unique: bool = False,
-                  loglevel: int = ERROR, section: Union[None, int, str] = None, defaultformat: str = "") -> str:
-    if len(tablist) == 0:
-        logg.log(loglevel, "no data in file %s", filename)
-    elif len(tablist) == 1:
-        tabsheet1 = tablist[0]
-        return print_tabtotext(output, tabsheet1.data, tabsheet1.headers, selected, padding=padding, tab=tab,
-                               noheaders=noheaders, unique=unique, minwidth=minwidth,
-                               defaultformat=defaultformat)
-    elif section:
-        tabsheet2: Optional[TabSheet] = None
+def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [], # ..
+                  *, tab: Optional[str] = None, padding: Optional[str] = None,
+                  minwidth: int = 0, section: Union[str, int] = NIX,
+                  noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+    def extension(filename: str) -> Optional[str]:
+        _, ext = fs.splitext(filename.lower())
+        if ext: return ext[1:]
+        return None
+    if section:
         if isinstance(section, int):
             if section > len(tablist):
                 logg.error("selected -%i page, but input has only %s pages", section, len(tablist))
+                tabsheets = []
             else:
-                tabsheet2 = tablist[section - 1]
+                tabsheets = [tablist[section - 1]]
         else:
+            tabsheets = []
             tabsheetnames = []
             for tabsheet in tablist:
                 tabsheetnames += [tabsheet.title]
                 if tabsheet.title == section:
-                    tabsheet2 = tabsheet
-            if not tabsheet2:
+                    tabsheets += [tabsheet]
+            if not tabsheets:
                 logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
-        if tabsheet2:
-            return print_tabtotext(output, tabsheet2.data, tabsheet2.headers, selected, padding=padding, tab=tab,
-                                   noheaders=noheaders, unique=unique, minwidth=minwidth, section=tabsheet2.title,
-                                   defaultformat=defaultformat)
-    elif isinstance(output, str) and (defaultformat == "xlsx" and output or output.endswith(".xlsx")):
-        workbook3 = tablistmake_workbook(tablist, selected, minwidth)
-        if workbook3:
-            workbook3.save(output)
-            return "SAVED"
     else:
-        for tabsheet3 in tablist:
-            logg.debug("headers = %s", tabsheet3.headers)
-            logg.debug("data = %s", tabsheet3.data)
-            return print_tabtotext(output, tabsheet3.data, tabsheet3.headers, selected, padding=padding, tab=tab,
-                                   noheaders=noheaders, unique=unique, minwidth=minwidth, section=tabsheet3.title,
-                                   defaultformat=defaultformat)
-    return NIX
+        tabsheets = tablist
+    if len(tabsheets) == 1:
+        if tabsheets[0].title:
+            logg.info(" ## %s", tabsheets[0].title)
+        title = section if isinstance(section, str) else NIX
+        return print_tabtotext(output, tabsheets[0].data, tabsheets[0].headers, selected,
+                               tab=tab, padding=padding, minwidth=minwidth,
+                               section=title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
+    if isinstance(output, TextIO) or isinstance(output, StringIO):
+        out = output
+        fmt = defaultformat
+        done = "stream"
+    elif "." in output:
+        fmt = extension(output) or defaultformat
+        if fmt in ["xls", "xlsx", "XLS", "XLSX"]:
+            wb1 = tablistmake_workbook(tabsheets, selected)  # type: ignore[arg-type]
+            if wb1:
+                wb1.save(output)
+                return "tabxlsx (%s tables)" % len(wb1.worksheets)
+            return "tabxlsx"
+        out = open(output, "wt", encoding="utf-8")
+        done = output
+    else:
+        fmt = output
+        out = sys.stdout
+        done = output
+    result: List[str] = []
+    for tabsheet in tabsheets:
+        if tabsheet.title:
+            logg.info(" ## %s", tabsheet.title)
+        text = tabtotext(tabsheet.data, tabsheet.headers, selected, fmt=fmt,
+                          tab=tab, padding=padding, minwidth=minwidth,
+                          section=tabsheet.title, noheaders=noheaders, unique=unique,
+                          defaultformat=defaultformat)
+        result.append(text)
+    if fmt in ["jsn", "json", "JSN", "JSON"]:
+        for part in range(len(result)-1):
+            if result[part].endswith("]}"):
+                result[part] = result[part][:-1] + ","
+        for part in range(1, len(result)):
+            if result[part].startswith('{"'):
+                result[part] = result[part][1:]
+    for lines in result:
+        for line in lines:
+            out.write(line)
+    if noheaders or "@noheaders" in selected or "@dat" in selected:
+        return ""
+    return ": %s results %s (%s tables)" % (len(result), done, len(tabsheets))
 
 
 if __name__ == "__main__":
