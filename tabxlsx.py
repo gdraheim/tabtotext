@@ -863,6 +863,15 @@ class StrToTime(StrToDate):
         if t: return t
         return value
 
+_atformats = ["@json", "@jsn", "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@txt", 
+              "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
+
+def fmt_selected(selected: List[str]) -> str:
+    for sel in selected:
+        if sel in _atformats:
+            return sel[1:]
+    return NIX
+
 def tabtotext(data: Iterable[Dict[str, CellValue]],  # ..
                     headers: List[str] = [], selected: List[str] = [],
                     *, fmt: str = "", tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, section: str = NIX,
@@ -893,7 +902,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     #
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat
+        fmt = defaultformat or fmt_selected(selected)
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat
@@ -903,7 +912,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output or defaultformat
+        fmt = output or defaultformat or fmt_selected(selected)
         out = sys.stdout
         done = output
     #
@@ -1396,7 +1405,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
                                section=title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat
+        fmt = defaultformat or fmt_selected(selected)
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat
@@ -1409,7 +1418,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output
+        fmt = output or defaultformat or fmt_selected(selected)
         out = sys.stdout
         done = output
     result: List[str] = []

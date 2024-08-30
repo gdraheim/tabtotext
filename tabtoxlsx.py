@@ -471,7 +471,7 @@ def tablistmake_workbook(tablist: List[TabSheet], selected: List[str] = [], minw
         if workbook is not None:
             ws = workbook.create_sheet()
             try:
-                workbook.active = ws
+                workbook.active = ws  # type: ignore[misc]
             except Exception as e:
                 logg.warning("could not set active: %s", e)
         work = tabto_workbook(tabsheet.data, tabsheet.headers, selected,

@@ -2676,7 +2676,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
                                section=title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat
+        fmt = defaultformat or fmt_selected(selected)
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat
@@ -2709,7 +2709,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output
+        fmt = output or defaultformat or fmt_selected(selected)
         out = sys.stdout
         done = output
     result: List[str] = []
@@ -2743,7 +2743,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat
+        fmt = defaultformat or fmt_selected(selected)
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat
@@ -2764,7 +2764,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
         out = open(output, "wt", encoding="utf-8")
         done = output
     else:
-        fmt = output
+        fmt = output or defaultformat or fmt_selected(selected)
         out = sys.stdout
         done = output
     lines = tabtotext(data, headers, selected, legend=legend, fmt=fmt,
@@ -2787,97 +2787,97 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     spec: Dict[str, str] = dict(cast(Tuple[str, str], (x, "") if "=" not in x else x.split("=", 1))
                                 for x in selected if x.startswith("@"))
     selected = [x for x in selected if not x.startswith("@")]
-    fmt = fmt if fmt not in ["", "-"] else defaultformat
+    fmt = fmt if fmt not in ["", "-"] else defaultformat or fmt_selected(selected)
     xmlns = "" if xmlns is None else xmlns
     datedelim = "-" if datedelim is None else datedelim
     padding = " " if padding is None else padding
     tab = "|" if tab is None else tab
     # formats
-    if fmt in ["html"] or "@html" in spec:
+    if fmt in ["html"]:
         fmt = "HTML"
-    if fmt in ["htm"] or "@htm" in spec:
+    if fmt in ["htm"]:
         fmt = "HTML"
         tab = ""
         padding = ""
-    if fmt in ["xhtm"] or "@xhtm" in spec:
+    if fmt in ["xhtm"]:
         fmt = "HTML"
         tab = ""
         padding = ""
         xmlns = "1999/xhtml"
-    if fmt in ["xhtml"] or "@xhtml" in spec:
+    if fmt in ["xhtml"]:
         fmt = "HTML"
         xmlns = "1999/xhtml"
-    if fmt in ["json"] or "@json" in spec:
+    if fmt in ["json"]:
         fmt = "JSON"
-    if fmt in ["jsn"] or "@jsn" in spec:
+    if fmt in ["jsn"]:
         fmt = "JSON"
         padding = ""
-    if fmt in ["yaml"] or "@yaml" in spec:
+    if fmt in ["yaml"]:
         fmt = "YAML"
-    if fmt in ["yml"] or "@yml" in spec:
+    if fmt in ["yml"]:
         fmt = "YAML"
         padding = ""
-    if fmt in ["toml"] or "@toml" in spec:
+    if fmt in ["toml"]:
         fmt = "TOML"
-    if fmt in ["tml"] or "@tml" in spec:
+    if fmt in ["tml"]:
         fmt = "TOML"
         padding = ""
-    if fmt in ["md"] or "@md" in spec:
+    if fmt in ["md"]:
         fmt = "GFM"  # nopep8
-    if fmt in ["markdown"] or "@markdown" in spec:
+    if fmt in ["markdown"]:
         fmt = "GFM"
         tab = "||"  # nopep8
-    if fmt in ["md2"] or "@md2" in spec:
+    if fmt in ["md2"]:
         fmt = "GFM"
         minwidth = 2  # nopep8
-    if fmt in ["md3"] or "@md3" in spec:
+    if fmt in ["md3"]:
         fmt = "GFM"
         minwidth = 3  # nopep8
-    if fmt in ["md4"] or "@md4" in spec:
+    if fmt in ["md4"]:
         fmt = "GFM"
         minwidth = 4  # nopep8
-    if fmt in ["md5"] or "@md5" in spec:
+    if fmt in ["md5"]:
         fmt = "GFM"
         minwidth = 5  # nopep8
-    if fmt in ["md6"] or "@md6" in spec:
+    if fmt in ["md6"]:
         fmt = "GFM"
         minwidth = 6  # nopep8
-    if fmt in ["wide"] or "@wide" in spec:
+    if fmt in ["wide"]:
         fmt = "GFM"
         tab = ""  # nopep8
-    if fmt in ["txt"] or "@txt" in spec:
+    if fmt in ["txt"]:
         fmt = "GFM"
         padding = ""  # nopep8
-    if fmt in ["text"] or "@text" in spec:
+    if fmt in ["text"]:
         fmt = "GFM"
         padding = ""
         noheaders = True  # nopep8
-    if fmt in ["tabs"] or "@tabs" in spec:
+    if fmt in ["tabs"]:
         fmt = "GFM"
         tab = "\t"
         padding = ""  # nopep8
-    if fmt in ["tab"] or "@tab" in spec:
+    if fmt in ["tab"]:
         fmt = "CSV"
         tab = "\t"  # nopep8
-    if fmt in ["data"] or "@data" in spec:
+    if fmt in ["data"]:
         fmt = "CSV"
         tab = "\t"
         noheaders = True  # nopep8
-    if fmt in ["ifs"] or "@ifs" in spec:
+    if fmt in ["ifs"]:
         fmt = "CSV"
         tab = os.environ.get("IFS", "\t")  # nopep8
-    if fmt in ["dat"] or "@dat" in spec:
+    if fmt in ["dat"]:
         fmt = "CSV"
         tab = os.environ.get("IFS", "\t")
         noheaders = True  # nopep8
-    if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
+    if fmt in ["csv", "scsv"]:
         fmt = "CSV"
         tab = ";"  # nopep8
     if fmt in ["list"] or "@list" in spec:
         fmt = "CSV"
         tab = ";"
         noheaders = True  # nopep8
-    if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
+    if fmt in ["xlsx", "xls"]:
         fmt = "XLS"
         tab = ","  # nopep8
     # override
@@ -3054,10 +3054,19 @@ def viewFMT(fmt: str) -> str:
         return htmlprog()
     return editprog()
 
+_atformats = ["@html", "@htm", "@xhtm", "@xhtml", "@json", "@jsn", "@yaml", "@yaml", "@toml", "@tml", 
+              "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@txt", 
+              "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
+
 def extension(filename: str) -> Optional[str]:
     _, ext = os.path.splitext(filename.lower())
     if ext: return ext[1:]
     return None
+def fmt_selected(selected: List[str]) -> str:
+    for sel in selected:
+        if sel in _atformats:
+            return sel[1:]
+    return NIX
 
 def readFromFile(filename: str, fmt: str = NIX, defaultfileformat: str = NIX) -> JSONList:
     tablist = tablistfile(filename, fmt, defaultfileformat=defaultfileformat)
