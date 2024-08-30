@@ -1907,6 +1907,20 @@ class TabXlsxTest(unittest.TestCase):
         cond = ['a;wide', ';', 'x;3.0in', 'y;1.0in', 'y;2.0in']
         self.assertEqual(cond, text.splitlines())
         self.rm_testdir()
+    def test_9810(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.xlsx")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output}")
+        have = sh(F"{TABTO} -^ {output} --onlypages")
+        logg.info("pages => %s", have.splitlines())
+        want = ['table22', 'table33']
+        self.assertEqual(want, have.splitlines())
     def test_9811(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
@@ -2047,6 +2061,20 @@ class TabXlsxTest(unittest.TestCase):
         back = dict(tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
+    def test_9830(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.md")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output}")
+        have = sh(F"{TABTO} -^ {output} --onlypages")
+        logg.info("pages => %s", have.splitlines())
+        want = ['table22', 'table33']
+        self.assertEqual(want, have.splitlines())
     def test_9831(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
@@ -2183,6 +2211,20 @@ class TabXlsxTest(unittest.TestCase):
         back = dict(tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
+    def test_9860(self) -> None:
+        tmp = self.testdir()
+        tablist = { "table22": table22, "table33": table33}
+        filename = path.join(tmp, "input.xlsx")
+        output = path.join(tmp, "output.json")
+        text = print_tablist(filename, tablistfor(tablist))
+        sz = path.getsize(filename)
+        self.assertGreater(sz, 3000)
+        self.assertGreater(6000, sz)
+        text = sh(F"{TABTO} -^ {filename} -o {output}")
+        have = sh(F"{TABTO} -^ {output} --onlypages")
+        logg.info("pages => %s", have.splitlines())
+        want = ['table22', 'table33']
+        self.assertEqual(want, have.splitlines())
     def test_9861(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
