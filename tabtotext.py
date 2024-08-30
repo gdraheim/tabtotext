@@ -105,10 +105,27 @@ class TabText(NamedTuple):
     data: JSONList
     headers: List[str]
 
+## Files can contain multiple tables which get represented as a list of sheets where
+## each sheet remembers the title and the order columns in the original table. This allows
+## to convert file formats with the order of tables, columns (and rows) being preserved.
 class TabSheet(NamedTuple):
     data: List[JSONDict]
     headers: List[str]
     title: str
+
+def tablistfor(tabdata: Dict[str, List[JSONDict]]) -> List[TabSheet]:
+    tablist: List[TabSheet] = []
+    for name, data in tabdata.items():
+        tablist += [ TabSheet(data, [], name) ]
+    return tablist
+def tablistitems(tablist: List[TabSheet]) -> Iterator[Tuple[str, List[JSONDict]]]:
+    for tabsheet in tablist:
+        yield tabsheet.title, tabsheet.data
+def tablistmap(tablist: List[TabSheet]) -> Dict[str, List[JSONDict]]:
+    tabdata: Dict[str, List[JSONDict]]
+    for name, data in tablistitems(tablist):
+        tabdata[name] = data
+    return tabdata
 
 # helper functions
 
@@ -810,9 +827,9 @@ def tabtextfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section:
 def tablistfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
     parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     return parser.loadtablist(filename)
-def tablistGFM(text: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
+def tablistscanGFM(text: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
     parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
-    return parser.readtablist(text.splitlines())
+    return parser.scantablist(text)
 
 class DictParserGFM(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-', tab: str = '|') -> None:
@@ -874,6 +891,8 @@ class DictParserGFM(DictParser):
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
     def loadtablist(self, filename: str, *, tab: Optional[str] = None) -> List[TabSheet]:
         return self.readtablist(open(filename), tab=tab)
+    def scantablist(self, text: str, *, tab: Optional[str] = None) -> List[TabSheet]:
+        return self.readtablist(text.splitlines(), tab=tab)
     def readtablist(self, lines: Iterable[str], *, tab: Optional[str] = None) -> List[TabSheet]:
         tab = "|" if tab is None else tab
         tabs: List[TabSheet] = []
@@ -1606,6 +1625,9 @@ def tabtextfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> 
 def tablistfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
     parser = DictParserJSON(datedelim=datedelim, section=section)
     return parser.loadtablist(filename)
+def tablistscanJSON(text: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
+    parser = DictParserJSON(datedelim=datedelim, section=section)
+    return parser.scantablist(text)
 
 class DictParserJSON(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
@@ -1629,13 +1651,22 @@ class DictParserJSON(DictParser):
                 if isinstance(val, str):
                     record[key] = self.convert.toDate(val)
             yield record
+    def scantablist(self, text: str) -> List[TabSheet]:
+        jsondata = json.loads(text)
+        if isinstance(jsondata, dict):
+            jsondict = jsondata
+        else:
+            jsondict = {(self.section or SECTION): jsondata}
+        return self.tablist(jsondict)
     def loadtablist(self, filename: str) -> List[TabSheet]:
-        tabs: List[TabSheet] = []
         jsondata = json.load(open(filename))
         if isinstance(jsondata, dict):
             jsondict = jsondata
         else:
             jsondict = {(self.section or SECTION): jsondata}
+        return self.tablist(jsondict)
+    def tablist(self, jsondict: Dict[str, List[JSONDict]]) -> List[TabSheet]:
+        tabs: List[TabSheet] = []
         for listname, jsonlist in jsondict.items():
             listdata: List[JSONDict] = []
             if isinstance(jsonlist, Iterable):
