@@ -1326,16 +1326,16 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
     return tabs
 
 def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet], selected: List[str] = [],
-                    *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, 
-                    noheaders: bool = False, unique: bool = False, 
-                    loglevel: int = ERROR, section: Union[None, int, str] = None, defaultformat: str = "") -> str:
+                  *, tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0,
+                  noheaders: bool = False, unique: bool = False,
+                  loglevel: int = ERROR, section: Union[None, int, str] = None, defaultformat: str = "") -> str:
     if len(tablist) == 0:
         logg.log(loglevel, "no data in file %s", filename)
     elif len(tablist) == 1:
         tabsheet1 = tablist[0]
         return print_tabtotext(output, tabsheet1.data, tabsheet1.headers, selected, padding=padding, tab=tab,
-                        noheaders=noheaders, unique=unique, minwidth=minwidth,
-                        defaultformat=defaultformat)
+                               noheaders=noheaders, unique=unique, minwidth=minwidth,
+                               defaultformat=defaultformat)
     elif section:
         tabsheet2: Optional[TabSheet] = None
         if isinstance(section, int):
@@ -1353,9 +1353,9 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet], selected:
                 logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
         if tabsheet2:
             return print_tabtotext(output, tabsheet2.data, tabsheet2.headers, selected, padding=padding, tab=tab,
-                            noheaders=noheaders, unique=unique, minwidth=minwidth, section=tabsheet2.title,
-                            defaultformat=defaultformat)
-    elif isinstance(output, str) and (defaultformat=="xlsx" and output or output.endswith(".xlsx")):
+                                   noheaders=noheaders, unique=unique, minwidth=minwidth, section=tabsheet2.title,
+                                   defaultformat=defaultformat)
+    elif isinstance(output, str) and (defaultformat == "xlsx" and output or output.endswith(".xlsx")):
         workbook3 = tablistmake_workbook(tablist, selected, minwidth)
         if workbook3:
             workbook3.save(output)
@@ -1365,8 +1365,8 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet], selected:
             logg.debug("headers = %s", tabsheet3.headers)
             logg.debug("data = %s", tabsheet3.data)
             return print_tabtotext(output, tabsheet3.data, tabsheet3.headers, selected, padding=padding, tab=tab,
-                            noheaders=noheaders, unique=unique, minwidth=minwidth, section=tabsheet3.title,
-                            defaultformat=defaultformat)
+                                   noheaders=noheaders, unique=unique, minwidth=minwidth, section=tabsheet3.title,
+                                   defaultformat=defaultformat)
     return NIX
 
 

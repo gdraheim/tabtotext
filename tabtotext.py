@@ -101,9 +101,9 @@ def _dataitem_replace(obj: DataItem, values: JSONDict, dict_factory: Type[Dict[s
             result[name] = cast(JSONItem, getattr(obj, name))
     return result
 
-## Files can contain multiple tables which get represented as a list of sheets where
-## each sheet remembers the title and the order columns in the original table. This allows
-## to convert file formats with the order of tables, columns (and rows) being preserved.
+# Files can contain multiple tables which get represented as a list of sheets where
+# each sheet remembers the title and the order columns in the original table. This allows
+# to convert file formats with the order of tables, columns (and rows) being preserved.
 class TabSheet(NamedTuple):
     data: List[JSONDict]
     headers: List[str]
@@ -112,7 +112,7 @@ class TabSheet(NamedTuple):
 def tablistfor(tabdata: Dict[str, List[JSONDict]]) -> List[TabSheet]:
     tablist: List[TabSheet] = []
     for name, data in tabdata.items():
-        tablist += [ TabSheet(data, [], name) ]
+        tablist += [TabSheet(data, [], name)]
     return tablist
 def tablistitems(tablist: List[TabSheet]) -> Iterator[Tuple[str, List[JSONDict]]]:
     for tabsheet in tablist:
@@ -2636,16 +2636,16 @@ class DictParserCSV(DictParser):
 # .......................................................................................
 
 def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [], legend: List[str] = [],  # ..
-                    *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
-                    xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX,
-                    noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+                  *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
+                  xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX,
+                  noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     if section:
         if isinstance(section, int):
             if section > len(tablist):
                 logg.error("selected -%i page, but input has only %s pages", section, len(tablist))
                 tabsheets = []
             else:
-                tabsheets = [ tablist[section-1]]
+                tabsheets = [tablist[section - 1]]
         else:
             tabsheets = []
             tabsheetnames = []
@@ -2657,7 +2657,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
                 logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
     else:
         tabsheets = tablist
-    if  len(tabsheets) == 1:
+    if len(tabsheets) == 1:
         if tabsheets[0].title:
             logg.info(" ## %s", tabsheets[0].title)
         title = section if isinstance(section, str) else NIX
@@ -2707,10 +2707,10 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         if tabsheet.title:
             logg.info(" ## %s", tabsheet.title)
         lines = tabtotext(tabsheet.data, tabsheet.headers, selected, legend=legend, fmt=fmt,
-                         datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth, 
-                         section=tabsheet.title, noheaders=noheaders, unique=unique, 
-                         defaultformat=defaultformat)
-        legend = [] # only on first page
+                          datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
+                          section=tabsheet.title, noheaders=noheaders, unique=unique,
+                          defaultformat=defaultformat)
+        legend = []  # only on first page
         for line in lines:
             results.append(line)
             out.write(line)
@@ -3055,7 +3055,7 @@ def tabtextfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, sec
     tablist = tablistfile(filename, fmt, defaultfileformat=defaultfileformat)
     if tablist:
         return tablist[0]
-    return TabSheet([],[],NIX)
+    return TabSheet([], [], NIX)
 
 def tablistfile(filename: str, fmt: str = NIX, *, tab: Optional[str] = None, defaultfileformat: str = NIX) -> List[TabSheet]:
     if not fmt:
@@ -3252,7 +3252,7 @@ if __name__ == "__main__":
     def numbered_option(option: Option, arg: str, value: str, parser: OptionParser) -> None:
         setattr(parser.values, (option.dest or "numbered"), int(arg[1:]))
     hint = "Use @dat to print only"
-    cmdline = OptionParser("%prog file(.csv|.json|.xlsx) [column...] [@format...]", 
+    cmdline = OptionParser("%prog file(.csv|.json|.xlsx) [column...] [@format...]",
                            epilog=__doc__ + hint, version=__version__)
     cmdline.formatter.max_help_position = 30
     cmdline.add_option("--tables", "--sheetnames", "--sectionnames", "--listnames",
@@ -3310,8 +3310,8 @@ if __name__ == "__main__":
         if False:
             tabtext = tabtextfile(filename, opt.inputformat)
             done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selected,
-                               datedelim=opt.datedelim, tab=tab, padding=padding,
-                               noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
+                                   datedelim=opt.datedelim, tab=tab, padding=padding,
+                                   noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
         else:
             tablist = tablistfile(filename, opt.inputformat)
             if opt.onlypages:
@@ -3320,7 +3320,7 @@ if __name__ == "__main__":
                 done = "(%s tables)" % (len(tablist))
             else:
                 done = print_tablist(opt.output, tablist, selected, section=page,
-                                    datedelim=opt.datedelim, tab=tab, padding=padding,
-                                    noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
+                                     datedelim=opt.datedelim, tab=tab, padding=padding,
+                                     noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
         if done:
             logg.log(DONE, " %s", done)
