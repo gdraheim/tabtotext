@@ -280,7 +280,6 @@ def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: 
         if "#" in selcols:
             row["#"] = num + 1
             cols["#"] = len(str(num + 1))
-        logg.error("[%s]==> %s", num, item)
         skip = False
         for name, value in item.items():
             selname = name

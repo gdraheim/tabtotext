@@ -2635,6 +2635,84 @@ class DictParserCSV(DictParser):
 
 # .......................................................................................
 
+def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [], legend: List[str] = [],  # ..
+                    *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
+                    xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX,
+                    noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+    if section:
+        if isinstance(section, int):
+            if section > len(tablist):
+                logg.error("selected -%i page, but input has only %s pages", section, len(tablist))
+                tabsheets = []
+            else:
+                tabsheets = [ tablist[section-1]]
+        else:
+            tabsheets = []
+            tabsheetnames = []
+            for tabsheet in tablist:
+                tabsheetnames += [tabsheet.title]
+                if tabsheet.title == section:
+                    tabsheets += [tabsheet]
+            if not tabsheets:
+                logg.error("selected '-: %s' page, but input has only -: %s", section, " ".join(tabsheetnames))
+    else:
+        tabsheets = tablist
+    if  len(tabsheets) == 1:
+        return print_tabtotext(output, tabsheets[0].data, tabsheets[0].headers, selected, legend,
+                               datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
+                               section=tabsheets[0].title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
+    if isinstance(output, TextIO) or isinstance(output, StringIO):
+        out = output
+        fmt = defaultformat
+        done = "stream"
+    elif "." in output:
+        fmt = extension(output) or defaultformat
+        if fmt in ["xls", "xlsx", "XLS", "XLSX"]:
+            try:
+                if TABXLSX:
+                    import tabxlsx
+                    wb1 = tabxlsx.tablistmake_workbook(tabsheets, selected)  # type: ignore[arg-type]
+                    if wb1:
+                        wb1.save(output)
+                        return "tabxlsx (%s tables)" % len(wb1.worksheets)
+                    return "tabxlsx"
+                else:
+                    import tabtoxlsx
+                    wb2 = tabtoxlsx.tablistmake_workbook(tabsheets, selected)
+                    if wb2:
+                        wb2.save(output)
+                        return "tabtoxlsx (%s tables)" % len(wb2.worksheets)
+                    return "tabtoxlsx"
+            except Exception as e:
+                if not TABXLSX:
+                    import tabxlsx
+                    wb3 = tabxlsx.tablistmake_workbook(tabsheets, selected)  # type: ignore[arg-type]
+                    if wb3:
+                        wb3.save(output)
+                        return "tabxlsx (%s tables)" % len(wb3.worksheets)
+                    return "tabxlsx"
+                else:
+                    logg.error("could not write %s: %s", output, e)
+        out = open(output, "wt", encoding="utf-8")
+        done = output
+    else:
+        fmt = output
+        out = sys.stdout
+        done = output
+    results: List[str] = []
+    for tabsheet in tabsheets:
+        lines = tabtotext(tabsheet.data, tabsheet.headers, selected, legend=legend, fmt=fmt,
+                         datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth, 
+                         section=tabsheet.title, noheaders=noheaders, unique=unique, 
+                         defaultformat=defaultformat)
+        legend = [] # only on first page
+        for line in lines:
+            results.append(line)
+            out.write(line)
+    if noheaders or "@noheaders" in selected or "@dat" in selected:
+        return ""
+    return ": %s results %s (%s tables)" % (len(results), done, len(tabsheets))
+
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                     headers: List[str] = [], selected: List[str] = [], legend: List[str] = [],  # ..
                     *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
@@ -3165,12 +3243,18 @@ def tabFileToPrintWith(filename: str, fileformat: str, output: str = NIX, fmt: s
 if __name__ == "__main__":
     DONE = (logging.WARNING + logging.ERROR) // 2
     logging.addLevelName(DONE, "DONE")
-    from optparse import OptionParser
+    from optparse import OptionParser, Option
+    def numbered_option(option: Option, arg: str, value: str, parser: OptionParser) -> None:
+        setattr(parser.values, (option.dest or "numbered"), int(arg[1:]))
     hint = "Use @dat to print only"
-    prog = os.path.basename(__file__)
-    cmdline = OptionParser(
-        prog + " file(.csv|.json|.xlsx) [column...] [@format...]", epilog=__doc__ + hint, version=__version__)
+    cmdline = OptionParser("%prog file(.csv|.json|.xlsx) [column...] [@format...]", 
+                           epilog=__doc__ + hint, version=__version__)
     cmdline.formatter.max_help_position = 30
+    cmdline.add_option("--tables", "--sheetnames", "--sectionnames", "--listnames",
+                       "--onlypages", dest="onlypages", action="store_true")
+    cmdline.add_option("-:", "--sheet", "--section", "--listname", "--page", metavar="NAME", dest="page")
+    cmdline.add_option("-1", "-2", "-3", "-4", "-5", "-6", dest="page", action="callback", callback=numbered_option,
+                       help="numbered page instead of ':name' or '-: name'")
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-X", "--tabxlsx", action="store_true", default=False,
@@ -3211,12 +3295,27 @@ if __name__ == "__main__":
             selected = args[1:] + opt.labels
         else:
             selected = opt.labels
+        page: Union[int, str] = opt.page
+        if selected and selected[0].startswith(":") and page is None:
+            page = selected[0][1:].strip()
+            selected = selected[1:]
         minwidth = int(opt.minwidth)
         padding = opt.padding if not opt.nopadding else ""
         tab = "\t" if opt.asciitab else opt.tabulator if not opt.notab else ""
-        tabtext = tabtextfile(filename, opt.inputformat)
-        done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selected,
+        if False:
+            tabtext = tabtextfile(filename, opt.inputformat)
+            done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selected,
                                datedelim=opt.datedelim, tab=tab, padding=padding,
                                noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
+        else:
+            tablist = tablistfile(filename, opt.inputformat)
+            if opt.onlypages:
+                for tabsheet0 in tablist:
+                    print(tabsheet0.title)
+                done = "(%s tables)" % (len(tablist))
+            else:
+                done = print_tablist(opt.output, tablist, selected, section=page,
+                                    datedelim=opt.datedelim, tab=tab, padding=padding,
+                                    noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
         if done:
             logg.log(DONE, " %s", done)
