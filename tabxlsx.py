@@ -1408,7 +1408,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
     selected_fmt = fmt_selected(selected)
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
-        fmt = defaultformat or 
+        fmt = defaultformat or selected_fmt
         done = "stream"
     elif "." in output:
         fmt = extension(output) or defaultformat or selected_fmt
