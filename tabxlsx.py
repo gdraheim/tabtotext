@@ -1163,7 +1163,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     colr = tuple((rightalign(col) for col in colo))  # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
     if section and not noheaders:
-        print(F"## {section}\n", file=out)
+        print(F"\n## {section}", file=out)
     if not noheaders:
         hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(col)) for m, col in enumerate(colo))]
         line = [tab2 + (hpad[m] + col if colr[m] else col + hpad[m]) for m, col in enumerate(colo)]

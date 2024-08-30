@@ -762,7 +762,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
     rtab = padding + tab[1] if len(tab) > 1 else ""
     lines: List[str] = []
     if section:
-        lines += [F"## {section}\n"]
+        lines += [F"\n## {section}"]
     if not noheaders:
         hpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(col)) for m, col in enumerate(colo))]
         line = [tab2 + (hpad[m] + col if colr[m] else col + hpad[m]) for m, col in enumerate(colo)]
@@ -2658,9 +2658,12 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
     else:
         tabsheets = tablist
     if  len(tabsheets) == 1:
+        if tabsheets[0].title:
+            logg.info(" ## %s", tabsheets[0].title)
+        title = section if isinstance(section, str) else NIX
         return print_tabtotext(output, tabsheets[0].data, tabsheets[0].headers, selected, legend,
                                datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
-                               section=tabsheets[0].title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
+                               section=title, noheaders=noheaders, unique=unique, defaultformat=defaultformat)
     if isinstance(output, TextIO) or isinstance(output, StringIO):
         out = output
         fmt = defaultformat
@@ -2701,6 +2704,8 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         done = output
     results: List[str] = []
     for tabsheet in tabsheets:
+        if tabsheet.title:
+            logg.info(" ## %s", tabsheet.title)
         lines = tabtotext(tabsheet.data, tabsheet.headers, selected, legend=legend, fmt=fmt,
                          datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth, 
                          section=tabsheet.title, noheaders=noheaders, unique=unique, 
