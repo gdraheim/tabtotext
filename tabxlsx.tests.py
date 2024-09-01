@@ -2101,6 +2101,28 @@ class TabXlsxTest(unittest.TestCase):
         back = dict(tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
+    def test_9825(self) -> None:
+        tmp = self.testdir()
+        tablist1 = { "table22": table22, "table33": table33}
+        filename1 = path.join(tmp, "input1.xlsx")
+        tablist2 = { "table01": table01, "table02": table02}
+        filename2 = path.join(tmp, "input2.xlsx")
+        inp1 = print_tablist(filename1, tablistfor(tablist1))
+        inp2 = print_tablist(filename2, tablistfor(tablist2))
+        text = sh(F"{TABTO} -^ -f {filename1} -f {filename2} -2")
+        logg.info("=>\n%s", text)
+        want = { "-1": _none(table33N), }
+        scan = cast(List[TabSheet], tablistscanGFM(text))
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        text = sh(F"{TABTO} -^ -f {filename1} -f {filename2} -3")
+        logg.info("=>\n%s", text)
+        want = { "-1": _none(table01N), }
+        scan = cast(List[TabSheet], tablistscanGFM(text))
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
     def test_9830(self) -> None:
         tmp = self.testdir()
         tablist = { "table22": table22, "table33": table33}
@@ -2285,6 +2307,28 @@ class TabXlsxTest(unittest.TestCase):
         text = sh(F"{TABTO} -^ {filename} -2 @json")
         logg.info("=>\n%s", text)
         want = { "data": _none(table33N), }
+        scan = cast(List[TabSheet], tablistscanJSON(text))
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_9855(self) -> None:
+        tmp = self.testdir()
+        tablist1 = { "table22": table22, "table33": table33}
+        filename1 = path.join(tmp, "input1.xlsx")
+        tablist2 = { "table01": table01, "table02": table02}
+        filename2 = path.join(tmp, "input2.xlsx")
+        inp1 = print_tablist(filename1, tablistfor(tablist1))
+        inp2 = print_tablist(filename2, tablistfor(tablist2))
+        text = sh(F"{TABTO} -^ -f {filename1} -f {filename2} -2 @json")
+        logg.info("=>\n%s", text)
+        want = { "data": _none(table33N), }
+        scan = cast(List[TabSheet], tablistscanJSON(text))
+        back = dict(tablistmap(scan))
+        logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+        text = sh(F"{TABTO} -^ -f {filename1} -f {filename2} -3 @json")
+        logg.info("=>\n%s", text)
+        want = { "data": _none(table01N), }
         scan = cast(List[TabSheet], tablistscanJSON(text))
         back = dict(tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)

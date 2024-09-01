@@ -3313,6 +3313,8 @@ if __name__ == "__main__":
                        help="remove same lines in sorted list (csv,md,...)")
     cmdline.add_option("-L", "--labels", metavar="LIST", action="append", default=[],
                        help="add columns to show (a|b:.2f)")
+    cmdline.add_option("-f", "--file", metavar="INPUT", dest="files", action="append", default=[],
+                       help="combine tables (instead of first argument)")
     cmdline.add_option("-i", "--inputformat", metavar="FMT", default="",
                        help="fix input format (instead of autodetection)")
     cmdline.add_option("-o", "--output", "--format", metavar="FMT", default="",
@@ -3320,37 +3322,39 @@ if __name__ == "__main__":
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     TABXLSX = opt.tabxlsx
-    if not args:
+    filenames: List[str] = opt.files
+    if not filenames and args:
+        filenames = [args[0]]
+        args = args[1:]
+    page: int = int(opt.page or 0)
+    section: str = opt.section or ""
+    if not section and args and args[0].startswith(":"):
+        section = args[0][1:].strip()
+        args = args[1:]
+    selected = args + opt.labels
+    minwidth = int(opt.minwidth)
+    padding = opt.padding if not opt.nopadding else ""
+    tab = "\t" if opt.asciitab else opt.tabulator if not opt.notab else ""
+    if not filenames:
         cmdline.print_help()
-    else:
-        selected = []
-        filename = args[0]
-        if len(args) > 1:
-            selected = args[1:] + opt.labels
-        else:
-            selected = opt.labels
-        page: int = int(opt.page or 0)
-        section: str = opt.section or ""
-        if selected and selected[0].startswith(":") and not section:
-            section = selected[0][1:].strip()
-            selected = selected[1:]
-        minwidth = int(opt.minwidth)
-        padding = opt.padding if not opt.nopadding else ""
-        tab = "\t" if opt.asciitab else opt.tabulator if not opt.notab else ""
-        if False:
+        logg.error("no input filename given")
+        sys.exit(1)
+    if False:
+        for filename in filenames:
             tabtext = tabtextfile(filename, opt.inputformat)
             done = print_tabtotext(opt.output, tabtext.data, tabtext.headers, selected,
                                    datedelim=opt.datedelim, tab=tab, padding=padding,
                                    noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
-        else:
-            tablist = tablistfile(filename, opt.inputformat)
-            if opt.onlypages:
-                for tabsheet0 in tablist:
-                    print(tabsheet0.title)
-                done = "(%s tables)" % (len(tablist))
-            else:
-                done = print_tablist(opt.output, tablist, selected, section=section, page=page,
-                                     datedelim=opt.datedelim, tab=tab, padding=padding,
-                                     noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
-        if done:
-            logg.log(DONE, " %s", done)
+    tablist: List[TabSheet] = []
+    for filename in filenames:
+        tablist += tablistfile(filename, opt.inputformat)
+    if opt.onlypages:
+        for tabsheet0 in tablist:
+            print(tabsheet0.title)
+        done = "(%s tables)" % (len(tablist))
+    else:
+        done = print_tablist(opt.output, tablist, selected, section=section, page=page,
+                                datedelim=opt.datedelim, tab=tab, padding=padding,
+                                noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
+    if done:
+        logg.log(DONE, " %s", done)

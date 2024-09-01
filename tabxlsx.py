@@ -1478,7 +1478,9 @@ if __name__ == "__main__":
                        help="do not print headers (csv,md,tab,wide)")
     cmdline.add_option("-U", "--unique", action="store_true", default=False,
                        help="remove same lines in sorted --labels")
-    cmdline.add_option("-i", "--input", metavar="CSV", default="",
+    cmdline.add_option("-f", "--file", metavar="INPUT", dest="files", action="append", default=[],
+                       help="combine tables (instead of first argument)")
+    cmdline.add_option("-i", "--input", metavar="CSV", dest="inputformat", default="",
                        help="fix input format (instead of autodetection)")
     cmdline.add_option("-o", "--output", metavar="CSV", default="",
                        help="data|text|md|tab|csv or file.csv (see below)")
@@ -1496,23 +1498,19 @@ if __name__ == "__main__":
     cmdline.add_option("--xls", "--xlsx", action="store_true", help="-o xls: for filename.xlsx (else comma-csv)")
     opt, args = cmdline.parse_args()
     basicConfig(level=max(0, ERROR - 10 * opt.verbose + 10 * opt.quiet))
-    if not args:
-        cmdline.print_help()
-        logg.error("no input filename given")
-        sys.exit(1)
+    filenames: List[str] = opt.files
+    if not filenames and args:
+        filenames = [args[0]]
+        args = args[1:]
+    page: int = int(opt.page or 0)
+    section: str = opt.section or ""
+    if not section and args and args[0].startswith(":"):
+        section = args[0][1:].strip()
+        args = args[1:]
+    selected = args
     minwidth = int(opt.minwidth)
     padding = opt.padding if not opt.nopadding else ""
     tab = "\t" if opt.asciitab else opt.tabulator if not opt.notab else ""
-    filename = args[0]
-    if len(args) > 1:
-        selected = args[1:]
-    else:
-        selected = []
-    page: int = int(opt.page or 0)
-    section: str = opt.section or ""
-    if selected and selected[0].startswith(":") and not section:
-        section = selected[0][1:].strip()
-        selected = selected[1:]
     if "." in opt.output:
         output = opt.output
         defaultformat = ""
@@ -1544,7 +1542,10 @@ if __name__ == "__main__":
             defaultformat = "csv"
         if opt.xls:
             defaultformat = "xls"
-    tablist = tablistfile(filename, defaultformat="xlsx")
+    inputformat = opt.inputformat or "xslx"
+    tablist: List[TabSheet] = []
+    for filename in filenames:
+        tablist += tablistfile(filename, defaultformat=inputformat)
     if opt.onlypages:
         for tabsheet0 in tablist:
             print(tabsheet0.title)
