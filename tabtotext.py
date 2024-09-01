@@ -12,7 +12,7 @@ and ".dat" files use $IFS as tabulator (like bash 'read').
 """
 
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3352"
+__version__ = "1.6.3361"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Tuple, Iterable, Iterator, TextIO, NamedTuple
 from collections import OrderedDict
@@ -2635,9 +2635,9 @@ class DictParserCSV(DictParser):
 
 # .......................................................................................
 def tablistmakeFMT(fmt: str, tablist: List[TabSheet] = [], selected: List[str] = [], legend: List[str] = [],  # ..
-                  *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
-                  xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX, page: int = 0,
-                  noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+                   *, datedelim: Optional[str] = None, tab: Optional[str] = None, padding: Optional[str] = None,
+                   xmlns: Optional[str] = None, minwidth: int = 0, section: str = NIX, page: int = 0,
+                   noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     stream = StringIO()
     print_tablist(stream, tablist, selected, legend,  # ..
                   datedelim=datedelim, tab=tab, padding=padding,
@@ -2717,13 +2717,13 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         if tabsheet.title:
             logg.info(" ## %s", tabsheet.title)
         text = tabtotext(tabsheet.data, tabsheet.headers, selected, legend=legend, fmt=fmt,
-                          datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
-                          section=tabsheet.title, noheaders=noheaders, unique=unique,
-                          defaultformat=defaultformat)
+                         datedelim=datedelim, tab=tab, padding=padding, xmlns=xmlns, minwidth=minwidth,
+                         section=tabsheet.title, noheaders=noheaders, unique=unique,
+                         defaultformat=defaultformat)
         result.append(text)
         legend = []  # only on first page
     if fmt in ["jsn", "json", "JSN", "JSON"]:
-        for part in range(len(result)-1):
+        for part in range(len(result) - 1):
             if result[part].endswith("]}"):
                 result[part] = result[part][:-1] + ","
         for part in range(1, len(result)):
@@ -3056,7 +3056,7 @@ def viewFMT(fmt: str) -> str:
         return htmlprog()
     return editprog()
 
-_atformats = ["@html", "@htm", "@xhtm", "@xhtml", "@json", "@jsn", "@yaml", "@yaml", "@toml", "@tml", 
+_atformats = ["@html", "@htm", "@xhtm", "@xhtml", "@json", "@jsn", "@yaml", "@yaml", "@toml", "@tml",
               "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@txt", "@text",
               "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
 
@@ -3354,7 +3354,7 @@ if __name__ == "__main__":
         done = "(%s tables)" % (len(tablist))
     else:
         done = print_tablist(opt.output, tablist, selected, section=section, page=page,
-                                datedelim=opt.datedelim, tab=tab, padding=padding,
-                                noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
+                             datedelim=opt.datedelim, tab=tab, padding=padding,
+                             noheaders=opt.noheaders, unique=opt.unique, minwidth=minwidth)
     if done:
         logg.log(DONE, " %s", done)

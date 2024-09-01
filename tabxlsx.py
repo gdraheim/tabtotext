@@ -6,7 +6,7 @@ of output format options are available but less than the tabtotext.py module.
 If the input contains only one table then it is used, otherwise specify which should be printed."""
 
 __copyright__ = "(C) 2023-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3352"
+__version__ = "1.6.3361"
 
 from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping, TypeVar, Generic, Iterator
 from collections import OrderedDict
@@ -578,7 +578,7 @@ def tabtoXLSX(filename: str, data: Iterable[Dict[str, CellValue]], headers: List
     workbook = tabto_workbook(data, headers, selected, minwidth, section)
     save_workbook(filename, workbook)
     return "TABXLSX"
-def tabto_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0, 
+def tabto_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = [], selected: List[str] = [], minwidth: int = 0,
                    section: str = NIX, workbook: Optional[Workbook] = None) -> Workbook:
     minwidth = minwidth or MINWIDTH
     logg.debug("tabtoXLSX:")
@@ -746,7 +746,7 @@ def tabto_workbook(data: Iterable[Dict[str, CellValue]], headers: List[str] = []
 
 
 def make_workbook(rows: List[Dict[str, CellValue]],
-                  cols: List[str], colwidth: Dict[str, int], formats: Dict[str, str], 
+                  cols: List[str], colwidth: Dict[str, int], formats: Dict[str, str],
                   section: str = NIX, workbook: Optional[Workbook] = None) -> Workbook:
     row = 0
     workbook = workbook or Workbook()
@@ -863,7 +863,7 @@ class StrToTime(StrToDate):
         if t: return t
         return value
 
-_atformats = ["@json", "@jsn", "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", 
+_atformats = ["@json", "@jsn", "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6",
               "@wide", "@txt", "@text",
               "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
 
@@ -874,14 +874,14 @@ def fmt_selected(selected: List[str]) -> str:
     return NIX
 
 def tabtotext(data: Iterable[Dict[str, CellValue]],  # ..
-                    headers: List[str] = [], selected: List[str] = [],
-                    *, fmt: str = "", tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, section: str = NIX,
-                    noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
+              headers: List[str] = [], selected: List[str] = [],
+              *, fmt: str = "", tab: Optional[str] = None, padding: Optional[str] = None, minwidth: int = 0, section: str = NIX,
+              noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
     stream = StringIO()
-    print_tabtotext(stream, data, headers, selected, # ..
-                  tab=tab, padding=padding,
-                  minwidth=minwidth, section=section,
-                  noheaders=noheaders, unique=unique, defaultformat=(fmt or defaultformat))
+    print_tabtotext(stream, data, headers, selected,  # ..
+                    tab=tab, padding=padding,
+                    minwidth=minwidth, section=section,
+                    noheaders=noheaders, unique=unique, defaultformat=(fmt or defaultformat))
     return stream.getvalue()
 
 def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellValue]],  # ..
@@ -1372,7 +1372,7 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
         tabs.append(TabSheet(data, headers, title))
     return tabs
 
-def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [], # ..
+def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], selected: List[str] = [],  # ..
                   *, tab: Optional[str] = None, padding: Optional[str] = None,
                   minwidth: int = 0, section: str = NIX, page: int = 0,
                   noheaders: bool = False, unique: bool = False, defaultformat: str = "") -> str:
@@ -1428,12 +1428,12 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         if tabsheet.title:
             logg.info(" ## %s", tabsheet.title)
         text = tabtotext(tabsheet.data, tabsheet.headers, selected, fmt=fmt,
-                          tab=tab, padding=padding, minwidth=minwidth,
-                          section=tabsheet.title, noheaders=noheaders, unique=unique,
-                          defaultformat=defaultformat)
+                         tab=tab, padding=padding, minwidth=minwidth,
+                         section=tabsheet.title, noheaders=noheaders, unique=unique,
+                         defaultformat=defaultformat)
         result.append(text)
     if fmt in ["jsn", "json", "JSN", "JSON"]:
-        for part in range(len(result)-1):
+        for part in range(len(result) - 1):
             if result[part].endswith("]}"):
                 result[part] = result[part][:-1] + ","
         for part in range(1, len(result)):
