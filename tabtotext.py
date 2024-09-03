@@ -1289,9 +1289,11 @@ def readFromHTML(filename: str, datedelim: str = '-', section: str = NIX) -> JSO
     parser = DictParserHTML(datedelim, section=section)
     return list(parser.load(filename))
 def tablistfileHTML(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
-    parser = DictParserHTML(datedelim, section=section)
-    data = list(parser.load(filename))
-    return [TabSheet(data, parser.headers, parser.caption)]
+    parser = TabListParserHTML(datedelim, section=section)
+    return list(parser.load(filename))
+def tablistscanHTML(text: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
+    parser = TabListParserHTML(datedelim, section=section)
+    return list(parser.scan(text))
 
 class DictParserHTML(DictParser):
     def __init__(self, datedelim: str = '-', section: str = NIX, convert_charrefs: bool = True) -> None:
@@ -1307,7 +1309,7 @@ class DictParserHTML(DictParser):
     def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
         import html.parser
         class MyHTMLParser(html.parser.HTMLParser):
-            def __init__(self, *, convert_charrefs: bool = True) -> None:
+            def __init__(self, *,  convert_charrefs: bool = True) -> None:
                 html.parser.HTMLParser.__init__(self, convert_charrefs=convert_charrefs)
                 self.found: List[JSONDict] = []
                 self.th: List[str] = []
@@ -1366,6 +1368,98 @@ class DictParserHTML(DictParser):
                         record[key] = self.convert.toJSONItem(val)
                 yield record
         self.headers = parser.th
+
+class TabListParserHTML(TabListParser):
+    def __init__(self, datedelim: str = '-', section: str = NIX, convert_charrefs: bool = True) -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.convert_charrefs = convert_charrefs
+        self.section = section  # actually ignored
+    def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[TabSheet]:
+        return self.read(open(filename))
+    def scan(self, text: str, *, tab: Optional[str] = None) -> Iterator[TabSheet]:
+        return self.read(text.splitlines())
+    def read(self, rows: Iterable[str]) -> Iterator[TabSheet]:
+        import html.parser
+        class MyHTMLParser(html.parser.HTMLParser):
+            def __init__(self, convert: ParseJSONItem, *, convert_charrefs: bool = True) -> None:
+                html.parser.HTMLParser.__init__(self, convert_charrefs=convert_charrefs)
+                self.convert: ParseJSONItem = convert
+                self.data: List[JSONDict] = []
+                self.found: List[JSONDict] = []
+                self.headers: List[str] = []
+                self.title = ""
+                self.caption = ""
+                self.th: List[str] = []
+                self.td: List[JSONItem] = []
+                self.val: Optional[str] = None
+                self.th2: List[str] = []
+                self.td2: List[JSONItem] = []
+                self.val2: Optional[str] = None
+            def newdata(self) -> None:
+                self.data = []
+                self.headers = []
+                self.title = []
+            def handle_data(self, data: str) -> None:
+                tagged = self.get_starttag_text() or ""
+                if tagged.startswith("<caption"):
+                    self.caption = data
+                if tagged.startswith("<th"):
+                    self.val = data
+                if tagged.startswith("<td"):
+                    self.val = data
+                if tagged.startswith("<br"):
+                    self.val2 = data
+            def handle_endtag(self, tag: str) -> None:
+                if tag == "table":
+                    if self.found:
+                        self.data = self.found
+                        self.found = []
+                        self.headers = self.th
+                        self.th = []
+                        self.title = self.caption
+                        self.caption = ""
+                if tag == "th":
+                    self.th += [self.val or str(len(self.th) + 1)]
+                    self.val = None
+                    if self.val2:
+                        self.th2 += [self.val2 or str(len(self.th2) + 1)]
+                        self.val2 = None
+                if tag == "td":
+                    tagged = self.get_starttag_text() or ""
+                    if "right" in tagged and self.val and self.val.startswith(" "):
+                        val = self.convert.toJSONItem(self.val[1:])
+                    else:
+                        val = self.convert.toJSONItem(self.val or "")
+                    self.td += [val]
+                    self.val = None
+                    if self.val2:
+                        val2 = self.convert.toJSONItem(self.val2 or "") 
+                        self.td2 += [val2]
+                        self.val2 = None
+                if tag == "tr" and self.td:
+                    made = zip(self.th, self.td)
+                    item = dict(made)
+                    if self.th2:
+                        made2 = zip(self.th2, self.td2)
+                        item.update(dict(made2))
+                    self.found += [item]
+                    self.td = []
+                    self.td2 = []
+        n = 0
+        parser = MyHTMLParser(self.convert, convert_charrefs=self.convert_charrefs)
+        for row in rows:
+            parser.feed(row)
+            if parser.data:
+                section = self.section if not n else self.section + str(n)
+                tab = TabSheet(parser.data, parser.headers, parser.title or section)
+                parser.reset()
+                yield tab
+        if True:
+            if parser.data:
+                section = self.section if not n else self.section + str(n)
+                tab = TabSheet(parser.data, parser.headers, parser.title or self.section)
+                parser.reset()
+                yield tab
 
 # ================================= #### JSON
 class FormatJSON(BaseFormatJSONItem):
