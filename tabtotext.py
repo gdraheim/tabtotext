@@ -296,7 +296,17 @@ class DictParser:
         while False:
             yield {}
     @abstractmethod
-    def loads(self, text: str) -> Iterator[JSONDict]:
+    def scan(self, text: str) -> Iterator[JSONDict]:
+        while False:
+            yield {}
+
+class TabListParser:
+    @abstractmethod
+    def load(self, filename: str) -> Iterator[TabSheet]:
+        while False:
+            yield {}
+    @abstractmethod
+    def scan(self, text: str) -> Iterator[TabSheet]:
         while False:
             yield {}
 
@@ -812,16 +822,16 @@ def listToGFM(lines: Sequence[str]) -> str:
 
 def loadGFM(text: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> JSONList:
     parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
-    return list(parser.loads(text))
+    return list(parser.scan(text))
 def readFromGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> JSONList:
     parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
     return list(parser.load(filename))
 def tablistfileGFM(filename: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
-    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
-    return parser.loadtablist(filename)
+    parser = TabListParserGFM(datedelim=datedelim, tab=tab, section=section)
+    return list(parser.load(filename))
 def tablistscanGFM(text: str, datedelim: str = '-', tab: str = '|', section: str = NIX) -> List[TabSheet]:
-    parser = DictParserGFM(datedelim=datedelim, tab=tab, section=section)
-    return parser.scantablist(text)
+    parser = TabListParserGFM(datedelim=datedelim, tab=tab, section=section)
+    return list(parser.scan(text))
 
 class DictParserGFM(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-', tab: str = '|') -> None:
@@ -831,7 +841,7 @@ class DictParserGFM(DictParser):
         self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(open(filename))
-    def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+    def scan(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(text.splitlines())
     def read(self, rows: Iterable[str], *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         tab = tab if tab is not None else self.tab
@@ -881,11 +891,18 @@ class DictParserGFM(DictParser):
                     yield newrow
             else:
                 logg.warning("unrecognized line: %s", line.replace(tab, "|"))
-    def loadtablist(self, filename: str, *, tab: Optional[str] = None) -> List[TabSheet]:
-        return self.readtablist(open(filename), tab=tab)
-    def scantablist(self, text: str, *, tab: Optional[str] = None) -> List[TabSheet]:
-        return self.readtablist(text.splitlines(), tab=tab)
-    def readtablist(self, lines: Iterable[str], *, tab: Optional[str] = None) -> List[TabSheet]:
+
+class TabListParserGFM(TabListParser):
+    def __init__(self, section: str = NIX, *, datedelim: str = '-', tab: str = '|') -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.tab = tab
+        self.section = section
+        self.headers = STRLIST
+    def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[TabSheet]:
+        return self.read(open(filename), tab=tab)
+    def scan(self, text: str, *, tab: Optional[str] = None) -> Iterator[TabSheet]:
+        return self.read(text.splitlines(), tab=tab)
+    def read(self, lines: Iterable[str], *, tab: Optional[str] = None) -> Iterator[TabSheet]:
         tab = "|" if tab is None else tab
         tabs: List[TabSheet] = []
         data: List[JSONDict] = []
@@ -898,7 +915,7 @@ class DictParserGFM(DictParser):
                 if headers:
                     if not title:
                         title = "-%s" % (len(tabs) + 1)
-                    tabs.append(TabSheet(data, headers, title))
+                    yield TabSheet(data, headers, title)
                     title = ""
                     headers = []
                 data = []
@@ -935,8 +952,7 @@ class DictParserGFM(DictParser):
         if headers:
             if not title:
                 title = "-%s" % (len(tabs) + 1)
-            tabs.append(TabSheet(data, headers, title))
-        return tabs
+            yield TabSheet(data, headers, title)
 
 # ================================= #### HTML
 class FormatHTML(NumFormatJSONItem):
@@ -1268,7 +1284,7 @@ def listToHTML(lines: Sequence[str]) -> str:
 
 def loadHTML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserHTML(datedelim, section=section)
-    return list(parser.loads(text))
+    return list(parser.scan(text))
 def readFromHTML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserHTML(datedelim, section=section)
     return list(parser.load(filename))
@@ -1286,7 +1302,7 @@ class DictParserHTML(DictParser):
         self.caption = NIX
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(open(filename))
-    def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+    def scan(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(text.splitlines())
     def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
         import html.parser
@@ -1307,14 +1323,14 @@ class DictParserHTML(DictParser):
                     yield record
             def handle_data(self, data: str) -> None:
                 tagged = self.get_starttag_text() or ""
+                if tagged.startswith("<caption"):
+                    self.caption = data
                 if tagged.startswith("<th"):
                     self.val = data
                 if tagged.startswith("<td"):
                     self.val = data
                 if tagged.startswith("<br"):
                     self.val2 = data
-                if tagged.startswith("<caption"):
-                    self.caption = data
             def handle_endtag(self, tag: str) -> None:
                 if tag == "th":
                     self.th += [self.val or str(len(self.th) + 1)]
@@ -1611,24 +1627,24 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
 
 def loadJSON(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserJSON(datedelim=datedelim, section=section)
-    return list(parser.loads(text))
+    return list(parser.scan(text))
 def readFromJSON(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserJSON(datedelim=datedelim, section=section)
     return list(parser.load(filename))
 def tablistfileJSON(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
-    parser = DictParserJSON(datedelim=datedelim, section=section)
-    return parser.loadtablist(filename)
+    parser = TabListParserJSON(datedelim=datedelim, section=section)
+    return list(parser.load(filename))
 def tablistscanJSON(text: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
-    parser = DictParserJSON(datedelim=datedelim, section=section)
-    return parser.scantablist(text)
+    parser = TabListParserJSON(datedelim=datedelim, section=section)
+    return list(parser.scan(text))
 
 class DictParserJSON(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
         self.convert = ParseJSONItem(datedelim)
         self.section = section
     def read(self, rows: Iterable[str], newline: str = '\n') -> Iterator[JSONDict]:
-        return self.loads(newline.join(rows))
-    def loads(self, text: str) -> Iterator[JSONDict]:
+        return self.scan(newline.join(rows))
+    def scan(self, text: str) -> Iterator[JSONDict]:
         jsondata = json.loads(text)
         data: List[JSONDict] = jsondata
         for record in data:
@@ -1644,22 +1660,26 @@ class DictParserJSON(DictParser):
                 if isinstance(val, str):
                     record[key] = self.convert.toDate(val)
             yield record
-    def scantablist(self, text: str) -> List[TabSheet]:
-        jsondata = json.loads(text)
-        if isinstance(jsondata, dict):
-            jsondict = jsondata
-        else:
-            jsondict = {(self.section or SECTION): jsondata}
-        return self.tablist(jsondict)
-    def loadtablist(self, filename: str) -> List[TabSheet]:
+
+class TabListParserJSON(TabListParser):
+    def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.section = section
+    def load(self, filename: str) -> Iterator[TabSheet]:
         jsondata = json.load(open(filename))
         if isinstance(jsondata, dict):
             jsondict = jsondata
         else:
             jsondict = {(self.section or SECTION): jsondata}
-        return self.tablist(jsondict)
-    def tablist(self, jsondict: Dict[str, List[JSONDict]]) -> List[TabSheet]:
-        tabs: List[TabSheet] = []
+        return self.read(jsondict)
+    def scan(self, text: str) -> Iterator[TabSheet]:
+        jsondata = json.loads(text)
+        if isinstance(jsondata, dict):
+            jsondict = jsondata
+        else:
+            jsondict = {(self.section or SECTION): jsondata}
+        return self.read(jsondict)
+    def read(self, jsondict: Dict[str, List[JSONDict]]) -> Iterator[TabSheet]:
         for listname, jsonlist in jsondict.items():
             listdata: List[JSONDict] = []
             if isinstance(jsonlist, Iterable):
@@ -1672,8 +1692,7 @@ class DictParserJSON(DictParser):
                             else:
                                 newgroup[nam] = jsonval
                         listdata.append(newgroup)
-            tabs.append(TabSheet(listdata, [], listname))
-        return tabs
+            yield TabSheet(listdata, [], listname)
 
 # ================================= #### YAML
 class FormatYAML(FormatJSON):
@@ -1928,7 +1947,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
 
 def loadYAML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserYAML(datedelim=datedelim, section=section)
-    return list(parser.loads(text))
+    return list(parser.scan(text))
 def readFromYAML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserYAML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
@@ -1948,7 +1967,7 @@ class DictParserYAML(DictParser):
         self.section = section
     def load(self, filename: str) -> Iterator[JSONDict]:
         return self.read(open(filename))
-    def loads(self, text: str) -> Iterator[JSONDict]:
+    def scan(self, text: str) -> Iterator[JSONDict]:
         return self.read(text.splitlines())
     def read(self, rows: Iterable[str], section: str = NIX) -> Iterator[JSONDict]:
         section = self.section or SECTION
@@ -2244,7 +2263,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
 
 def loadTOML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserTOML(datedelim=datedelim, section=section)
-    return list(parser.loads(text))
+    return list(parser.scan(text))
 def readFromTOML(filename: str, datedelim: str = '-', section: str = NIX) -> JSONList:
     parser = DictParserTOML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
@@ -2260,7 +2279,7 @@ class DictParserTOML(DictParser):
         self.section = section
     def load(self, filename: str) -> Iterator[JSONDict]:
         return self.read(open(filename))
-    def loads(self, text: str) -> Iterator[JSONDict]:
+    def scan(self, text: str) -> Iterator[JSONDict]:
         return self.read(text.splitlines())
     def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
         section = self.section or SECTION
@@ -2601,7 +2620,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
 
 def loadCSV(text: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     parser = DictParserCSV(datedelim=datedelim, tab=tab)
-    return list(parser.loads(text))
+    return list(parser.scan(text))
 def readFromCSV(filename: str, datedelim: str = '-', tab: str = ";") -> JSONList:
     parser = DictParserCSV(datedelim=datedelim, tab=tab)
     return list(parser.load(filename))
@@ -2617,7 +2636,7 @@ class DictParserCSV(DictParser):
         self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.reads(open(filename), tab=tab)
-    def loads(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
+    def scan(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.reads(StringIO(text), tab=tab)
     def reads(self, csvfile: TextIOWrapper, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         tab = tab if tab is not None else self.tab
