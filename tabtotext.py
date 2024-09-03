@@ -2067,7 +2067,11 @@ def readFromYAML(filename: str, datedelim: str = '-', section: str = NIX) -> JSO
     parser = DictParserYAML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
 def tablistfileYAML(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
-    return [TabSheet(readFromYAML(filename, datedelim), [], NIX)]
+    parser = TabListParserYAML(datedelim=datedelim, section=section)
+    return list(parser.load(filename))
+def tablistscanYAML(text: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
+    parser = TabListParserYAML(datedelim=datedelim, section=section)
+    return list(parser.scan(text))
 
 def DictReaderYAML(rows: Iterable[str], *, datedelim: str = '-', section: str = NIX) -> Iterator[JSONDict]:
     parser = DictParserYAML(datedelim=datedelim, section=section)
@@ -2123,6 +2127,68 @@ class DictParserYAML(DictParser):
         # end for
         if record:
             yield record
+
+class TabListParserYAML(TabListParser):
+    def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.convert.None_String = "null"
+        self.convert.True_String = "true"
+        self.convert.False_String = "false"
+        self.section = section
+    def load(self, filename: str) -> Iterator[TabSheet]:
+        return self.read(open(filename))
+    def scan(self, text: str) -> Iterator[TabSheet]:
+        return self.read(text.splitlines())
+    def read(self, rows: Iterable[str], section: str = NIX) -> Iterator[TabSheet]:
+        section = self.section or SECTION
+        data: List[JSONDict] = []
+        at = "start"
+        record: JSONDict = {}
+        for row in rows:
+            line = row.rstrip()
+            if not line or line.startswith("#"):
+                continue
+            m = re.match(r"^(\w[\w\d.-]*): *", line)
+            if m:
+                if record:
+                    data += [ record ]
+                    record = {}
+                if data:
+                    yield TabSheet(data, [], section)
+                    data = []
+                section = m.group(1)
+                if at == "start":
+                    at = "data"
+                continue
+            if at not in ["data"]:
+                continue
+            if line.startswith("-") or line.startswith(" -"):
+                if record:
+                    data += [ record ]
+                    record = {}
+                line = line.strip()[1:]
+            m = re.match(r" *(\w[\w\d.-]*) *: *\"([^\"]*)\" *", line)
+            if m:
+                record[m.group(1)] = m.group(2)
+                continue
+            m = re.match(r" *(\w[\w\d.-]*) *: *(.*)", line)
+            if m:
+                record[m.group(1)] = self.convert.toJSONItem(m.group(2).strip())
+                continue
+            m = re.match(r" *\"([^\"]+)\" *: *\"([^\"]*)\" *", line)
+            if m:
+                record[m.group(1)] = m.group(2)
+                continue
+            m = re.match(r" *\"([^\"]+)\" *: *(.*)", line)
+            if m:
+                record[m.group(1)] = self.convert.toJSONItem(m.group(2).strip())
+                continue
+            logg.error("can not parse: %s", line)
+        # end for
+        if record:
+            data += [ record ]
+        if data:
+            yield TabSheet(data, [], section)
 
 # ================================= #### TOML
 class FormatTOML(FormatJSON):
