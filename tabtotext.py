@@ -1309,7 +1309,7 @@ class DictParserHTML(DictParser):
     def read(self, rows: Iterable[str]) -> Iterator[JSONDict]:
         import html.parser
         class MyHTMLParser(html.parser.HTMLParser):
-            def __init__(self, *,  convert_charrefs: bool = True) -> None:
+            def __init__(self, *, convert_charrefs: bool = True) -> None:
                 html.parser.HTMLParser.__init__(self, convert_charrefs=convert_charrefs)
                 self.found: List[JSONDict] = []
                 self.th: List[str] = []
@@ -1395,21 +1395,37 @@ class TabListParserHTML(TabListParser):
                 self.th2: List[str] = []
                 self.td2: List[JSONItem] = []
                 self.val2: Optional[str] = None
+                self.stack: List[str] = []
             def newdata(self) -> None:
                 self.data = []
                 self.headers = []
-                self.title = []
+                self.title = ""
+                self.td = []
+                self.td2 = []
+                self.val = None
+                self.val2 = None
             def handle_data(self, data: str) -> None:
-                tagged = self.get_starttag_text() or ""
-                if tagged.startswith("<caption"):
+                # tagged = self.get_starttag_text() or ""
+                if not self.stack:
+                    return
+                tag = self.stack[-1]
+                if tag == "caption":
                     self.caption = data
-                if tagged.startswith("<th"):
+                if tag == "th":
                     self.val = data
-                if tagged.startswith("<td"):
+                if tag == "td":
                     self.val = data
-                if tagged.startswith("<br"):
+                if tag == "br":
                     self.val2 = data
+            def handle_starttag(self, tag: str, attr: List[Tuple[str, Optional[str]]]) -> None:
+                self.stack.append(tag)
             def handle_endtag(self, tag: str) -> None:
+                while self.stack:
+                    last = self.stack.pop()
+                    if last == tag:
+                        break
+                else:
+                    raise ValueError("unmatched closing %r tag." % tag)
                 if tag == "table":
                     if self.found:
                         self.data = self.found
@@ -1426,14 +1442,17 @@ class TabListParserHTML(TabListParser):
                         self.val2 = None
                 if tag == "td":
                     tagged = self.get_starttag_text() or ""
-                    if "right" in tagged and self.val and self.val.startswith(" "):
-                        val = self.convert.toJSONItem(self.val[1:])
+                    if self.val:
+                        if "right" in tagged and self.val.startswith(" "):
+                            val = self.convert.toJSONItem(self.val[1:])
+                        else:
+                            val = self.convert.toJSONItem(self.val or "")
                     else:
-                        val = self.convert.toJSONItem(self.val or "")
+                        val = None
                     self.td += [val]
                     self.val = None
                     if self.val2:
-                        val2 = self.convert.toJSONItem(self.val2 or "") 
+                        val2 = self.convert.toJSONItem(self.val2 or "")
                         self.td2 += [val2]
                         self.val2 = None
                 if tag == "tr" and self.td:
@@ -1445,6 +1464,8 @@ class TabListParserHTML(TabListParser):
                     self.found += [item]
                     self.td = []
                     self.td2 = []
+                    self.val = None
+                    self.val2 = None
         n = 0
         parser = MyHTMLParser(self.convert, convert_charrefs=self.convert_charrefs)
         for row in rows:
@@ -1452,13 +1473,13 @@ class TabListParserHTML(TabListParser):
             if parser.data:
                 section = self.section if not n else self.section + str(n)
                 tab = TabSheet(parser.data, parser.headers, parser.title or section)
-                parser.reset()
+                parser.newdata()
                 yield tab
         if True:
             if parser.data:
                 section = self.section if not n else self.section + str(n)
                 tab = TabSheet(parser.data, parser.headers, parser.title or self.section)
-                parser.reset()
+                parser.newdata()
                 yield tab
 
 # ================================= #### JSON
