@@ -942,6 +942,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         fmt = "GFM"
         tab = " "  # nopep8
         padding = ""
+        noheaders = True
     if fmt in ["txt"]:
         fmt = "GFM"
         padding = ""  # nopep8
@@ -1498,7 +1499,7 @@ if __name__ == "__main__":
     cmdline.add_option("--text", action="store_true", help="-o text: space-seperated without headers")
     cmdline.add_option("--list", action="store_true", help="-o text: semicolon-seperated without headers")
     cmdline.add_option("--wide", action="store_true", help="-o wide: aligned space-separated table")
-    cmdline.add_option("--read", action="store_true", help="-o wide: aligned esc-space-separated table")
+    cmdline.add_option("--read", action="store_true", help="-o read: aligned esc-space-separated no-headers")
     cmdline.add_option("--md", action="store_true", help="-o md: aligned markdown table (with '|' delim)")
     cmdline.add_option("--markdown", action="store_true", help="-o markdown: markdown with extra '|' at end")
     cmdline.add_option("--tabs", action="store_true", help="-o tabs: aligned tab-seperated table (not '|')")
