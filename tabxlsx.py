@@ -1214,8 +1214,10 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     colw = tuple((cols[col] for col in colo))  # widths of cols ordered
     colr = tuple((rightalign(col) for col in colo))  # rightalign of cols ordered
     tab2 = (tab + padding if tab else "")
-    esc1 = tab[0] if tab else "\\"
-    esc2 = "\\"+tab[0] if tab else "\\"
+    esc1 = "\\"
+    esc2 = "\\\\"
+    esc3 = tab[0] if tab else "\\"
+    esc4 = "\\" + tab[0] if tab else "\\"
     if section and not noheaders:
         print(F"\n## {section}", file=out)
     if not noheaders:
@@ -1230,7 +1232,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in asdict(item).items():
-            values[name] = format(name, value).replace(esc1, esc2)
+            values[name] = format(name, value).replace(esc1, esc2).replace(esc3, esc4)
         vals = [values.get(col, none_string) for col in colo]
         vpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(vals[m])) for m, col in enumerate(colo))]
         line = [tab2 + (vpad[m] + vals[m] if colr[m] else vals[m] + vpad[m]) for m, col in enumerate(colo)]
