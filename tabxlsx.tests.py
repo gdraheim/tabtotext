@@ -133,8 +133,8 @@ data017: DataList = [Item1(123.4)]
 data018: DataList = [Item1(datetime.date(2021, 12, 31))]
 data019: DataList = [Item1(datetime.datetime(2021, 12, 31))]
 
-table01: JSONList = [{"a": "x"}, {"b": 1}]
-table01N: JSONList = [{'a': 'x', 'b': None}, {'a': None, 'b': 1}]
+table01: JSONList = [{"a": "x y"}, {"b": 1}]
+table01N: JSONList = [{'a': 'x y', 'b': None}, {'a': None, 'b': 1}]
 table02: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
 table02N: JSONList = [{'a': 'x', 'b': 0}, {'a': None, 'b': 2}]
 table22: JSONList = [{"a": "x", "b": 3}, {"b": 2, "a": "y"}]
@@ -1527,7 +1527,7 @@ class TabXlsxTest(unittest.TestCase):
                 logg.info("xmldata = %s", xmldata)
         #
         want: JSONList
-        want = [{'a': None}, {'a': 'x'}]
+        want = [{'a': None}, {'a': 'x y'}]
         back = readFromXLSX(filename)
         self.assertEqual(_none(want), _none(_date(back)))
         self.rm_testdir()
@@ -1784,8 +1784,8 @@ class TabXlsxTest(unittest.TestCase):
         self.assertGreater(sz, 3000)
         self.assertGreater(6000, sz)
         text = sh(F"{TABTO} -^ {filename} @csv")
-        cond = ['a;b', 'x;~', '~;1']
-        cond = ['a;b', 'x;', ';1']
+        cond = ['a;b', 'x y;~', '~;1']
+        cond = ['a;b', 'x y;', ';1']
         want = table01N
         self.assertEqual(cond, text.splitlines())
         back = loadCSV(text)
