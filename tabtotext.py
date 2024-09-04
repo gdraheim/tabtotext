@@ -770,6 +770,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
     colr = tuple((format.right(col) for col in colo))  # rightalign of cols ordered
     tab2 = tab[0] + padding if tab else ""
     rtab = padding + tab[1] if len(tab) > 1 else ""
+    esc1 = tab[0] if tab else "\\"
+    esc2 = "\\"+tab[0] if tab else "\\"
     lines: List[str] = []
     if section:
         lines += [F"\n## {section}"]
@@ -789,7 +791,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in item.items():
-            values[name] = format(name, value)
+            values[name] = format(name, value).replace(esc1, esc2)
         vals = [values.get(col, _None_String) for col in colo]
         vpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(vals[m])) for m, col in enumerate(colo))]
         line = [tab2 + (vpad[m] + vals[m] if colr[m] else vals[m] + vpad[m]) for m, col in enumerate(colo)]
