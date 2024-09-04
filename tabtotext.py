@@ -514,11 +514,10 @@ class FormatGFM(NumFormatJSONItem):
     def __call__(self, col: str, val: JSONItem) -> str:
         if not self.tab:
             return NumFormatJSONItem.__call__(self, col, val)
-        if self.tab == '|':
-            rep = '!'
-        else:
-            rep = '|'
-        return NumFormatJSONItem.__call__(self, col, val).replace(self.tab, rep)
+        tab = self.tab
+        esc1 = tab[0] if tab else "\\"
+        esc2 = "\\"+tab[0] if tab else "\\"
+        return NumFormatJSONItem.__call__(self, col, val).replace(esc1,esc2)
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: Sequence[str] = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
@@ -770,8 +769,6 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
     colr = tuple((format.right(col) for col in colo))  # rightalign of cols ordered
     tab2 = tab[0] + padding if tab else ""
     rtab = padding + tab[1] if len(tab) > 1 else ""
-    esc1 = tab[0] if tab else "\\"
-    esc2 = "\\"+tab[0] if tab else "\\"
     lines: List[str] = []
     if section:
         lines += [F"\n## {section}"]
@@ -791,7 +788,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
     for item in sorted(rows, key=sortrow):
         values: Dict[str, str] = {}
         for name, value in item.items():
-            values[name] = format(name, value).replace(esc1, esc2)
+            values[name] = format(name, value)
         vals = [values.get(col, _None_String) for col in colo]
         vpad = [(ws[w] if w < 9 else (" " * w)) for w in ((colw[m] - len(vals[m])) for m, col in enumerate(colo))]
         line = [tab2 + (vpad[m] + vals[m] if colr[m] else vals[m] + vpad[m]) for m, col in enumerate(colo)]
@@ -3110,6 +3107,11 @@ def tabtotext(data: Iterable[JSONDict],  # ..
     if fmt in ["wide"]:
         fmt = "GFM"
         tab = ""  # nopep8
+    if fmt in ["read"]:
+        fmt = "GFM"
+        tab = " "  # nopep8
+        padding = ""
+        noheaders = True
     if fmt in ["txt"]:
         fmt = "GFM"
         padding = ""  # nopep8
@@ -3253,6 +3255,10 @@ def tabToFMT(fmt: str, data: JSONList,  # ..
     if fmt in ["wide"]:
         fmt = "GFM"
         tab = ""  # nopep8
+    if fmt in ["read"]:
+        fmt = "GFM"
+        tab = " "  # nopep8
+        padding = ""
     if fmt in ["tabs"]:
         fmt = "GFM"
         tab = "\t"  # nopep8
@@ -3320,7 +3326,7 @@ def viewFMT(fmt: str) -> str:
     return editprog()
 
 _atformats = ["@html", "@htm", "@xhtm", "@xhtml", "@json", "@jsn", "@yaml", "@yaml", "@toml", "@tml",
-              "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@txt", "@text",
+              "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6", "@wide", "@read", "@txt", "@text",
               "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
 
 def extension(filename: str) -> Optional[str]:
@@ -3581,7 +3587,7 @@ if __name__ == "__main__":
     cmdline.add_option("-i", "--inputformat", metavar="FMT", default="",
                        help="fix input format (instead of autodetection)")
     cmdline.add_option("-o", "--output", "--format", metavar="FMT", default="",
-                       help="(file.)json|yaml|html|wide|md|htm|tab|csv")
+                       help="(file.)json|yaml|html|wide|read|md|htm|tab|csv")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     TABXLSX = opt.tabxlsx

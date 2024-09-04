@@ -3,7 +3,7 @@
 __copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.3361"
 
-from tabxlsx import print_tabtotext, print_tablist, CellValue, StrToTime, StrToDate
+from tabxlsx import tabtotext, print_tabtotext, print_tablist, CellValue, StrToTime, StrToDate
 from tabxlsx import tabtoXLSX, tablistfileXLSX, tablistfile, tablistmap, tablistfor
 from tabxlsx import TabSheet
 from tabtotext import tablistscanGFM, tablistscanJSON
@@ -1119,6 +1119,127 @@ class TabXlsxTest(unittest.TestCase):
         scan = tablistfile(filename)
         back = dict(tablistmap(scan))
         logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(want, back)
+    def test_6970(self) -> None:
+        text = tabtotext(table01, [], ["@wide"])
+        logg.debug("%s => %s", table01, text)
+        want = table01N
+        cond = ['a     b', 'x y   ~', '~     1']
+        self.assertEqual(cond, text.splitlines())
+    def test_6971(self) -> None:
+        text = tabtotext(table02, [], ["@wide"])
+        logg.debug("%s => %s", table02, text)
+        want = table02N
+        cond = ['a     b', 'x     0', '~     2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6972(self) -> None:
+        text = tabtotext(table22, [], ["@wide"])
+        logg.debug("%s => %s", table22, text)
+        want = table22
+        cond = ['a     b', 'x     3', 'y     2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6973(self) -> None:
+        text = tabtotext(table33, [], ["@wide"])
+        logg.debug("%s => %s", table33, text)
+        want = table33Q
+        cond = ['a     b     c',
+                'x     3     2021-12-31', 'y     2     2021-12-30',
+                '~     ~     2021-12-31.2334']
+        self.assertEqual(cond, text.splitlines())
+    def test_6974(self) -> None:
+        text = tabtotext(table44, [], ["@wide"])
+        logg.debug("%s => %s", table44, text)
+        want = table44N
+        cond = ['a     b     c     d',
+                'x     3     (yes) 0.40',
+                'y     2     (no)  0.30',
+                '~     ~     (yes) 0.20',
+                'y     1     ~     0.10']
+        self.assertEqual(cond, text.splitlines())
+    def test_6975(self) -> None:
+        text = tabtotext(table01, [], ["@read"])
+        logg.debug("%s => %s", table01, text)
+        want = table01N
+        cond = [' a     b', ' x\\ y  ~', ' ~     1']
+        self.assertEqual(cond, text.splitlines())
+    def test_6980(self) -> None:
+        text = tabtotext(table01, [], ["@text"])
+        logg.debug("%s => %s", table01, text)
+        want = table01N
+        cond = ['|x y  |~', '|~    |1']
+        self.assertEqual(cond, text.splitlines())
+    def test_6981(self) -> None:
+        text = tabtotext(table02, [], ["@text"])
+        logg.debug("%s => %s", table02, text)
+        want = table02N
+        cond = ['|x    |0', '|~    |2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6982(self) -> None:
+        text = tabtotext(table22, [], ["@text"])
+        logg.debug("%s => %s", table22, text)
+        want = table22
+        cond = ['|x    |3', '|y    |2']
+        self.assertEqual(cond, text.splitlines())
+    def test_6983(self) -> None:
+        text = tabtotext(table33, [], ["@text"])
+        logg.debug("%s => %s", table33, text)
+        want = table33Q
+        cond = ['|x    |3    |2021-12-31',
+                '|y    |2    |2021-12-30',
+                '|~    |~    |2021-12-31']
+    def test_6984(self) -> None:
+        text = tabtotext(table44, [], ["@text"])
+        logg.debug("%s => %s", table44, text)
+        want = table44N
+        cond = ['|x    |3    |(yes)|0.40',
+                '|y    |2    |(no) |0.30',
+                '|~    |~    |(yes)|0.20',
+                '|y    |1    |~    |0.10']
+        self.assertEqual(cond, text.splitlines())
+    def test_6990(self) -> None:
+        text = tabtotext(table01, [], ["@txt"])
+        logg.debug("%s => %s", table01, text)
+        want = table01N
+        cond = ['|a    |b', '|x y  |~', '|~    |1']
+        self.assertEqual(cond, text.splitlines())
+        back = loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6991(self) -> None:
+        text = tabtotext(table02, [], ["@txt"])
+        logg.debug("%s => %s", table02, text)
+        want = table02N
+        cond = ['|a    |b', '|x    |0', '|~    |2']
+        self.assertEqual(cond, text.splitlines())
+        back = loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6992(self) -> None:
+        text = tabtotext(table22, [], ["@txt"])
+        logg.debug("%s => %s", table22, text)
+        want = table22
+        cond = ['|a    |b', '|x    |3', '|y    |2']
+        self.assertEqual(cond, text.splitlines())
+        back = loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6993(self) -> None:
+        text = tabtotext(table33, [], ["@txt"])
+        logg.debug("%s => %s", table33, text.splitlines())
+        want = table33N
+        cond = ['|x    |3    |2021-12-31',
+                '|y    |2    |2021-12-30',
+                '|~    |~    |2021-12-31']
+        back = loadGFM(text)
+        self.assertEqual(want, back)
+    def test_6994(self) -> None:
+        text = tabtotext(table44, [], ["@txt"])
+        logg.debug("%s => %s", table44, text.splitlines())
+        want = table44N
+        cond = ['|a    |b    |c    |d',
+                '|x    |3    |(yes)|0.40',
+                '|y    |2    |(no) |0.30',
+                '|~    |~    |(yes)|0.20',
+                '|y    |1    |~    |0.10']
+        self.assertEqual(cond, text.splitlines())
+        back = loadGFM(text)
         self.assertEqual(want, back)
 
     def test_8011(self) -> None:

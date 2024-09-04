@@ -864,7 +864,7 @@ class StrToTime(StrToDate):
         return value
 
 _atformats = ["@json", "@jsn", "@markdown", "@md", "@md2", "@md3", "@md4", "@md5", "@md6",
-              "@wide", "@txt", "@text",
+              "@wide", "@read", "@txt", "@text",
               "@tabs", "@tab", "@data", "@ifs", "@dat", "@csv", "@scsv", "@xls", "@xlsx"]
 
 def fmt_selected(selected: List[str]) -> str:
@@ -918,64 +918,68 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
         out = sys.stdout
         done = output
     #
-    if fmt in ["md", "markdown"] or "@md" in spec or "@markdown" in spec:
+    if fmt in ["md", "markdown"]:
         fmt = "GFM"  # nopep8
-    if fmt in ["md2"] or "@md2" in spec:
+    if fmt in ["md2"]:
         fmt = "GFM"
         minwidth = 2  # nopep8
-    if fmt in ["md3"] or "@md3" in spec:
+    if fmt in ["md3"]:
         fmt = "GFM"
         minwidth = 3  # nopep8
-    if fmt in ["md4"] or "@md4" in spec:
+    if fmt in ["md4"]:
         fmt = "GFM"
         minwidth = 4  # nopep8
-    if fmt in ["md5"] or "@md5" in spec:
+    if fmt in ["md5"]:
         fmt = "GFM"
         minwidth = 5  # nopep8
-    if fmt in ["md6"] or "@md6" in spec:
+    if fmt in ["md6"]:
         fmt = "GFM"
         minwidth = 6  # nopep8
-    if fmt in ["wide"] or "@wide" in spec:
+    if fmt in ["wide"]:
         fmt = "GFM"
         tab = ""  # nopep8
-    if fmt in ["txt"] or "@txt" in spec:
+    if fmt in ["read"]:
+        fmt = "GFM"
+        tab = " "  # nopep8
+        padding = ""
+    if fmt in ["txt"]:
         fmt = "GFM"
         padding = ""  # nopep8
-    if fmt in ["text"] or "@text" in spec:
+    if fmt in ["text"]:
         fmt = "GFM"
         padding = ""
         noheaders = True  # nopep8
-    if fmt in ["tabs"] or "@tabs" in spec:
+    if fmt in ["tabs"]:
         fmt = "GFM"
         tab = "\t"
         padding = ""  # nopep8
-    if fmt in ["tab"] or "@tab" in spec:
+    if fmt in ["tab"]:
         fmt = "CSV"
         tab = "\t"  # nopep8
-    if fmt in ["data"] or "@data" in spec:
+    if fmt in ["data"]:
         fmt = "CSV"
         tab = "\t"
         noheaders = True  # nopep8
-    if fmt in ["ifs"] or "@dat" in spec or "@ifs" in spec:
+    if fmt in ["ifs"]:
         fmt = "CSV"
         tab = os.environ.get("IFS", "\t")  # nopep8
-    if fmt in ["dat"] or "@dat" in spec or "@ifs" in spec:
+    if fmt in ["dat"]:
         fmt = "CSV"
         tab = os.environ.get("IFS", "\t")
         noheaders = True  # nopep8
-    if fmt in ["csv", "scsv"] or "@csv" in spec or "@scsv" in spec:
+    if fmt in ["csv", "scsv"]:
         fmt = "CSV"
         tab = ";"  # nopep8
-    if fmt in ["list"] or "@list" in spec:
+    if fmt in ["list"]:
         fmt = "CSV"
         tab = ";"
         noheaders = True  # nopep8
-    if fmt in ["json"] or "@json" in spec:
+    if fmt in ["json"]:
         fmt = "JSON"
-    if fmt in ["jsn"] or "@jsn" in spec:
+    if fmt in ["jsn"]:
         fmt = "JSON"
         padding = ""
-    if fmt in ["xlsx", "xls"] or "@xlsx" in spec or "@xls" in spec:
+    if fmt in ["xlsx", "xls"]:
         fmt = "XLS"
         tab = ","  # nopep8
     # override
@@ -1260,6 +1264,8 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
     tab = '|' if tab is None else tab
     if fmt in ["wide", "text"]:
         tab = ''
+    if fmt in ["read"]:
+        tab = ' '
     if fmt in ["tabs", "tab", "dat", "ifs", "data"]:
         tab = '\t'
     if fmt in ["csv", "scsv", "list"]:
@@ -1492,6 +1498,7 @@ if __name__ == "__main__":
     cmdline.add_option("--text", action="store_true", help="-o text: space-seperated without headers")
     cmdline.add_option("--list", action="store_true", help="-o text: semicolon-seperated without headers")
     cmdline.add_option("--wide", action="store_true", help="-o wide: aligned space-separated table")
+    cmdline.add_option("--read", action="store_true", help="-o wide: aligned esc-space-separated table")
     cmdline.add_option("--md", action="store_true", help="-o md: aligned markdown table (with '|' delim)")
     cmdline.add_option("--markdown", action="store_true", help="-o markdown: markdown with extra '|' at end")
     cmdline.add_option("--tabs", action="store_true", help="-o tabs: aligned tab-seperated table (not '|')")
