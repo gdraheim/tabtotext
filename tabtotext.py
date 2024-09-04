@@ -519,7 +519,9 @@ class FormatGFM(NumFormatJSONItem):
         esc2 = "\\\\"
         esc3 = tab[0] if tab else "\\"
         esc4 = "\\" + tab[0] if tab else "\\"
-        return NumFormatJSONItem.__call__(self, col, val).replace(esc1, esc2).replace(esc3, esc4)
+        esc7 = "\n"
+        esc8 = "\\\n"
+        return NumFormatJSONItem.__call__(self, col, val).replace(esc1, esc2).replace(esc3, esc4).replace(esc7, esc8)
 
 def tabToGFMx(result: Union[JSONList, JSONDict, DataList, DataItem],  # ..
               sorts: Sequence[str] = [], formats: FormatsDict = {}, selected: List[str] = [],  # ..
