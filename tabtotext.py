@@ -2151,7 +2151,7 @@ class TabListParserYAML(TabListParser):
             m = re.match(r"^(\w[\w\d.-]*): *", line)
             if m:
                 if record:
-                    data += [ record ]
+                    data += [record]
                     record = {}
                 if data:
                     yield TabSheet(data, [], section)
@@ -2164,7 +2164,7 @@ class TabListParserYAML(TabListParser):
                 continue
             if line.startswith("-") or line.startswith(" -"):
                 if record:
-                    data += [ record ]
+                    data += [record]
                     record = {}
                 line = line.strip()[1:]
             m = re.match(r" *(\w[\w\d.-]*) *: *\"([^\"]*)\" *", line)
@@ -2186,7 +2186,7 @@ class TabListParserYAML(TabListParser):
             logg.error("can not parse: %s", line)
         # end for
         if record:
-            data += [ record ]
+            data += [record]
         if data:
             yield TabSheet(data, [], section)
 
@@ -2439,7 +2439,8 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 values[name] = format(name, value)
         line = ['%s%s=%s%s' % (as_name(name), pad, pad, values[name])
                 for name in colo if name in values]
-        lines.append("[[data]]\n" + "\n".join(line))
+        header = "[[%s]]\n" % (section or SECTION)
+        lines.append(header + "\n".join(line))
     return "\n".join(lines) + "\n"
 
 def loadTOML(text: str, datedelim: str = '-', section: str = NIX) -> JSONList:
@@ -2449,7 +2450,11 @@ def readFromTOML(filename: str, datedelim: str = '-', section: str = NIX) -> JSO
     parser = DictParserTOML(datedelim=datedelim, section=section)
     return list(parser.load(filename))
 def tablistfileTOML(filename: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
-    return [TabSheet(readFromTOML(filename, datedelim, section=section), [], section)]
+    parser = TabListParserTOML(datedelim=datedelim, section=section)
+    return list(parser.load(filename))
+def tablistscanTOML(text: str, datedelim: str = '-', section: str = NIX) -> List[TabSheet]:
+    parser = TabListParserTOML(datedelim=datedelim, section=section)
+    return list(parser.scan(text))
 
 class DictParserTOML(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
@@ -2499,6 +2504,62 @@ class DictParserTOML(DictParser):
         # end for
         if record:
             yield record
+
+class TabListParserTOML(TabListParser):
+    def __init__(self, section: str = NIX, *, datedelim: str = '-') -> None:
+        self.convert = ParseJSONItem(datedelim)
+        self.convert.None_String = "null"
+        self.convert.True_String = "true"
+        self.convert.False_String = "false"
+        self.section = section
+    def load(self, filename: str) -> Iterator[TabSheet]:
+        return self.read(open(filename))
+    def scan(self, text: str) -> Iterator[TabSheet]:
+        return self.read(text.splitlines())
+    def read(self, rows: Iterable[str]) -> Iterator[TabSheet]:
+        section = self.section or SECTION
+        at = "start"
+        tabs: Dict[str, List[JSONDict]] = OrderedDict()
+        record: JSONDict = {}
+        for row in rows:
+            line = row.strip()
+            if not line or line.startswith("#"):
+                continue
+            m = re.match(r" *\[\[(\w[\w\d.-]*)\]\] *", line)
+            if m:
+                if record:
+                    tabs[section] += [record]
+                    record = {}
+                section = m.group(1)
+                if section not in tabs:
+                    tabs[section] = []
+                at = "data"
+                continue
+            if at not in ["data"]:
+                continue
+            m = re.match(r" *(\w[\w\d.-]*) *= *\"([^\"]*)\" *", line)
+            if m:
+                record[m.group(1)] = m.group(2)
+                continue
+            m = re.match(r" *(\w[\w\d.-]*) *= *(.*)", line)
+            if m:
+                record[m.group(1)] = self.convert.toJSONItem(m.group(2).strip())
+                continue
+            m = re.match(r" *\"([^\"]+)\" *= *\"([^\"]*)\" *", line)
+            if m:
+                record[m.group(1)] = m.group(2)
+                continue
+            m = re.match(r" *\"([^\"]+)\" *= *(.*)", line)
+            if m:
+                record[m.group(1)] = self.convert.toJSONItem(m.group(2).strip())
+                continue
+            logg.error("can not parse: %s", line)
+        # end for
+        if record:
+            tabs[section] += [record]
+            record = {}
+        for name, sheet in tabs.items():
+            yield TabSheet(sheet, [], name)
 
 # ================================= #### TOML
 class FormatCSV(NumFormatJSONItem):
