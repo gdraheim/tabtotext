@@ -1066,6 +1066,48 @@ class TabXlsxTest(unittest.TestCase):
         logg.info("%s => %s", want, back)
         self.assertEqual(want, back)
 
+    def test_6801(self) -> None:
+        data: JSONList = [{"a": "a b", "c": "c d|e"}, {"a": "g\nh", "c": "s\\t"}]
+        text = tabtotext(data, defaultformat="md")
+        logg.debug("%s => %s", data, text.splitlines())
+        cond = ['| a     | c', '| ----- | -----', '| a b   | c d\\|e', '| g\\', 'h  | s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        # scan = tabtotext.tablistscanGFM(text)
+        # back = dict(tabtotext.tablistmap(scan))
+        back = loadGFM(text)
+        want = data
+        logg.debug("\n>> %s\n<< %s", data, back)
+        self.assertEqual(want, back)
+    def test_6803(self) -> None:
+        data: JSONList = [{"a": "a b", "c": "c d|e"}, {"a": "g\nh", "c": "s\\t"}]
+        tabs: Dict[str, JSONList] = {"data": data}
+        buff = StringIO()
+        done = print_tablist(buff, tablistfor(tabs), defaultformat="md")
+        text = buff.getvalue()
+        logg.debug("%s => %s", data, text.splitlines())
+        cond = ['| a     | c', '| ----- | -----', '| a b   | c d\\|e', '| g\\', 'h  | s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        scan = tablistfile(StringIO(text))
+        back = dict(tablistmap(scan))
+        want = {"-1": data}
+        logg.debug("\n>> %s\n<< %s", data, back)
+        self.assertEqual(want, back)
+    def test_6804(self) -> None:
+        test = self.testdir()
+        data: JSONList = [{"a": "a b", "c": "c d|e"}, {"a": "g\nh", "c": "s\\t"}]
+        tabs: Dict[str, JSONList] = {"data": data}
+        filename = F"{test}/tabs.md"
+        done = print_tablist(filename, tablistfor(tabs), defaultformat="md")
+        text = open(filename).read()
+        logg.debug("%s => %s", data, text.splitlines())
+        cond = ['| a     | c', '| ----- | -----', '| a b   | c d\\|e', '| g\\', 'h  | s\\\\t']
+        self.assertEqual(cond, text.splitlines())
+        scan = tablistfile(filename)
+        back = dict(tablistmap(scan))
+        want = {"-1": data}
+        logg.debug("\n>> %s\n<< %s", data, back)
+        self.assertEqual(want, back)
+        self.rm_testdir()
     date_for_6220: JSONList = [{"a": "x", "b": 0}, {"b": 2}]
     def test_6220(self) -> None:
         out = StringIO()
@@ -1163,7 +1205,7 @@ class TabXlsxTest(unittest.TestCase):
         cond = [' x\\ y  ~', ' ~     1']
         self.assertEqual(cond, text.splitlines())
     def test_6976(self) -> None:
-        data: JSONList = [{"a": "a b", "c": "c d e"}, {"a":"g\nh", "c":"s\\t"}]
+        data: JSONList = [{"a": "a b", "c": "c d e"}, {"a": "g\nh", "c": "s\\t"}]
         text = tabtotext(data, [], ["@read"])
         logg.debug("%s => %s", data, text)
         cond = [' a\\ b  c\\ d\\ e', ' g\\', 'h  s\\\\t']

@@ -839,7 +839,9 @@ def tablistscanGFM(text: str, datedelim: str = '-', tab: str = '|', section: str
 class DictParserGFM(DictParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-', tab: str = '|') -> None:
         self.convert = ParseJSONItem(datedelim)
-        self.tab = tab
+        if tab in ["", "\n"]:
+            raise AssertionError("Markdown Parser needs tab delimiter")
+        self.tab = tab or '|'
         self.section = section
         self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
@@ -847,29 +849,45 @@ class DictParserGFM(DictParser):
     def scan(self, text: str, *, tab: Optional[str] = None) -> Iterator[JSONDict]:
         return self.read(text.splitlines())
     def read(self, rows: Iterable[str], *, tab: Optional[str] = None) -> Iterator[JSONDict]:
-        tab = tab if tab is not None else self.tab
+        if tab in ["", "\n"]:
+            raise AssertionError("Markdown Parser needs tab delimiter")
+        tab = tab[0] if tab else self.tab[0]  # field seperator
+        igs = chr(0x1D)  # ascii/ebcdic group seperator
         at = "start"
+        pre = ""
         for row in rows:
-            line = row.strip()
+            line = row.rstrip().replace(igs, tab)
+            if "\\" in line:
+                esc = line.split("\\")
+                if esc[-1] == "":
+                    pre = line  # line continuation
+                    continue
+            if pre:
+                line = pre + "\n" + line
+                pre = ""
+            if "\\" in line:
+                groups = [("\\" if not g else igs + g[1:] if g.startswith(tab) else g) for g in ("\n" + line).split("\\")]
+                line = ("".join(groups))[1:]
+            # check decoded row
+            logg.debug("line = %s", line.replace(igs, "{tab}").replace("\n", "{br}"))
             if not line or line.startswith("#"):
                 continue
             if not line or line.startswith("- "):
                 continue
-            if tab in "\t" and row.startswith(tab):
-                line = tab + line  # was removed by strip()
             if line.startswith(tab) or (tab in "\t" and tab in line):
                 if at == "start":
-                    cols = [name.strip() for name in line.split(tab)]
+                    cols = [name.strip().replace(igs, tab) for name in line.split(tab)]
                     at = "header"
                     self.headers = cols
                     continue
                 if at == "header":
-                    newcols = [name.strip() for name in line.split(tab)]
+                    newcols = [name.strip().replace(igs, tab) for name in line.split(tab)]
                     if len(newcols) != len(cols):
                         logg.error("header divider has not the same length")
                         at = "data"  # promote anyway
                         continue
                     at = "divider"
+                    # fallthrough
                 if at == "divider":
                     ok = True
                     for col in newcols:
@@ -884,7 +902,7 @@ class DictParserGFM(DictParser):
                         at = "data"
                         continue
                 if at == "data":
-                    values = [field.strip() for field in line.split(tab)]
+                    values = [field.strip().replace(igs, tab) for field in line.split(tab)]
                     record = []
                     for value in values:
                         record.append(self.convert.toJSONItem(value.strip()))
@@ -898,7 +916,9 @@ class DictParserGFM(DictParser):
 class TabListParserGFM(TabListParser):
     def __init__(self, section: str = NIX, *, datedelim: str = '-', tab: str = '|') -> None:
         self.convert = ParseJSONItem(datedelim)
-        self.tab = tab
+        if tab in ["", "\n"]:
+            raise AssertionError("Markdown Parser needs tab delimiter")
+        self.tab = tab or "|"
         self.section = section
         self.headers = STRLIST
     def load(self, filename: str, *, tab: Optional[str] = None) -> Iterator[TabSheet]:
@@ -906,15 +926,32 @@ class TabListParserGFM(TabListParser):
     def scan(self, text: str, *, tab: Optional[str] = None) -> Iterator[TabSheet]:
         return self.read(text.splitlines(), tab=tab)
     def read(self, lines: Iterable[str], *, tab: Optional[str] = None) -> Iterator[TabSheet]:
-        tab = "|" if tab is None else tab
+        if tab in ["", "\n"]:
+            raise AssertionError("Markdown Parser needs tab delimiter")
+        tab = tab[0] if tab else self.tab[0]  # field seperator
+        igs = chr(0x1D)  # ascii/ebcdic group seperator
         tabs: List[TabSheet] = []
         data: List[JSONDict] = []
         # must have headers
         lookingfor = "headers"
         headers: List[str] = []
         title = ""
+        pre = ""
         for line in lines:
-            if not line.strip() or (tab and not line.startswith(tab)):
+            if "\\" in line:
+                esc = line.rstrip().split("\\")
+                if esc[-1] == "":
+                    pre = line.rstrip()  # line continuation
+                    continue
+            if pre:
+                line = pre + "\n" + line
+                pre = ""
+            if "\\" in line:
+                groups = [("\\" if not g else igs + g[1:] if g.startswith(tab) else g) for g in ("\n" + line).split("\\")]
+                line = ("".join(groups))[1:]
+            # check decoded row
+            logg.info("line = %s", line.replace(igs, "{tab}").replace("\n", "{br}"))
+            if not line.rstrip() or (tab and not line.startswith(tab)):
                 if headers:
                     if not title:
                         title = "-%s" % (len(tabs) + 1)
@@ -924,9 +961,9 @@ class TabListParserGFM(TabListParser):
                 data = []
                 lookingfor = "headers"
                 if line.startswith("## "):
-                    title = line[3:].strip()
+                    title = line[3:].strip().replace(igs, tab)
                 continue
-            vals = line.split(tab)
+            vals = [tad.strip().replace(igs, tab) for tad in line.split(tab)]
             if tab:
                 del vals[0]
             if lookingfor == "headers":

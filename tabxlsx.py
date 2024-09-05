@@ -20,6 +20,7 @@ from xml.etree import ElementTree as ET
 import os.path as fs
 import os
 import re
+import sys
 
 # The functions in this script mimic those of openpyxl - we only implement what we need for tabtoxlsx
 # (actually, we make an export with openpyxl and then we adapt the code here to generate the same bytes)
@@ -1334,8 +1335,23 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
     lookingfor = "headers"
     headers: List[str] = []
     title = ""
+    igs = chr(0x1D)  # ascii/ebcdic group seperator
+    pre = ""
     for line in inp:
-        if not line.strip() or (tab and not line.startswith(tab)):
+        if "\\" in line:
+            esc = line.rstrip().split("\\")
+            if esc[-1] == "":
+                pre = line.rstrip()  # line continuation
+                continue
+        if pre:
+            line = pre + "\n" + line
+            pre = ""
+        if "\\" in line:
+            groups = [("\\" if not g else igs + g[1:] if g.startswith(tab) else g) for g in ("\n" + line).split("\\")]
+            line = ("".join(groups))[1:]
+        # check decoded row
+        logg.debug("line = %s", line.replace(igs, "{tab}").replace("\n", "{br}"))
+        if not line.rstrip() or (tab and not line.startswith(tab)):
             if headers:
                 if not title:
                     title = "-%s" % (len(tabs) + 1)
@@ -1345,9 +1361,9 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
             data = []
             lookingfor = "headers"
             if line.startswith("## "):
-                title = line[3:].strip()
+                title = line[3:].strip().replace(igs, tab)
             continue
-        vals = line.split(tab)
+        vals = [tad.strip().replace(igs, tab) for tad in line.split(tab)]
         if tab:
             del vals[0]
         if lookingfor == "headers":
