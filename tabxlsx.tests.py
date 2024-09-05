@@ -34,6 +34,8 @@ JSONLIST: List[Dict[str, str]] = []
 KEEP = 0
 TABTO = "./tabxlsx.py"
 FIXME = True
+BIGFILE = 100000
+
 
 try:
     from tabtools import currency_default
@@ -2635,6 +2637,33 @@ class TabXlsxTest(unittest.TestCase):
         logg.debug("\n>> %s\n<< %s", want, back)
         self.assertEqual(want, back)
         self.assertEqual(test, scan)
+    def test_9888(self) -> None:
+        tmp = self.testdir()
+        tabs: List[TabSheet] = []
+        for sheet in range(5):
+            rows: JSONList = []
+            for row in range(BIGFILE//10):
+                num = sheet * BIGFILE + row
+                vals: JSONDict = {"a":  num, "b": BIGFILE+num}
+                rows.append(vals)
+            title = "data%i" % sheet
+            tabs.append(TabSheet(rows, [], title))
+        filename = path.join(tmp, "bigfile.xlsx")
+        output = path.join(tmp, "bigfile.json")
+        starting = Time.now()
+        text = print_tablist(filename, tabs)
+        generated = Time.now()
+        text = sh(F"{TABTO} -^ {filename} -o {output}")
+        converted = Time.now()
+        logg.info("| %i numbers tabxlsx write xlsx time | %s", BIGFILE, generated - starting)
+        logg.info("| %i numbers read xls and write json | %s", BIGFILE, converted - generated)
+        text = open(output).read()
+        # logg.debug("=>\n%s", text)
+        test = tablistscanJSON(text)
+        scan = tablistfile(output)
+        back = dict(tablistmap(scan))
+        # logg.debug("\n>> %s\n<< %s", want, back)
+        self.assertEqual(test, scan)
 
 if __name__ == "__main__":
     # unittest.main()
@@ -2643,12 +2672,14 @@ if __name__ == "__main__":
     cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
     cmdline.add_option("-k", "--keep", action="count", default=0, help="keep testdir")
+    cmdline.add_option("--bigfile", metavar=str(BIGFILE), default=BIGFILE)
     cmdline.add_option("--failfast", action="store_true", default=False,
                        help="Stop the test run on the first error or failure. [%default]")
     cmdline.add_option("--xmlresults", metavar="FILE", default=None,
                        help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
+    BIGFILE = int(opt.bigfile)
     KEEP = opt.keep
     if not args:
         args = ["test_*"]
