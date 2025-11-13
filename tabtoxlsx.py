@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
 
 from datetime import datetime as Time
 from datetime import date as Date
@@ -10,8 +11,8 @@ It is a helper for the tabtotext.py module using openpyxl (see fallback tabxlsx.
 Defaults to read any given file.xy rewriting it as file.xy.xlsx!
 """
 
-__copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3352"
+__copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.4452"
 
 import logging
 from typing import TYPE_CHECKING, cast, Union, Dict, List, Any, Sequence, Iterable, Optional

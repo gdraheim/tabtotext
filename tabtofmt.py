@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
+
 """ Subset of tabtotext """
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Iterable, Iterator

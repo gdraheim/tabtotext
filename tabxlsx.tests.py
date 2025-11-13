@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
+# pylint: disable=missing-function-docstring,missing-class-docstring
 
-__copyright__ = "(C) 2017-2024 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.3361"
+__copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.4452"
 
 from tabxlsx import tabtotext, print_tabtotext, print_tablist, CellValue, StrToTime, StrToDate
 from tabxlsx import tabtoXLSX, tablistfileXLSX, tablistfile, tablistmap, tablistfor
@@ -2642,9 +2643,9 @@ class TabXlsxTest(unittest.TestCase):
         tabs: List[TabSheet] = []
         for sheet in range(5):
             rows: JSONList = []
-            for row in range(BIGFILE//10):
+            for row in range(BIGFILE // 10):
                 num = sheet * BIGFILE + row
-                vals: JSONDict = {"a":  num, "b": BIGFILE+num}
+                vals: JSONDict = {"a": num, "b": BIGFILE + num}
                 rows.append(vals)
             title = "data%i" % sheet
             tabs.append(TabSheet(rows, [], title))
