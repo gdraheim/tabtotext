@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # pylint: disable=missing-function-docstring,missing-class-docstring,global-statement,multiple-statements,line-too-long,too-many-lines
 # pylint: disable=unused-variable,unused-argument,dangerous-default-value,consider-using-f-string
-# pylint: disable=invalid-name,import-outside-toplevel,redefined-outer-name
+# pylint: disable=invalid-name,import-outside-toplevel,redefined-outer-name,unspecified-encoding
 # mypy: disable-error-code=unused-ignore
 
 """
@@ -35,6 +35,9 @@ from io import StringIO, TextIOWrapper
 
 import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TABTOTEXT")
+
+FormatErrors = (ValueError, TypeError, KeyError, NameError)
+ImportFormatErrors = (ValueError, TypeError, KeyError, NameError, ImportError)
 
 try:
     from tabtools import Frac4, fracfloat, float_with_frac, float_with_hours
@@ -225,7 +228,7 @@ def unmatched(value: JSONItem, cond: str) -> bool:
                 return str(value) < cond[2:]
             if cond.startswith(">"):
                 return str(value) <= cond[1:]
-    except Exception as e:
+    except FormatErrors as e:
         logg.warning("unmatched value %s does not work for cond (*%s)", type(value), cond)
     return False
 
@@ -499,7 +502,7 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                         val4 = Frac4(val)  # type: ignore[assignment,arg-type]
                     try:
                         return fmt4.format(val4)
-                    except Exception as e:
+                    except FormatErrors as e:
                         logg.debug("format <%s> does not apply: %s", fmt, e)
             # only a few percent-formatting variants are supported
             if isinstance(val, float):
@@ -507,7 +510,7 @@ class NumFormatJSONItem(BaseFormatJSONItem):
                 if m:
                     try:
                         return fmt % val
-                    except Exception as e:
+                    except FormatErrors as e:
                         logg.debug("format <%s> does not apply: %e", fmt, e)
             logg.debug("unknown format '%s' for col '%s'", fmt, col)
         if isinstance(val, float):
@@ -749,7 +752,8 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass
+            except FormatErrors:
+                pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
@@ -769,7 +773,7 @@ def tabtoGFM(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
                 row[colname] = value
                 oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
-            except Exception as e:
+            except FormatErrors as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
@@ -992,7 +996,7 @@ class TabListParserGFM(TabListParser):
                 else:
                     try:
                         record[headers[col]] = int(v)
-                    except:
+                    except FormatErrors:
                         record[headers[col]] = self.convert.toDate(v)
             data.append(record)
         if headers:
@@ -1235,7 +1239,8 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             try:
                 if col in filtered:
                     skip = skip or unmatched(value, filtered[col])
-            except: pass
+            except FormatErrors:
+                pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
@@ -1255,7 +1260,7 @@ def tabtoHTML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 row[colname] = value
                 oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
-            except Exception as e:
+            except FormatErrors as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
@@ -1745,7 +1750,8 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass
+            except FormatErrors:
+                pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
@@ -1765,7 +1771,7 @@ def tabtoJSON(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 row[colname] = value
                 oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
-            except Exception as e:
+            except FormatErrors as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
@@ -2067,7 +2073,8 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass
+            except FormatErrors:
+                pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
@@ -2087,7 +2094,7 @@ def tabtoYAML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 row[colname] = value
                 oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
-            except Exception as e:
+            except FormatErrors as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
@@ -2448,7 +2455,8 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass
+            except FormatErrors:
+                pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
@@ -2468,7 +2476,7 @@ def tabtoTOML(data: Iterable[JSONDict], headers: List[str] = [], selected: List[
                 row[colname] = value
                 oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
-            except Exception as e:
+            except FormatErrors as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
@@ -2623,12 +2631,12 @@ class xFormatCSV(NumFormatJSONItem):
             if "{:" in self.formats[col]:
                 try:
                     return self.formats[col].format(val)
-                except Exception as e:
+                except FormatErrors as e:
                     logg.debug("format <%s> does not apply: %s", self.formats[col], e)
             if "%s" in self.formats[col]:
                 try:
                     return self.formats[col] % self.item(val)
-                except Exception as e:
+                except FormatErrors as e:
                     logg.debug("format <%s> does not apply: %s", self.formats[col], e)
             logg.debug("unknown format '%s' for col '%s'", self.formats[col], col)
         if isinstance(val, (Date, Time)):
@@ -2858,7 +2866,8 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass
+            except FormatErrors:
+                pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
@@ -2878,7 +2887,7 @@ def tabtoCSV(data: Iterable[JSONDict], headers: List[str] = [], selected: List[s
                 row[colname] = value
                 oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
-            except Exception as e:
+            except FormatErrors as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
@@ -3003,7 +3012,7 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
                         wb2.save(output)
                         return "tabtoxlsx (%s tables)" % len(wb2.worksheets)
                     return "tabtoxlsx"
-            except Exception as e:
+            except ImportFormatErrors as e:
                 if not TABXLSX:
                     import tabxlsx
                     wb3 = tabxlsx.tablistmake_workbook(tabsheets, selected)  # type: ignore[arg-type]
@@ -3063,7 +3072,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[JSONDict],  # ..
                 else:
                     import tabtoxlsx
                     return tabtoxlsx.tabtoXLSX(output, data, headers, selected, section=section, legend=legend)
-            except Exception as e:
+            except ImportFormatErrors as e:
                 if not TABXLSX:
                     import tabxlsx
                     return tabxlsx.tabtoXLSX(output, data, headers, selected, section=section)  # type: ignore[arg-type]
@@ -3441,7 +3450,7 @@ def tablistfileFMT(fmt: str, filename: str, *, tab: Optional[str] = None, sectio
                 import tabtoxlsx
                 found2 = tabtoxlsx.tablistfileXLSX(filename)
                 return found2
-        except Exception as e:
+        except ImportFormatErrors as e:
             if not TABXLSX:
                 import tabxlsx
                 found3 = tabxlsx.tablistfileXLSX(filename)  # type: ignore[return-value]

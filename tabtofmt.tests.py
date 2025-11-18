@@ -24,7 +24,6 @@ from tabtofmt import tabToFMT
 import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TESTS")
 
-
 def get_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back  # type: ignore
     return frame.f_code.co_name  # type: ignore
@@ -272,14 +271,14 @@ def unittest_testsuite(args: List[str], testsuite: Optional[unittest.TestSuite] 
 
 from optparse import OptionParser # type: ignore[deprecated-module] # pylint: disable=deprecated-module,wrong-import-position,wrong-import-order
 def cmdline() -> OptionParser:
-    cmdline = OptionParser("%s test...")
-    cmdline.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
-    cmdline.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
-    cmdline.add_option("--failfast", action="store_true", default=False,
+    cli = OptionParser("%s test...")
+    cli.add_option("-v", "--verbose", action="count", default=0, help="more verbose logging")
+    cli.add_option("-^", "--quiet", action="count", default=0, help="less verbose logging")
+    cli.add_option("--failfast", action="store_true", default=False,
                        help="Stop the test run on the first error or failure. [%default]")
-    cmdline.add_option("--xmlresults", metavar="FILE", default=None,
+    cli.add_option("--xmlresults", metavar="FILE", default=None,
                        help="capture results as a junit xml file [%default]")
-    return cmdline
+    return cli
 
 if __name__ == "__main__":
     # unittest.main()

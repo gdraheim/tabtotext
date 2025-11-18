@@ -39,6 +39,8 @@ import sys
 import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TABXLSX")
 
+FormatErrors = (ValueError, TypeError, KeyError, NameError)
+
 SECTION = "data"
 DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%Y-%m-%d.%H%M"
@@ -1111,7 +1113,7 @@ def print_tabtotext(output: Union[TextIO, str], data: Iterable[Dict[str, CellVal
             if "{:" in fmt:
                 try:
                     return fmt.format(val)
-                except Exception as e:
+                except FormatErrors as e:
                     logg.debug("format <%s> does not apply: %s", fmt, e)
         if isinstance(val, float):
             return floatfmt % val
@@ -1329,10 +1331,10 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
                 else:
                     try:
                         newrecord[nam] = int(v)
-                    except:
+                    except FormatErrors:
                         try:
                             newrecord[nam] = float(v)
-                        except:
+                        except FormatErrors:
                             newrecord[nam] = time(v)
             data.append(newrecord)
         return [TabSheet(data, list(reader.fieldnames if reader.fieldnames else []), SECTION)]
@@ -1394,10 +1396,10 @@ def tablistfile(input: Union[TextIO, str], *, tab: Optional[str] = None, default
             else:
                 try:
                     record[colname] = int(v)
-                except:
+                except FormatErrors:
                     try:
                         record[colname] = float(v)
-                    except Exception as e:
+                    except FormatErrors:
                         record[colname] = time(v)
         data.append(record)
     if headers:

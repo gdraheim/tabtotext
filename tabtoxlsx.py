@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 else:
     WorkbookType = Workbook
 
+FormatErrors = (ValueError, TypeError, KeyError, NameError)
 
 SECTION = "data"
 MINWIDTH = 4
@@ -296,7 +297,8 @@ def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: 
             try:
                 if name in filtered:
                     skip = skip or unmatched(value, filtered[name])
-            except: pass
+            except FormatErrors:
+                pass
             colname = selname if selname not in colnames else colnames[selname]
             row[colname] = value  # do not format the value here!
             oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
@@ -316,7 +318,7 @@ def tabto_workbook(data: Iterable[JSONDict], headers: List[str] = [], selected: 
                 row[colname] = value
                 oldlen = cols[colname] if colname in cols else max(minwidth, len(colname))
                 cols[colname] = max(oldlen, len(value))
-            except Exception as e:
+            except FormatErrors as e:
                 logg.info("formatting '%s' at %s bad for:\n\t%s", freeformat, e, item)
         if not skip:
             rows.append(row)
@@ -477,7 +479,7 @@ def tablistmake_workbook(tablist: List[TabSheet], selected: List[str] = [], minw
             ws = workbook.create_sheet()
             try:
                 workbook.active = ws  # type: ignore[misc]
-            except Exception as e:
+            except FormatErrors as e:
                 logg.warning("could not set active: %s", e)
         work = tabto_workbook(tabsheet.data, tabsheet.headers, selected,
                               minwidth=minwidth, section=tabsheet.title,
