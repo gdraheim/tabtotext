@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,line-too-long
+# pylint: disable=invalid-name,consider-using-f-string
 # mypy: disable-error-code=unused-ignore
 
 """
@@ -14,8 +15,8 @@ __version__ = "1.5.4461"
 
 from typing import Union, List
 import re
-import logging
 
+import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("fracfloat")
 
 norm_frac_1_4 = 0x00BC
@@ -316,7 +317,6 @@ def encodeFrac(line: str) -> str:
 
 if __name__ == "__main__":
     import sys
-    import os
     from optparse import OptionParser
     cmdline = OptionParser("%prog [--longoptions] text...", add_help_option=False, epilog=__doc__, version=__version__)
     cmdline.add_option("--help", action="count", default=0, help="show this help message and exit")
