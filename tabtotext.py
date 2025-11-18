@@ -560,8 +560,7 @@ def tabToGFM(result: Iterable[JSONDict],  # ..
             for headercol in header.split("|"):
                 if "@" in headercol:
                     name, suffix = headercol.split("@", 1)
-                    if suffix:
-                        renames = "@" + suffix
+                    renames =  renames = "@" + suffix if suffix else ""
                 else:
                     name, renames = headercol, ""
                 sortheaders += [name]
@@ -1039,8 +1038,7 @@ def tabToHTML(result: Iterable[JSONDict],  # ..
             for headercol in header.split("|"):
                 if "@" in headercol:
                     name, suffix = headercol.split("@", 1)
-                    if suffix:
-                        renames = "@" + suffix
+                    renames = "@" + suffix if suffix else ""
                 else:
                     name, renames = headercol, ""
                 sortheaders += [name]
@@ -1576,8 +1574,7 @@ def tabToJSON(result: Iterable[JSONDict],  # ..
             for headercol in header.split("|"):
                 if "@" in headercol:
                     name, suffix = headercol.split("@", 1)
-                    if suffix:
-                        renames = "@" + suffix
+                    renames = "@" + suffix if suffix else ""
                 else:
                     name, renames = headercol, ""
                 sortheaders += [name]
@@ -1899,8 +1896,7 @@ def tabToYAML(result: Iterable[JSONDict],  # ..
             for headercol in header.split("|"):
                 if "@" in headercol:
                     name, suffix = headercol.split("@", 1)
-                    if suffix:
-                        renames = "@" + suffix
+                    renames = "@" + suffix if suffix else ""
                 else:
                     name, renames = headercol, ""
                 sortheaders += [name]
@@ -2281,8 +2277,7 @@ def tabToTOML(result: Iterable[JSONDict],  # ..
             for headercol in header.split("|"):
                 if "@" in headercol:
                     name, suffix = headercol.split("@", 1)
-                    if suffix:
-                        renames = "@" + suffix
+                    renames = "@" + suffix if suffix else ""
                 else:
                     name, renames = headercol, ""
                 sortheaders += [name]
@@ -2673,8 +2668,7 @@ def tabToCSV(result: Iterable[JSONDict],  # ..
             for headercol in header.split("|"):
                 if "@" in headercol:
                     name, suffix = headercol.split("@", 1)
-                    if suffix:
-                        renames = "@" + suffix
+                    renames = "@" + suffix if suffix else ""
                 else:
                     name, renames = headercol, ""
                 sortheaders += [name]

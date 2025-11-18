@@ -92,8 +92,7 @@ def saveToXLSX(filename: str, result: JSONList,
             for headercol in header.split("|"):
                 if "@" in headercol:
                     name, suffix = headercol.split("@", 1)
-                    if suffix:
-                        renames = "@" + suffix
+                    renames = "@" + suffix if suffix else ""
                 else:
                     name, renames = headercol, ""
                 sortheaders += [name]
