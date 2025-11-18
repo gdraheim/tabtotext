@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,global-statement,multiple-statements,line-too-long,too-many-lines
+# pylint: disable=unused-variable,unused-argument,dangerous-default-value,consider-using-f-string
+# pylint: disable=invalid-name,import-outside-toplevel,redefined-outer-name
 # mypy: disable-error-code=unused-ignore
 
 """
@@ -28,9 +30,10 @@ from abc import abstractmethod
 import os
 import sys
 import re
-import logging
 import json
 from io import StringIO, TextIOWrapper
+
+import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TABTOTEXT")
 
 try:
