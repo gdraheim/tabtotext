@@ -1,27 +1,29 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements
 # mypy: disable-error-code=unused-ignore
+
+""" Unit Tests for tabtotfmt.py """
 
 __copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.4461"
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable
-from tabtotext import JSONList, JSONItem, DataList, DataItem
-import tabtotext
+from typing import Optional
 import unittest
 import datetime
 import sys
 from fnmatch import fnmatchcase as fnmatch
 import os
-import os.path as path
+from os import path
 import shutil
-import json
 import inspect
 
-import logging
+from tabtotext import JSONList
+import tabtotext
+from tabtofmt import tabToFMT
+
+import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TESTS")
 
-from tabtofmt import RowSortList, ColSortList, LegendList, tabToFMT
 
 def get_caller_name() -> str:
     frame = inspect.currentframe().f_back.f_back  # type: ignore
