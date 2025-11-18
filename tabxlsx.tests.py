@@ -1,15 +1,15 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,too-many-lines,line-too-long
+# pylint: disable=unused-variable,unused-argument,consider-using-f-string
+# pylint: disable=fixme,invalid-name
 # mypy: disable-error-code=unused-ignore
+
+""" Unit Tests for tabxlsx.py """
 
 __copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.4461"
 
-from tabxlsx import tabtotext, print_tabtotext, print_tablist, CellValue, StrToTime, StrToDate
-from tabxlsx import tabtoXLSX, tablistfileXLSX, tablistfile, tablistmap, tablistfor
-from tabxlsx import TabSheet
-from tabtotext import tablistscanGFM, tablistscanJSON
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Iterable, cast
+from typing import Optional, Dict, List, Any, cast
 import unittest
 import datetime
 import sys
@@ -17,7 +17,6 @@ from fnmatch import fnmatchcase as fnmatch
 import os
 import os.path as path
 import shutil
-import json
 import inspect
 from subprocess import getoutput
 from datetime import date as Date
@@ -28,7 +27,12 @@ from zipfile import ZipFile
 from dataclasses import dataclass
 from io import StringIO
 
-import logging
+from tabxlsx import tabtotext, print_tabtotext, print_tablist, CellValue, StrToTime, StrToDate
+from tabxlsx import tabtoXLSX, tablistfileXLSX, tablistfile, tablistmap, tablistfor
+from tabxlsx import TabSheet
+from tabtotext import tablistscanGFM, tablistscanJSON
+
+import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("XLSX")
 NIX = ""
 LIST: List[str] = []
