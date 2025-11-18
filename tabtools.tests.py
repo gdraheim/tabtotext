@@ -8,6 +8,7 @@
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.1.4461"
 
+from typing import Optional, List
 import sys
 import os
 import unittest
@@ -980,6 +981,26 @@ class zeit2jiraTest(unittest.TestCase):
         back = fracfloat(data)
         self.assertEqual(back, 0.66)
 
+def unittest_testsuite(args: List[str], testsuite: Optional[unittest.TestSuite] = None) -> unittest.TestSuite:
+    testsuite = testsuite or unittest.TestSuite()
+    if not args:
+        args = ["test_*"]
+    for test in args:
+        if len(test) > 2 and test[0].isalpha() and test[1] == "_":
+            test = "test_" + test[2:]
+        for classname in sorted(globals()):
+            if not classname.endswith("Test"):
+                continue
+            testclass = globals()[classname]
+            for method in sorted(dir(testclass)):
+                if "*" not in test:
+                    test += "*"
+                if test.startswith("_"):
+                    test = test[1:]
+                if fnmatch(method, test):
+                    testsuite.addTest(testclass(method))
+    return testsuite
+
 if __name__ == "__main__":
     # unittest.main()
     from optparse import OptionParser
@@ -992,21 +1013,7 @@ if __name__ == "__main__":
                        help="capture results as a junit xml file [%default]")
     opt, args = cmdline.parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
-    if not args:
-        args = ["test_*"]
-    suite = unittest.TestSuite()
-    for arg in args:
-        if len(arg) > 2 and arg[0].isalpha() and arg[1] == "_":
-            arg = "test_" + arg[2:]
-        for classname in sorted(globals()):
-            if not classname.endswith("Test"):
-                continue
-            testclass = globals()[classname]
-            for method in sorted(dir(testclass)):
-                if "*" not in arg: arg += "*"
-                if arg.startswith("_"): arg = arg[1:]
-                if fnmatch(method, arg):
-                    suite.addTest(testclass(method))
+    suite = unittest_testsuite(args)
     # running
     xmlresults = None
     if opt.xmlresults:
