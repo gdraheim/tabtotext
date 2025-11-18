@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,line-too-long,too-many-lines
+# pylint: disable=unused-variable,unused-argument,dangerous-default-value,consider-using-f-string
+# pylint: disable=protected-access,f-string-without-interpolation,redefined-outer-name,invalid-name,import-outside-toplevel
 # mypy: disable-error-code=unused-ignore
 
 """ 
@@ -11,13 +13,13 @@ If the input contains only one table then it is used, otherwise specify which sh
 __copyright__ = "(C) 2023-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.4461"
 
-from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping, TypeVar, Generic, Iterator
+from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Iterator
 from collections import OrderedDict
 from datetime import date as Date
 from datetime import datetime as Time
 from datetime import timedelta as Plus
 from datetime import timezone as TimeZone
-from io import StringIO, TextIOWrapper
+from io import StringIO
 from zipfile import ZipFile, ZIP_DEFLATED
 from xml.etree import ElementTree as ET
 import os.path as fs
@@ -34,8 +36,8 @@ import sys
 # from openpyxl.utils import get_column_letter
 # (have a look at 'make_workbook' for the generation part)
 
-from logging import getLogger, basicConfig, ERROR
-logg = getLogger("TABXLSX")
+import logging # pylint: disable=wrong-import-order,wrong-import-position
+logg = logging.getLogger("TABXLSX")
 
 SECTION = "data"
 DATEFMT = "%Y-%m-%d"
@@ -1481,7 +1483,6 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
 
 if __name__ == "__main__":
     from optparse import OptionParser, Option
-    import sys
     def numbered_option(option: Option, arg: str, value: str, parser: OptionParser) -> None:
         setattr(parser.values, (option.dest or "numbered"), int(arg[1:]))
     prog = os.path.basename(__file__)
@@ -1530,7 +1531,7 @@ if __name__ == "__main__":
     cmdline.add_option("--csv", "--scsv", action="store_true", help="-o csv: semicolon-seperated csv table")
     cmdline.add_option("--xls", "--xlsx", action="store_true", help="-o xls: for filename.xlsx (else comma-csv)")
     opt, args = cmdline.parse_args()
-    basicConfig(level=max(0, ERROR - 10 * opt.verbose + 10 * opt.quiet))
+    logging.basicConfig(level=max(0, logging.ERROR - 10 * opt.verbose + 10 * opt.quiet))
     filenames: List[str] = opt.files
     if not filenames and args:
         filenames = [args[0]]
