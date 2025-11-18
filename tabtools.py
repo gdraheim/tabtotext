@@ -315,19 +315,22 @@ def encodeFrac(line: str) -> str:
     line = line.replace("PD$", chr(currency_pound))
     return line
 
-if __name__ == "__main__":
-    import sys
-    from optparse import OptionParser
+from optparse import OptionParser # type: ignore[deprecated-module] # pylint: disable=deprecated-module,wrong-import-position,wrong-import-order
+def cmdline() -> OptionParser:
     cmdline = OptionParser("%prog [--longoptions] text...", add_help_option=False, epilog=__doc__, version=__version__)
     cmdline.add_option("--help", action="count", default=0, help="show this help message and exit")
     cmdline.add_option("--verbose", action="count", default=0, help="more verbose logging")
     cmdline.add_option("--quiet", action="count", default=0, help="less verbose logging")
+    return cmdline
+
+if __name__ == "__main__":
+    import sys
     opts = [arg for arg in sys.argv[1:] if arg.startswith("--")]
     args = [arg for arg in sys.argv[1:] if arg not in opts]
-    opt, noargs = cmdline.parse_args(opts)
+    opt, noargs = cmdline().parse_args(opts)
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     if opt.help:
-        cmdline.print_help()
+        cmdline().print_help()
         raise SystemExit()
     out: List[str] = []
     for arg in args:

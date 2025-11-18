@@ -1480,9 +1480,8 @@ def print_tablist(output: Union[TextIO, str], tablist: List[TabSheet] = [], sele
         return ""
     return ": %s results %s (%s tables)" % (len(result), done, len(tabsheets))
 
-
-if __name__ == "__main__":
-    from optparse import OptionParser, Option
+from optparse import OptionParser, Option # type: ignore[deprecated-module] # pylint: disable=deprecated-module,wrong-import-position,wrong-import-order
+def cmdline() -> OptionParser:
     def numbered_option(option: Option, arg: str, value: str, parser: OptionParser) -> None:
         setattr(parser.values, (option.dest or "numbered"), int(arg[1:]))
     prog = os.path.basename(__file__)
@@ -1530,7 +1529,10 @@ if __name__ == "__main__":
     cmdline.add_option("--tab", action="store_true", help="-o tab: aligned tab-seperated table (like --dat)")
     cmdline.add_option("--csv", "--scsv", action="store_true", help="-o csv: semicolon-seperated csv table")
     cmdline.add_option("--xls", "--xlsx", action="store_true", help="-o xls: for filename.xlsx (else comma-csv)")
-    opt, args = cmdline.parse_args()
+    return cmdline
+
+if __name__ == "__main__":
+    opt, args = cmdline().parse_args()
     logging.basicConfig(level=max(0, logging.ERROR - 10 * opt.verbose + 10 * opt.quiet))
     filenames: List[str] = opt.files
     if not filenames and args:

@@ -3590,10 +3590,8 @@ def tabFileToPrintWith(filename: str, fileformat: str, output: str = NIX, fmt: s
     result = readFromFMT(fileformat, filename)
     return tabToPrintWith(result, output, fmt, selects=selects, sorts=sorts, formats=formats, reorder=reorder, datedelim=datedelim, legend=legend)
 
-if __name__ == "__main__":
-    DONE = (logging.WARNING + logging.ERROR) // 2
-    logging.addLevelName(DONE, "DONE")
-    from optparse import OptionParser, Option
+from optparse import OptionParser, Option # type: ignore[deprecated-module] # pylint: disable=deprecated-module,wrong-import-position,wrong-import-order
+def cmdline() -> OptionParser:
     def numbered_option(option: Option, arg: str, value: str, parser: OptionParser) -> None:
         setattr(parser.values, (option.dest or "numbered"), int(arg[1:]))
     hint = "Use @dat to print only"
@@ -3635,7 +3633,12 @@ if __name__ == "__main__":
                        help="fix input format (instead of autodetection)")
     cmdline.add_option("-o", "--output", "--format", metavar="FMT", default="",
                        help="(file.)json|yaml|html|wide|read|md|htm|tab|csv")
-    opt, args = cmdline.parse_args()
+    return cmdline
+
+if __name__ == "__main__":
+    DONE = (logging.WARNING + logging.ERROR) // 2
+    logging.addLevelName(DONE, "DONE")
+    opt, args = cmdline().parse_args()
     logging.basicConfig(level=max(0, logging.WARNING - 10 * opt.verbose + 10 * opt.quiet))
     TABXLSX = opt.tabxlsx
     filenames: List[str] = opt.files
@@ -3652,7 +3655,7 @@ if __name__ == "__main__":
     padding = opt.padding if not opt.nopadding else ""
     tab = "\t" if opt.asciitab else opt.tabulator if not opt.notab else ""
     if not filenames:
-        cmdline.print_help()
+        cmdline().print_help()
         logg.error("no input filename given")
         sys.exit(1)
     if False:
