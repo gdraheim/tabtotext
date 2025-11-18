@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # pylint: disable=missing-function-docstring,missing-class-docstring
+# mypy: disable-error-code=unused-ignore
 
 """
 This script allows to format table-like data (list of dicts).
@@ -14,7 +15,7 @@ and ".dat" files use $IFS as tabulator (like bash 'read').
 """
 
 __copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.4452"
+__version__ = "1.6.4461"
 
 from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Tuple, Iterable, Iterator, TextIO, NamedTuple
 from collections import OrderedDict

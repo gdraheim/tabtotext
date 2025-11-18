@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # pylint: disable=missing-function-docstring,missing-class-docstring
+# mypy: disable-error-code=unused-ignore
 
 """
 Implements frac formatting, for example three-quarter of an hour.
@@ -9,7 +10,7 @@ arge numbers an be presented nicely and parsed back.
 """
 
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.5.4452"
+__version__ = "1.5.4461"
 
 from typing import Union, List
 import re

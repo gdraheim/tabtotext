@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # pylint: disable=missing-function-docstring,missing-class-docstring
+# mypy: disable-error-code=unused-ignore
 
 """ 
 TabXLSX reads and writes Excel xlsx files. It does not depend on other libraries.
@@ -8,7 +9,7 @@ of output format options are available but less than the tabtotext.py module.
 If the input contains only one table then it is used, otherwise specify which should be printed."""
 
 __copyright__ = "(C) 2023-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.4452"
+__version__ = "1.6.4461"
 
 from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Mapping, TypeVar, Generic, Iterator
 from collections import OrderedDict

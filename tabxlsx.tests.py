@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 # pylint: disable=missing-function-docstring,missing-class-docstring
+# mypy: disable-error-code=unused-ignore
 
 __copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.4452"
+__version__ = "1.6.4461"
 
 from tabxlsx import tabtotext, print_tabtotext, print_tablist, CellValue, StrToTime, StrToDate
 from tabxlsx import tabtoXLSX, tablistfileXLSX, tablistfile, tablistmap, tablistfor
