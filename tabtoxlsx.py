@@ -1,11 +1,9 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,line-too-long
+# pylint: disable=unused-variable,unused-argument,dangerous-default-value,consider-using-f-string
+# pylint: disable=redefined-outer-name,invalid-name
 # mypy: disable-error-code=unused-ignore
 
-from datetime import datetime as Time
-from datetime import date as Date
-import datetime
-from collections import OrderedDict
 """
 This script converts table-like data (list of dicts) from and to Excel .xlsx files.
 It is a helper for the tabtotext.py module using openpyxl (see fallback tabxlsx.py).
@@ -15,8 +13,12 @@ Defaults to read any given file.xy rewriting it as file.xy.xlsx!
 __copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.6.4461"
 
-import logging
 from typing import TYPE_CHECKING, cast, Union, Dict, List, Any, Sequence, Iterable, Optional
+
+from datetime import datetime as Time
+from datetime import date as Date
+from collections import OrderedDict
+
 from tabtotext import JSONList, JSONDict, TabSheet
 from tabtotext import ColSortList, RowSortList, LegendList, RowSortCallable, ColSortCallable, unmatched
 from tabtotext import FormatCSV, FormatJSONItem, FormatsDict
@@ -52,6 +54,7 @@ NIX = ""
 
 _Empty_String = " "
 
+import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TABTOXLSX")
 
 def set_cell(ws: Worksheet, row: int, col: int, value: Any, style: Style) -> None:  # type: ignore
@@ -484,8 +487,7 @@ def tablistmake_workbook(tablist: List[TabSheet], selected: List[str] = [], minw
     return workbook
 
 if __name__ == "__main__":
-    from tabtotext import tablistfile
-    from os.path import splitext
+    from tabtotext import tablistfile # pylint: disable=wrong-import-order,wrong-import-position,ungrouped-imports
     DONE = (logging.WARNING + logging.ERROR) // 2
     logging.addLevelName(DONE, "DONE")
     from optparse import OptionParser
