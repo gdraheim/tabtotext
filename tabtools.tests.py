@@ -1,17 +1,21 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,too-many-lines
+# pylint: disable=invalid-name,consider-using-f-string
 # mypy: disable-error-code=unused-ignore
+
+""" Unit Tests for tabtools.py """
 
 __copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
 __version__ = "1.1.4461"
 
-from tabtools import *
 import sys
 import os
 import unittest
-import logging
 from fnmatch import fnmatchcase as fnmatch
 
+from tabtools import *
+
+import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TEST")
 
 X1 = chr(norm_frac_1_4)
