@@ -1,15 +1,16 @@
 #! /usr/bin/env python3
-# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=missing-function-docstring,missing-class-docstring,multiple-statements,line-too-long
+# pylint: disable=unused-variable,unused-argument,dangerous-default-value,consider-using-f-string
 # mypy: disable-error-code=unused-ignore
 
 """ Subset of tabtotext """
 
-from typing import Optional, Union, Dict, List, Any, Sequence, Callable, Type, cast, Iterable, Iterator
+from typing import Union, Dict, List, Any, Sequence, Callable, cast
 from datetime import date as Date
 from datetime import datetime as Time
 import re
 import logging
-from io import StringIO, TextIOWrapper
+from io import StringIO
 
 logg = logging.getLogger("tabToFMT")
 
@@ -68,7 +69,7 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Dict[
         if isinstance(val, float):
             return floatfmt % val
         return strJSON(val)
-    def strJSON(value: JSONItem) -> str:
+    def strJSON(value: JSONItem) -> str:  # pylint: disable=invalid-name
         if value is None: return none_string
         if value is False: return false_string
         if value is True: return true_string
@@ -135,7 +136,7 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Dict[
     # CSV
     if fmt in ["list", "csv", "scsv", "xlsx", "xls", "tab", "dat", "ifs", "data"]:
         tab1 = tab if tab else ";"
-        import csv
+        import csv # pylint: disable=import-outside-toplevel
         csvfile = StringIO()
         writer = csv.DictWriter(csvfile, fieldnames=sorted(cols.keys(), key=sortkey),
                                 restval='~', quoting=csv.QUOTE_MINIMAL, delimiter=tab1)
@@ -148,11 +149,11 @@ def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Dict[
             writer.writerow(rowvalues)
         return cast(str, csvfile.getvalue())  # type: ignore[redundant-cast]
     # GFM
-    def rightF(col: str, formatter: str) -> str:
+    def rightF(col: str, formatter: str) -> str: # pylint: disable=invalid-name
         if rightalign(col):
             return formatter.replace("%-", "%")
         return formatter
-    def rightS(col: str, formatter: str) -> str:
+    def rightS(col: str, formatter: str) -> str: # pylint: disable=invalid-name
         if rightalign(col):
             return formatter[:-1] + ":"
         return formatter
