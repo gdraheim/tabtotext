@@ -36,8 +36,8 @@ from io import StringIO, TextIOWrapper
 import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TABTOTEXT")
 
-FormatErrors = (ValueError, TypeError, KeyError, NameError)
-ImportFormatErrors = (ValueError, TypeError, KeyError, NameError, ImportError)
+FormatErrors = (ValueError, TypeError, KeyError, NameError, AttributeError)
+ImportFormatErrors = (ValueError, TypeError, KeyError, NameError, AttributeError, ImportError)
 
 try:
     from tabtools import Frac4, fracfloat, float_with_frac, float_with_hours

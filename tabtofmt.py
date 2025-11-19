@@ -21,7 +21,7 @@ RowSortList = Union[Sequence[str], Dict[str, str], Callable[[JSONDict], str]]
 ColSortList = Union[Sequence[str], Dict[str, str], Callable[[str], str]]
 LegendList = Union[Dict[str, str], Sequence[str]]
 
-FormatErrors = (ValueError, TypeError, KeyError, NameError)
+FormatErrors = (ValueError, TypeError, KeyError, NameError, AttributeError)
 
 def tabToFMT(fmt: str, result: JSONList, sorts: RowSortList = [], formats: Dict[str, str] = {}, *,  #
              datedelim: str = '-', legend: LegendList = [],  #

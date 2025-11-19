@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 else:
     WorkbookType = Workbook
 
-FormatErrors = (ValueError, TypeError, KeyError, NameError)
+FormatErrors = (ValueError, TypeError, KeyError, NameError, AttributeError)
 
 SECTION = "data"
 MINWIDTH = 4

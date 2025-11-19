@@ -39,7 +39,7 @@ import sys
 import logging # pylint: disable=wrong-import-order,wrong-import-position
 logg = logging.getLogger("TABXLSX")
 
-FormatErrors = (ValueError, TypeError, KeyError, NameError)
+FormatErrors = (ValueError, TypeError, KeyError, NameError, AttributeError)
 
 SECTION = "data"
 DATEFMT = "%Y-%m-%d"
