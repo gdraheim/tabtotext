@@ -461,8 +461,8 @@ def load_workbook(filename: str) -> Workbook:
                                     value = x
                                 elif t in ["s"]:
                                     value = sharedStrings[int(v)]
-                                # elif v in [""]:
-                                #     value = ""
+                                elif v in [""]:
+                                    value = NIX
                                 else:
                                     if "." not in v:
                                         value = int(v)
