@@ -76,6 +76,7 @@ help:
 
 clean:
 	- rm *.pyc 
+	- rm -rf __pycache__
 	- rm -rf *.tmp
 	- rm -rf tmp tmp.files
 	- rm TEST-*.xml
