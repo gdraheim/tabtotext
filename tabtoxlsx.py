@@ -10,8 +10,8 @@ It is a helper for the tabtotext.py module using openpyxl (see fallback tabxlsx.
 Defaults to read any given file.xy rewriting it as file.xy.xlsx!
 """
 
-__copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.4461"
+__copyright__ = "(C) 2017-2026 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.5325"
 
 from typing import TYPE_CHECKING, cast, Union, Dict, List, Any, Sequence, Iterable, Optional
 

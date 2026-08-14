@@ -10,8 +10,8 @@ The output can be piped as a markdown table or csv-like data as well. A number
 of output format options are available but less than the tabtotext.py module.
 If the input contains only one table then it is used, otherwise specify which should be printed."""
 
-__copyright__ = "(C) 2023-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.4461"
+__copyright__ = "(C) 2023-2026 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.5325"
 
 from typing import Union, List, Dict, cast, Tuple, Optional, TextIO, Iterable, NamedTuple, Iterator
 from collections import OrderedDict

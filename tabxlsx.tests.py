@@ -6,8 +6,8 @@
 
 """ Unit Tests for tabxlsx.py """
 
-__copyright__ = "(C) 2017-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.6.4461"
+__copyright__ = "(C) 2017-2026 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.6.5325"
 
 from typing import Optional, Dict, List, Any, cast
 import unittest

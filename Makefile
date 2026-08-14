@@ -64,7 +64,7 @@ version:
 	-e "/^ *__copyright__/s/(C) [123456789][0123456789]* /(C) $$THISYEAR /" \
 	$$f; done; }
 	@ grep ^__version__ $(FILES) | grep -v .tests.py
-	@ ver=`cat $(MAIN_PROG) | sed -e '/__version__/!d' -e 's/.*= *"//' -e 's/".*//' -e q` \
+	@ ver=`cat $(SCRIPT) | sed -e '/__version__/!d' -e 's/.*= *"//' -e 's/".*//' -e q` \
 	; echo "# $(GIT) commit -m v$$ver"
 tag:
 	@ ver=`grep "version.*=" setup.cfg | sed -e "s/version *= */v/"` \

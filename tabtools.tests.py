@@ -5,8 +5,8 @@
 
 """ Unit Tests for tabtools.py """
 
-__copyright__ = "(C) 2022-2025 Guido Draheim, licensed under the Apache License 2.0"""
-__version__ = "1.1.4461"
+__copyright__ = "(C) 2022-2026 Guido Draheim, licensed under the Apache License 2.0"""
+__version__ = "1.1.5325"
 
 from typing import Optional, List
 import sys
